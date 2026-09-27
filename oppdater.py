@@ -282,24 +282,45 @@ def git(*arg):
     return subprocess.run(["git", "-C", str(MAPPE), *arg], capture_output=True, text=True, encoding="utf-8")
 
 
+def les_tid(tekst):
+    """Les «sokt»-verdien i ekstra.json (dato eller dato+klokkeslett, norsk tid)."""
+    try:
+        tid = datetime.fromisoformat(tekst)
+    except (TypeError, ValueError):
+        return None
+    return tid if tid.tzinfo else tid.astimezone()
+
+
 def sjekk():
-    """Listar brannar siste 50 dagar som manglar nyheitskjelder. Skriv ingen filer."""
+    """Listar brannar som Claude bør søkje nyheiter for. Skriv ingen filer.
+
+    Ein brann blir lista når han ikkje er søkt på før, eller når han er under 48 timar
+    gammal, manglar kjelder og det er meir enn 3 timar sidan førre søk (nye saker kjem ofte seint).
+    Lenker GitHub har funne automatisk blir viste som AUTO-linjer, så Claude kan kontrollere dei.
+    """
     git("pull", "--rebase", "--autostash")
     ekstra = les_json("ekstra.json", {})
     auto = les_json("auto_kjelder.json", {})
-    grense = datetime.now(timezone.utc) - timedelta(days=VINDAUGE_DAGAR)
+    no = datetime.now(timezone.utc)
+    grense = no - timedelta(days=VINDAUGE_DAGAR)
     nye = 0
     for t in hent_brann_trådar():
-        if datetime.fromisoformat(t["createdOn"]) < grense:
+        start = datetime.fromisoformat(t["createdOn"])
+        if start < grense:
             continue
         ex = ekstra.get(t["id"], {})
-        if ex.get("kjelder") or ex.get("sokt") or auto.get(t["id"]):
+        sokt = les_tid(ex.get("sokt"))
+        ferskt = no - start < timedelta(hours=48) and not ex.get("kjelder")
+        if sokt and not (ferskt and no - sokt > timedelta(hours=3)):
             continue
         tekst = "\n".join(m.get("text") or "" for m in t.get("messages") or [])
         tittel = klassifiser(tekst)[1]
-        print(f"NY_UTAN_KJELDER: {t['id']} | {t['createdOn'][:10]} | {(t.get('area') or KOMMUNE).strip()} | {tittel}")
+        print(f"NY_UTAN_KJELDER: {t['id']} | {t['createdOn'][:16]} | {(t.get('area') or KOMMUNE).strip()} | {tittel}")
+        for a in auto.get(t["id"], []):
+            if a["url"] not in ex.get("avvis", []):
+                print(f"  AUTO: {a['url']} | {a['kjelde']} | {a['tittel']}")
         nye += 1
-    print(f"SJEKK: OK, {nye} brannar manglar nyheitskjelder")
+    print(f"SJEKK: OK, {nye} brannar treng nyheitssøk")
 
 
 def send_ekstra():
@@ -384,8 +405,10 @@ def main():
 
     auto = finn_nyheiter(brannar) if "--nyheiter" in sys.argv else les_json("auto_kjelder.json", {})
     for b in brannar:
-        kjende = {k["url"] for k in b["kjelder"]}
-        b["kjelder"] = b["kjelder"] + [k for k in auto.get(b["id"], []) if k["url"] not in kjende]
+        # Claude sine kontrollerte lenker (ekstra.json) først, så GitHub sine automatiske
+        # – utanom dei Claude har avvist som feil.
+        vekk = {k["url"] for k in b["kjelder"]} | set(ekstra.get(b["id"], {}).get("avvis", []))
+        b["kjelder"] = b["kjelder"] + [k for k in auto.get(b["id"], []) if k["url"] not in vekk]
 
     no = datetime.now(timezone.utc)
     no_lokal = datetime.now().astimezone()
