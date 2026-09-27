@@ -323,6 +323,10 @@ def main():
     side = mal.replace("/*__DATA__*/null", json_tekst)
     (MAPPE / "stordbrann.html").write_text(side, encoding="utf-8")
     skriv_nettside(side)
+    tv_mal = MAPPE / "mal-tv.html"
+    if tv_mal.exists():
+        (MAPPE / "nettside" / "tv.html").write_text(
+            tv_mal.read_text(encoding="utf-8").replace("/*__DATA__*/null", json_tekst), encoding="utf-8")
 
     grense = no - timedelta(days=VINDAUGE_DAGAR)
     siste = [b for b in brannar if datetime.fromisoformat(b["start"]) >= grense]
