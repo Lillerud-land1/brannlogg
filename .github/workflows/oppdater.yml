@@ -1,6 +1,6 @@
 name: Oppdater Brannlogg Stord
 
-# Hentar nye brannar frå Politiloggen kvar heile time og legg ut nettsida.
+# Hentar nye brannar frå Politiloggen kvar heile time, finn nyheitssaker via RSS og legg ut nettsida.
 # GitHub kan av og til starte planlagde jobbar nokre minutt for seint.
 on:
   schedule:
@@ -34,14 +34,14 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Hent brannar og bygg nettsida
-        run: python oppdater.py
+      - name: Hent brannar, finn nyheitssaker og bygg nettsida
+        run: python oppdater.py --nyheiter
 
       - name: Lagre nye brannar i arkivet
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add arkiv.json geokode.json
+          git add arkiv.json geokode.json auto_kjelder.json
           if ! git diff --cached --quiet; then
             git commit -m "Nye data frå Politiloggen $(date '+%Y-%m-%d %H:%M')"
             git pull --rebase

@@ -3,6 +3,7 @@
 Køyr:  python oppdater.py                (byggjer stordbrann.html og nettside/index.html)
        python oppdater.py --sjekk        (listar nye brannar utan nyheitskjelder, skriv ingen filer)
        python oppdater.py --send-ekstra  (sender ekstra.json til GitHub, som byggjer sida på nytt)
+       python oppdater.py --nyheiter     (byggjer og leitar i tillegg etter nyheitssaker i RSS-feedar)
 Bygginga kvar heile time skjer i GitHub Actions (.github/workflows/oppdater.yml).
 Kjelder: Politiloggen API (Politiet, NLOD 2.0), Kartverket (adresser/stadnamn).
 """
@@ -174,6 +175,80 @@ def klassifiser(tekst):
     return btype, tittel, alvor, flagg
 
 
+# ---------- Nyheitssaker (automatisk via RSS) ----------
+
+NYHEITSFEEDAR = [
+    ("Radio Haugaland", "https://radioh.no/tag/stord/feed/", False),
+    ("Radio Haugaland", "https://radioh.no/feed/", False),
+    ("Sunnhordland", "https://www.sunnhordland.no/rss", False),
+    ("Stord24", "https://www.stord24.no/rss", False),
+    ("NRK Vestland", "https://www.nrk.no/vestland/siste.rss", False),
+    ("Haugesunds Avis", "https://www.h-avis.no/service/rss", False),
+    ("Bømlo-Nytt", "https://www.bomlo-nytt.no/rss", True),  # True = stadnamnet må stå i saka
+]
+BRANNORD = re.compile(
+    r"brannen|brann i|bilbrann|lyngbrann|gressbrann|grasbrann|pipebrann|husbrann|bustadbrann|boligbrann|"
+    r"skogbrann|røyk|flammar|flammer|overtent|utbrent|tok fyr|tatt fyr|brannvesen|nødetat|slokk|sløkk", re.I)
+
+
+def les_feed(url):
+    """Hentar ein RSS-feed og returnerer saker som (tittel, lenke, tekst, tidspunkt)."""
+    import html
+    from email.utils import parsedate_to_datetime
+    tekst = hent(url, rå=True).decode("utf-8", errors="replace")
+    saker = []
+    for blokk in re.findall(r"<item\b.*?</item>", tekst, re.S | re.I):
+        def felt(namn):
+            m = re.search(rf"<{namn}\b[^>]*>(.*?)</{namn}>", blokk, re.S | re.I)
+            if not m:
+                return ""
+            verdi = re.sub(r"^<!\[CDATA\[|\]\]>$", "", m.group(1).strip())
+            return html.unescape(re.sub(r"<[^>]+>", " ", verdi)).strip()
+        try:
+            tid = parsedate_to_datetime(felt("pubDate"))
+        except (TypeError, ValueError):
+            continue
+        if tid.tzinfo is None:
+            tid = tid.replace(tzinfo=timezone.utc)
+        saker.append((felt("title"), felt("link"), felt("description"), tid))
+    return saker
+
+
+def finn_nyheiter(brannar, alle_saker=None, lagre=True):
+    """Koplar nyheitssaker til brannar ut frå tid, stad og brannord. Lagrar i auto_kjelder.json."""
+    auto = les_json("auto_kjelder.json", {}) if lagre else {}
+    hent_feedar = alle_saker is None
+    alle_saker = alle_saker or []
+    for kjelde, url, krev_stad in (NYHEITSFEEDAR if hent_feedar else []):
+        try:
+            alle_saker += [(kjelde, krev_stad, *s) for s in les_feed(url)]
+        except Exception as feil:
+            print(f"  kunne ikkje lese {kjelde} ({url}): {feil}")
+    nye = 0
+    for b in brannar:
+        start = datetime.fromisoformat(b["start"])
+        i_vindauge = lambda t: start - timedelta(hours=1) <= t <= start + timedelta(hours=48)
+        andre = [x for x in brannar if x is not b and abs(datetime.fromisoformat(x["start"]) - start) < timedelta(hours=48)]
+        stadord = [w.lower() for w in re.findall(r"[A-Za-zÆØÅæøå]{4,}", b["stad"]) if w.lower() != "stord"]
+        for kjelde, krev_stad, tittel, lenke, tekst, tid in alle_saker:
+            heil = f"{tittel} {tekst}".lower()
+            if not lenke or not i_vindauge(tid) or not BRANNORD.search(heil):
+                continue
+            treff_stad = any(w in heil for w in stadord)
+            treff_stord = "stord" in heil or "leirvik" in heil
+            if not (treff_stad or (treff_stord and not krev_stad and not andre)):
+                continue
+            liste = auto.setdefault(b["id"], [])
+            if lenke in {k["url"] for k in liste} or lenke in {k["url"] for k in b["kjelder"]} or len(liste) >= 4:
+                continue
+            liste.append({"kjelde": kjelde, "tittel": tittel, "url": lenke, "dato": tid.isoformat(timespec="minutes")})
+            nye += 1
+    if lagre:
+        skriv_json("auto_kjelder.json", auto)
+    print(f"NYHEITER: {len(alle_saker)} saker lesne, {nye} nye lenker kopla til brannar")
+    return auto
+
+
 # ---------- Bygging ----------
 
 NETTSIDE_HOVUD = """<!doctype html>
@@ -211,13 +286,14 @@ def sjekk():
     """Listar brannar siste 50 dagar som manglar nyheitskjelder. Skriv ingen filer."""
     git("pull", "--rebase", "--autostash")
     ekstra = les_json("ekstra.json", {})
+    auto = les_json("auto_kjelder.json", {})
     grense = datetime.now(timezone.utc) - timedelta(days=VINDAUGE_DAGAR)
     nye = 0
     for t in hent_brann_trådar():
         if datetime.fromisoformat(t["createdOn"]) < grense:
             continue
         ex = ekstra.get(t["id"], {})
-        if ex.get("kjelder") or ex.get("sokt"):
+        if ex.get("kjelder") or ex.get("sokt") or auto.get(t["id"]):
             continue
         tekst = "\n".join(m.get("text") or "" for m in t.get("messages") or [])
         tittel = klassifiser(tekst)[1]
@@ -305,6 +381,11 @@ def main():
         })
     skriv_json("geokode.json", geocache)
     brannar.sort(key=lambda b: b["start"], reverse=True)
+
+    auto = finn_nyheiter(brannar) if "--nyheiter" in sys.argv else les_json("auto_kjelder.json", {})
+    for b in brannar:
+        kjende = {k["url"] for k in b["kjelder"]}
+        b["kjelder"] = b["kjelder"] + [k for k in auto.get(b["id"], []) if k["url"] not in kjende]
 
     no = datetime.now(timezone.utc)
     no_lokal = datetime.now().astimezone()
