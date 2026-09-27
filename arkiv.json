@@ -1,0 +1,817 @@
+{
+ "26j59q": {
+  "id": "26j59q",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Brann",
+  "municipality": "Stord",
+  "area": "Sagvåg",
+  "createdOn": "2026-08-13T18:51:07.0057828+00:00",
+  "updatedOn": "2026-08-13T18:56:12.5538326+00:00",
+  "lastMessageOn": "2026-08-13T18:56:06.0020237+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "26j59q-0",
+    "text": "Politiet fikk klokken 2018 melding om brann i leilighetskompleks. Nødetatene rykket ut til stedet. Det viste seg å være røykutvikling i forbindelse med matlaging og ingen åpne flammer.",
+    "createdOn": "2026-08-13T18:51:07.0055761+00:00",
+    "updatedOn": "2026-08-13T18:51:07.0932038+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26j59q-2",
+    "text": "Politiet oppretter sak på grunn av stort potensiale.",
+    "createdOn": "2026-08-13T18:56:06.0020237+00:00",
+    "updatedOn": "2026-08-13T18:56:06.0020237+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "26fl8w": {
+  "id": "26fl8w",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Brann",
+  "municipality": "Stord",
+  "area": "Hystadvegen",
+  "createdOn": "2026-08-12T22:08:48.768316+00:00",
+  "updatedOn": "2026-08-12T23:26:32.4748228+00:00",
+  "lastMessageOn": "2026-08-12T23:26:23.9233654+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "26fl8w-0",
+    "text": "Nødetatene rykker ut til Hystandvegen på Stord etter melding om røykutvikling fra en enebolig. Alle skal ha komt seg ut av huset. En person skal ha inhalert noe røyk. Skal ikke ha vært åpne flammer.",
+    "createdOn": "2026-08-12T22:08:48.7680859+00:00",
+    "updatedOn": "2026-08-12T22:08:48.8531484+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26fl8w-2",
+    "text": "Brannvesenet har åpnet en vegg der det har vært åpne flammer. Det er nå slukket og kontroll. Utlufting pågår.",
+    "createdOn": "2026-08-12T22:25:21.9307752+00:00",
+    "updatedOn": "2026-08-12T22:25:21.9307752+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26fl8w-3",
+    "text": "Patruljen har gjennomført avhør og er ferdig med sine undersøkelser. Det blir opprettet sak.",
+    "createdOn": "2026-08-12T23:26:23.9233654+00:00",
+    "updatedOn": "2026-08-12T23:26:23.9233654+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "26wlp4": {
+  "id": "26wlp4",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Brann",
+  "municipality": "Stord",
+  "area": "Bremnes",
+  "createdOn": "2026-07-20T12:19:03.2892992+00:00",
+  "updatedOn": "2026-07-20T13:44:11.7272887+00:00",
+  "lastMessageOn": "2026-07-20T13:42:07.3113518+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "26wlp4-0",
+    "text": "Politiet og brannvesenet er på adresse etter at det har vært brann i gress/lyng. Brannen er slukket, men pga. mulig uaktsomhet er politiet på stedet for å foreta åstedsarbeid(avhør).",
+    "createdOn": "2026-07-20T12:19:03.2891+00:00",
+    "updatedOn": "2026-07-20T12:19:03.4226508+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26wlp4-1",
+    "text": "En mann i 50-årene er mistenkt i saken og politiet har opprettet sak.",
+    "createdOn": "2026-07-20T13:42:07.3113518+00:00",
+    "updatedOn": "2026-07-20T13:42:07.3113518+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "26n84w": {
+  "id": "26n84w",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Brann",
+  "municipality": "Stord",
+  "area": "Litlabøvegen",
+  "createdOn": "2026-06-26T01:21:37.3227269+00:00",
+  "updatedOn": "2026-06-26T02:03:17.3584608+00:00",
+  "lastMessageOn": "2026-06-26T02:03:15.9493789+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "26n84w-0",
+    "text": "Nødetatene rykker ut etter melding om brann i kjøretøy.",
+    "createdOn": "2026-06-26T01:21:37.3225406+00:00",
+    "updatedOn": "2026-06-26T01:21:37.3777534+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26n84w-2",
+    "text": "Brann og politi på stedet. Slukking pågår.",
+    "createdOn": "2026-06-26T01:23:16.4119324+00:00",
+    "updatedOn": "2026-06-26T01:23:16.4119324+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26n84w-3",
+    "text": "Ingen spredningsfare.",
+    "createdOn": "2026-06-26T01:25:40.7772296+00:00",
+    "updatedOn": "2026-06-26T01:25:40.7772296+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26n84w-4",
+    "text": "Brannen er slukket. Bilen er totalt utbrent.",
+    "createdOn": "2026-06-26T01:41:20.1767567+00:00",
+    "updatedOn": "2026-06-26T01:41:20.1767567+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26n84w-5",
+    "text": "Årsak til brannen er ukjent. Politiet oppretter sak.",
+    "createdOn": "2026-06-26T02:03:15.9493789+00:00",
+    "updatedOn": "2026-06-26T02:03:15.9493789+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "26bmrv": {
+  "id": "26bmrv",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Brann",
+  "municipality": "Stord",
+  "area": "Olvikvegen",
+  "createdOn": "2026-04-19T16:11:51.9452778+00:00",
+  "updatedOn": "2026-04-19T21:27:10.0593371+00:00",
+  "lastMessageOn": "2026-04-19T18:07:32.2378735+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "26bmrv-0",
+    "text": "Nødetatene rykker ut til melding om pågående brann i et rekkehus bestående av fire enheter, saken oppdateres.",
+    "createdOn": "2026-04-19T16:11:51.9438933+00:00",
+    "updatedOn": "2026-04-19T16:11:52.0479391+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26bmrv-2",
+    "text": "Politi, ambulanse og brannvesen på stedet, observerer røyk, men ikke flammer foreløpig. Kun en beboer registrert på adressen, oppdateres.",
+    "createdOn": "2026-04-19T16:19:08.5351247+00:00",
+    "updatedOn": "2026-04-19T16:19:08.5351247+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26bmrv-5",
+    "text": "Brannen er slukket. En beboer er fraktet til sykehuset. Det foregår politiarbeid på stedet og sak opprettes.",
+    "createdOn": "2026-04-19T18:07:32.2378735+00:00",
+    "updatedOn": "2026-04-19T18:07:32.2378735+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "26qlc8": {
+  "id": "26qlc8",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Brann",
+  "municipality": "Stord",
+  "area": "Stord Folkehøyskole",
+  "createdOn": "2026-04-08T13:55:57.0528648+00:00",
+  "updatedOn": "2026-04-08T14:33:27.9020783+00:00",
+  "lastMessageOn": "2026-04-08T14:33:19.7542885+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "26qlc8-0",
+    "text": "Kl 1552. Politiet og ambulanse rykker ut etter melding om røykutvikling i sikringsskap. Brannvesenet er på stedet og ansatte og elver ved skolen er ute av bygget og gjort rede for. ",
+    "createdOn": "2026-04-08T13:55:57.0525617+00:00",
+    "updatedOn": "2026-04-08T13:57:09.9783346+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Edited"
+   },
+   {
+    "id": "26qlc8-1",
+    "text": "Politiet er på stedet og foretar undersøkelser.",
+    "createdOn": "2026-04-08T13:57:58.8861761+00:00",
+    "updatedOn": "2026-04-08T13:57:58.8861761+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26qlc8-3",
+    "text": "Det fremstår ikke som om noen er skadet eller har fått i seg røyk.",
+    "createdOn": "2026-04-08T14:06:07.6750096+00:00",
+    "updatedOn": "2026-04-08T14:06:07.6750096+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26qlc8-4",
+    "text": "Det har vært varmgang i en sikring, uvisst om det har vært åpne flammer. Ingen materielle skader foruten i sikringsskapet. Politiet har avsluttet på stedet, ingen politisak.",
+    "createdOn": "2026-04-08T14:33:19.7542885+00:00",
+    "updatedOn": "2026-04-08T14:33:19.7542885+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "26xf47": {
+  "id": "26xf47",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Brann",
+  "municipality": "Stord",
+  "area": "Storamyro",
+  "createdOn": "2026-03-30T20:19:55.0196752+00:00",
+  "updatedOn": "2026-03-30T23:59:46.8874471+00:00",
+  "lastMessageOn": "2026-03-30T21:04:17.9705524+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "26xf47-0",
+    "text": "Nødetatene er på stedet ifm. melding om røykutvikling fra en enebolig. Oppdateres.",
+    "createdOn": "2026-03-30T20:19:55.0190994+00:00",
+    "updatedOn": "2026-03-30T20:19:55.0506835+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26xf47-1",
+    "text": "Huset er tomt for beboere. Det er fortsatt røykutvikling fra boligen, men ingen synlige flammer er observert.",
+    "createdOn": "2026-03-30T20:24:50.3821397+00:00",
+    "updatedOn": "2026-03-30T20:24:50.3821397+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26xf47-2",
+    "text": "Brannvesenet har søkt igjennom huset. Vi har fått bekreftet at det foregår byggarbeid på huset og at ingen bor der nå. Foreløpig enda litt røyk på stedet.",
+    "createdOn": "2026-03-30T21:04:17.9705524+00:00",
+    "updatedOn": "2026-03-30T21:04:17.9705524+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "26kl9c": {
+  "id": "26kl9c",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Brann",
+  "municipality": "Stord",
+  "area": "Sponavika",
+  "createdOn": "2026-03-20T17:33:54.8795532+00:00",
+  "updatedOn": "2026-03-20T17:53:56.7453791+00:00",
+  "lastMessageOn": "2026-03-20T17:53:51.9560891+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "26kl9c-0",
+    "text": "Kl. 1826 fikk politiet melding om gressbrann i Sponavika. Politiet  og brannvesenet er på vei til stedet.",
+    "createdOn": "2026-03-20T17:33:54.8792941+00:00",
+    "updatedOn": "2026-03-20T17:33:54.943632+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26kl9c-1",
+    "text": "Politiet og brannvesenet er ferdig på stedet, det var en kontrollert brann, ingen sak for politiet.",
+    "createdOn": "2026-03-20T17:53:51.9560891+00:00",
+    "updatedOn": "2026-03-20T17:53:51.9560891+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "26tvn0": {
+  "id": "26tvn0",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Brann",
+  "municipality": "Stord",
+  "area": "Åsringen",
+  "createdOn": "2026-02-25T15:12:15.4748591+00:00",
+  "updatedOn": "2026-02-25T15:12:23.5111796+00:00",
+  "lastMessageOn": "2026-02-25T15:12:15.4745606+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "26tvn0-0",
+    "text": "Brannvesenet har slukket en brann i en madrass i bolig. Ingen personskade og politiet har tatt avhør av beboer. Sak opprettet. ",
+    "createdOn": "2026-02-25T15:12:15.4745606+00:00",
+    "updatedOn": "2026-02-25T15:12:15.5028721+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "26gsqm": {
+  "id": "26gsqm",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Brann",
+  "municipality": "Stord",
+  "area": "Meatjønnsvegen",
+  "createdOn": "2026-01-30T14:47:53.6568231+00:00",
+  "updatedOn": "2026-01-31T01:01:32.5638084+00:00",
+  "lastMessageOn": "2026-01-30T18:23:57.3312668+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "26gsqm-0",
+    "text": "Melding om branntilløp i noe avfall hos Sunnhordaland interkommunale miljøverk. Nødetatene er på vei til stedet. Ikke meldt om noe personskade.",
+    "createdOn": "2026-01-30T14:47:53.6556182+00:00",
+    "updatedOn": "2026-01-30T14:47:53.7023439+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26gsqm-1",
+    "text": "Er en god del røyk som følge av brannen.",
+    "createdOn": "2026-01-30T15:14:33.7336317+00:00",
+    "updatedOn": "2026-01-30T15:14:33.7336317+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26gsqm-2",
+    "text": "Brannvesenet har delvis kontroll, men fortsatt mye røk. Vurderes ikke som fare for spredning til andre bygg. En brakkerigg i nærheten som er eksponert for røyk evakueres nå.",
+    "createdOn": "2026-01-30T15:44:07.3947833+00:00",
+    "updatedOn": "2026-01-30T15:44:07.3947833+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26gsqm-3",
+    "text": "Kl 1818. Politiet har avsluttet på stedet og oppretter sak. Brannvesenet blir igjen på stedet for etterslukking.",
+    "createdOn": "2026-01-30T18:23:57.3312668+00:00",
+    "updatedOn": "2026-01-30T18:23:57.3312668+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "26wwms": {
+  "id": "26wwms",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Brann",
+  "municipality": "Stord",
+  "area": "Hjortåsen",
+  "createdOn": "2026-01-23T20:33:00.7075177+00:00",
+  "updatedOn": "2026-01-23T22:30:43.2408228+00:00",
+  "lastMessageOn": "2026-01-23T22:30:37.6850755+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "26wwms-0",
+    "text": "Melding brann i bygning. Det skal tatt fyr i kledingen. Nødetatene er på vei .Oppdateres.",
+    "createdOn": "2026-01-23T20:33:00.7063998+00:00",
+    "updatedOn": "2026-01-23T20:33:00.7362732+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26wwms-1",
+    "text": "Alle er ute av huset, ingen skal ha inhalert røyk. Brannvesenet er stedet.",
+    "createdOn": "2026-01-23T20:34:40.0850307+00:00",
+    "updatedOn": "2026-01-23T20:34:40.0850307+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26wwms-3",
+    "text": "Brann har kontroll på brannen, det vites ikke nå om de kan bo i huset.",
+    "createdOn": "2026-01-23T20:45:58.2142203+00:00",
+    "updatedOn": "2026-01-23T20:45:58.2142203+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26wwms-4",
+    "text": "En hypotese er at årsaken kan skyldes varm aske som var satt ut. Brann melder at de involverte kan bo i huset i natt.",
+    "createdOn": "2026-01-23T20:48:30.0259716+00:00",
+    "updatedOn": "2026-01-23T20:48:30.0259716+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26wwms-5",
+    "text": "Politiet har gjennomført avhør av personer som var på stedet samt åstedsundersøkelse.\nSak opprettet.",
+    "createdOn": "2026-01-23T22:30:37.6850755+00:00",
+    "updatedOn": "2026-01-23T22:30:37.6850755+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "26n0tr": {
+  "id": "26n0tr",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Brann",
+  "municipality": "Stord",
+  "area": "Urangsvåg",
+  "createdOn": "2026-01-17T18:19:53.1418813+00:00",
+  "updatedOn": "2026-01-17T20:36:07.96222+00:00",
+  "lastMessageOn": "2026-01-17T20:35:59.9334533+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "26n0tr-0",
+    "text": "Kl. 1909 fikk politiet melding om brann i en bolig i Urangsvåg. Nødetatene er på vei til stedet.",
+    "createdOn": "2026-01-17T18:19:53.1409244+00:00",
+    "updatedOn": "2026-01-17T18:19:53.1753458+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26n0tr-1",
+    "text": "Det er kommet melding om at det skal være full fyr i boligen.",
+    "createdOn": "2026-01-17T18:20:42.8838024+00:00",
+    "updatedOn": "2026-01-17T18:20:42.8838024+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26n0tr-3",
+    "text": "Huset er overtent. Det er ikke spredningsfare.",
+    "createdOn": "2026-01-17T18:26:26.3188867+00:00",
+    "updatedOn": "2026-01-17T18:26:26.3188867+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26n0tr-4",
+    "text": "Brannvesenet jobber med å slukke brannen. Det er uvisst om det er noen inne i boligen. En person bor på adressen, men politiet får ikke kontakt med vedkommende.",
+    "createdOn": "2026-01-17T18:43:44.1947554+00:00",
+    "updatedOn": "2026-01-17T18:43:44.1947554+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26n0tr-5",
+    "text": "Brannvesenet jobber fremdeles med slukking. Politiet har kommet i kontakt med beboer, så ingen er savnet. Beboer savner hunden sin.",
+    "createdOn": "2026-01-17T19:23:01.4268748+00:00",
+    "updatedOn": "2026-01-17T19:23:01.4268748+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26n0tr-6",
+    "text": "Politiet er ferdig på stedet og det er tatt avhør av beboer, politiet oppretter sak. Brannvesenet driver med etterslukking og vil være på stedet en stund fremover.",
+    "createdOn": "2026-01-17T20:35:59.9334533+00:00",
+    "updatedOn": "2026-01-17T20:35:59.9334533+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "26btvt": {
+  "id": "26btvt",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Brann",
+  "municipality": "Stord",
+  "area": "",
+  "createdOn": "2026-01-15T08:28:16.6410602+00:00",
+  "updatedOn": "2026-01-15T09:34:59.8592268+00:00",
+  "lastMessageOn": "2026-01-15T08:28:16.6345923+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "26btvt-0",
+    "text": "Politi og brann har vært på en adresse på Sæ hvor det har har vært røykutvikling i tilknytning til et fyringsanlegg. Etter nærmere undersøkelse viste det seg at det at pipebrann var årsaken.\nDet er kontroll på røykutviklingen og politiet oppretter sak.",
+    "createdOn": "2026-01-15T08:28:16.6345923+00:00",
+    "updatedOn": "2026-01-15T08:28:16.6699654+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "26dhxn": {
+  "id": "26dhxn",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Brann",
+  "municipality": "Stord",
+  "area": "Leirvik",
+  "createdOn": "2026-01-08T05:38:05.9353888+00:00",
+  "updatedOn": "2026-01-08T09:54:41.1213772+00:00",
+  "lastMessageOn": "2026-01-08T07:03:48.9906642+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "26dhxn-0",
+    "text": "Brann og politiet rykket ut til et hotell på Leirvik etter noe røykutvikling. Mulig elektrisk -  ansatte har evakuert hotellet. Nødetatene er på stedet nå. Oppdateres. ",
+    "createdOn": "2026-01-08T05:38:05.9344538+00:00",
+    "updatedOn": "2026-01-08T05:38:06.040558+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26dhxn-1",
+    "text": "Det har vært en mindre brann i en etasje på hotellet som nå er slukket. Hotellgjestene som ble evakuert er nå samlet inne på hotellet.",
+    "createdOn": "2026-01-08T05:53:27.8425611+00:00",
+    "updatedOn": "2026-01-08T05:53:27.8425611+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26dhxn-2",
+    "text": "Politiet er ferdig og oppretter sak. De evakuerte hotellgjestene blir ivaretatt av hotellet.",
+    "createdOn": "2026-01-08T07:03:48.9906642+00:00",
+    "updatedOn": "2026-01-08T07:03:48.9906642+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "252vdl": {
+  "id": "252vdl",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Brann",
+  "municipality": "Stord",
+  "area": "Eldøyane",
+  "createdOn": "2025-12-12T16:13:52.8226564+00:00",
+  "updatedOn": "2025-12-12T16:32:58.3331506+00:00",
+  "lastMessageOn": "2025-12-12T16:31:59.6683907+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "252vdl-0",
+    "text": "Politi og brannvesen rykker ut til melding om utløst brannalarm i en bedrift. Fremme på stedet ser man ikke flammer, eller røyk, men kjenner en lukt som kan minne om \"elektrisk varmgang\". Mannskapene sjekker ut aktuelle brakker hvor detektor er plassert. Ikke meldt om personskader. Beboere har evakuert seg selv ved alarm, saken oppdateres.",
+    "createdOn": "2025-12-12T16:13:52.8223362+00:00",
+    "updatedOn": "2025-12-12T16:13:52.8557251+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "252vdl-2",
+    "text": "Ingen brann eller feil funnet, nødetatene avslutter på stedet.",
+    "createdOn": "2025-12-12T16:31:59.6683907+00:00",
+    "updatedOn": "2025-12-12T16:31:59.6683907+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "258slj": {
+  "id": "258slj",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Brann",
+  "municipality": "Stord",
+  "area": "",
+  "createdOn": "2025-11-14T14:28:22.0574922+00:00",
+  "updatedOn": "2025-11-14T16:02:14.2837949+00:00",
+  "lastMessageOn": "2025-11-14T16:00:49.8744975+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "258slj-0",
+    "text": "Kl. 1512 fikk politiet melding om en brann i en eldre bolig i Fitjarvegen på Stord. Nødetatene har rykket ut til stedet. Det er ikke meldt om personskade.",
+    "createdOn": "2025-11-14T14:28:22.0572726+00:00",
+    "updatedOn": "2025-11-14T14:28:22.0858399+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "258slj-1",
+    "text": "Det er kontroll på brannen og politiet gjør undersøkelser på stedet.",
+    "createdOn": "2025-11-14T14:43:34.5691682+00:00",
+    "updatedOn": "2025-11-14T14:43:34.5691682+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "258slj-3",
+    "text": "Det skal ha vært flammer i en yttervegg. Brannen er slukket og har trolig oppstått i forbindelse med arbeid på huset.",
+    "createdOn": "2025-11-14T14:52:30.9547717+00:00",
+    "updatedOn": "2025-11-14T14:52:30.9547717+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "258slj-4",
+    "text": "Brannvesenet og politiet er ferdig på stedet. Politiet oppretter sak.",
+    "createdOn": "2025-11-14T16:00:49.8744975+00:00",
+    "updatedOn": "2025-11-14T16:00:49.8744975+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "25rr66": {
+  "id": "25rr66",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Brann",
+  "municipality": "Stord",
+  "area": "Bjellandsvegen",
+  "createdOn": "2025-11-12T14:25:26.9561493+00:00",
+  "updatedOn": "2025-11-12T14:33:06.168551+00:00",
+  "lastMessageOn": "2025-11-12T14:32:59.1325852+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "25rr66-0",
+    "text": "Nødetatene har reist ut til en adresse hvor det har vært røykutvikling i forbindelse med matlaging.",
+    "createdOn": "2025-11-12T14:25:26.9544234+00:00",
+    "updatedOn": "2025-11-12T14:25:26.9836704+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "25rr66-1",
+    "text": "De involverte ble tilsett av helse på stedet. Alle nødetater har reist i fra stedet.",
+    "createdOn": "2025-11-12T14:26:49.9056764+00:00",
+    "updatedOn": "2025-11-12T14:26:49.9056764+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "25rr66-2",
+    "text": "Det opprettes sak.",
+    "createdOn": "2025-11-12T14:32:59.1325852+00:00",
+    "updatedOn": "2025-11-12T14:32:59.1325852+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "25sx8m": {
+  "id": "25sx8m",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Brann",
+  "municipality": "Stord",
+  "area": "Eldøy",
+  "createdOn": "2025-10-16T10:14:29.7177616+00:00",
+  "updatedOn": "2025-10-17T11:46:27.8308231+00:00",
+  "lastMessageOn": "2025-10-16T10:55:41.909024+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "25sx8m-0",
+    "text": "Kl 12; melding om brann i hus. En beboer er ute av huset. Det jobbes med å få oversikt over om det er flere personer i huset.",
+    "createdOn": "2025-10-16T10:14:29.717224+00:00",
+    "updatedOn": "2025-10-16T10:14:29.7562937+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "25sx8m-2",
+    "text": "Ett nabohus er evakuert. Ett annet nabohus vurderes evakuert. Beboer i huset det brenner i, en dame i 70-årene, har fått brannskade på føttene og blir tilsett av ambulansearbeider på stedet i første omgang. Ikke spredningsfare, men mye røyk. Ikke slukket.",
+    "createdOn": "2025-10-16T10:26:40.5668287+00:00",
+    "updatedOn": "2025-10-16T10:26:40.5668287+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "25sx8m-3",
+    "text": "Rettelse; beboer er en mann i 70-årene.",
+    "createdOn": "2025-10-16T10:42:11.5541217+00:00",
+    "updatedOn": "2025-10-16T10:42:11.5541217+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "25sx8m-4",
+    "text": "Ingen informasjon om at der er andre personer i huset. Beboer er fraktet til sykehuset i ambulanse. Kontroll på brannen. Røyken begynner og å avta.",
+    "createdOn": "2025-10-16T10:49:06.5444891+00:00",
+    "updatedOn": "2025-10-16T10:49:06.5444891+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "25sx8m-5",
+    "text": "Ukjent brannårsak pr nå.",
+    "createdOn": "2025-10-16T10:55:41.909024+00:00",
+    "updatedOn": "2025-10-16T10:55:41.909024+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "25zzm0": {
+  "id": "25zzm0",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Brann",
+  "municipality": "Stord",
+  "area": "E39 Ved Mehammarvika",
+  "createdOn": "2025-09-28T22:39:24.549356+00:00",
+  "updatedOn": "2025-09-28T23:18:09.0854343+00:00",
+  "lastMessageOn": "2025-09-28T23:17:55.8978259+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "25zzm0-0",
+    "text": "Nødetatene rykker ut på melding om bilbrann langs E39 ved Mehammar.\nPersoner skal være ute av bilen som står på en busslomme.\nEr en del røyk i området og trafikk forbi brannen frarådes.\nOppdateres.",
+    "createdOn": "2025-09-28T22:39:24.5476827+00:00",
+    "updatedOn": "2025-09-28T22:39:24.5946378+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "25zzm0-1",
+    "text": "Brann på stedet er slukket.\nVegen er fortsatt stengt, men vil trolig snart åpnes.",
+    "createdOn": "2025-09-28T23:01:10.2653988+00:00",
+    "updatedOn": "2025-09-28T23:01:10.2653988+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "25zzm0-2",
+    "text": "Politiet har avsluttet på stedet og oppretter sak på forholdet.\nVegen er åpnet for normal trafikk.\nIngen skade på person. Fører oppdaget røyk inn i bilen og fikk stanset og kom seg ut av bilen før han varslet nødetatene.\nBilen står fortsatt i en busslomme i påvente av berging som er på vei.",
+    "createdOn": "2025-09-28T23:17:55.8978259+00:00",
+    "updatedOn": "2025-09-28T23:17:55.8978259+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ }
+}

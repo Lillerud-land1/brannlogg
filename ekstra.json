@@ -1,0 +1,107 @@
+{
+  "_forklaring": "Ekstra info per hending (nøkkel = id frå Politiloggen). kjelder = nyheitssaker, merknad = kort faktatekst, alvor = 1-3 overstyrer automatisk vurdering, omkomne = true, pos = [lat, lon] overstyrer kartplassering, sokt = dato det sist vart søkt etter nyheitssaker.",
+  "26fl8w": {
+    "sokt": "2026-09-27",
+    "kjelder": [
+      {
+        "kjelde": "Radio Haugaland",
+        "tittel": "Røyk i enebolig på Stord – én person sjekket for røykinnhalering",
+        "url": "https://radioh.no/royk-i-enebolig-pa-stord-en-person-sjekket-for-roykinnhalering/"
+      }
+    ]
+  },
+  "26j59q": {
+    "sokt": "2026-09-27",
+    "kjelder": [
+      {
+        "kjelde": "Sunnhordland",
+        "tittel": "Rykte ut etter melding om mogeleg brann i Sagvåg",
+        "url": "https://www.sunnhordland.no/nyhende/n/8pxxxd/rykte-ut-til-melding-om-mogeleg-bygningsbrann-var-matlaging"
+      }
+    ]
+  },
+  "26bmrv": {
+    "sokt": "2026-09-27",
+    "alvor": 3,
+    "omkomne": true,
+    "merknad": "VG og Haugesunds Avis melde seinare same kveld at ei kvinne i 60-åra døydde etter brannen.",
+    "kjelder": [
+      {
+        "kjelde": "VG",
+        "tittel": "Kvinne i 60-årene omkom etter brann på Stord",
+        "url": "https://www.vg.no/nyheter/i/m0KoGE/brann-i-bolig-paa-stord-paagaar-livreddende-foerstehjelp"
+      },
+      {
+        "kjelde": "Haugesunds Avis",
+        "tittel": "Kvinne døde i brann",
+        "url": "https://www.h-avis.no/rykker-ut-til-brann-i-rekkehus-pa-stord/s/5-62-2022283"
+      },
+      {
+        "kjelde": "Sunnhordland",
+        "tittel": "Tok fyr i rekkehus",
+        "url": "https://www.sunnhordland.no/nyhende/n/7p7aX3/rykker-ut-etter-melding-brann-i-rekkehus-paa-stord"
+      },
+      {
+        "kjelde": "Radio Haugaland",
+        "tittel": "Brann i rekkehus på Stord – en person til sykehus",
+        "url": "https://radioh.no/nodetatene-rykket-ut-til-brann-i-rekkehus-pa-stord/"
+      }
+    ]
+  },
+  "26gsqm": {
+    "sokt": "2026-09-27",
+    "alvor": 3,
+    "merknad": "Ifølgje VG vart over 400 tilsette hos Aker Solutions evakuerte på grunn av røyken.",
+    "kjelder": [
+      {
+        "kjelde": "VG",
+        "tittel": "Brann hos miljøverk på Stord: – Veldig tykk røyk",
+        "url": "https://www.vg.no/nyheter/i/bOzoek/brann-hos-miljoeverk-paa-stord"
+      },
+      {
+        "kjelde": "Stord24",
+        "tittel": "Brann på Heiane – kraftig røykutvikling",
+        "url": "https://www.stord24.no/nyhende/n/Bx3q6G/rykka-ut-til-brann-hos-sim"
+      }
+    ]
+  },
+  "26n0tr": {
+    "sokt": "2026-09-27",
+    "merknad": "Urangsvåg ligg på Bømlo, men Politiloggen har ført hendinga under Stord kommune.",
+    "kjelder": [
+      {
+        "kjelde": "Radio Haugaland",
+        "tittel": "Brann i bolig i Urangsvåg",
+        "url": "https://radioh.no/brann-i-bolig-i-urangsvag/"
+      }
+    ]
+  },
+  "26dhxn": {
+    "sokt": "2026-09-27",
+    "merknad": "Brannen var på Stord hotell. Ifølgje media vart rundt 170 gjester evakuerte i minusgrader.",
+    "kjelder": [
+      {
+        "kjelde": "NRK Vestland",
+        "tittel": "Brann og røykutvikling på Stord hotell",
+        "url": "https://www.nrk.no/vestland/brann-og-roykutvikling-pa-stord-hotell-1.17718684"
+      },
+      {
+        "kjelde": "Sunnhordland",
+        "tittel": "Rykte ut til brann på Stord hotell",
+        "url": "https://www.sunnhordland.no/nyhende/n/9pvjoE/rykte-ut-til-brann-paa-hotell-paa-leirvik"
+      },
+      {
+        "kjelde": "Radio Haugaland",
+        "tittel": "Brann i hotell på Leirvik: Gjestene evakuert",
+        "url": "https://radioh.no/brann-i-hotell-pa-leirvik-gjestene-evakuert/"
+      }
+    ]
+  },
+  "26qlc8": {
+    "pos": [
+      59.7801,
+      5.49923
+    ],
+    "merknad": "Stord folkehøgskule ligg i Osen på Leirvik."
+  }
+}

@@ -1,0 +1,808 @@
+<meta charset="utf-8">
+<title>Brannlogg Stord</title>
+<meta name="theme-color" content="#0C0F13">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Brannlogg">
+<meta name="description" content="Oversikt over brannar i Stord kommune frå Politiloggen, oppdatert kvar morgon kl. 06:00.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=IBM+Plex+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#EEF0F2; --surface:#FFFFFF; --surface-2:#F4F6F8; --ink:#14171B; --ink-2:#39414A; --muted:#5F6974;
+  --line:#D8DDE2; --line-2:#E7EAEE;
+  --fire:#D4321D; --ember:#E97F10; --hivis:#F2C200;
+  --sev1:#667A90; --sev2:#D97708; --sev3:#D4321D;
+  --sea:#DCE5ED; --ctx:#C9D1D9; --land:#FFFFFF; --land-edge:#A9B4BF; --label:#56606B;
+  --glow:rgba(233,127,16,.14); --topbar:rgba(238,240,242,.86); --chip:#E9ECF0;
+  --f-display:"Big Shoulders Display","Big Shoulders","Arial Narrow","Roboto Condensed",sans-serif;
+  --f-body:"Schibsted Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0C0F13; --surface:#141920; --surface-2:#1A2028; --ink:#ECEFF3; --ink-2:#C4CBD3; --muted:#8C96A2;
+    --line:#28303A; --line-2:#20272F;
+    --fire:#FF5A3D; --ember:#FFA03A; --hivis:#F5CB2A;
+    --sev1:#8FA4BB; --sev2:#FFA03A; --sev3:#FF5A3D;
+    --sea:#0F1821; --ctx:#1A212A; --land:#242C37; --land-edge:#3A4552; --label:#9AA4AF;
+    --glow:rgba(255,120,40,.16); --topbar:rgba(12,15,19,.82); --chip:#1F262F;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0C0F13; --surface:#141920; --surface-2:#1A2028; --ink:#ECEFF3; --ink-2:#C4CBD3; --muted:#8C96A2;
+  --line:#28303A; --line-2:#20272F;
+  --fire:#FF5A3D; --ember:#FFA03A; --hivis:#F5CB2A;
+  --sev1:#8FA4BB; --sev2:#FFA03A; --sev3:#FF5A3D;
+  --sea:#0F1821; --ctx:#1A212A; --land:#242C37; --land-edge:#3A4552; --label:#9AA4AF;
+  --glow:rgba(255,120,40,.16); --topbar:rgba(12,15,19,.82); --chip:#1F262F;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--f-body);margin:0}
+a{color:inherit}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--ember);outline-offset:2px;border-radius:4px}
+.wrap{max-width:1200px;margin-inline:auto;padding-inline:16px}
+.i{width:16px;height:16px;flex:none}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+h1,h2,h3{margin:0;text-wrap:balance}
+
+/* ---------- Topplinje ---------- */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--topbar);
+  -webkit-backdrop-filter:blur(14px) saturate(1.3);backdrop-filter:blur(14px) saturate(1.3);border-bottom:1px solid var(--line)}
+.topbar .wrap{display:flex;align-items:center;gap:12px;min-height:58px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;min-width:0}
+.logo{width:34px;height:34px;flex:none}
+.brand-text{display:flex;flex-direction:column;line-height:1}
+.brand-name{font-family:var(--f-display);font-weight:800;font-size:23px;letter-spacing:.02em;text-transform:uppercase}
+.brand-sub{font-size:11.5px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-top:3px}
+.status{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-2);
+  background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:5px 11px 5px 9px;white-space:nowrap}
+.status .dot{width:8px;height:8px;border-radius:50%;background:#2E9E62;box-shadow:0 0 0 3px color-mix(in srgb,#2E9E62 22%,transparent)}
+.status.gammal .dot{background:var(--ember);box-shadow:0 0 0 3px color-mix(in srgb,var(--ember) 25%,transparent)}
+.desk-nav{display:none;gap:4px}
+.desk-nav a{font-size:13.5px;font-weight:500;text-decoration:none;color:var(--ink-2);padding:6px 10px;border-radius:6px}
+.desk-nav a:hover{background:var(--chip)}
+
+/* ---------- Hero ---------- */
+main.app{padding-block:18px 110px;display:grid;gap:18px}
+.hero{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden;
+  background-image:radial-gradient(120% 90% at 0% 100%,var(--glow),transparent 60%)}
+.batt{height:10px;background:conic-gradient(var(--hivis) 25%,var(--fire) 0 50%,var(--hivis) 0 75%,var(--fire) 0) 0 0/28px 10px}
+.hero-inner{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.4fr);gap:28px;padding:22px 24px 24px}
+.counter .eyebrow{margin-bottom:4px}
+.big{font-family:var(--f-display);font-weight:800;line-height:.82;font-size:clamp(104px,15vw,176px);letter-spacing:-.01em;
+  background:linear-gradient(175deg,var(--hivis) 0%,var(--ember) 38%,var(--fire) 88%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:10px}
+.big small{font-size:.26em;letter-spacing:.02em;color:var(--ink);-webkit-text-fill-color:var(--ink);font-weight:600;text-transform:uppercase}
+.last-link{display:inline-flex;gap:6px;align-items:center;margin-top:12px;font-size:14px;color:var(--ink-2);background:none;border:0;padding:0;cursor:pointer;text-align:left}
+.last-link b{color:var(--ink);font-weight:600}
+.last-link:hover b{text-decoration:underline}
+.alert{display:flex;gap:12px;align-items:flex-start;margin-top:6px;padding:14px;border-radius:8px;
+  background:color-mix(in srgb,var(--fire) 12%,var(--surface));border:1px solid color-mix(in srgb,var(--fire) 45%,transparent)}
+.alert .pulse{margin-top:6px}
+.alert h2{font-family:var(--f-display);font-size:30px;text-transform:uppercase;letter-spacing:.02em;color:var(--fire);line-height:1}
+.alert p{margin:4px 0 0;font-size:14px}
+.pulse{width:12px;height:12px;border-radius:50%;background:var(--fire);flex:none;position:relative}
+.pulse::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--fire);animation:puls 1.6s ease-out infinite}
+@keyframes puls{from{transform:scale(.5);opacity:1}to{transform:scale(1.5);opacity:0}}
+
+.strip-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:8px}
+.strip-head .eyebrow b{color:var(--ink)}
+.strip{display:grid;grid-template-columns:repeat(50,minmax(0,1fr));gap:2px;height:44px}
+.strip button{border:0;padding:0;border-radius:2px;background:var(--line-2);cursor:default;min-width:0}
+.strip button.f1{background:var(--sev1)}
+.strip button.f2{background:var(--sev2)}
+.strip button.f3{background:var(--sev3)}
+.strip button[data-id]{cursor:pointer}
+.strip button[data-id]:hover{filter:brightness(1.12)}
+.strip button.idag{box-shadow:inset 0 0 0 2px var(--ink)}
+.strip button.ny-mnd{margin-left:3px}
+.strip-axis{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-top:6px}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-top:18px}
+.kpi{background:var(--surface);padding:12px 14px}
+.kpi .v{font-family:var(--f-display);font-weight:800;font-size:34px;line-height:1;font-variant-numeric:tabular-nums}
+.kpi .v span{font-size:17px;font-weight:600;color:var(--muted);margin-left:3px}
+.kpi .l{font-size:12.5px;color:var(--muted);margin-top:4px}
+
+/* ---------- Oppsett ---------- */
+.layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,440px);gap:18px;align-items:start}
+.side{display:grid;gap:18px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 72px)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px}
+.panel-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:12px}
+.h2{font-family:var(--f-display);font-weight:800;font-size:26px;text-transform:uppercase;letter-spacing:.02em;line-height:1}
+.sub{font-size:13px;color:var(--muted)}
+
+/* ---------- Kontrollar ---------- */
+.controls{display:grid;gap:12px;margin-bottom:14px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.seg{display:inline-flex;background:var(--chip);border:1px solid var(--line);border-radius:8px;padding:3px}
+.seg button{border:0;background:none;padding:7px 13px;border-radius:6px;font-size:14px;font-weight:600;color:var(--ink-2);cursor:pointer;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.seg .n{font-family:var(--f-mono);font-size:12px;color:var(--muted);margin-left:5px;font-weight:500}
+.search{flex:1 1 200px;position:relative;min-width:0}
+.search input{width:100%;font:inherit;font-size:14.5px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 12px 9px 36px}
+.search input::placeholder{color:var(--muted)}
+.search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:var(--muted)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 11px;font-size:13px;font-weight:500;cursor:pointer;color:var(--ink-2)}
+.chip svg{width:15px;height:15px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+
+/* ---------- Liste ---------- */
+.month{display:flex;align-items:baseline;gap:10px;margin:20px 0 10px}
+.month:first-child{margin-top:4px}
+.month h2{font-family:var(--f-display);font-weight:600;font-size:21px;text-transform:uppercase;letter-spacing:.04em}
+.month span{font-size:12.5px;color:var(--muted)}
+.month::after{content:"";flex:1;height:1px;background:var(--line);align-self:center}
+.list{display:grid;gap:10px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;scroll-margin-top:84px;transition:border-color .2s,box-shadow .2s}
+.card.valt{border-color:var(--ember);box-shadow:0 0 0 3px color-mix(in srgb,var(--ember) 22%,transparent)}
+.card-top{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:start}
+.ic{width:42px;height:42px;border-radius:8px;display:grid;place-items:center;color:var(--sev);background:color-mix(in srgb,var(--sev) 13%,transparent)}
+.ic svg{width:23px;height:23px}
+.s1{--sev:var(--sev1)} .s2{--sev:var(--sev2)} .s3{--sev:var(--sev3)}
+.card h3{font-size:17px;font-weight:700;line-height:1.25}
+.meta{font-size:13.5px;color:var(--muted);margin-top:3px;display:flex;flex-wrap:wrap;gap:4px 10px}
+.meta .stad{color:var(--ink-2);font-weight:600}
+.pill{font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--chip);color:var(--muted);white-space:nowrap;border:1px solid var(--line)}
+.pill.aktiv{background:color-mix(in srgb,var(--fire) 14%,transparent);color:var(--fire);border-color:color-mix(in srgb,var(--fire) 40%,transparent);display:inline-flex;gap:6px;align-items:center}
+.pill.aktiv i{width:7px;height:7px;border-radius:50%;background:var(--fire);animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:.2}}
+.summary{margin:12px 0 0;color:var(--ink-2);font-size:14.5px;max-width:70ch}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;align-items:center}
+.tag{font-size:12px;font-weight:600;padding:3px 8px;border-radius:5px;background:var(--surface-2);border:1px solid var(--line-2);color:var(--ink-2)}
+.tag.warn{color:var(--fire);border-color:color-mix(in srgb,var(--fire) 35%,transparent);background:color-mix(in srgb,var(--fire) 8%,transparent)}
+.tag.ny{background:var(--hivis);color:#1A1600;border-color:transparent;letter-spacing:.05em}
+.sev{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--sev);margin-right:4px}
+.sev i{display:inline-flex;gap:2px}
+.sev i b{width:5px;height:13px;border-radius:1px;background:var(--line)}
+.sev i b.on{background:var(--sev)}
+.sev i b:nth-child(1){height:7px} .sev i b:nth-child(2){height:10px}
+.note{margin-top:12px;display:flex;gap:9px;font-size:13.5px;padding:10px 12px;border-radius:6px;background:var(--surface-2);border:1px solid var(--line-2);color:var(--ink-2)}
+.note svg{flex:none;width:17px;height:17px;margin-top:1px;color:var(--ember)}
+details.log{margin-top:12px;border-top:1px solid var(--line-2);padding-top:10px}
+details.log summary{cursor:pointer;font-size:13.5px;font-weight:600;color:var(--ink-2);list-style:none;display:flex;align-items:center;gap:6px}
+details.log summary::-webkit-details-marker{display:none}
+details.log summary svg{width:15px;height:15px;transition:transform .2s}
+details.log[open] summary svg{transform:rotate(90deg)}
+details.log summary .mono{font-weight:400;color:var(--muted);font-size:12px}
+ol.tl{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:0}
+ol.tl li{display:grid;grid-template-columns:52px minmax(0,1fr);gap:12px;position:relative;padding-bottom:12px}
+ol.tl li::before{content:"";position:absolute;left:61px;top:7px;bottom:-5px;width:1px;background:var(--line)}
+ol.tl li:last-child::before{display:none}
+ol.tl time{font-family:var(--f-mono);font-size:12.5px;color:var(--muted);padding-top:1px}
+ol.tl p{margin:0;font-size:14px;color:var(--ink-2);padding-left:14px;position:relative}
+ol.tl p::before{content:"";position:absolute;left:-6.5px;top:6px;width:7px;height:7px;border-radius:50%;background:var(--surface);border:2px solid var(--sev)}
+ol.tl .dag{font-family:var(--f-mono);font-size:11px;color:var(--muted);display:block}
+.media{margin-top:12px}
+.media .eyebrow{margin-bottom:6px}
+.media ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.media a{display:flex;gap:10px;align-items:baseline;text-decoration:none;padding:8px 10px;border:1px solid var(--line-2);border-radius:6px;background:var(--surface-2);font-size:13.5px}
+.media a:hover{border-color:var(--line)}
+.media a:hover .t{text-decoration:underline}
+.media .src{font-weight:700;white-space:nowrap;font-size:12px;letter-spacing:.02em;color:var(--ember)}
+.media .t{flex:1;min-width:0;color:var(--ink-2)}
+.media a .i{width:14px;height:14px;align-self:center;color:var(--muted)}
+figure.foto{margin:12px 0 0}
+figure.foto img{border-radius:6px;display:block;width:100%;height:auto}
+figure.foto figcaption{font-size:12px;color:var(--muted);margin-top:4px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:7px 11px;border-radius:6px;border:1px solid var(--line);background:var(--surface);text-decoration:none;cursor:pointer;color:var(--ink-2)}
+.btn:hover{background:var(--surface-2);color:var(--ink)}
+.btn svg{width:15px;height:15px}
+.empty{padding:30px 16px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:8px}
+.hint{margin-top:14px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:12px 14px;border-radius:8px;background:var(--surface);border:1px dashed var(--line);font-size:14px;color:var(--ink-2)}
+
+/* ---------- Kart ---------- */
+.map{position:relative;border-radius:8px;overflow:hidden;border:1px solid var(--line);background:var(--sea)}
+.map svg{display:block;width:100%;height:auto}
+.m-ctx{fill:var(--ctx)}
+.m-land{fill:var(--land);stroke:var(--land-edge);stroke-width:1.6;stroke-linejoin:round}
+.m-lbl{font:600 22px var(--f-body);fill:var(--label);letter-spacing:.06em;text-transform:uppercase}
+.m-nabo{font:600 24px var(--f-body);fill:var(--label);opacity:.6;letter-spacing:.2em;text-transform:uppercase}
+.m-dot{fill:var(--label)}
+.mk{cursor:pointer}
+.mk circle.c{stroke:var(--surface);stroke-width:4}
+.mk.gl circle.c{opacity:.55}
+.mk .ring{fill:none;stroke-width:3;transform-box:fill-box;transform-origin:center;animation:ring 2.2s ease-out infinite}
+@keyframes ring{from{transform:scale(.6);opacity:.9}to{transform:scale(2.1);opacity:0}}
+.mk.valt circle.c{stroke:var(--ink);stroke-width:5}
+.mk:focus{outline:none}
+.mk:focus-visible circle.c{stroke:var(--ember);stroke-width:6}
+.m-scale line{stroke:var(--ink);stroke-width:3}
+.m-scale text,.m-n text{font:600 20px var(--f-mono);fill:var(--ink)}
+.m-n path{fill:var(--ink)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font-size:12.5px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:50%;background:var(--sev)}
+.legend i.r{background:none;border:2px solid var(--ink-2)}
+.pop{margin-top:12px;border:1px solid var(--line);border-radius:8px;padding:12px 14px;background:var(--surface-2)}
+.pop h3{font-size:15.5px}
+.pop .meta{font-size:13px}
+.pop .actions{margin-top:10px}
+.utan{font-size:12.5px;color:var(--muted);margin-top:8px}
+
+/* ---------- Statistikk ---------- */
+.stat-block+.stat-block{margin-top:20px;padding-top:18px;border-top:1px solid var(--line-2)}
+.stat-block .eyebrow{margin-bottom:10px;display:flex;justify-content:space-between}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.c-bar{fill:var(--line)}
+.c-bar.no{fill:var(--ember)}
+.c-val{font:600 13px var(--f-mono);fill:var(--ink-2)}
+.c-lbl{font:500 12px var(--f-body);fill:var(--muted)}
+.c-base{stroke:var(--line);stroke-width:1}
+.hbars{display:grid;gap:9px}
+.hbar{display:grid;grid-template-columns:118px minmax(0,1fr) 28px;gap:10px;align-items:center;font-size:13.5px}
+.hbar .lbl{display:flex;align-items:center;gap:7px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hbar .lbl svg{width:16px;height:16px;flex:none;color:var(--muted)}
+.hbar .track{height:10px;border-radius:3px;background:var(--line-2);overflow:hidden}
+.hbar .fill{height:100%;background:var(--ink-2);border-radius:3px}
+.hbar .n{font-family:var(--f-mono);font-size:13px;text-align:right;color:var(--ink)}
+.clock{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.clock div{border:1px solid var(--line-2);border-radius:6px;padding:10px;background:var(--surface-2)}
+.clock b{display:block;font-family:var(--f-display);font-size:28px;line-height:1;font-weight:800}
+.clock span{font-size:12px;color:var(--muted)}
+.clock small{display:block;font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:4px}
+.facts div{font-size:13px;color:var(--muted)}
+.facts b{display:block;font-size:20px;color:var(--ink);font-family:var(--f-display);font-weight:800}
+
+/* ---------- Info ---------- */
+.info{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.info .panel h3{font-size:16px;margin-bottom:8px}
+.info p,.info li{font-size:14px;color:var(--ink-2)}
+.info p{margin:0 0 10px}
+.info ul,.info ol{margin:0;padding-left:18px;display:grid;gap:6px}
+.plat{display:grid;gap:12px}
+.plat div{border-top:1px solid var(--line-2);padding-top:10px}
+.plat div:first-child{border-top:0;padding-top:0}
+.plat b{display:block;font-size:14px;margin-bottom:2px}
+.kbd{font-family:var(--f-mono);font-size:12.5px;background:var(--chip);border:1px solid var(--line);border-radius:4px;padding:0 5px;white-space:nowrap}
+.n110{display:flex;align-items:center;gap:14px;margin-top:6px;padding:12px 14px;border-radius:8px;background:var(--fire);color:#fff}
+.n110 b{font-family:var(--f-display);font-weight:800;font-size:46px;line-height:.9}
+.n110 span{font-size:14px;font-weight:600;line-height:1.3}
+.tip{margin-top:14px;padding:12px 14px;border-radius:8px;border:1px solid var(--line-2);background:var(--surface-2)}
+.tip .eyebrow{margin-bottom:4px;color:var(--ember)}
+.tip p{margin:0}
+.fot{font-size:12.5px;color:var(--muted);text-align:center;padding-top:6px}
+
+/* ---------- Faneline (mobil) ---------- */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--topbar);-webkit-backdrop-filter:blur(14px) saturate(1.3);backdrop-filter:blur(14px) saturate(1.3);
+  border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(4,1fr)}
+.tabbar button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;font-size:11.5px;font-weight:600;color:var(--muted);cursor:pointer;border-radius:8px}
+.tabbar button svg{width:22px;height:22px}
+.tabbar button[aria-selected="true"]{color:var(--fire)}
+
+@media (min-width:1000px){
+  .tabbar{display:none}
+  .desk-nav{display:flex}
+  main.app{padding-bottom:40px}
+}
+@media (max-width:999px){
+  .layout{grid-template-columns:minmax(0,1fr)}
+  .side{position:static}
+  .info{grid-template-columns:minmax(0,1fr)}
+  .vw{display:none}
+  .app[data-view="liste"] #v-liste,.app[data-view="liste"] .hero,
+  .app[data-view="kart"] #v-kart,.app[data-view="stat"] #v-stat,.app[data-view="info"] #v-info{display:block}
+  .app[data-view="info"] #v-info{display:grid}
+  .app:not([data-view="liste"]) .hero{display:none}
+}
+@media (max-width:720px){
+  .hero-inner{grid-template-columns:minmax(0,1fr);gap:20px;padding:18px 16px 18px}
+  .status .full{display:none}
+  .strip{height:38px;gap:1.5px}
+  .kpi{padding:10px 11px}
+  .kpi .v{font-size:28px}
+  .panel{padding:14px}
+  .card{padding:14px}
+  .hbar{grid-template-columns:98px minmax(0,1fr) 24px}
+  .clock{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:380px){ .brand-sub{display:none} }
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="g-flamme" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#D4321D"/><stop offset=".6" stop-color="#F08A12"/><stop offset="1" stop-color="#F7CB2E"/>
+    </linearGradient>
+  </defs>
+  <symbol id="i-bygning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></symbol>
+  <symbol id="i-kjoretoy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 16.5v-4.2L5.8 7h12.4l2.3 5.3v4.2"/><path d="M3.5 12.5h17"/><circle cx="7.5" cy="16.8" r="1.9"/><circle cx="16.5" cy="16.8" r="1.9"/></symbol>
+  <symbol id="i-vegetasjon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5V11"/><path d="M12 11.5c0-4 2.8-6.3 6.5-7 0 4-2.4 7-6.5 7Z"/><path d="M12 14.5c0-3.2-2.4-5.3-5.8-5.8 0 3.3 2.2 5.8 5.8 5.8Z"/><path d="M4 20.5h16"/></symbol>
+  <symbol id="i-pipe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12.5 12 5l9 7.5"/><path d="M5.5 11v9h13v-9"/><path d="M15.5 8V4.5H18v5.6"/><path d="M16.7 2.2c.8.3 1.2.9 1.2 1.6"/></symbol>
+  <symbol id="i-alarm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></symbol>
+  <symbol id="i-industri" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20.5V11l5 3v-3l5 3V5.5h3v15"/><path d="M16 9.5h5v11"/><path d="M2.5 20.5h19"/></symbol>
+  <symbol id="i-baat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15h18l-2.6 4.5H5.6Z"/><path d="M12 4v11"/><path d="M12 5.5l5.5 7.5H12"/></symbol>
+  <symbol id="i-anna" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21c-3.9 0-6.5-2.6-6.5-6 0-3.5 2.5-5.5 3.6-8.5 1.4 1.4 2 2.9 2 4.4 1-1 1.8-2.6 2-4.4 3 2.2 5.4 5.5 5.4 8.5 0 3.4-2.6 6-6.5 6Z"/></symbol>
+  <symbol id="i-liste" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8.5 6.5h12M8.5 12h12M8.5 17.5h12"/><circle cx="4.2" cy="6.5" r="1" fill="currentColor"/><circle cx="4.2" cy="12" r="1" fill="currentColor"/><circle cx="4.2" cy="17.5" r="1" fill="currentColor"/></symbol>
+  <symbol id="i-kart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-5.8-6.5-11a6.5 6.5 0 0 1 13 0c0 5.2-6.5 11-6.5 11Z"/><circle cx="12" cy="10" r="2.3"/></symbol>
+  <symbol id="i-stat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 20.5h16"/><path d="M7 17V11M12 17V6M17 17v-8"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5"/><circle cx="12" cy="7.8" r=".6" fill="currentColor"/></symbol>
+  <symbol id="i-sok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
+  <symbol id="i-pil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></symbol>
+  <symbol id="i-ut" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/><path d="M18 14v5.5H4.5V6H10"/></symbol>
+  <symbol id="i-merk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5"/><circle cx="12" cy="16.3" r=".7" fill="currentColor"/></symbol>
+</svg>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="#liste" data-go="liste" aria-label="Brannlogg Stord – til lista">
+      <svg class="logo" viewBox="0 0 34 34" aria-hidden="true">
+        <rect width="34" height="34" rx="8" fill="#15181D"/>
+        <path d="M17 28c-4.6 0-7.6-3-7.6-7 0-4.1 3-6.4 4.2-9.9 1.6 1.6 2.3 3.4 2.3 5.1 1.2-1.2 2.1-3 2.3-5.1 3.5 2.6 6.4 6.4 6.4 9.9 0 4-3 7-7.6 7Z" fill="url(#g-flamme)"/>
+        <path d="M17 28c-2 0-3.3-1.3-3.3-3.1 0-1.8 1.4-2.9 2-4.4 1.6 1.2 4.6 2.6 4.6 4.4 0 1.8-1.3 3.1-3.3 3.1Z" fill="#FFE9A6" opacity=".9"/>
+      </svg>
+      <span class="brand-text"><span class="brand-name">Brannlogg</span><span class="brand-sub">Stord kommune</span></span>
+    </a>
+    <nav class="desk-nav" aria-label="Seksjonar">
+      <a href="#liste" data-go="liste">Liste</a><a href="#kart" data-go="kart">Kart</a><a href="#statistikk" data-go="stat">Statistikk</a><a href="#info" data-go="info">Om appen</a>
+    </nav>
+    <div class="status" id="status" title=""><span class="dot"></span><span id="status-txt">Lastar …</span></div>
+  </div>
+</header>
+
+<main class="app wrap" id="app" data-view="liste">
+  <section class="hero" aria-label="Samandrag">
+    <div class="batt" aria-hidden="true"></div>
+    <div class="hero-inner">
+      <div class="counter" id="counter"></div>
+      <div>
+        <div class="strip-head">
+          <div class="eyebrow">Brannstripa · <b>siste 50 dagar</b></div>
+          <div class="sub" id="strip-sum"></div>
+        </div>
+        <div class="strip" id="strip" role="group" aria-label="Brannar per dag, siste 50 dagar"></div>
+        <div class="strip-axis" id="strip-axis"></div>
+        <div class="kpis" id="kpis"></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="layout">
+    <section class="vw" id="v-liste" aria-label="Brannar">
+      <div class="controls">
+        <div class="row">
+          <div class="seg" role="group" aria-label="Periode" id="seg-periode"></div>
+          <label class="search" for="sok">
+            <svg aria-hidden="true"><use href="#i-sok"/></svg>
+            <input id="sok" type="search" placeholder="Søk etter stad eller ord" autocomplete="off">
+          </label>
+        </div>
+        <div class="chips" id="chips" role="group" aria-label="Type brann"></div>
+      </div>
+      <div id="list"></div>
+    </section>
+
+    <div class="side">
+      <section class="vw panel" id="v-kart" aria-label="Kart">
+        <div class="panel-head">
+          <h2 class="h2">Kart</h2>
+          <span class="sub" id="kart-sub"></span>
+        </div>
+        <div class="map" id="map"></div>
+        <div class="legend">
+          <span class="s3"><i></i>Alvorleg</span><span class="s2"><i></i>Middels</span><span class="s1"><i></i>Mindre</span><span><i class="r"></i>Siste 50 dagar</span>
+        </div>
+        <div id="pop"></div>
+        <div class="utan" id="utan"></div>
+      </section>
+
+      <section class="vw panel" id="v-stat" aria-label="Statistikk">
+        <div class="panel-head">
+          <h2 class="h2">Statistikk</h2>
+          <span class="sub">Siste 12 månader</span>
+        </div>
+        <div id="stats"></div>
+      </section>
+    </div>
+  </div>
+
+  <section class="vw info" id="v-info" aria-label="Om appen">
+    <div class="panel">
+      <h3>Legg appen på heimeskjermen</h3>
+      <div class="plat">
+        <div><b>iPhone og iPad</b>Opne sida i Safari, trykk på <span class="kbd">Del</span> (firkanten med pil opp) og vel <span class="kbd">Legg til på Heim-skjerm</span>.</div>
+        <div><b>Android</b>Opne sida i Chrome, trykk på <span class="kbd">⋮</span> øvst til høgre og vel <span class="kbd">Legg til på startskjermen</span>.</div>
+        <div><b>Windows</b>Opne sida i Edge, trykk på <span class="kbd">···</span> → <span class="kbd">Appar</span> → <span class="kbd">Installer denne nettstaden som app</span>. Du finn han då i Start-menyen.</div>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Oppdatering og kjelder</h3>
+      <p id="info-oppd"></p>
+      <ul>
+        <li><b>Politiloggen</b> (Politiet, NLOD 2.0): alle hendingar i kategorien «Brann» i Stord kommune.</li>
+        <li><b>Nyheitssaker</b> frå mellom anna Radio Haugaland, Sunnhordland, NRK og VG blir lenka til når dei finst.</li>
+        <li><b>Kart</b>: kystlinje © OpenStreetMap-bidragsytarar (ODbL), kommunegrense og stadnamn frå Kartverket.</li>
+      </ul>
+      <p style="margin-top:10px">Appen viser berre brannar som politiet har loggført. Mindre utrykkingar som berre brannvesenet handterer, kjem ikkje alltid med. Alvorsgraden er rekna ut frå teksten i loggen og er ikkje ei offisiell vurdering.</p>
+    </div>
+    <div class="panel">
+      <h3>Ved brann</h3>
+      <div class="n110"><b>110</b><span>Ring brannvesenet.<br>Varsle, redd, sløkk.</span></div>
+      <div class="tip" id="tip"></div>
+    </div>
+    <p class="fot" style="grid-column:1/-1">Brannlogg Stord · data frå Politiloggen · ikkje ein offisiell teneste frå Politiet eller Stord kommune</p>
+  </section>
+</main>
+
+<nav class="tabbar" role="tablist" aria-label="Visning">
+  <button role="tab" data-go="liste" aria-selected="true"><svg aria-hidden="true"><use href="#i-liste"/></svg>Liste</button>
+  <button role="tab" data-go="kart" aria-selected="false"><svg aria-hidden="true"><use href="#i-kart"/></svg>Kart</button>
+  <button role="tab" data-go="stat" aria-selected="false"><svg aria-hidden="true"><use href="#i-stat"/></svg>Statistikk</button>
+  <button role="tab" data-go="info" aria-selected="false"><svg aria-hidden="true"><use href="#i-info"/></svg>Info</button>
+</nav>
+
+<script>
+const DATA = /*__DATA__*/null;
+(function(){
+"use strict";
+const D = DATA || {brannar:[], oppdatert:new Date().toISOString(), neste:null, kart:null, vindauge:50};
+const VINDU = D.vindauge || 50;
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fl = (n, ein, fleire) => `${n} ${n === 1 ? ein : fleire}`;
+
+/* ---- Tid (Europe/Oslo) ---- */
+const MND = ["januar","februar","mars","april","mai","juni","juli","august","september","oktober","november","desember"];
+const MND_K = ["jan.","feb.","mars","apr.","mai","juni","juli","aug.","sep.","okt.","nov.","des."];
+const DAG = ["sundag","måndag","tysdag","onsdag","torsdag","fredag","laurdag"];
+const fmtParts = new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Oslo",year:"numeric",month:"numeric",day:"numeric",hour:"numeric",minute:"numeric",hourCycle:"h23"});
+function oslo(iso){
+  const d = iso instanceof Date ? iso : new Date(iso);
+  const p = {}; fmtParts.formatToParts(d).forEach(x => p[x.type] = x.value);
+  const y = +p.year, m = +p.month, dd = +p.day;
+  return {y, m, d:dd, h:+p.hour % 24, min:+p.minute, dn:Date.UTC(y, m-1, dd)/864e5, wd:new Date(Date.UTC(y, m-1, dd)).getUTCDay()};
+}
+const pad = n => String(n).padStart(2,"0");
+const kl = o => `${pad(o.h)}:${pad(o.min)}`;
+const NO = new Date(), I_DAG = oslo(NO);
+function relDag(o){
+  const diff = I_DAG.dn - o.dn;
+  if (diff === 0) return "i dag";
+  if (diff === 1) return "i går";
+  if (diff === -1) return "i morgon";
+  return `${DAG[o.wd]} ${o.d}. ${MND_K[o.m-1]}${o.y !== I_DAG.y ? " " + o.y : ""}`;
+}
+const datoKort = o => `${o.d}. ${MND_K[o.m-1]}${o.y !== I_DAG.y ? " " + o.y : ""}`;
+function varigheit(a, b){
+  const min = Math.max(0, Math.round((new Date(b) - new Date(a)) / 6e4));
+  if (min < 1) return null;
+  const t = Math.floor(min/60), m = min % 60;
+  return t ? `${t} t${m ? " " + m + " min" : ""}` : `${m} min`;
+}
+
+/* ---- Typar ---- */
+const TYPE = {
+  bygning:{n:"Bygning", i:"i-bygning"}, kjoretoy:{n:"Kjøretøy", i:"i-kjoretoy"}, vegetasjon:{n:"Gras og lyng", i:"i-vegetasjon"},
+  pipe:{n:"Pipebrann", i:"i-pipe"}, alarm:{n:"Brannalarm", i:"i-alarm"}, industri:{n:"Industri/avfall", i:"i-industri"},
+  baat:{n:"Båt", i:"i-baat"}, anna:{n:"Anna", i:"i-anna"}
+};
+const ALVOR = {1:"Mindre", 2:"Middels", 3:"Alvorleg"};
+const ikon = (id, cls="") => `<svg class="i ${cls}" aria-hidden="true"><use href="#${id}"/></svg>`;
+
+/* ---- Førebu data ---- */
+const B = D.brannar.map(b => {
+  const o = oslo(b.start);
+  return {...b, _o:o, _dn:o.dn, _tekst:(b.stad + " " + b.tittel + " " + b.meldingar.map(m => m.tekst).join(" ")).toLowerCase()};
+});
+const START_DN = I_DAG.dn - (VINDU - 1);
+B.forEach(b => b._nyleg = b._dn >= START_DN);
+
+let sistSett = null;
+try { sistSett = localStorage.getItem("brannlogg_sist_sett"); } catch(e) {}
+B.forEach(b => b._ny = !!sistSett && b.start > sistSett);
+try { if (B[0]) localStorage.setItem("brannlogg_sist_sett", B[0].start); } catch(e) {}
+
+const state = {periode:"50", type:"alle", sok:"", valt:null, view:"liste"};
+
+/* ---- Status ---- */
+function renderStatus(){
+  const o = oslo(D.oppdatert);
+  const timar = (NO - new Date(D.oppdatert)) / 36e5;
+  const el = $("#status");
+  el.classList.toggle("gammal", timar > 30);
+  $("#status-txt").innerHTML = `<span class="full">Oppdatert </span>${relDag(o)} kl. ${kl(o)}`;
+  let neste = "";
+  if (D.neste) { const n = oslo(D.neste); neste = ` Neste oppdatering: ${relDag(n)} kl. ${kl(n)}.`; }
+  el.title = `Data henta frå Politiloggen ${relDag(o)} kl. ${kl(o)}.${neste}`;
+  $("#info-oppd").innerHTML = `Appen hentar nye data frå Politiloggen kvar morgon kl. 06:00. Sist oppdatert: <b>${relDag(o)} kl. ${kl(o)}</b>.${neste}` +
+    (timar > 30 ? ` <b style="color:var(--ember)">Dataa er eldre enn eitt døgn – neste oppdatering kjem når PC-en med Claude er på.</b>` : "");
+}
+
+/* ---- Hero ---- */
+function renderHero(){
+  const aktive = B.filter(b => b.aktiv);
+  const siste = B[0];
+  let html = "";
+  if (aktive.length) {
+    const a = aktive[0];
+    html += `<div class="eyebrow">Akkurat no</div>
+      <div class="alert" role="status"><span class="pulse"></span><div><h2>Pågår no</h2>
+      <p><b>${esc(a.tittel)}</b> · ${esc(a.stad)} · starta kl. ${kl(a._o)}</p>
+      <button class="last-link" data-vis="${a.id}"><b>Følg loggen</b> ${ikon("i-pil")}</button></div></div>`;
+  } else if (siste) {
+    const dagar = I_DAG.dn - siste._dn;
+    html += `<div class="eyebrow">Dagar sidan siste brann</div>
+      <div class="big" aria-label="${dagar} dagar sidan siste brann">${dagar === 0 ? "0" : dagar}<small>${dagar === 1 ? "dag" : "dagar"}</small></div>
+      <button class="last-link" data-vis="${siste.id}">Siste: <b>${esc(siste.tittel)}</b> · ${esc(siste.stad)} · ${datoKort(siste._o)}</button>`;
+  } else {
+    html += `<div class="eyebrow">Dagar sidan siste brann</div><div class="big">–</div><p class="sub">Ingen brannar i dataa.</p>`;
+  }
+  $("#counter").innerHTML = html;
+
+  // Brannstripa
+  const perDag = {};
+  B.filter(b => b._nyleg).forEach(b => { (perDag[b._dn] ||= []).push(b); });
+  let cells = "";
+  for (let i = 0; i < VINDU; i++) {
+    const dn = START_DN + i;
+    const dt = new Date(dn * 864e5), dd = dt.getUTCDate(), mm = dt.getUTCMonth();
+    const liste = perDag[dn] || [];
+    const maks = liste.reduce((m, b) => Math.max(m, b.alvor), 0);
+    const lbl = `${dd}. ${MND_K[mm]}: ${liste.length ? liste.map(b => b.tittel + ", " + b.stad).join("; ") : "ingen brann"}`;
+    const cls = [maks ? "f" + maks : "", dn === I_DAG.dn ? "idag" : "", (dd === 1 && i > 0) ? "ny-mnd" : ""].join(" ").trim();
+    cells += `<button type="button" class="${cls}" title="${esc(lbl)}" aria-label="${esc(lbl)}"${liste.length ? ` data-vis="${liste[0].id}"` : ` tabindex="-1"`}></button>`;
+  }
+  $("#strip").innerHTML = cells;
+  const s0 = new Date(START_DN * 864e5), mid = new Date((START_DN + 25) * 864e5);
+  $("#strip-axis").innerHTML = `<span>${s0.getUTCDate()}. ${MND_K[s0.getUTCMonth()]}</span><span>${mid.getUTCDate()}. ${MND_K[mid.getUTCMonth()]}</span><span>i dag</span>`;
+  const n50 = B.filter(b => b._nyleg).length;
+  const dagarMed = Object.keys(perDag).length;
+  $("#strip-sum").textContent = `${fl(dagarMed, "dag", "dagar")} med brann`;
+
+  const aar = B.filter(b => I_DAG.dn - b._dn < 365);
+  const snitt = (aar.length / 12).toLocaleString("nb-NO", {maximumFractionDigits:1});
+  $("#kpis").innerHTML = `
+    <div class="kpi"><div class="v">${n50}</div><div class="l">${n50 === 1 ? "brann" : "brannar"} siste ${VINDU} dagar</div></div>
+    <div class="kpi"><div class="v">${aar.length}</div><div class="l">siste 12 månader</div></div>
+    <div class="kpi"><div class="v">${snitt}<span>/mnd</span></div><div class="l">snitt siste år</div></div>`;
+}
+
+/* ---- Filter ---- */
+function filtrert(){
+  const q = state.sok.trim().toLowerCase();
+  return B.filter(b => (state.periode === "alle" || b._nyleg)
+    && (state.type === "alle" || b.type === state.type)
+    && (!q || q.split(/\s+/).every(w => b._tekst.includes(w))));
+}
+function renderControls(){
+  const n50 = B.filter(b => b._nyleg).length;
+  $("#seg-periode").innerHTML =
+    `<button type="button" data-periode="50" aria-pressed="${state.periode === "50"}">Siste ${VINDU} dagar<span class="n">${n50}</span></button>` +
+    `<button type="button" data-periode="alle" aria-pressed="${state.periode === "alle"}">Alle<span class="n">${B.length}</span></button>`;
+  const typar = [...new Set(B.filter(b => state.periode === "alle" || b._nyleg).map(b => b.type))];
+  if (state.type !== "alle" && !typar.includes(state.type)) state.type = "alle";
+  $("#chips").innerHTML = `<button type="button" class="chip" data-type="alle" aria-pressed="${state.type === "alle"}">Alle typar</button>` +
+    Object.keys(TYPE).filter(t => typar.includes(t)).map(t =>
+      `<button type="button" class="chip" data-type="${t}" aria-pressed="${state.type === t}">${ikon(TYPE[t].i)}${TYPE[t].n}</button>`).join("");
+}
+
+/* ---- Kort ---- */
+function kort(b){
+  const t = TYPE[b.type] || TYPE.anna;
+  const var_ = varigheit(b.start, b.sist);
+  const f = b.flagg || {};
+  const tags = [
+    `<span class="sev s${b.alvor}" title="Alvorsgrad (rekna ut frå loggen)"><i>${[1,2,3].map(n => `<b class="${n <= b.alvor ? "on" : ""}"></b>`).join("")}</i>${ALVOR[b.alvor]}</span>`,
+    b._ny ? `<span class="tag ny">NY</span>` : "",
+    f.omkomne ? `<span class="tag warn">Omkomne</span>` : "",
+    f.personskade ? `<span class="tag warn">Personskade</span>` : "",
+    f.evakuert ? `<span class="tag">Evakuering</span>` : "",
+    f.sak ? `<span class="tag">Politisak oppretta</span>` : "",
+    `<span class="tag">${esc(t.n)}</span>`
+  ].join("");
+  let forrigeDag = b._dn;
+  const logg = b.meldingar.map(m => {
+    const o = oslo(m.t);
+    const dag = o.dn !== forrigeDag ? `<span class="dag">${datoKort(o)}</span>` : "";
+    forrigeDag = o.dn;
+    return `<li><time datetime="${esc(m.t)}">${dag}${kl(o)}</time><p>${esc(m.tekst)}${m.endra ? ` <span class="sub">(endra)</span>` : ""}</p></li>`;
+  }).join("");
+  const kartUrl = b.pos ? `https://www.google.com/maps/search/?api=1&query=${b.pos[0]},${b.pos[1]}`
+                        : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(b.stad + ", Stord")}`;
+  return `<article class="card s${b.alvor}${state.valt === b.id ? " valt" : ""}" id="b-${esc(b.id)}">
+    <div class="card-top">
+      <div class="ic">${ikon(t.i)}</div>
+      <div><h3>${esc(b.tittel)}</h3>
+        <div class="meta"><span class="stad">${esc(b.stad)}</span><time datetime="${esc(b.start)}">${relDag(b._o)} kl. ${kl(b._o)}</time></div></div>
+      ${b.aktiv ? `<span class="pill aktiv"><i></i>Pågår</span>` : `<span class="pill">Avslutta</span>`}
+    </div>
+    <p class="summary">${esc(b.meldingar[0]?.tekst || "")}</p>
+    <div class="tags">${tags}</div>
+    ${b.merknad ? `<div class="note">${ikon("i-merk")}<span>${esc(b.merknad)}</span></div>` : ""}
+    ${(b.bilete || []).map(p => `<figure class="foto"><img src="${p.src}" alt="Bilete frå hendinga på ${esc(b.stad)}" loading="lazy"><figcaption>${esc(p.kreditt)}</figcaption></figure>`).join("")}
+    <details class="log"${b.aktiv ? " open" : ""}><summary>${ikon("i-pil")}Heile politiloggen <span class="mono">${fl(b.meldingar.length, "melding", "meldingar")}${var_ ? " · " + var_ : ""}</span></summary><ol class="tl">${logg}</ol></details>
+    ${b.kjelder?.length ? `<div class="media"><div class="eyebrow">I media</div><ul>${b.kjelder.map(k =>
+      `<li><a href="${esc(k.url)}" target="_blank" rel="noopener"><span class="src">${esc(k.kjelde)}</span><span class="t">${esc(k.tittel)}</span>${ikon("i-ut","")}</a></li>`).join("")}</ul></div>` : ""}
+    <div class="actions">
+      ${b.pos ? `<button type="button" class="btn" data-kart="${esc(b.id)}">${ikon("i-kart")}Vis på kartet</button>` : ""}
+      <a class="btn" href="https://www.politiet.no/politiloggen/hendelse/${encodeURIComponent(b.id)}" target="_blank" rel="noopener">${ikon("i-ut")}Politiloggen</a>
+      <a class="btn" href="${kartUrl}" target="_blank" rel="noopener">${ikon("i-ut")}Google Maps</a>
+    </div>
+  </article>`;
+}
+
+function renderList(){
+  const liste = filtrert();
+  let html = "";
+  if (!liste.length) {
+    html = `<div class="empty">${state.sok || state.type !== "alle" ? "Ingen brannar passar med filteret." : `Ingen brannar registrerte i Stord dei siste ${VINDU} dagane.`}</div>`;
+  } else {
+    let mnd = null, gruppe = [];
+    const flush = () => {
+      if (!gruppe.length) return;
+      const o = gruppe[0]._o;
+      html += `<div class="month"><h2>${MND[o.m-1]} ${o.y}</h2><span>${fl(gruppe.length, "brann", "brannar")}</span></div><div class="list">${gruppe.map(kort).join("")}</div>`;
+      gruppe = [];
+    };
+    liste.forEach(b => { const k = b._o.y * 12 + b._o.m; if (k !== mnd) { flush(); mnd = k; } gruppe.push(b); });
+    flush();
+  }
+  if (state.periode === "50" && !state.sok && state.type === "alle") {
+    const eldre = B.length - B.filter(b => b._nyleg).length;
+    if (eldre) html += `<div class="hint"><span>${fl(eldre, "eldre brann", "eldre brannar")} ligg i arkivet.</span><button type="button" class="btn" data-periode="alle">Vis alle ${ikon("i-pil")}</button></div>`;
+  }
+  $("#list").innerHTML = html;
+}
+
+/* ---- Kart ---- */
+function renderMap(){
+  const K = D.kart;
+  if (!K) { $("#map").innerHTML = `<div class="empty">Kartet manglar.</div>`; return; }
+  const P = K.proj;
+  const xy = p => [(p[1] - P.lon0) * P.cos * P.k, (P.lat1 - p[0]) * P.k];
+  const liste = filtrert();
+  const synlege = liste.filter(b => b.pos).map(b => ({b, p:xy(b.pos)})).filter(({p}) => p[0] > 0 && p[0] < K.w && p[1] > 0 && p[1] < K.h);
+  synlege.sort((a, c) => (a.b.id === state.valt) - (c.b.id === state.valt) || a.b._dn - c.b._dn);
+  const col = {1:"var(--sev1)", 2:"var(--sev2)", 3:"var(--sev3)"};
+  const km = K.kmPx, sx = 40, sy = K.h - 44;
+  const lbl = K.stader.map(s => `<circle class="m-dot" cx="${s.x}" cy="${s.y}" r="5"/><text class="m-lbl" x="${s.x + 11}" y="${s.y + 7}">${esc(s.namn)}</text>`).join("");
+  const nabo = (K.naboar || []).filter(s => s.y > 40 && s.y < K.h - 40).map(s => `<text class="m-nabo" x="${s.x}" y="${s.y}">${esc(s.namn)}</text>`).join("");
+  const mk = synlege.map(({b, p}) => `<g class="mk${b._nyleg ? "" : " gl"}${b.id === state.valt ? " valt" : ""}" data-mk="${esc(b.id)}" tabindex="0" role="button" aria-label="${esc(b.tittel + ", " + b.stad + ", " + datoKort(b._o))}">
+      ${b._nyleg ? `<circle class="ring" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="16" stroke="${col[b.alvor]}"/>` : ""}
+      <circle class="c" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${b.id === state.valt ? 20 : (b._nyleg ? 16 : 12)}" fill="${col[b.alvor]}"/>
+      <title>${esc(b.tittel + " – " + b.stad + ", " + datoKort(b._o))}</title></g>`).join("");
+  $("#map").innerHTML = `<svg viewBox="0 0 ${K.w} ${K.h}" role="img" aria-label="Kart over Stord kommune med brannar">
+    <path class="m-ctx" d="${K.kontekst}" fill-rule="evenodd"/>
+    <path class="m-land" d="${K.land}" fill-rule="evenodd"/>
+    ${nabo}${lbl}${mk}
+    <g class="m-scale"><line x1="${sx}" y1="${sy}" x2="${sx + 2*km}" y2="${sy}"/><line x1="${sx}" y1="${sy-9}" x2="${sx}" y2="${sy+9}"/><line x1="${sx + 2*km}" y1="${sy-9}" x2="${sx + 2*km}" y2="${sy+9}"/><text x="${sx}" y="${sy - 16}">2 km</text></g>
+    <g class="m-n" transform="translate(${K.w - 56} 60)"><path d="M0 -30 L13 12 L0 4 L-13 12 Z"/><text x="0" y="40" text-anchor="middle">N</text></g>
+  </svg>`;
+  $("#kart-sub").textContent = `${fl(synlege.length, "brann", "brannar")} · ${state.periode === "50" ? `siste ${VINDU} dagar` : "alle"}`;
+  const utan = liste.filter(b => !b.pos).length;
+  $("#utan").textContent = utan ? `${fl(utan, "hending", "hendingar")} utan kjend kartplassering er ikkje med på kartet.` : "";
+  renderPop();
+}
+function renderPop(){
+  const b = B.find(x => x.id === state.valt);
+  if (!b || !b.pos) { $("#pop").innerHTML = `<p class="sub" style="margin:10px 0 0">Trykk på ein prikk for å sjå kva som skjedde.</p>`; return; }
+  $("#pop").innerHTML = `<div class="pop s${b.alvor}"><h3>${esc(b.tittel)}</h3>
+    <div class="meta"><span class="stad">${esc(b.stad)}</span><span>${relDag(b._o)} kl. ${kl(b._o)}</span><span class="sev s${b.alvor}">${ALVOR[b.alvor]}</span></div>
+    <div class="actions"><button type="button" class="btn" data-vis="${esc(b.id)}">${ikon("i-liste")}Vis i lista</button></div></div>`;
+}
+
+/* ---- Statistikk ---- */
+function renderStats(){
+  const aar = B.filter(b => I_DAG.dn - b._dn < 365);
+  // Per månad
+  const mnd = [];
+  for (let i = 11; i >= 0; i--) {
+    let m = I_DAG.m - i, y = I_DAG.y; while (m < 1) { m += 12; y--; }
+    mnd.push({y, m, n:aar.filter(b => b._o.y === y && b._o.m === m).length});
+  }
+  const maks = Math.max(1, ...mnd.map(x => x.n));
+  const W = 400, H = 150, bw = W / 12, top = 22, base = H - 24;
+  const bars = mnd.map((x, i) => {
+    const h = x.n ? Math.max(4, (base - top) * x.n / maks) : 0;
+    const bx = i * bw + 5, now = i === 11;
+    return `<rect class="c-bar${now ? " no" : ""}" x="${bx.toFixed(1)}" y="${(base - h).toFixed(1)}" width="${(bw - 10).toFixed(1)}" height="${h.toFixed(1)}" rx="2"/>
+      <text class="c-val" x="${(bx + (bw - 10)/2).toFixed(1)}" y="${(base - h - 6).toFixed(1)}" text-anchor="middle">${x.n}</text>
+      <text class="c-lbl" x="${(bx + (bw - 10)/2).toFixed(1)}" y="${H - 6}" text-anchor="middle">${MND_K[x.m-1].replace(".","")}</text>`;
+  }).join("");
+  // Typar
+  const typar = Object.keys(TYPE).map(t => ({t, n:aar.filter(b => b.type === t).length})).filter(x => x.n).sort((a, c) => c.n - a.n);
+  const tmaks = Math.max(1, ...typar.map(x => x.n));
+  // Tid på døgnet
+  const bolk = [["Natt","00–06"],["Morgon","06–12"],["Dag","12–18"],["Kveld","18–24"]].map((x, i) => ({n:x[0], t:x[1], v:aar.filter(b => Math.floor(b._o.h / 6) === i).length}));
+  const bmaks = Math.max(...bolk.map(x => x.v));
+  const person = aar.filter(b => b.flagg?.personskade || b.flagg?.omkomne).length;
+  const sak = aar.filter(b => b.flagg?.sak).length;
+  $("#stats").innerHTML = `
+    <div class="stat-block chart"><div class="eyebrow"><span>Brannar per månad</span><span>${fl(aar.length, "brann", "brannar")}</span></div>
+      <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Brannar per månad dei siste 12 månadene">${bars}<line class="c-base" x1="0" x2="${W}" y1="${base + .5}" y2="${base + .5}"/></svg></div>
+    <div class="stat-block"><div class="eyebrow"><span>Type brann</span></div>
+      <div class="hbars">${typar.map(x => `<div class="hbar"><span class="lbl">${ikon(TYPE[x.t].i)}${TYPE[x.t].n}</span><span class="track"><span class="fill" style="display:block;width:${(100 * x.n / tmaks).toFixed(0)}%"></span></span><span class="n">${x.n}</span></div>`).join("")}</div></div>
+    <div class="stat-block"><div class="eyebrow"><span>Tid på døgnet</span></div>
+      <div class="clock">${bolk.map(x => `<div${x.v === bmaks && x.v ? ` style="border-color:var(--ember)"` : ""}><b>${x.v}</b><span>${x.n}</span><small>${x.t}</small></div>`).join("")}</div></div>
+    <div class="stat-block"><div class="eyebrow"><span>Konsekvensar</span></div>
+      <div class="facts"><div><b>${person}</b>med personskade</div><div><b>${sak}</b>med politisak</div></div></div>`;
+}
+
+/* ---- Brannvern ---- */
+const TIPS = [
+  "Kulde gir meir fyring. Hald avstand mellom omnen og alt som kan brenne, og set oska ut i ei metallbøtte med lok i fleire døgn.",
+  "Sjekk at komfyrvakta verkar. Komfyren er ei av dei vanlegaste årsakene til brann i bustader.",
+  "Tørt vårgras tek lett fyr. Snakk med brannvesenet før du brenn bråte eller gras.",
+  "Frå 15. april til 15. september er det forbode å gjere opp eld i eller nær skog og anna utmark utan løyve.",
+  "Set grillen på trygg avstand frå huset og tørr vegetasjon, og la eingongsgrillen kjølast heilt før du kastar han.",
+  "Før sankthans: sjekk kommunen sine reglar og skogbrannfaren før du tenner bål.",
+  "Lad elsykkel og elsparkesykkel på ein brannsikker stad, og ikkje medan alle søv.",
+  "Tørt vêr: kast aldri sigarettar eller eingongsgrillar i terrenget.",
+  "Før fyringssesongen: få pipa og eldstaden sjekka, og fjern sot og skrot rundt omnen.",
+  "Test røykvarslarane no. Byt batteri om det er eldre enn eitt år.",
+  "Ha brannslokkingsapparat eller brannslange lett tilgjengeleg, og sjekk at alle i huset veit kvar det er.",
+  "Aldri gå frå levande lys, og set dei på eit underlag som ikkje brenn. 1. desember er røykvarslardagen."
+];
+function renderTip(){ $("#tip").innerHTML = `<div class="eyebrow">Brannvern i ${MND[I_DAG.m-1]}</div><p>${TIPS[I_DAG.m-1]}</p>`; }
+
+/* ---- Visningar og hendingar ---- */
+const HASH = {liste:"liste", kart:"kart", stat:"statistikk", info:"info"};
+const erMobil = () => matchMedia("(max-width: 999px)").matches;
+function setView(v, rull = true){
+  state.view = v;
+  $("#app").dataset.view = v;
+  document.querySelectorAll(".tabbar button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.go === v)));
+  if (erMobil()) { if (rull) window.scrollTo({top:0}); }
+  else if (rull) {
+    const el = v === "liste" ? $(".hero") : $(v === "kart" ? "#v-kart" : v === "stat" ? "#v-stat" : "#v-info");
+    el?.scrollIntoView({behavior:"smooth", block:"start"});
+  }
+}
+function visKort(id){
+  state.valt = id;
+  const b = B.find(x => x.id === id);
+  if (b && !b._nyleg && state.periode !== "alle") state.periode = "alle";
+  state.type = "alle"; state.sok = ""; $("#sok").value = "";
+  renderAll();
+  setView("liste", false);
+  requestAnimationFrame(() => {
+    const el = document.getElementById("b-" + id);
+    if (!el) return;
+    const d = el.querySelector("details"); if (d) d.open = true;
+    el.scrollIntoView({behavior:"smooth", block:"start"});
+  });
+}
+function visKart(id){
+  state.valt = id;
+  renderMap(); renderList();
+  if (erMobil()) setView("kart");
+  else $("#v-kart").scrollIntoView({behavior:"smooth", block:"start"});
+}
+function renderAll(){ renderControls(); renderList(); renderMap(); }
+
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-go],[data-periode],[data-type],[data-vis],[data-kart],[data-mk]");
+  if (!t) return;
+  if (t.dataset.go) { e.preventDefault(); setView(t.dataset.go); }
+  else if (t.dataset.periode) { state.periode = t.dataset.periode; renderAll(); if (t.closest(".hint")) $("#v-liste").scrollIntoView({behavior:"smooth"}); }
+  else if (t.dataset.type) { state.type = t.dataset.type; renderAll(); }
+  else if (t.dataset.vis) visKort(t.dataset.vis);
+  else if (t.dataset.kart) visKart(t.dataset.kart);
+  else if (t.dataset.mk) { state.valt = t.dataset.mk; renderMap(); renderList(); }
+});
+document.addEventListener("keydown", e => {
+  const mk = e.target.closest?.("[data-mk]");
+  if (mk && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); state.valt = mk.dataset.mk; renderMap(); renderList(); document.querySelector(`[data-mk="${CSS.escape(state.valt)}"]`)?.focus(); }
+});
+let sokT;
+$("#sok").addEventListener("input", e => { clearTimeout(sokT); sokT = setTimeout(() => { state.sok = e.target.value; renderList(); renderMap(); }, 120); });
+
+/* ---- Start ---- */
+renderStatus(); renderHero(); renderAll(); renderStats(); renderTip();
+const h = (location.hash || "").slice(1);
+const start = Object.keys(HASH).find(k => HASH[k] === h);
+if (start && start !== "liste") setView(start, false);
+})();
+</script>
