@@ -3,7 +3,7 @@
 <meta name="theme-color" content="#0C0F13">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Brannlogg">
-<meta name="description" content="Oversikt over brannar i Stord kommune frå Politiloggen, oppdatert kvar morgon kl. 06:00.">
+<meta name="description" content="Oversikt over brannar i Stord kommune frå Politiloggen, oppdatert kvar time.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=IBM+Plex+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap">
@@ -515,13 +515,13 @@ function renderStatus(){
   const o = oslo(D.oppdatert);
   const timar = (NO - new Date(D.oppdatert)) / 36e5;
   const el = $("#status");
-  el.classList.toggle("gammal", timar > 30);
+  el.classList.toggle("gammal", timar > 3);
   $("#status-txt").innerHTML = `<span class="full">Oppdatert </span>${relDag(o)} kl. ${kl(o)}`;
   let neste = "";
   if (D.neste) { const n = oslo(D.neste); neste = ` Neste oppdatering: ${relDag(n)} kl. ${kl(n)}.`; }
   el.title = `Data henta frå Politiloggen ${relDag(o)} kl. ${kl(o)}.${neste}`;
-  $("#info-oppd").innerHTML = `Appen hentar nye data frå Politiloggen kvar morgon kl. 06:00. Sist oppdatert: <b>${relDag(o)} kl. ${kl(o)}</b>.${neste}` +
-    (timar > 30 ? ` <b style="color:var(--ember)">Dataa er eldre enn eitt døgn. Prøv å laste sida på nytt – oppdateringa køyrer av seg sjølv kvar morgon kl. 06:00.</b>` : "");
+  $("#info-oppd").innerHTML = `Appen hentar nye data frå Politiloggen kvar heile time. Sist oppdatert: <b>${relDag(o)} kl. ${kl(o)}</b>.${neste}` +
+    (timar > 3 ? ` <b style="color:var(--ember)">Dataa er meir enn tre timar gamle. Prøv å laste sida på nytt.</b>` : "");
 }
 
 /* ---- Hero ---- */
@@ -811,6 +811,12 @@ document.addEventListener("keydown", e => {
 });
 let sokT;
 $("#sok").addEventListener("input", e => { clearTimeout(sokT); sokT = setTimeout(() => { state.sok = e.target.value; renderList(); renderMap(); }, 120); });
+
+/* ---- Hent nye data når appen blir opna igjen etter ei stund ---- */
+const LASTA = Date.now();
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && Date.now() - LASTA > 20 * 60 * 1000) location.reload();
+});
 
 /* ---- Start ---- */
 renderStatus(); renderHero(); renderAll(); renderStats(); renderTip();

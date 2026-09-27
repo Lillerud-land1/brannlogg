@@ -3,7 +3,7 @@
 Køyr:  python oppdater.py                (byggjer stordbrann.html og nettside/index.html)
        python oppdater.py --sjekk        (listar nye brannar utan nyheitskjelder, skriv ingen filer)
        python oppdater.py --send-ekstra  (sender ekstra.json til GitHub, som byggjer sida på nytt)
-Den daglege bygginga kl. 06:00 skjer i GitHub Actions (.github/workflows/oppdater.yml).
+Bygginga kvar heile time skjer i GitHub Actions (.github/workflows/oppdater.yml).
 Kjelder: Politiloggen API (Politiet, NLOD 2.0), Kartverket (adresser/stadnamn).
 """
 import base64
@@ -242,9 +242,8 @@ def send_ekstra():
     print("SENDT: OK – GitHub byggjer nettsida på nytt om eitt par minutt")
 
 
-def neste_0600(no_lokal):
-    neste = no_lokal.replace(hour=6, minute=0, second=0, microsecond=0)
-    return neste if neste > no_lokal else neste + timedelta(days=1)
+def neste_heile_time(no_lokal):
+    return no_lokal.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
 
 
 def main():
@@ -311,7 +310,7 @@ def main():
     no_lokal = datetime.now().astimezone()
     data = {
         "oppdatert": no.isoformat(timespec="seconds"),
-        "neste": neste_0600(no_lokal).isoformat(timespec="seconds"),
+        "neste": neste_heile_time(no_lokal).isoformat(timespec="seconds"),
         "vindauge": VINDAUGE_DAGAR,
         "brannar": brannar,
         "kart": les_json("kart.json", None),

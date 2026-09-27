@@ -1,12 +1,10 @@
 name: Oppdater Brannlogg Stord
 
-# Hentar nye brannar frå Politiloggen kvar morgon kl. 06:00 norsk tid og legg ut nettsida.
-# GitHub brukar UTC, så jobben står på både 04:00 og 05:00 UTC og køyrer berre den
-# som svarar til 06:00 i Noreg (sommartid / vintertid).
+# Hentar nye brannar frå Politiloggen kvar heile time og legg ut nettsida.
+# GitHub kan av og til starte planlagde jobbar nokre minutt for seint.
 on:
   schedule:
-    - cron: "0 4 * * *"
-    - cron: "0 5 * * *"
+    - cron: "0 * * * *"
   push:
     branches: [main]
     paths: ["ekstra.json", "mal.html", "mal-tv.html", "oppdater.py", ".github/workflows/oppdater.yml"]
@@ -22,27 +20,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  klokke:
-    runs-on: ubuntu-latest
-    outputs:
-      kjor: ${{ steps.sjekk.outputs.kjor }}
-    steps:
-      - id: sjekk
-        env:
-          PLAN: ${{ github.event.schedule }}
-        run: |
-          kjor=true
-          if [ "${{ github.event_name }}" = "schedule" ]; then
-            forskyving=$(TZ=Europe/Oslo date +%z)
-            kjor=false
-            if [ "$PLAN" = "0 4 * * *" ] && [ "$forskyving" = "+0200" ]; then kjor=true; fi
-            if [ "$PLAN" = "0 5 * * *" ] && [ "$forskyving" = "+0100" ]; then kjor=true; fi
-          fi
-          echo "kjor=$kjor" >> "$GITHUB_OUTPUT"
-
   oppdater:
-    needs: klokke
-    if: needs.klokke.outputs.kjor == 'true'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -59,13 +37,13 @@ jobs:
       - name: Hent brannar og bygg nettsida
         run: python oppdater.py
 
-      - name: Lagre nye data i repoet
+      - name: Lagre nye brannar i arkivet
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
+          git add arkiv.json geokode.json
           if ! git diff --cached --quiet; then
-            git commit -m "Dagleg oppdatering $(date '+%Y-%m-%d %H:%M')"
+            git commit -m "Nye data frå Politiloggen $(date '+%Y-%m-%d %H:%M')"
             git pull --rebase
             git push
           fi
