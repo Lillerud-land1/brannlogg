@@ -1,0 +1,15 @@
+{
+  "name": "Brannlogg Stord",
+  "short_name": "Brannlogg",
+  "description": "Brannar i Stord kommune frå Politiloggen, oppdatert kvar morgon kl. 06:00.",
+  "lang": "nn",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0C0F13",
+  "theme_color": "#0C0F13",
+  "icons": [
+    {"src": "ikon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+    {"src": "ikon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ]
+}
