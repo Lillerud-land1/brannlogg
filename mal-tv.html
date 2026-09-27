@@ -48,7 +48,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font
 .siste{margin-top:1rem;font-size:1.3rem;color:var(--ink-2);line-height:1.35}
 .siste b{color:var(--ink)}
 .stripe-boks{margin-top:auto}
-.stripe{display:grid;grid-template-columns:repeat(50,minmax(0,1fr));gap:.15rem;height:3.4rem;margin-top:.7rem}
+.stripe{display:grid;grid-template-columns:repeat(var(--kol,50),minmax(0,1fr));gap:.1rem;height:3.4rem;margin-top:.7rem}
 .stripe i{border-radius:.12rem;background:#1F2630}
 .stripe i.f1{background:var(--sev1)} .stripe i.f2{background:var(--sev2)} .stripe i.f3{background:var(--sev3)}
 .stripe i.idag{box-shadow:inset 0 0 0 .2rem var(--ink)}
@@ -139,7 +139,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font
     <section class="panel">
       <div class="etikett">Kart · <b>siste 12 månader</b></div>
       <div class="kart" id="kart"></div>
-      <div class="forklaring"><span class="s3"><i></i>Alvorleg</span><span class="s2"><i></i>Middels</span><span class="s1"><i></i>Mindre</span><span>Blinkar: siste 50 dagar</span></div>
+      <div class="forklaring"><span class="s3"><i></i>Alvorleg</span><span class="s2"><i></i>Middels</span><span class="s1"><i></i>Mindre</span><span id="blink-tekst">Blinkar: siste 100 dagar</span></div>
     </section>
   </main>
 
@@ -208,10 +208,11 @@ for (let i = 0; i < VINDU; i++) { const dn = START + i; celler += `<i class="${p
 const s0 = new Date(START * 864e5);
 const n50 = B.filter(b => b._o.dn >= START).length;
 const aar = B.filter(b => IDAG.dn - b._o.dn < 365).length;
-t += `<div class="stripe-boks"><div class="etikett">Siste ${VINDU} dagar</div><div class="stripe">${celler}</div>
+t += `<div class="stripe-boks"><div class="etikett">Siste ${VINDU} dagar</div><div class="stripe" style="--kol:${VINDU}">${celler}</div>
       <div class="akse"><span>${s0.getUTCDate()}. ${MND_K[s0.getUTCMonth()]}</span><span>i dag</span></div>
       <div class="tal"><div><b>${n50}</b><span>siste ${VINDU} dagar</span></div><div><b>${aar}</b><span>siste 12 mnd</span></div><div><b>${(aar / 12).toLocaleString("nb-NO", {maximumFractionDigits:1})}</b><span>snitt per månad</span></div></div></div>`;
 $("#teljar").innerHTML = t;
+$("#blink-tekst").textContent = `Blinkar: siste ${VINDU} dagar`;
 
 /* Liste – dei siste hendingane */
 const rader = B.slice(0, 6).map(b => `<li class="rad s${b.alvor}${IDAG.dn - b._o.dn < 2 ? " ny" : ""}">

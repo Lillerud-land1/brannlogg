@@ -103,5 +103,31 @@
       5.49923
     ],
     "merknad": "Stord folkehøgskule ligg i Osen på Leirvik."
+  },
+  "26wlp4": {
+    "sokt": "2026-09-27",
+    "merknad": "Ifølgje NRK innrømde mannen å ha tent på eit klesplagg.",
+    "kjelder": [
+      {
+        "kjelde": "NRK Vestland",
+        "tittel": "Lyngbrann på Stord",
+        "url": "https://www.nrk.no/vestland/lyngbrann-pa-stord-1.17963724"
+      },
+      {
+        "kjelde": "NRK Vestland",
+        "tittel": "Fikk kontroll på lyngbrann – mann innrømmer å ha tent på klesplagg",
+        "url": "https://www.nrk.no/vestland/fikk-kontroll-pa-lyngbrann-_-mann-innrommer-a-ha-tent-pa-klesplagg-1.17964565"
+      }
+    ]
+  },
+  "26n84w": {
+    "sokt": "2026-09-27",
+    "kjelder": [
+      {
+        "kjelde": "Radio Haugaland",
+        "tittel": "Bil totalvraket i brann på Stord",
+        "url": "https://radioh.no/rykker-ut-til-brann-i-kjoretoy-pa-stord/"
+      }
+    ]
   }
 }

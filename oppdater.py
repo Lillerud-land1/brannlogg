@@ -22,7 +22,7 @@ MAPPE = Path(__file__).parent
 API = "https://api.politiloggen.politiet.no"
 UA = {"User-Agent": "brannlogg-stord/1.0 (privat app)"}
 KOMMUNE, KOMMUNENR = "Stord", "4614"
-VINDAUGE_DAGAR = 50
+VINDAUGE_DAGAR = 100
 
 
 def hent(url, rå=False):

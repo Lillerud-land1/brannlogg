@@ -94,7 +94,7 @@ main.app{padding-block:18px 110px;display:grid;gap:18px}
 
 .strip-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:8px}
 .strip-head .eyebrow b{color:var(--ink)}
-.strip{display:grid;grid-template-columns:repeat(50,minmax(0,1fr));gap:2px;height:44px}
+.strip{display:grid;grid-template-columns:repeat(var(--kol,50),minmax(0,1fr));gap:1px;height:44px}
 .strip button{border:0;padding:0;border-radius:2px;background:var(--line-2);cursor:default;min-width:0}
 .strip button.f1{background:var(--sev1)}
 .strip button.f2{background:var(--sev2)}
@@ -104,6 +104,7 @@ main.app{padding-block:18px 110px;display:grid;gap:18px}
 .strip button.idag{box-shadow:inset 0 0 0 2px var(--ink)}
 .strip button.ny-mnd{margin-left:3px}
 .strip-axis{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-top:6px}
+.strip-axis .mob{display:none}
 .kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-top:18px}
 .kpi{background:var(--surface);padding:12px 14px}
 .kpi .v{font-family:var(--f-display);font-weight:800;font-size:34px;line-height:1;font-variant-numeric:tabular-nums}
@@ -297,7 +298,9 @@ figure.foto figcaption{font-size:12px;color:var(--muted);margin-top:4px}
 @media (max-width:720px){
   .hero-inner{grid-template-columns:minmax(0,1fr);gap:20px;padding:18px 16px 18px}
   .status .full{display:none}
-  .strip{height:38px;gap:1.5px}
+  .strip{grid-template-columns:repeat(var(--kol2,25),minmax(0,1fr));height:auto;grid-auto-rows:17px;gap:2px}
+  .strip-axis .desk{display:none}
+  .strip-axis .mob{display:block}
   .kpi{padding:10px 11px}
   .kpi .v{font-size:28px}
   .panel{padding:14px}
@@ -359,10 +362,10 @@ figure.foto figcaption{font-size:12px;color:var(--muted);margin-top:4px}
       <div class="counter" id="counter"></div>
       <div>
         <div class="strip-head">
-          <div class="eyebrow">Brannstripa · <b>siste 50 dagar</b></div>
+          <div class="eyebrow">Brannstripa · <b id="strip-tittel">siste 100 dagar</b></div>
           <div class="sub" id="strip-sum"></div>
         </div>
-        <div class="strip" id="strip" role="group" aria-label="Brannar per dag, siste 50 dagar"></div>
+        <div class="strip" id="strip" role="group" aria-label="Brannar per dag"></div>
         <div class="strip-axis" id="strip-axis"></div>
         <div class="kpis" id="kpis"></div>
       </div>
@@ -392,7 +395,7 @@ figure.foto figcaption{font-size:12px;color:var(--muted);margin-top:4px}
         </div>
         <div class="map" id="map"></div>
         <div class="legend">
-          <span class="s3"><i></i>Alvorleg</span><span class="s2"><i></i>Middels</span><span class="s1"><i></i>Mindre</span><span><i class="r"></i>Siste 50 dagar</span>
+          <span class="s3"><i></i>Alvorleg</span><span class="s2"><i></i>Middels</span><span class="s1"><i></i>Mindre</span><span><i class="r"></i><span id="legend-nyleg">Siste 100 dagar</span></span>
         </div>
         <div id="pop"></div>
         <div class="utan" id="utan"></div>
@@ -555,9 +558,18 @@ function renderHero(){
     const cls = [maks ? "f" + maks : "", dn === I_DAG.dn ? "idag" : "", (dd === 1 && i > 0) ? "ny-mnd" : ""].join(" ").trim();
     cells += `<button type="button" class="${cls}" title="${esc(lbl)}" aria-label="${esc(lbl)}"${liste.length ? ` data-vis="${liste[0].id}"` : ` tabindex="-1"`}></button>`;
   }
-  $("#strip").innerHTML = cells;
-  const s0 = new Date(START_DN * 864e5), mid = new Date((START_DN + 25) * 864e5);
-  $("#strip-axis").innerHTML = `<span>${s0.getUTCDate()}. ${MND_K[s0.getUTCMonth()]}</span><span>${mid.getUTCDate()}. ${MND_K[mid.getUTCMonth()]}</span><span>i dag</span>`;
+  const strip = $("#strip");
+  strip.innerHTML = cells;
+  strip.style.setProperty("--kol", VINDU);
+  strip.style.setProperty("--kol2", Math.ceil(VINDU / 2));
+  strip.setAttribute("aria-label", `Brannar per dag, siste ${VINDU} dagar`);
+  $("#strip-tittel").textContent = `siste ${VINDU} dagar`;
+  $("#legend-nyleg").textContent = `Siste ${VINDU} dagar`;
+  const s0 = new Date(START_DN * 864e5), mid = new Date((START_DN + Math.floor(VINDU / 2)) * 864e5);
+  const m2 = new Date((START_DN + Math.ceil(VINDU / 2)) * 864e5), m1 = new Date((START_DN + Math.ceil(VINDU / 2) - 1) * 864e5);
+  const dt = d => `${d.getUTCDate()}. ${MND_K[d.getUTCMonth()]}`;
+  $("#strip-axis").innerHTML = `<span class="desk">${dt(s0)}</span><span class="desk">${dt(mid)}</span><span class="desk">i dag</span>` +
+    `<span class="mob">Øvst: ${dt(s0)}–${dt(m1)} · Nedst: ${dt(m2)}–i dag</span>`;
   const n50 = B.filter(b => b._nyleg).length;
   const dagarMed = Object.keys(perDag).length;
   $("#strip-sum").textContent = `${fl(dagarMed, "dag", "dagar")} med brann`;
