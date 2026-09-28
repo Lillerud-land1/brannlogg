@@ -23,7 +23,9 @@
 }
 *{box-sizing:border-box;margin:0}
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--f-body);cursor:none}
-.skjerm{height:100vh;display:grid;grid-template-rows:auto 1fr auto;gap:1.2rem;padding:1.6rem 2rem 1.4rem}
+.skjerm{height:100vh;display:grid;grid-template-rows:auto 1fr auto auto;gap:1.2rem;padding:1.6rem 2rem 1rem}
+.kreditt{text-align:center;font-size:.95rem;color:var(--muted);margin-top:-.4rem;letter-spacing:.02em}
+.kreditt b{color:var(--ink-2);font-weight:600}
 
 /* Topp */
 .topp{display:flex;align-items:center;gap:1.4rem}
@@ -148,6 +150,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font
     <div class="tips" id="tips"></div>
     <div class="qr"><img src="qr.svg" alt=""><span>Skann for å få Brannlogg på mobilen<small id="oppd"></small></span></div>
   </footer>
+  <p class="kreditt">Laga av <b>Leander Wågen Lillerud</b> · Ikkje ein offisiell teneste frå Politiet, brannvesenet eller Stord kommune · Data frå Politiloggen</p>
 </div>
 
 <script>
