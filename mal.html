@@ -452,7 +452,7 @@ figure.foto figcaption{font-size:12px;color:var(--muted);margin-top:4px}
       <p id="info-oppd"></p>
       <ul>
         <li><b>Politiloggen</b> (Politiet, NLOD 2.0): alle brannar i Stord kommune, og andre hendingar der politiet nemner brannvesenet eller nødetatane, som trafikkulykker, ulykker på sjøen og utslepp.</li>
-        <li><b>Nyheitssaker</b> frå mellom anna Radio Haugaland, Sunnhordland, Stord24, NRK og Haugesunds Avis blir funne automatisk og lenka til. Ein sjeldan gong kan ei lenke gjelde ei anna hending.</li>
+        <li><b>Nyheitssaker</b> frå mellom anna Radio Haugaland, Sunnhordland, Stord24, NRK og Haugesunds Avis blir funne automatisk og lenka til. Skriv media om ein brann eller ei ulykke på Stord som ikkje står i Politiloggen, kjem ho med som ei eiga hending merkt «Frå media». Ein sjeldan gong kan ei lenke eller ei slik hending vere feil.</li>
         <li><b>Kart</b>: kystlinje © OpenStreetMap-bidragsytarar (ODbL), kommunegrense og stadnamn frå Kartverket.</li>
       </ul>
       <p style="margin-top:10px">Appen viser berre det politiet har loggført. Oppdrag som berre brannvesenet handterer, som katt i tre, vasslekkasjar og automatiske brannalarmar, kjem sjeldan med. Står det «Nødetatane», har politiet ikkje nemnt brannvesenet direkte. Alvorsgraden er rekna ut frå teksten i loggen og er ikkje ei offisiell vurdering.</p>
@@ -553,6 +553,9 @@ const state = {gruppe:"alle", periode:"50", type:"alle", sok:"", valt:null, view
 const erBrann = b => b.gruppe !== "utrykking";
 const utval = () => state.gruppe === "brann" ? B.filter(erBrann) : B;
 const ORD = () => state.gruppe === "brann" ? ["brann", "brannar"] : ["hending", "hendingar"];
+const iAar = b => I_DAG.dn - b._dn < 365;
+const iPeriode = b => state.periode === "alle" ? true : state.periode === "aar" ? iAar(b) : b._nyleg;
+const periodeNamn = () => state.periode === "alle" ? "alle" : state.periode === "aar" ? "siste år" : `siste ${VINDU} dagar`;
 
 /* ---- Status ---- */
 function renderStatus(){
@@ -632,19 +635,19 @@ function renderHero(){
 /* ---- Filter ---- */
 function filtrert(){
   const q = state.sok.trim().toLowerCase();
-  return utval().filter(b => (state.periode === "alle" || b._nyleg)
+  return utval().filter(b => iPeriode(b)
     && (state.type === "alle" || b.type === state.type)
     && (!q || q.split(/\s+/).every(w => b._tekst.includes(w))));
 }
 function renderControls(){
   const n50 = utval().filter(b => b._nyleg).length;
-  const iPeriode = b => state.periode === "alle" || b._nyleg;
   $("#seg-gruppe").innerHTML =
     `<button type="button" data-gruppe="alle" aria-pressed="${state.gruppe === "alle"}">Alle utrykkingar<span class="n">${B.filter(iPeriode).length}</span></button>` +
     `<button type="button" data-gruppe="brann" aria-pressed="${state.gruppe === "brann"}">Berre brannar<span class="n">${B.filter(b => erBrann(b) && iPeriode(b)).length}</span></button>`;
   $("#seg-periode").innerHTML =
     `<button type="button" data-periode="50" aria-pressed="${state.periode === "50"}">Siste ${VINDU} dagar<span class="n">${n50}</span></button>` +
-    `<button type="button" data-periode="alle" aria-pressed="${state.periode === "alle"}">Alle<span class="n">${utval().length}</span></button>`;
+    `<button type="button" data-periode="aar" aria-pressed="${state.periode === "aar"}">Siste år<span class="n">${utval().filter(iAar).length}</span></button>` +
+    (utval().length > utval().filter(iAar).length ? `<button type="button" data-periode="alle" aria-pressed="${state.periode === "alle"}">Alle<span class="n">${utval().length}</span></button>` : "");
   const typar = [...new Set(utval().filter(iPeriode).map(b => b.type))];
   if (state.type !== "alle" && !typar.includes(state.type)) state.type = "alle";
   $("#chips").innerHTML = `<button type="button" class="chip" data-type="alle" aria-pressed="${state.type === "alle"}">Alle typar</button>` +
@@ -664,6 +667,7 @@ function kort(b){
     f.personskade ? `<span class="tag warn">Personskade</span>` : "",
     f.evakuert ? `<span class="tag">Evakuering</span>` : "",
     f.sak ? `<span class="tag">Politisak oppretta</span>` : "",
+    b.kjelde_type === "media" ? `<span class="tag">Frå media</span>` : "",
     erBrann(b) ? "" : `<span class="tag utr">${f.brannvesen ? "Brannvesenet" : "Nødetatane"}</span>`,
     `<span class="tag">${esc(t.n)}</span>`
   ].join("");
@@ -687,12 +691,12 @@ function kort(b){
     <div class="tags">${tags}</div>
     ${b.merknad ? `<div class="note">${ikon("i-merk")}<span>${esc(b.merknad)}</span></div>` : ""}
     ${(b.bilete || []).map(p => `<figure class="foto"><img src="${p.src}" alt="Bilete frå hendinga på ${esc(b.stad)}" loading="lazy"><figcaption>${esc(p.kreditt)}</figcaption></figure>`).join("")}
-    <details class="log"${b.aktiv ? " open" : ""}><summary>${ikon("i-pil")}Heile politiloggen <span class="mono">${fl(b.meldingar.length, "melding", "meldingar")}${var_ ? " · " + var_ : ""}</span></summary><ol class="tl">${logg}</ol></details>
+    ${b.kjelde_type === "media" ? "" : `<details class="log"${b.aktiv ? " open" : ""}><summary>${ikon("i-pil")}Heile politiloggen <span class="mono">${fl(b.meldingar.length, "melding", "meldingar")}${var_ ? " · " + var_ : ""}</span></summary><ol class="tl">${logg}</ol></details>`}
     ${b.kjelder?.length ? `<div class="media"><div class="eyebrow">I media</div><ul>${b.kjelder.map(k =>
       `<li><a href="${esc(k.url)}" target="_blank" rel="noopener"><span class="src">${esc(k.kjelde)}</span><span class="t">${esc(k.tittel)}</span>${ikon("i-ut","")}</a></li>`).join("")}</ul></div>` : ""}
     <div class="actions">
       ${b.pos ? `<button type="button" class="btn" data-kart="${esc(b.id)}">${ikon("i-kart")}Vis på kartet</button>` : ""}
-      <a class="btn" href="https://www.politiet.no/politiloggen/hendelse/${encodeURIComponent(b.id)}" target="_blank" rel="noopener">${ikon("i-ut")}Politiloggen</a>
+      ${b.kjelde_type === "media" ? "" : `<a class="btn" href="https://www.politiet.no/politiloggen/hendelse/${encodeURIComponent(b.id)}" target="_blank" rel="noopener">${ikon("i-ut")}Politiloggen</a>`}
       <a class="btn" href="${kartUrl}" target="_blank" rel="noopener">${ikon("i-ut")}Google Maps</a>
     </div>
   </article>`;
@@ -716,8 +720,8 @@ function renderList(){
   }
   if (state.periode === "50" && !state.sok && state.type === "alle") {
     const U = utval();
-    const eldre = U.length - U.filter(b => b._nyleg).length;
-    if (eldre) html += `<div class="hint"><span>${fl(eldre, "eldre " + ORD()[0], "eldre " + ORD()[1])} ligg i arkivet.</span><button type="button" class="btn" data-periode="alle">Vis alle ${ikon("i-pil")}</button></div>`;
+    const eldre = U.filter(iAar).length - U.filter(b => b._nyleg).length;
+    if (eldre) html += `<div class="hint"><span>${fl(eldre, "eldre " + ORD()[0], "eldre " + ORD()[1])} frå siste år.</span><button type="button" class="btn" data-periode="aar">Vis siste år ${ikon("i-pil")}</button></div>`;
   }
   $("#list").innerHTML = html;
 }
@@ -747,7 +751,7 @@ function renderMap(){
     <g class="m-scale"><line x1="${sx}" y1="${sy}" x2="${sx + 2*km}" y2="${sy}"/><line x1="${sx}" y1="${sy-9}" x2="${sx}" y2="${sy+9}"/><line x1="${sx + 2*km}" y1="${sy-9}" x2="${sx + 2*km}" y2="${sy+9}"/><text x="${sx}" y="${sy - 16}">2 km</text></g>
     <g class="m-n" transform="translate(${K.w - 56} 60)"><path d="M0 -30 L13 12 L0 4 L-13 12 Z"/><text x="0" y="40" text-anchor="middle">N</text></g>
   </svg>`;
-  $("#kart-sub").textContent = `${fl(synlege.length, ...ORD())} · ${state.periode === "50" ? `siste ${VINDU} dagar` : "alle"}`;
+  $("#kart-sub").textContent = `${fl(synlege.length, ...ORD())} · ${periodeNamn()}`;
   const utan = liste.filter(b => !b.pos).length;
   $("#utan").textContent = utan ? `${fl(utan, "hending", "hendingar")} utan kjend kartplassering er ikkje med på kartet.` : "";
   renderPop();
@@ -830,7 +834,7 @@ function setView(v, rull = true){
 function visKort(id){
   state.valt = id;
   const b = B.find(x => x.id === id);
-  if (b && !b._nyleg && state.periode !== "alle") state.periode = "alle";
+  if (b && !iPeriode(b)) state.periode = iAar(b) ? "aar" : "alle";
   if (b && !erBrann(b) && state.gruppe === "brann") { state.gruppe = "alle"; renderHero(); renderStats(); }
   state.type = "alle"; state.sok = ""; $("#sok").value = "";
   renderAll();
