@@ -1,0 +1,1436 @@
+{
+ "4936604": {
+  "id": "4936604",
+  "type": "Brann annet",
+  "tid": "2026-09-28T13:10:46+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4932688": {
+  "id": "4932688",
+  "type": "ABA teknisk feil",
+  "tid": "2026-09-25T13:50:45+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4930883": {
+  "id": "4930883",
+  "type": "Brann annet",
+  "tid": "2026-09-24T17:23:02+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4930204": {
+  "id": "4930204",
+  "type": "Dyreoppdrag",
+  "tid": "2026-09-24T11:35:54+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4929575": {
+  "id": "4929575",
+  "type": "ABA ukjent",
+  "tid": "2026-09-24T08:16:51+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4928499": {
+  "id": "4928499",
+  "type": "ABA matlaging",
+  "tid": "2026-09-23T15:43:57+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4927100": {
+  "id": "4927100",
+  "type": "Unødig kontroll av melding",
+  "tid": "2026-09-23T07:34:20+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4924015": {
+  "id": "4924015",
+  "type": "ABA manuell melder",
+  "tid": "2026-09-21T14:51:48+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4909714": {
+  "id": "4909714",
+  "type": "ABA fysisk skade på anlegget",
+  "tid": "2026-09-14T16:23:58+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4909542": {
+  "id": "4909542",
+  "type": "Oppdrag fra andre alarmer",
+  "tid": "2026-09-14T14:43:02+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4908978": {
+  "id": "4908978",
+  "type": "Andre oppdrag",
+  "tid": "2026-09-14T10:39:00+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4907290": {
+  "id": "4907290",
+  "type": "Unødig kontroll av melding",
+  "tid": "2026-09-13T12:29:07+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4903258": {
+  "id": "4903258",
+  "type": "ABA arbeid på/i bygg",
+  "tid": "2026-09-10T13:22:45+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4901505": {
+  "id": "4901505",
+  "type": "Dyreoppdrag",
+  "tid": "2026-09-09T15:32:20+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4899930": {
+  "id": "4899930",
+  "type": "Unødig kontroll av melding",
+  "tid": "2026-09-08T17:04:47+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4892755": {
+  "id": "4892755",
+  "type": "Avbrutt utrykning alarm",
+  "tid": "2026-09-04T07:15:38+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4892373": {
+  "id": "4892373",
+  "type": "Avbrutt utrykning alarm",
+  "tid": "2026-09-03T19:26:19+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4890474": {
+  "id": "4890474",
+  "type": "Trafikkulykke",
+  "tid": "2026-09-02T17:53:47+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4889204": {
+  "id": "4889204",
+  "type": "Person i vann",
+  "tid": "2026-09-02T07:57:02+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4884730": {
+  "id": "4884730",
+  "type": "Unødig kontroll av melding",
+  "tid": "2026-08-30T15:19:38+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4881266": {
+  "id": "4881266",
+  "type": "ABA vanndamp",
+  "tid": "2026-08-28T05:53:36+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4872807": {
+  "id": "4872807",
+  "type": "Brannhindrende tiltak komfyr",
+  "tid": "2026-08-23T14:09:12+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4872673": {
+  "id": "4872673",
+  "type": "Avbrutt utrykning alarm",
+  "tid": "2026-08-23T12:10:53+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4872056": {
+  "id": "4872056",
+  "type": "Unødig kontroll av melding",
+  "tid": "2026-08-22T18:26:10+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4872045": {
+  "id": "4872045",
+  "type": "ABA vanndamp",
+  "tid": "2026-08-22T18:16:41+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4870261": {
+  "id": "4870261",
+  "type": "Ubetydelig forurensning",
+  "tid": "2026-08-21T10:40:44+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4870173": {
+  "id": "4870173",
+  "type": "ABA ukjent",
+  "tid": "2026-08-21T10:03:12+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4866788": {
+  "id": "4866788",
+  "type": "Person i vann",
+  "tid": "2026-08-19T10:48:32+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4865536": {
+  "id": "4865536",
+  "type": "ABA vanndamp",
+  "tid": "2026-08-18T14:42:51+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4859838": {
+  "id": "4859838",
+  "type": "Avbrutt utrykning samtale",
+  "tid": "2026-08-14T14:25:53+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4859811": {
+  "id": "4859811",
+  "type": "Avbrutt utrykning samtale",
+  "tid": "2026-08-14T13:52:36+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4858574": {
+  "id": "4858574",
+  "type": "ABA annen røyk",
+  "tid": "2026-08-13T19:32:29+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4858516": {
+  "id": "4858516",
+  "type": "Brannhindrende tiltak komfyr",
+  "tid": "2026-08-13T18:03:52+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4856855": {
+  "id": "4856855",
+  "type": "Brann i bygning",
+  "tid": "2026-08-12T22:01:26+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4855183": {
+  "id": "4855183",
+  "type": "ABA ukjent",
+  "tid": "2026-08-12T00:59:58+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4853642": {
+  "id": "4853642",
+  "type": "Trafikkulykke",
+  "tid": "2026-08-11T05:46:01+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4850338": {
+  "id": "4850338",
+  "type": "ABA matlaging",
+  "tid": "2026-08-08T14:18:35+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4849749": {
+  "id": "4849749",
+  "type": "ABA vanndamp",
+  "tid": "2026-08-08T02:37:35+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4849584": {
+  "id": "4849584",
+  "type": "Avbrutt utrykning alarm",
+  "tid": "2026-08-07T19:44:20+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4849474": {
+  "id": "4849474",
+  "type": "Avbrutt utrykning alarm",
+  "tid": "2026-08-07T17:36:52+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4844596": {
+  "id": "4844596",
+  "type": "ABA ukjent",
+  "tid": "2026-08-04T20:04:01+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4843178": {
+  "id": "4843178",
+  "type": "ABA vanndamp",
+  "tid": "2026-08-04T05:06:11+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4843012": {
+  "id": "4843012",
+  "type": "Avbrutt utrykning alarm",
+  "tid": "2026-08-03T20:12:58+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4837964": {
+  "id": "4837964",
+  "type": "Trafikkulykke",
+  "tid": "2026-07-30T19:20:26+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4834596": {
+  "id": "4834596",
+  "type": "Dyreoppdrag",
+  "tid": "2026-07-28T15:17:50+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4832702": {
+  "id": "4832702",
+  "type": "ABA eksos",
+  "tid": "2026-07-27T11:28:34+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4830819": {
+  "id": "4830819",
+  "type": "Trafikkulykke",
+  "tid": "2026-07-25T18:31:52+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4828039": {
+  "id": "4828039",
+  "type": "Andre oppdrag",
+  "tid": "2026-07-23T11:29:53+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4825688": {
+  "id": "4825688",
+  "type": "ABA matlaging",
+  "tid": "2026-07-21T16:11:04+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4824835": {
+  "id": "4824835",
+  "type": "Brannhindrende tiltak komfyr",
+  "tid": "2026-07-21T07:28:13+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4821649": {
+  "id": "4821649",
+  "type": "Avbrutt utrykning alarm",
+  "tid": "2026-07-18T11:23:07+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4821232": {
+  "id": "4821232",
+  "type": "ABA røyking",
+  "tid": "2026-07-18T02:24:34+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4819558": {
+  "id": "4819558",
+  "type": "Avbrutt utrykning alarm",
+  "tid": "2026-07-17T04:13:20+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4817049": {
+  "id": "4817049",
+  "type": "Trafikkulykke",
+  "tid": "2026-07-15T11:52:49+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4815895": {
+  "id": "4815895",
+  "type": "ABA matlaging",
+  "tid": "2026-07-14T15:42:58+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4815834": {
+  "id": "4815834",
+  "type": "RVR uten foregående innsats",
+  "tid": "2026-07-14T14:35:36+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4812838": {
+  "id": "4812838",
+  "type": "Dyreoppdrag",
+  "tid": "2026-07-12T12:12:30+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4810000": {
+  "id": "4810000",
+  "type": "ABA øvelse/service/test av anlegg",
+  "tid": "2026-07-10T07:59:50+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4800973": {
+  "id": "4800973",
+  "type": "ABA matlaging",
+  "tid": "2026-07-03T13:29:11+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4799697": {
+  "id": "4799697",
+  "type": "Avbrutt utrykning alarm",
+  "tid": "2026-07-02T17:40:44+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4797229": {
+  "id": "4797229",
+  "type": "Avbrutt utrykning alarm",
+  "tid": "2026-07-01T11:41:24+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4790173": {
+  "id": "4790173",
+  "type": "ABA matlaging",
+  "tid": "2026-06-26T19:22:34+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4790100": {
+  "id": "4790100",
+  "type": "Brannhindrende tiltak komfyr",
+  "tid": "2026-06-26T18:10:34+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4788691": {
+  "id": "4788691",
+  "type": "Brann i personbil",
+  "tid": "2026-06-26T01:13:23+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4783551": {
+  "id": "4783551",
+  "type": "ABA ukjent",
+  "tid": "2026-06-23T10:59:42+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4781978": {
+  "id": "4781978",
+  "type": "Bistand politi",
+  "tid": "2026-06-22T12:50:29+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4779883": {
+  "id": "4779883",
+  "type": "Avbrutt utrykning alarm",
+  "tid": "2026-06-21T05:13:56+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4779739": {
+  "id": "4779739",
+  "type": "Ulykke båt eller skip",
+  "tid": "2026-06-20T23:49:46+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4773570": {
+  "id": "4773570",
+  "type": "Unødig kontroll av melding",
+  "tid": "2026-06-17T09:08:10+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4769254": {
+  "id": "4769254",
+  "type": "ABA ukjent",
+  "tid": "2026-06-15T06:27:59+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4768278": {
+  "id": "4768278",
+  "type": "ABA ukjent",
+  "tid": "2026-06-14T05:26:20+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4755447": {
+  "id": "4755447",
+  "type": "Brann i personbil",
+  "tid": "2026-06-05T14:41:07+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4754670": {
+  "id": "4754670",
+  "type": "Avbrutt utrykning alarm",
+  "tid": "2026-06-05T08:37:15+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4751849": {
+  "id": "4751849",
+  "type": "ABA matlaging",
+  "tid": "2026-06-03T17:12:11+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4736192": {
+  "id": "4736192",
+  "type": "Akutt forurensning",
+  "tid": "2026-05-25T15:38:55+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4736137": {
+  "id": "4736137",
+  "type": "ABA teknisk feil",
+  "tid": "2026-05-25T14:45:55+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4735153": {
+  "id": "4735153",
+  "type": "ABA vanndamp",
+  "tid": "2026-05-24T13:56:19+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4733687": {
+  "id": "4733687",
+  "type": "ABA teknisk feil",
+  "tid": "2026-05-23T09:28:30+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4733543": {
+  "id": "4733543",
+  "type": "ABA manuell melder",
+  "tid": "2026-05-23T07:15:33+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4727782": {
+  "id": "4727782",
+  "type": "ABA matlaging",
+  "tid": "2026-05-19T22:07:23+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4723609": {
+  "id": "4723609",
+  "type": "Avbrutt utrykning samtale",
+  "tid": "2026-05-17T08:19:46+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4720475": {
+  "id": "4720475",
+  "type": "ABA ukjent",
+  "tid": "2026-05-14T16:06:45+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4720097": {
+  "id": "4720097",
+  "type": "ABA matlaging",
+  "tid": "2026-05-14T10:35:39+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4714467": {
+  "id": "4714467",
+  "type": "ABA vanndamp",
+  "tid": "2026-05-11T06:46:29+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4704705": {
+  "id": "4704705",
+  "type": "Bistand politi",
+  "tid": "2026-05-05T03:58:35+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4701839": {
+  "id": "4701839",
+  "type": "Unødig kontroll av melding",
+  "tid": "2026-05-02T21:46:19+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4701538": {
+  "id": "4701538",
+  "type": "ABA matlaging",
+  "tid": "2026-05-02T16:10:39+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4688030": {
+  "id": "4688030",
+  "type": "ABA vanndamp",
+  "tid": "2026-04-24T06:37:22+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4681431": {
+  "id": "4681431",
+  "type": "ABA teknisk feil",
+  "tid": "2026-04-20T14:32:07+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4679840": {
+  "id": "4679840",
+  "type": "Brann i bygning",
+  "tid": "2026-04-19T16:07:26+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4677785": {
+  "id": "4677785",
+  "type": "Trafikkulykke",
+  "tid": "2026-04-17T19:06:35+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4675948": {
+  "id": "4675948",
+  "type": "ABA teknisk feil",
+  "tid": "2026-04-16T18:02:04+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4675669": {
+  "id": "4675669",
+  "type": "Andre oppdrag",
+  "tid": "2026-04-16T14:23:51+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4672170": {
+  "id": "4672170",
+  "type": "Brann annet",
+  "tid": "2026-04-15T01:26:33+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4669706": {
+  "id": "4669706",
+  "type": "Helseoppdrag annet",
+  "tid": "2026-04-13T14:26:55+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4669374": {
+  "id": "4669374",
+  "type": "Brann i gress- eller innmark",
+  "tid": "2026-04-13T11:57:01+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4667062": {
+  "id": "4667062",
+  "type": "Avbrutt utrykning alarm",
+  "tid": "2026-04-11T18:31:03+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4666554": {
+  "id": "4666554",
+  "type": "ABA ukjent",
+  "tid": "2026-04-11T12:04:49+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4665552": {
+  "id": "4665552",
+  "type": "Brann annet",
+  "tid": "2026-04-10T15:23:42+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4664120": {
+  "id": "4664120",
+  "type": "ABA ukjent",
+  "tid": "2026-04-10T03:44:18+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4663186": {
+  "id": "4663186",
+  "type": "Brann i bygning",
+  "tid": "2026-04-09T11:06:58+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4663141": {
+  "id": "4663141",
+  "type": "Avbrutt utrykning alarm",
+  "tid": "2026-04-09T10:49:48+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4661606": {
+  "id": "4661606",
+  "type": "Brann i bygning",
+  "tid": "2026-04-08T13:44:59+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4656291": {
+  "id": "4656291",
+  "type": "Trafikkulykke",
+  "tid": "2026-04-04T14:38:13+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4655499": {
+  "id": "4655499",
+  "type": "ABA vanndamp",
+  "tid": "2026-04-03T18:10:22+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4655196": {
+  "id": "4655196",
+  "type": "Helseoppdrag annet",
+  "tid": "2026-04-03T12:28:35+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4651171": {
+  "id": "4651171",
+  "type": "ABA annet",
+  "tid": "2026-03-31T08:28:29+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4650916": {
+  "id": "4650916",
+  "type": "ABA annen røyk",
+  "tid": "2026-03-31T06:25:29+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4650692": {
+  "id": "4650692",
+  "type": "Andre oppdrag",
+  "tid": "2026-03-30T20:51:58+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4650669": {
+  "id": "4650669",
+  "type": "Brann i bygning",
+  "tid": "2026-03-30T20:06:32+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4649214": {
+  "id": "4649214",
+  "type": "Brannhindrende annet utenfor bygg",
+  "tid": "2026-03-30T02:13:18+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4647188": {
+  "id": "4647188",
+  "type": "Avbrutt utrykning alarm",
+  "tid": "2026-03-27T19:39:59+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4643889": {
+  "id": "4643889",
+  "type": "ABA matlaging",
+  "tid": "2026-03-25T21:44:37+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4637952": {
+  "id": "4637952",
+  "type": "Avbrutt utrykning alarm",
+  "tid": "2026-03-22T06:25:35+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4637652": {
+  "id": "4637652",
+  "type": "ABA manuell melder",
+  "tid": "2026-03-21T18:07:27+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4636424": {
+  "id": "4636424",
+  "type": "Unødig kontroll av melding",
+  "tid": "2026-03-20T17:24:31+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4633851": {
+  "id": "4633851",
+  "type": "Avbrutt utrykning alarm",
+  "tid": "2026-03-19T10:38:22+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4632979": {
+  "id": "4632979",
+  "type": "ABA vanndamp",
+  "tid": "2026-03-18T19:04:41+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4631079": {
+  "id": "4631079",
+  "type": "Unødig alarm privatmarked",
+  "tid": "2026-03-17T17:02:23+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4629197": {
+  "id": "4629197",
+  "type": "ABA matlaging",
+  "tid": "2026-03-16T15:55:42+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4627677": {
+  "id": "4627677",
+  "type": "Trafikkulykke",
+  "tid": "2026-03-15T17:57:42+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4626956": {
+  "id": "4626956",
+  "type": "ABA trykkfall sprinkler",
+  "tid": "2026-03-15T05:27:59+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4626849": {
+  "id": "4626849",
+  "type": "Trafikkulykke",
+  "tid": "2026-03-14T22:29:10+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4625694": {
+  "id": "4625694",
+  "type": "ABA teknisk feil",
+  "tid": "2026-03-13T19:09:58+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4621822": {
+  "id": "4621822",
+  "type": "ABA matlaging",
+  "tid": "2026-03-11T19:01:50+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4621773": {
+  "id": "4621773",
+  "type": "ABA manuell melder",
+  "tid": "2026-03-11T18:06:46+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4621653": {
+  "id": "4621653",
+  "type": "Unødig kontroll av melding",
+  "tid": "2026-03-11T16:33:43+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4618461": {
+  "id": "4618461",
+  "type": "Avbrutt utrykning alarm",
+  "tid": "2026-03-09T20:23:10+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4612178": {
+  "id": "4612178",
+  "type": "Unødig kontroll av melding",
+  "tid": "2026-03-05T09:35:14+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4610920": {
+  "id": "4610920",
+  "type": "ABA manuell melder",
+  "tid": "2026-03-04T13:08:05+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4607287": {
+  "id": "4607287",
+  "type": "Helseoppdrag annet",
+  "tid": "2026-03-02T14:07:17+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4605952": {
+  "id": "4605952",
+  "type": "Trafikkulykke",
+  "tid": "2026-03-01T20:33:15+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4604982": {
+  "id": "4604982",
+  "type": "Avbrutt utrykning alarm",
+  "tid": "2026-02-28T18:47:41+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4604523": {
+  "id": "4604523",
+  "type": "Trafikkulykke",
+  "tid": "2026-02-28T11:36:35+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4604034": {
+  "id": "4604034",
+  "type": "Unødig kontroll av melding",
+  "tid": "2026-02-27T20:02:11+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4602280": {
+  "id": "4602280",
+  "type": "Avbrutt utrykning alarm",
+  "tid": "2026-02-26T20:01:22+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4600700": {
+  "id": "4600700",
+  "type": "Beredskapsoppdrag",
+  "tid": "2026-02-26T02:55:59+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4600132": {
+  "id": "4600132",
+  "type": "Brann i bygning",
+  "tid": "2026-02-25T13:56:02+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4595596": {
+  "id": "4595596",
+  "type": "ABA vanndamp",
+  "tid": "2026-02-22T19:40:16+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4594738": {
+  "id": "4594738",
+  "type": "Avbrutt utrykning alarm",
+  "tid": "2026-02-21T20:03:39+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4594447": {
+  "id": "4594447",
+  "type": "ABA vanndamp",
+  "tid": "2026-02-21T15:52:02+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4593314": {
+  "id": "4593314",
+  "type": "ABA matlaging",
+  "tid": "2026-02-20T16:08:08+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4592584": {
+  "id": "4592584",
+  "type": "Brann i skorstein",
+  "tid": "2026-02-20T09:37:05+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4588647": {
+  "id": "4588647",
+  "type": "Trafikkulykke",
+  "tid": "2026-02-18T05:43:29+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4586232": {
+  "id": "4586232",
+  "type": "Unødig kontroll av melding",
+  "tid": "2026-02-16T13:27:56+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4584802": {
+  "id": "4584802",
+  "type": "Brann i skorstein",
+  "tid": "2026-02-15T16:20:36+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4584269": {
+  "id": "4584269",
+  "type": "Avbrutt utrykning samtale",
+  "tid": "2026-02-15T02:24:51+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4572665": {
+  "id": "4572665",
+  "type": "Unødig kontroll av melding",
+  "tid": "2026-02-13T16:24:37+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4572549": {
+  "id": "4572549",
+  "type": "Akutt forurensning",
+  "tid": "2026-02-13T14:33:18+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4564143": {
+  "id": "4564143",
+  "type": "Brann i skorstein",
+  "tid": "2026-02-09T06:29:26+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4561483": {
+  "id": "4561483",
+  "type": "Unødig kontroll av melding",
+  "tid": "2026-02-06T14:40:36+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4561388": {
+  "id": "4561388",
+  "type": "Brann i gress- eller innmark",
+  "tid": "2026-02-06T13:41:54+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4550823": {
+  "id": "4550823",
+  "type": "Unødig kontroll av melding",
+  "tid": "2026-01-30T19:57:45+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4550433": {
+  "id": "4550433",
+  "type": "Brann i bygning",
+  "tid": "2026-01-30T14:40:13+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4549329": {
+  "id": "4549329",
+  "type": "Unødig andre alarmer",
+  "tid": "2026-01-30T06:02:02+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4540272": {
+  "id": "4540272",
+  "type": "Brann i bygning",
+  "tid": "2026-01-23T20:24:18+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4531487": {
+  "id": "4531487",
+  "type": "ABA teknisk feil",
+  "tid": "2026-01-18T03:17:12+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4531407": {
+  "id": "4531407",
+  "type": "Brann i skorstein",
+  "tid": "2026-01-17T23:03:13+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4531306": {
+  "id": "4531306",
+  "type": "ABA teknisk feil",
+  "tid": "2026-01-17T19:24:40+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4527072": {
+  "id": "4527072",
+  "type": "Brann i skorstein",
+  "tid": "2026-01-15T07:52:53+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4526972": {
+  "id": "4526972",
+  "type": "Trafikkulykke",
+  "tid": "2026-01-15T07:15:24+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4526778": {
+  "id": "4526778",
+  "type": "ABA manuell melder",
+  "tid": "2026-01-15T01:22:37+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4524765": {
+  "id": "4524765",
+  "type": "Berging av verdier",
+  "tid": "2026-01-13T19:20:11+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4524356": {
+  "id": "4524356",
+  "type": "Brannhindrende annet utenfor bygg",
+  "tid": "2026-01-13T14:28:12+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4522573": {
+  "id": "4522573",
+  "type": "Helseoppdrag bære/løfte",
+  "tid": "2026-01-12T14:36:13+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4522444": {
+  "id": "4522444",
+  "type": "Brann i skorstein",
+  "tid": "2026-01-12T13:14:51+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4522403": {
+  "id": "4522403",
+  "type": "Unødig kontroll av melding",
+  "tid": "2026-01-12T12:57:12+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4519662": {
+  "id": "4519662",
+  "type": "Avbrutt utrykning alarm",
+  "tid": "2026-01-10T12:42:39+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4519330": {
+  "id": "4519330",
+  "type": "ABA vanndamp",
+  "tid": "2026-01-10T06:38:19+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4515799": {
+  "id": "4515799",
+  "type": "Brann i bygning",
+  "tid": "2026-01-08T05:22:20+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4515337": {
+  "id": "4515337",
+  "type": "Unødig kontroll av melding",
+  "tid": "2026-01-07T15:50:51+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4514165": {
+  "id": "4514165",
+  "type": "ABA matlaging",
+  "tid": "2026-01-07T07:07:31+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4511636": {
+  "id": "4511636",
+  "type": "ABA annen røyk",
+  "tid": "2026-01-05T14:46:48+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4510548": {
+  "id": "4510548",
+  "type": "Trafikkulykke",
+  "tid": "2026-01-05T02:13:42+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4509479": {
+  "id": "4509479",
+  "type": "ABA matlaging",
+  "tid": "2026-01-03T20:20:12+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4508585": {
+  "id": "4508585",
+  "type": "ABA ukjent",
+  "tid": "2026-01-02T22:12:18+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4507853": {
+  "id": "4507853",
+  "type": "ABA ukjent",
+  "tid": "2026-01-02T10:35:37+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4507476": {
+  "id": "4507476",
+  "type": "Unødig andre alarmer",
+  "tid": "2026-01-02T02:43:31+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4505981": {
+  "id": "4505981",
+  "type": "ABA vanndamp",
+  "tid": "2025-12-31T18:34:10+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4505961": {
+  "id": "4505961",
+  "type": "ABA annen røyk",
+  "tid": "2025-12-31T18:17:29+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4505746": {
+  "id": "4505746",
+  "type": "ABA ukjent",
+  "tid": "2025-12-31T15:35:00+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4502497": {
+  "id": "4502497",
+  "type": "Trafikkulykke",
+  "tid": "2025-12-28T18:27:40+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4501281": {
+  "id": "4501281",
+  "type": "Avbrutt utrykning alarm",
+  "tid": "2025-12-27T14:56:26+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4500982": {
+  "id": "4500982",
+  "type": "ABA ukjent",
+  "tid": "2025-12-27T11:46:20+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4498231": {
+  "id": "4498231",
+  "type": "Helseoppdrag annet",
+  "tid": "2025-12-24T11:53:36+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4496660": {
+  "id": "4496660",
+  "type": "Andre oppdrag",
+  "tid": "2025-12-22T20:44:16+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4495793": {
+  "id": "4495793",
+  "type": "Helseoppdrag annet",
+  "tid": "2025-12-22T10:39:13+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4486751": {
+  "id": "4486751",
+  "type": "Trafikkulykke",
+  "tid": "2025-12-16T11:00:42+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4485826": {
+  "id": "4485826",
+  "type": "Avbrutt utrykning alarm",
+  "tid": "2025-12-15T19:06:29+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4482542": {
+  "id": "4482542",
+  "type": "Unødig kontroll av melding",
+  "tid": "2025-12-13T12:19:02+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4481972": {
+  "id": "4481972",
+  "type": "ABA trykkfall sprinkler",
+  "tid": "2025-12-12T19:44:07+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4481728": {
+  "id": "4481728",
+  "type": "Unødig kontroll av melding",
+  "tid": "2025-12-12T15:57:06+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4472183": {
+  "id": "4472183",
+  "type": "Avbrutt utrykning samtale",
+  "tid": "2025-12-07T14:21:46+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4463700": {
+  "id": "4463700",
+  "type": "Trafikkulykke",
+  "tid": "2025-12-02T09:34:11+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4461035": {
+  "id": "4461035",
+  "type": "ABA manuell melder",
+  "tid": "2025-12-01T06:19:48+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4459592": {
+  "id": "4459592",
+  "type": "ABA vanndamp",
+  "tid": "2025-11-29T15:58:01+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4459156": {
+  "id": "4459156",
+  "type": "Avbrutt utrykning alarm",
+  "tid": "2025-11-29T09:23:14+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4458964": {
+  "id": "4458964",
+  "type": "Helseoppdrag annet",
+  "tid": "2025-11-29T03:21:00+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4448316": {
+  "id": "4448316",
+  "type": "ABA ukjent",
+  "tid": "2025-11-23T06:06:33+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4448127": {
+  "id": "4448127",
+  "type": "ABA matlaging",
+  "tid": "2025-11-22T22:16:04+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4447181": {
+  "id": "4447181",
+  "type": "RVR uten foregående innsats",
+  "tid": "2025-11-22T08:25:17+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4444596": {
+  "id": "4444596",
+  "type": "Unødig kontroll av melding",
+  "tid": "2025-11-20T16:03:15+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4442784": {
+  "id": "4442784",
+  "type": "Brann i bygning",
+  "tid": "2025-11-19T16:54:39+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4438967": {
+  "id": "4438967",
+  "type": "ABA vanndamp",
+  "tid": "2025-11-17T20:49:23+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4438758": {
+  "id": "4438758",
+  "type": "ABA ukjent",
+  "tid": "2025-11-17T17:15:41+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4435750": {
+  "id": "4435750",
+  "type": "Unødig kontroll av melding",
+  "tid": "2025-11-15T13:43:32+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4435219": {
+  "id": "4435219",
+  "type": "ABA vanndamp",
+  "tid": "2025-11-15T05:12:12+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4434613": {
+  "id": "4434613",
+  "type": "Brann i bygning",
+  "tid": "2025-11-14T14:10:45+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4431674": {
+  "id": "4431674",
+  "type": "ABA arbeid på/i bygg",
+  "tid": "2025-11-13T08:17:20+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4430650": {
+  "id": "4430650",
+  "type": "Brann i bygning",
+  "tid": "2025-11-12T13:51:39+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4429300": {
+  "id": "4429300",
+  "type": "ABA matlaging",
+  "tid": "2025-11-11T20:54:18+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4423363": {
+  "id": "4423363",
+  "type": "ABA matlaging",
+  "tid": "2025-11-08T05:17:43+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4423057": {
+  "id": "4423057",
+  "type": "ABA vanndamp",
+  "tid": "2025-11-07T18:25:16+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4416930": {
+  "id": "4416930",
+  "type": "Unødig kontroll av melding",
+  "tid": "2025-11-04T14:23:55+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4413278": {
+  "id": "4413278",
+  "type": "ABA matlaging",
+  "tid": "2025-11-02T23:51:07+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4412577": {
+  "id": "4412577",
+  "type": "ABA teknisk feil",
+  "tid": "2025-11-02T09:19:30+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4410864": {
+  "id": "4410864",
+  "type": "Trafikkulykke",
+  "tid": "2025-10-31T17:49:55+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4405483": {
+  "id": "4405483",
+  "type": "ABA teknisk feil",
+  "tid": "2025-10-29T07:40:56+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4402025": {
+  "id": "4402025",
+  "type": "ABA matlaging",
+  "tid": "2025-10-27T09:53:23+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4401083": {
+  "id": "4401083",
+  "type": "ABA arbeid på/i bygg",
+  "tid": "2025-10-26T16:29:25+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4388266": {
+  "id": "4388266",
+  "type": "Avbrutt utrykning samtale",
+  "tid": "2025-10-18T16:22:35+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4387359": {
+  "id": "4387359",
+  "type": "Trafikkulykke",
+  "tid": "2025-10-17T22:57:12+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4387076": {
+  "id": "4387076",
+  "type": "Unødig kontroll av melding",
+  "tid": "2025-10-17T17:06:56+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4384422": {
+  "id": "4384422",
+  "type": "Helseoppdrag annet",
+  "tid": "2025-10-16T10:55:21+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4384204": {
+  "id": "4384204",
+  "type": "Brann i bygning",
+  "tid": "2025-10-16T09:53:49+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4376905": {
+  "id": "4376905",
+  "type": "Helseoppdrag annet",
+  "tid": "2025-10-12T12:50:50+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4375735": {
+  "id": "4375735",
+  "type": "Brannhindrende tiltak komfyr",
+  "tid": "2025-10-11T11:01:06+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4367225": {
+  "id": "4367225",
+  "type": "Unødig kontroll av melding",
+  "tid": "2025-10-06T22:35:04+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4365896": {
+  "id": "4365896",
+  "type": "Ubetydelig forurensning",
+  "tid": "2025-10-06T09:17:44+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4362190": {
+  "id": "4362190",
+  "type": "ABA matlaging",
+  "tid": "2025-10-04T11:26:25+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4361473": {
+  "id": "4361473",
+  "type": "Andre oppdrag",
+  "tid": "2025-10-04T09:28:37+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4361287": {
+  "id": "4361287",
+  "type": "Naturhendelse vind",
+  "tid": "2025-10-04T08:52:03+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4359272": {
+  "id": "4359272",
+  "type": "Helseoppdrag bære/løfte",
+  "tid": "2025-10-03T19:13:43+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4349141": {
+  "id": "4349141",
+  "type": "Brann i personbil",
+  "tid": "2025-09-28T22:31:55+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4347747": {
+  "id": "4347747",
+  "type": "ABA matlaging",
+  "tid": "2025-09-27T17:14:12+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4346725": {
+  "id": "4346725",
+  "type": "ABA røyking",
+  "tid": "2025-09-27T04:38:00+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4346651": {
+  "id": "4346651",
+  "type": "Andre oppdrag",
+  "tid": "2025-09-26T23:45:39+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4341849": {
+  "id": "4341849",
+  "type": "ABA matlaging",
+  "tid": "2025-09-24T16:34:23+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4339477": {
+  "id": "4339477",
+  "type": "ABA teknisk feil",
+  "tid": "2025-09-23T16:24:01+00:00",
+  "brannvesen": "Stord brann og redning"
+ }
+}
