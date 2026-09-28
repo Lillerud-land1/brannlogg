@@ -44,7 +44,33 @@ def skriv_json(namn, data):
 
 # ---------- Politiloggen ----------
 
-def hent_brann_trådar():
+# Hendingar utanom kategorien «Brann» blir tekne med når politiet nemner brannvesenet
+# (sikkert) eller «nødetatene» (brannvesenet er som regel med då).
+BRANNVESEN = re.compile(
+    r"brannvesen|brann og redning|brannmannskap|mannskaper fra brann|brann og politi|politi og brann|"
+    r"brann, politi|politi, brann|brann og ambulanse|røykdykk|frigjør|brann er på|brann på stedet|"
+    r"brann rykker|brann har|brann melder|brannbil", re.I)
+NODETATAR = re.compile(r"nødetatene|nødetatane|alle nødetater|alle nødetatar", re.I)
+
+
+def trådtekst(t):
+    return "\n".join(m.get("text") or "" for m in t.get("messages") or [])
+
+
+def gruppe_for(t):
+    """«brann», «brannvesen» (brannvesenet nemnt), «nodetatar» (berre «nødetatene») eller None."""
+    if (t.get("category") or "").lower() == "brann":
+        return "brann"
+    tekst = trådtekst(t)
+    if BRANNVESEN.search(tekst):
+        return "brannvesen"
+    if NODETATAR.search(tekst):
+        return "nodetatar"
+    return None
+
+
+def hent_trådar():
+    """Alle brannar og andre utrykkingar med brannvesenet i Stord siste år."""
     trådar, skip = [], 0
     while True:
         q = urllib.parse.urlencode({"Municipalities": KOMMUNE, "TimeSpanType": "LastYear",
@@ -54,7 +80,7 @@ def hent_brann_trådar():
         if not svar.get("hasMoreResults"):
             break
         skip += 500
-    return [t for t in trådar if (t.get("category") or "").lower() == "brann"]
+    return [t for t in trådar if gruppe_for(t)]
 
 
 def hent_bilete(melding_id):
@@ -175,6 +201,61 @@ def klassifiser(tekst):
     return btype, tittel, alvor, flagg
 
 
+UTR_TYPAR = [
+    ("utslepp", r"diesel|\bolje|utslipp|lekkasje|\bgass|kjemikal|overfylling"),
+    ("sjo", r"i sjøen|i vannet|person i vann|båt|sjøen|kaia|kaien|drukn|ferje"),
+    ("trafikk", r"trafikkulykke|trafikkuhell|kollisjon|kolliderte|påkjør|utforkjøring|singelulykke|"
+                r"kjørt av vegen|kjørt av veien|\bmc\b|motorsykkel|personbil|syklist|fotgjenger|tunnel|autovern"),
+    ("redning", r"savnet|leting|søk etter|redningsaksjon|fastklemt|\bheis"),
+    ("dyr", r"\bdyr\b|\bkatt|\bhund\b|hjort|rådyr|\bsau\b|\bhest"),
+    ("ulykke", r"ulykke|falt|isen|skadet|skadd"),
+]
+UTR_TITTEL = [
+    (r"båtkollisjon|båt.{0,40}kollider|kollider.{0,40}båt", "Båtulykke"),
+    (r"diesel", "Dieselutslepp"),
+    (r"\bolje", "Oljeutslepp"),
+    (r"person i vann|person i sjøen|falt i sjøen|i vannet", "Person i sjøen"),
+    (r"arbeidsulykke", "Arbeidsulykke"),
+    (r"\bmc\b|motorsykkel", "Trafikkulykke med MC"),
+    (r"syklist", "Påkøyrsle av syklist"),
+    (r"fotgjenger|\bgående\b", "Påkøyrsle av fotgjengar"),
+    (r"røyk", "Røyk frå køyretøy"),
+    (r"tjørn|isen|kjørt i vannet|i vatnet", "Bil i vatnet"),
+]
+UTR_TYPE_TITTEL = {"sjo": "Hending på sjøen", "trafikk": "Trafikkulykke", "utslepp": "Utslepp",
+                   "redning": "Redningsaksjon", "dyr": "Dyr i naud", "ulykke": "Ulykke", "utrykking": "Utrykking"}
+
+
+def klassifiser_utrykking(tekst):
+    lå = tekst.lower()
+    utype = next((t for t, m in UTR_TYPAR if re.search(m, lå)), "utrykking")
+    tittel = next((t for m, t in UTR_TITTEL if re.search(m, lå)), UTR_TYPE_TITTEL[utype])
+    alvorleg = har_positiv(tekst, r"alvorlig skadet|hardt skadet|sykehus|sjukehus|luftambulanse|helikopter|"
+                                  r"omkom|døde|livløs|kritisk|livstruende|hjertestans|gjenoppliv")
+    mild = re.search(r"ingen skadet|ingen personskade|ikke meldt om personskade|ikke skadet|uskadd|uskadet|"
+                     r"mindre skader|kun materielle|materielle skader|lettere skadd|lettere skadet|ingen skal være skadet", lå)
+    alvor = 3 if alvorleg else (1 if mild else 2)
+    flagg = {
+        "personskade": har_positiv(tekst, r"skadet|skadd|sykehus|sjukehus|luftambulanse|personskade|tilsett av helse"),
+        "evakuert": har_positiv(tekst, r"evakuer"),
+        "sak": bool(re.search(r"oppretter sak|opprettet sak|sak opprettet|opprettes sak|oppretta sak|oppretter politisak", lå))
+               and not re.search(r"ingen politisak|ingen sak", lå),
+    }
+    return utype, tittel, alvor, flagg
+
+
+def klassifiser_tråd(t):
+    """Returnerer (gruppe, type, tittel, alvor, flagg) for ein tråd frå Politiloggen."""
+    gruppe = gruppe_for(t) or "brann"
+    tekst = trådtekst(t)
+    if gruppe == "brann":
+        btype, tittel, alvor, flagg = klassifiser(tekst)
+    else:
+        btype, tittel, alvor, flagg = klassifiser_utrykking(tekst)
+    flagg["brannvesen"] = gruppe == "brannvesen"
+    return ("brann" if gruppe == "brann" else "utrykking"), btype, tittel, alvor, flagg
+
+
 # ---------- Nyheitssaker (automatisk via RSS) ----------
 
 NYHEITSFEEDAR = [
@@ -189,6 +270,9 @@ NYHEITSFEEDAR = [
 BRANNORD = re.compile(
     r"brannen|brann i|bilbrann|lyngbrann|gressbrann|grasbrann|pipebrann|husbrann|bustadbrann|boligbrann|"
     r"skogbrann|røyk|flammar|flammer|overtent|utbrent|tok fyr|tatt fyr|brannvesen|nødetat|slokk|sløkk", re.I)
+UTRORD = re.compile(
+    r"ulykke|kollisjon|kolliderte|trafikk|påkjør|utforkjøring|sjøen|båt|redning|nødetat|brannvesen|"
+    r"utslepp|utslipp|diesel|savn|skadd|skadet", re.I)
 
 
 def les_feed(url):
@@ -232,7 +316,8 @@ def finn_nyheiter(brannar, alle_saker=None, lagre=True):
         stadord = [w.lower() for w in re.findall(r"[A-Za-zÆØÅæøå]{4,}", b["stad"]) if w.lower() != "stord"]
         for kjelde, krev_stad, tittel, lenke, tekst, tid in alle_saker:
             heil = f"{tittel} {tekst}".lower()
-            if not lenke or not i_vindauge(tid) or not BRANNORD.search(heil):
+            nøkkelord = BRANNORD if b.get("gruppe", "brann") == "brann" else UTRORD
+            if not lenke or not i_vindauge(tid) or not nøkkelord.search(heil):
                 continue
             treff_stad = any(w in heil for w in stadord)
             treff_stord = "stord" in heil or "leirvik" in heil
@@ -304,7 +389,7 @@ def sjekk():
     no = datetime.now(timezone.utc)
     grense = no - timedelta(days=VINDAUGE_DAGAR)
     nye = 0
-    for t in hent_brann_trådar():
+    for t in hent_trådar():
         start = datetime.fromisoformat(t["createdOn"])
         if start < grense:
             continue
@@ -314,13 +399,13 @@ def sjekk():
         if sokt and not (ferskt and no - sokt > timedelta(hours=3)):
             continue
         tekst = "\n".join(m.get("text") or "" for m in t.get("messages") or [])
-        tittel = klassifiser(tekst)[1]
+        tittel = klassifiser_tråd(t)[2]
         print(f"NY_UTAN_KJELDER: {t['id']} | {t['createdOn'][:16]} | {(t.get('area') or KOMMUNE).strip()} | {tittel}")
         for a in auto.get(t["id"], []):
             if a["url"] not in ex.get("avvis", []):
                 print(f"  AUTO: {a['url']} | {a['kjelde']} | {a['tittel']}")
         nye += 1
-    print(f"SJEKK: OK, {nye} brannar treng nyheitssøk")
+    print(f"SJEKK: OK, {nye} hendingar treng nyheitssøk")
 
 
 def send_ekstra():
@@ -349,7 +434,7 @@ def main():
     geocache = les_json("geokode.json", {})
 
     print("Hentar frå Politiloggen …")
-    trådar = hent_brann_trådar()
+    trådar = hent_trådar()
     for t in trådar:
         arkiv[t["id"]] = t
     skriv_json("arkiv.json", arkiv)
@@ -361,7 +446,7 @@ def main():
         if not meldingar:
             continue
         tekst = "\n".join(m.get("text") or "" for m in meldingar)
-        btype, tittel, alvor, flagg = klassifiser(tekst)
+        gruppe, btype, tittel, alvor, flagg = klassifiser_tråd({**t, "messages": meldingar})
         ex = ekstra.get(tid, {})
         område = (t.get("area") or "").strip()
 
@@ -385,6 +470,7 @@ def main():
 
         brannar.append({
             "id": tid,
+            "gruppe": gruppe,
             "tittel": ex.get("tittel", tittel),
             "type": ex.get("type", btype),
             "alvor": ex.get("alvor", alvor),
@@ -433,7 +519,8 @@ def main():
 
     grense = no - timedelta(days=VINDAUGE_DAGAR)
     siste = [b for b in brannar if datetime.fromisoformat(b["start"]) >= grense]
-    print(f"OK: {len(brannar)} brannar totalt, {len(siste)} siste {VINDAUGE_DAGAR} dagar. "
+    n_brann = sum(1 for b in brannar if b["gruppe"] == "brann")
+    print(f"OK: {len(brannar)} hendingar totalt ({n_brann} brannar), {len(siste)} siste {VINDAUGE_DAGAR} dagar. "
           f"Skreiv stordbrann.html ({(MAPPE / 'stordbrann.html').stat().st_size // 1024} kB).")
     for b in siste:
         if not b["kjelder"] and not ekstra.get(b["id"], {}).get("sokt"):
