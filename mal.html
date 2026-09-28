@@ -12,7 +12,7 @@
   --bg:#EEF0F2; --surface:#FFFFFF; --surface-2:#F4F6F8; --ink:#14171B; --ink-2:#39414A; --muted:#5F6974;
   --line:#D8DDE2; --line-2:#E7EAEE;
   --fire:#D4321D; --ember:#E97F10; --hivis:#F2C200;
-  --sev1:#667A90; --sev2:#D97708; --sev3:#D4321D; --utr:#2F6BC8;
+  --sev1:#667A90; --sev2:#D97708; --sev3:#D4321D; --utr:#2F6BC8; --alarm:#9AA3AD;
   --sea:#DCE5ED; --ctx:#C9D1D9; --land:#FFFFFF; --land-edge:#A9B4BF; --label:#56606B;
   --glow:rgba(233,127,16,.14); --topbar:rgba(238,240,242,.86); --chip:#E9ECF0;
   --f-display:"Big Shoulders Display","Big Shoulders","Arial Narrow","Roboto Condensed",sans-serif;
@@ -25,7 +25,7 @@
     --bg:#0C0F13; --surface:#141920; --surface-2:#1A2028; --ink:#ECEFF3; --ink-2:#C4CBD3; --muted:#8C96A2;
     --line:#28303A; --line-2:#20272F;
     --fire:#FF5A3D; --ember:#FFA03A; --hivis:#F5CB2A;
-    --sev1:#8FA4BB; --sev2:#FFA03A; --sev3:#FF5A3D; --utr:#5C9DFF;
+    --sev1:#8FA4BB; --sev2:#FFA03A; --sev3:#FF5A3D; --utr:#5C9DFF; --alarm:#6E7883;
     --sea:#0F1821; --ctx:#1A212A; --land:#242C37; --land-edge:#3A4552; --label:#9AA4AF;
     --glow:rgba(255,120,40,.16); --topbar:rgba(12,15,19,.82); --chip:#1F262F;
   }
@@ -35,12 +35,13 @@
   --bg:#0C0F13; --surface:#141920; --surface-2:#1A2028; --ink:#ECEFF3; --ink-2:#C4CBD3; --muted:#8C96A2;
   --line:#28303A; --line-2:#20272F;
   --fire:#FF5A3D; --ember:#FFA03A; --hivis:#F5CB2A;
-  --sev1:#8FA4BB; --sev2:#FFA03A; --sev3:#FF5A3D; --utr:#5C9DFF;
+  --sev1:#8FA4BB; --sev2:#FFA03A; --sev3:#FF5A3D; --utr:#5C9DFF; --alarm:#6E7883;
   --sea:#0F1821; --ctx:#1A212A; --land:#242C37; --land-edge:#3A4552; --label:#9AA4AF;
   --glow:rgba(255,120,40,.16); --topbar:rgba(12,15,19,.82); --chip:#1F262F;
 }
 
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%}
 body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--f-body);margin:0}
 a{color:inherit}
@@ -100,6 +101,7 @@ main.app{padding-block:18px 110px;display:grid;gap:18px}
 .strip button.f2{background:var(--sev2)}
 .strip button.f3{background:var(--sev3)}
 .strip button.fu{background:var(--utr)}
+.strip button.fa{background:var(--alarm)}
 .strip-legend{display:flex;gap:14px;font-size:11.5px;color:var(--muted);margin-top:4px}
 .strip-legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:-1px}
 .strip button[data-id]{cursor:pointer}
@@ -163,6 +165,7 @@ main.app{padding-block:18px 110px;display:grid;gap:18px}
 .tag{font-size:12px;font-weight:600;padding:3px 8px;border-radius:5px;background:var(--surface-2);border:1px solid var(--line-2);color:var(--ink-2)}
 .tag.warn{color:var(--fire);border-color:color-mix(in srgb,var(--fire) 35%,transparent);background:color-mix(in srgb,var(--fire) 8%,transparent)}
 .tag.ny{background:var(--hivis);color:#1A1600;border-color:transparent;letter-spacing:.05em}
+.tag.bris{color:var(--ink-2);background:var(--surface-2)}
 .tag.utr{color:var(--utr);border-color:color-mix(in srgb,var(--utr) 35%,transparent);background:color-mix(in srgb,var(--utr) 8%,transparent)}
 .sev{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--sev);margin-right:4px}
 .sev i{display:inline-flex;gap:2px}
@@ -227,6 +230,7 @@ figure.foto figcaption{font-size:12px;color:var(--muted);margin-top:4px}
 .legend span{display:inline-flex;align-items:center;gap:6px}
 .legend i{width:10px;height:10px;border-radius:50%;background:var(--sev)}
 .legend i.u{background:var(--utr)}
+.legend i.a{background:var(--alarm)}
 .legend i.r{background:none;border:2px solid var(--ink-2)}
 .pop{margin-top:12px;border:1px solid var(--line);border-radius:8px;padding:12px 14px;background:var(--surface-2)}
 .pop h3{font-size:15.5px}
@@ -352,6 +356,8 @@ figure.foto figcaption{font-size:12px;color:var(--muted);margin-top:4px}
   <symbol id="i-dyr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6.5" cy="10" r="1.8"/><circle cx="10" cy="6.2" r="1.8"/><circle cx="14.5" cy="6.2" r="1.8"/><circle cx="18" cy="10" r="1.8"/><path d="M8 17.3c0-2.9 2-5.3 4.2-5.3s4.2 2.4 4.2 5.3c0 1.6-1.2 2.4-2.4 2.4-.9 0-1.2-.6-1.8-.6s-.9.6-1.8.6c-1.2 0-2.4-.8-2.4-2.4Z"/></symbol>
   <symbol id="i-utslepp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5s6 6.5 6 10.5a6 6 0 0 1-12 0c0-4 6-10.5 6-10.5Z"/><path d="M9.5 14.5a2.5 2.5 0 0 0 2.5 2.5"/></symbol>
   <symbol id="i-utrykking" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17v-5a5 5 0 0 1 10 0v5"/><path d="M5 17h14v3H5z"/><path d="M12 3v2M4.5 6.2 6 7.5M19.5 6.2 18 7.5"/></symbol>
+  <symbol id="i-helse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 8v8M8 12h8"/></symbol>
+  <symbol id="i-brannvern" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 19 6v5.5c0 4.3-3 7.6-7 9-4-1.4-7-4.7-7-9V6Z"/><path d="M9 12.5l2 2 4-4.5"/></symbol>
   <symbol id="i-liste" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8.5 6.5h12M8.5 12h12M8.5 17.5h12"/><circle cx="4.2" cy="6.5" r="1" fill="currentColor"/><circle cx="4.2" cy="12" r="1" fill="currentColor"/><circle cx="4.2" cy="17.5" r="1" fill="currentColor"/></symbol>
   <symbol id="i-kart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-5.8-6.5-11a6.5 6.5 0 0 1 13 0c0 5.2-6.5 11-6.5 11Z"/><circle cx="12" cy="10" r="2.3"/></symbol>
   <symbol id="i-stat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 20.5h16"/><path d="M7 17V11M12 17V6M17 17v-8"/></symbol>
@@ -421,7 +427,7 @@ figure.foto figcaption{font-size:12px;color:var(--muted);margin-top:4px}
         </div>
         <div class="map" id="map"></div>
         <div class="legend">
-          <span class="s3"><i></i>Alvorleg</span><span class="s2"><i></i>Middels</span><span class="s1"><i></i>Mindre</span><span><i class="u"></i>Anna utrykking</span><span><i class="r"></i><span id="legend-nyleg">Siste 100 dagar</span></span>
+          <span class="s3"><i></i>Alvorleg</span><span class="s2"><i></i>Middels</span><span class="s1"><i></i>Mindre</span><span><i class="u"></i>Anna utrykking</span><span><i class="a"></i>Alarm</span><span><i class="r"></i><span id="legend-nyleg">Siste 100 dagar</span></span>
         </div>
         <div id="pop"></div>
         <div class="utan" id="utan"></div>
@@ -452,7 +458,8 @@ figure.foto figcaption{font-size:12px;color:var(--muted);margin-top:4px}
       <h3>Oppdatering og kjelder</h3>
       <p id="info-oppd"></p>
       <ul>
-        <li><b>Politiloggen</b> (Politiet, NLOD 2.0): alle brannar i Stord kommune, og andre hendingar der politiet nemner brannvesenet eller nødetatane, som trafikkulykker, ulykker på sjøen og utslepp.</li>
+        <li><b>Brannstatistikk</b> (<a href="https://brannstatistikk.no/search" target="_blank" rel="noopener">brannstatistikk.no</a>, DSB): hovudkjelda. Her registrerer Stord brann og redning alle oppdraga sine, også små, men utan stad og detaljar. Automatiske brannalarmar og avbrotne utrykkingar er berre med under «Alt».</li>
+        <li><b>Politiloggen</b> (Politiet, NLOD 2.0) gir stad og kva som skjedde, og kjem ofte først: alle brannar i Stord kommune, og andre hendingar der politiet nemner brannvesenet eller nødetatane, som trafikkulykker, ulykker på sjøen og utslepp.</li>
         <li><b>Nyheitssaker</b> frå mellom anna Radio Haugaland, Sunnhordland, Stord24, NRK og Haugesunds Avis blir funne automatisk og lenka til. Skriv media om ein brann eller ei ulykke på Stord som ikkje står i Politiloggen, kjem ho med som ei eiga hending merkt «Frå media». Ein sjeldan gong kan ei lenke eller ei slik hending vere feil.</li>
         <li><b>Kart</b>: kystlinje © OpenStreetMap-bidragsytarar (ODbL), kommunegrense og stadnamn frå Kartverket.</li>
       </ul>
@@ -474,7 +481,7 @@ figure.foto figcaption{font-size:12px;color:var(--muted);margin-top:4px}
   </section>
   <footer class="kreditt">
     <p>Laga av <b>Leander Wågen Lillerud</b></p>
-    <p>Ikkje ein offisiell teneste frå Politiet, brannvesenet eller Stord kommune · Data frå Politiloggen</p>
+    <p>Ikkje ein offisiell teneste frå Politiet, brannvesenet eller Stord kommune · Data frå brannstatistikk.no (DSB), Politiloggen og media</p>
   </footer>
 </main>
 
@@ -532,7 +539,7 @@ const TYPE = {
   pipe:{n:"Pipebrann", i:"i-pipe"}, alarm:{n:"Brannalarm", i:"i-alarm"}, industri:{n:"Industri/avfall", i:"i-industri"},
   baat:{n:"Båt", i:"i-baat"}, anna:{n:"Anna brann", i:"i-anna"},
   trafikk:{n:"Trafikkulykke", i:"i-trafikk"}, sjo:{n:"Sjø", i:"i-sjo"}, ulykke:{n:"Ulykke", i:"i-ulykke"},
-  redning:{n:"Redning", i:"i-redning"}, dyr:{n:"Dyr", i:"i-dyr"}, utslepp:{n:"Utslepp", i:"i-utslepp"}, utrykking:{n:"Anna utrykking", i:"i-utrykking"}
+  redning:{n:"Redning", i:"i-redning"}, dyr:{n:"Dyr", i:"i-dyr"}, utslepp:{n:"Utslepp", i:"i-utslepp"}, utrykking:{n:"Anna utrykking", i:"i-utrykking"}, helse:{n:"Helseoppdrag", i:"i-helse"}, brannvern:{n:"Brannvern", i:"i-brannvern"}
 };
 const ALVOR = {1:"Mindre", 2:"Middels", 3:"Alvorleg"};
 const ikon = (id, cls="") => `<svg class="i ${cls}" aria-hidden="true"><use href="#${id}"/></svg>`;
@@ -551,8 +558,9 @@ B.forEach(b => b._ny = !!sistSett && b.start > sistSett);
 try { if (B[0]) localStorage.setItem("brannlogg_sist_sett", B[0].start); } catch(e) {}
 
 const state = {gruppe:"alle", periode:"50", type:"alle", sok:"", valt:null, view:"liste"};
-const erBrann = b => b.gruppe !== "utrykking";
-const utval = () => state.gruppe === "brann" ? B.filter(erBrann) : B;
+const erBrann = b => (b.gruppe || "brann") === "brann";
+const erAlarm = b => b.gruppe === "alarm";
+const utval = () => state.gruppe === "brann" ? B.filter(erBrann) : state.gruppe === "alt" ? B : B.filter(b => !erAlarm(b));
 const ORD = () => state.gruppe === "brann" ? ["brann", "brannar"] : ["hending", "hendingar"];
 const iAar = b => I_DAG.dn - b._dn < 365;
 const iPeriode = b => state.periode === "alle" ? true : state.periode === "aar" ? iAar(b) : b._nyleg;
@@ -588,8 +596,8 @@ function renderHero(){
     html += `<div class="eyebrow">Dagar sidan siste brann</div>
       <div class="big" aria-label="${dagar} dagar sidan siste brann">${dagar === 0 ? "0" : dagar}<small>${dagar === 1 ? "dag" : "dagar"}</small></div>
       <button class="last-link" data-vis="${siste.id}">Siste: <b>${esc(siste.tittel)}</b> · ${esc(siste.stad)} · ${datoKort(siste._o)}</button>`;
-    const su = B[0];
-    if (su && !erBrann(su)) html += `<button class="last-link" data-vis="${su.id}">Siste utrykking: <b>${esc(su.tittel)}</b> · ${esc(su.stad)} · ${datoKort(su._o)}</button>`;
+    const su = B.find(b => !erAlarm(b));
+    if (su && su.gruppe === "utrykking") html += `<button class="last-link" data-vis="${su.id}">Siste utrykking: <b>${esc(su.tittel)}</b> · ${esc(su.stad)} · ${datoKort(su._o)}</button>`;
   } else {
     html += `<div class="eyebrow">Dagar sidan siste brann</div><div class="big">–</div><p class="sub">Ingen brannar i dataa.</p>`;
   }
@@ -605,7 +613,7 @@ function renderHero(){
     const liste = perDag[dn] || [];
     const maks = liste.filter(erBrann).reduce((m, b) => Math.max(m, b.alvor), 0);
     const lbl = `${dd}. ${MND_K[mm]}: ${liste.length ? liste.map(b => b.tittel + ", " + b.stad).join("; ") : "ingen hending"}`;
-    const cls = [maks ? "f" + maks : (liste.length ? "fu" : ""), dn === I_DAG.dn ? "idag" : "", (dd === 1 && i > 0) ? "ny-mnd" : ""].join(" ").trim();
+    const cls = [maks ? "f" + maks : liste.some(b => b.gruppe === "utrykking") ? "fu" : (liste.length ? "fa" : ""), dn === I_DAG.dn ? "idag" : "", (dd === 1 && i > 0) ? "ny-mnd" : ""].join(" ").trim();
     cells += `<button type="button" class="${cls}" title="${esc(lbl)}" aria-label="${esc(lbl)}"${liste.length ? ` data-vis="${liste[0].id}"` : ` tabindex="-1"`}></button>`;
   }
   const strip = $("#strip");
@@ -623,7 +631,7 @@ function renderHero(){
   const n50 = utval().filter(b => b._nyleg).length;
   const dagarMed = Object.keys(perDag).length;
   $("#strip-sum").textContent = `${fl(dagarMed, "dag", "dagar")} med ${state.gruppe === "brann" ? "brann" : "utrykking"}`;
-  $("#strip-legend").innerHTML = state.gruppe === "brann" ? "" : `<span><i style="background:var(--sev2)"></i>Brann</span><span><i style="background:var(--utr)"></i>Anna utrykking</span>`;
+  $("#strip-legend").innerHTML = state.gruppe === "brann" ? "" : `<span><i style="background:var(--sev2)"></i>Brann</span><span><i style="background:var(--utr)"></i>Anna utrykking</span>` + (state.gruppe === "alt" ? `<span><i style="background:var(--alarm)"></i>Alarm</span>` : "");
 
   const aar = utval().filter(b => I_DAG.dn - b._dn < 365);
   const snitt = (aar.length / 12).toLocaleString("nb-NO", {maximumFractionDigits:1});
@@ -643,8 +651,9 @@ function filtrert(){
 function renderControls(){
   const n50 = utval().filter(b => b._nyleg).length;
   $("#seg-gruppe").innerHTML =
-    `<button type="button" data-gruppe="alle" aria-pressed="${state.gruppe === "alle"}">Alle utrykkingar<span class="n">${B.filter(iPeriode).length}</span></button>` +
-    `<button type="button" data-gruppe="brann" aria-pressed="${state.gruppe === "brann"}">Berre brannar<span class="n">${B.filter(b => erBrann(b) && iPeriode(b)).length}</span></button>`;
+    `<button type="button" data-gruppe="alle" aria-pressed="${state.gruppe === "alle"}">Utrykkingar<span class="n">${B.filter(b => !erAlarm(b) && iPeriode(b)).length}</span></button>` +
+    `<button type="button" data-gruppe="brann" aria-pressed="${state.gruppe === "brann"}">Brannar<span class="n">${B.filter(b => erBrann(b) && iPeriode(b)).length}</span></button>` +
+    `<button type="button" data-gruppe="alt" aria-pressed="${state.gruppe === "alt"}" title="Også automatiske brannalarmar og avbrotne utrykkingar">Alt<span class="n">${B.filter(iPeriode).length}</span></button>`;
   $("#seg-periode").innerHTML =
     `<button type="button" data-periode="50" aria-pressed="${state.periode === "50"}">Siste ${VINDU} dagar<span class="n">${n50}</span></button>` +
     `<button type="button" data-periode="aar" aria-pressed="${state.periode === "aar"}">Siste år<span class="n">${utval().filter(iAar).length}</span></button>` +
@@ -669,7 +678,8 @@ function kort(b){
     f.evakuert ? `<span class="tag">Evakuering</span>` : "",
     f.sak ? `<span class="tag">Politisak oppretta</span>` : "",
     b.kjelde_type === "media" ? `<span class="tag">Frå media</span>` : "",
-    erBrann(b) ? "" : `<span class="tag utr">${f.brannvesen ? "Brannvesenet" : "Nødetatane"}</span>`,
+    b.bris ? `<span class="tag bris" title="Registrert av brannvesenet i brannstatistikken (DSB)">Brannstatistikk: ${esc(b.bris.type)}</span>` :
+      (erBrann(b) ? "" : `<span class="tag utr">${f.brannvesen ? "Brannvesenet" : "Nødetatane"}</span>`),
     `<span class="tag">${esc(t.n)}</span>`
   ].join("");
   let forrigeDag = b._dn;
@@ -683,7 +693,7 @@ function kort(b){
                         : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(b.stad + ", Stord")}`;
   return `<article class="card s${b.alvor}${state.valt === b.id ? " valt" : ""}" id="b-${esc(b.id)}">
     <div class="card-top">
-      <div class="ic"${erBrann(b) ? "" : ` style="--sev:var(--utr)"`}>${ikon(t.i)}</div>
+      <div class="ic"${erBrann(b) ? "" : erAlarm(b) ? ` style="--sev:var(--alarm)"` : ` style="--sev:var(--utr)"`}>${ikon(t.i)}</div>
       <div><h3>${esc(b.tittel)}</h3>
         <div class="meta"><span class="stad">${esc(b.stad)}</span><time datetime="${esc(b.start)}">${relDag(b._o)} kl. ${kl(b._o)}</time></div></div>
       ${b.aktiv ? `<span class="pill aktiv"><i></i>Pågår</span>` : `<span class="pill">Avslutta</span>`}
@@ -692,12 +702,13 @@ function kort(b){
     <div class="tags">${tags}</div>
     ${b.merknad ? `<div class="note">${ikon("i-merk")}<span>${esc(b.merknad)}</span></div>` : ""}
     ${(b.bilete || []).map(p => `<figure class="foto"><img src="${p.src}" alt="Bilete frå hendinga på ${esc(b.stad)}" loading="lazy"><figcaption>${esc(p.kreditt)}</figcaption></figure>`).join("")}
-    ${b.kjelde_type === "media" ? "" : `<details class="log"${b.aktiv ? " open" : ""}><summary>${ikon("i-pil")}Heile politiloggen <span class="mono">${fl(b.meldingar.length, "melding", "meldingar")}${var_ ? " · " + var_ : ""}</span></summary><ol class="tl">${logg}</ol></details>`}
+    ${b.kjelde_type === "media" || b.kjelde_type === "bris" ? "" : `<details class="log"${b.aktiv ? " open" : ""}><summary>${ikon("i-pil")}Heile politiloggen <span class="mono">${fl(b.meldingar.length, "melding", "meldingar")}${var_ ? " · " + var_ : ""}</span></summary><ol class="tl">${logg}</ol></details>`}
     ${b.kjelder?.length ? `<div class="media"><div class="eyebrow">I media</div><ul>${b.kjelder.map(k =>
       `<li><a href="${esc(k.url)}" target="_blank" rel="noopener"><span class="src">${esc(k.kjelde)}</span><span class="t">${esc(k.tittel)}</span>${ikon("i-ut","")}</a></li>`).join("")}</ul></div>` : ""}
     <div class="actions">
       ${b.pos ? `<button type="button" class="btn" data-kart="${esc(b.id)}">${ikon("i-kart")}Vis på kartet</button>` : ""}
-      ${b.kjelde_type === "media" ? "" : `<a class="btn" href="https://www.politiet.no/politiloggen/hendelse/${encodeURIComponent(b.id)}" target="_blank" rel="noopener">${ikon("i-ut")}Politiloggen</a>`}
+      ${b.kjelde_type === "bris" ? `<a class="btn" href="https://brannstatistikk.no/search" target="_blank" rel="noopener">${ikon("i-ut")}Brannstatistikk</a>` : ""}
+      ${b.kjelde_type === "media" || b.kjelde_type === "bris" ? "" : `<a class="btn" href="https://www.politiet.no/politiloggen/hendelse/${encodeURIComponent(b.id)}" target="_blank" rel="noopener">${ikon("i-ut")}Politiloggen</a>`}
       <a class="btn" href="${kartUrl}" target="_blank" rel="noopener">${ikon("i-ut")}Google Maps</a>
     </div>
   </article>`;
@@ -737,7 +748,7 @@ function renderMap(){
   const synlege = liste.filter(b => b.pos).map(b => ({b, p:xy(b.pos)})).filter(({p}) => p[0] > 0 && p[0] < K.w && p[1] > 0 && p[1] < K.h);
   synlege.sort((a, c) => (a.b.id === state.valt) - (c.b.id === state.valt) || a.b._dn - c.b._dn);
   const col = {1:"var(--sev1)", 2:"var(--sev2)", 3:"var(--sev3)"};
-  const farge = b => erBrann(b) ? col[b.alvor] : "var(--utr)";
+  const farge = b => erBrann(b) ? col[b.alvor] : erAlarm(b) ? "var(--alarm)" : "var(--utr)";
   const km = K.kmPx, sx = 40, sy = K.h - 44;
   const lbl = K.stader.map(s => `<circle class="m-dot" cx="${s.x}" cy="${s.y}" r="5"/><text class="m-lbl" x="${s.x + 11}" y="${s.y + 7}">${esc(s.namn)}</text>`).join("");
   const nabo = (K.naboar || []).filter(s => s.y > 40 && s.y < K.h - 40).map(s => `<text class="m-nabo" x="${s.x}" y="${s.y}">${esc(s.namn)}</text>`).join("");

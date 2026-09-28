@@ -136,7 +136,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font
 <div class="skjerm">
   <header class="topp">
     <svg class="logo" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="8" fill="#1A1F26"/><path d="M17 28c-4.6 0-7.6-3-7.6-7 0-4.1 3-6.4 4.2-9.9 1.6 1.6 2.3 3.4 2.3 5.1 1.2-1.2 2.1-3 2.3-5.1 3.5 2.6 6.4 6.4 6.4 9.9 0 4-3 7-7.6 7Z" fill="url(#g-flamme)"/><path d="M17 28c-2 0-3.3-1.3-3.3-3.1 0-1.8 1.4-2.9 2-4.4 1.6 1.2 4.6 2.6 4.6 4.4 0 1.8-1.3 3.1-3.3 3.1Z" fill="#FFE9A6" opacity=".9"/></svg>
-    <div class="namn">Brannlogg<small>STØRRE HENDINGAR I STORD · POLITILOGGEN OG MEDIA</small></div>
+    <div class="namn">Brannlogg<small>STØRRE HENDINGAR I STORD · BRANNSTATISTIKK, POLITI OG MEDIA</small></div>
     <div class="batt" aria-hidden="true"></div>
     <div class="klokke"><b id="kl">--:--</b><span id="dato"></span></div>
   </header>
@@ -159,7 +159,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font
     <div class="tips" id="tips"></div>
     <div class="qr"><img src="qr.svg" alt=""><span>Skann for å få Brannlogg på mobilen<small id="oppd"></small></span></div>
   </footer>
-  <p class="kreditt">Laga av <b>Leander Wågen Lillerud</b> · Ikkje ein offisiell teneste frå Politiet, brannvesenet eller Stord kommune · Viser større hendingar frå Politiloggen og media, ikkje alle oppdraga til brannvesenet</p>
+  <p class="kreditt">Laga av <b>Leander Wågen Lillerud</b> · Ikkje ein offisiell teneste frå Politiet, brannvesenet eller Stord kommune · Viser større hendingar frå brannstatistikk.no, Politiloggen og media – ikkje alle oppdraga til brannvesenet</p>
 </div>
 
 <script>
@@ -189,7 +189,8 @@ function relDag(o){
   return `${o.d}. ${MND_K[o.m-1]}`;
 }
 const TYPE = {bygning:"i-bygning", kjoretoy:"i-kjoretoy", vegetasjon:"i-vegetasjon", pipe:"i-pipe", alarm:"i-alarm", industri:"i-industri", baat:"i-baat", anna:"i-anna", trafikk:"i-trafikk", sjo:"i-sjo", ulykke:"i-ulykke", redning:"i-redning", dyr:"i-dyr", utslepp:"i-utslepp", utrykking:"i-utrykking"};
-const B = D.brannar.map(b => ({...b, _o:oslo(b.start)}));
+// Berre større hendingar: brannar og viktige utrykkingar, ikkje alarmar og småoppdrag
+const B = D.brannar.filter(b => b.gruppe !== "alarm" && (b.gruppe === "brann" || b.stor !== false)).map(b => ({...b, _o:oslo(b.start)}));
 const START = IDAG.dn - (VINDU - 1);
 
 /* Klokke */
@@ -222,7 +223,7 @@ const n50 = B.filter(b => b._o.dn >= START).length;
 const aar = B.filter(b => IDAG.dn - b._o.dn < 365).length;
 t += `<div class="stripe-boks"><div class="etikett">Siste ${VINDU} dagar · <span class="ruter"><span style="color:var(--sev2)">■</span> brann <span style="color:var(--utr)">■</span> anna utrykking</span></div><div class="stripe" style="--kol:${VINDU}">${celler}</div>
       <div class="akse"><span>${s0.getUTCDate()}. ${MND_K[s0.getUTCMonth()]}</span><span>i dag</span></div>
-      <div class="tal"><div><b>${n50}</b><span>utrykkingar siste ${VINDU} dagar</span></div><div><b>${aar}</b><span>siste 12 mnd</span></div><div><b>${(aar / 12).toLocaleString("nb-NO", {maximumFractionDigits:1})}</b><span>snitt per månad</span></div></div></div>`;
+      <div class="tal"><div><b>${n50}</b><span>større hendingar siste ${VINDU} dagar</span></div><div><b>${aar}</b><span>siste 12 mnd</span></div><div><b>${(aar / 12).toLocaleString("nb-NO", {maximumFractionDigits:1})}</b><span>snitt per månad</span></div></div></div>`;
 $("#teljar").innerHTML = t;
 $("#blink-tekst").textContent = `Blinkar: siste ${VINDU} dagar`;
 

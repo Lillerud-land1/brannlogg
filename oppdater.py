@@ -421,6 +421,168 @@ def lag_mediehendingar(ekstra, geocache=None):
     return ut
 
 
+# ---------- Brannstatistikk (DSB / BRIS) – hovudkjelda for oppdraga ----------
+
+BRIS_API = "https://brannstatistikk.no/api/v1/missionreports/search"
+ABA_ÅRSAK = {"matlaging": "matlaging", "vanndamp": "vassdamp", "ukjent": "ukjend årsak", "teknisk feil": "teknisk feil",
+             "manuell melder": "manuell melder", "annen røyk": "anna røyk", "arbeid på/i bygg": "arbeid i bygget",
+             "trykkfall sprinkler": "trykkfall i sprinklar", "fysisk skade på anlegget": "skade på anlegget",
+             "eksos": "eksos", "røyking": "røyking", "øvelse/service/test av anlegg": "test av anlegget", "annet": "anna"}
+BRIS_TITTEL = {
+    "Brann i bygning": "Brann i bygning", "Brann annet": "Brann (anna)", "Brann i skorstein": "Pipebrann",
+    "Brann i personbil": "Bilbrann", "Brann i gress- eller innmark": "Brann i gras eller innmark",
+    "Trafikkulykke": "Trafikkulykke", "Person i vann": "Person i vatnet", "Ulykke båt eller skip": "Båtulykke",
+    "Dyreoppdrag": "Dyreoppdrag", "Akutt forurensning": "Akutt forureining", "Ubetydelig forurensning": "Mindre forureining",
+    "Helseoppdrag annet": "Helseoppdrag", "Helseoppdrag bære/løfte": "Helseoppdrag (bering/løft)",
+    "Bistand politi": "Bistand til politiet", "Andre oppdrag": "Anna oppdrag", "Naturhendelse vind": "Vind og uvêr",
+    "Berging av verdier": "Berging av verdiar", "Beredskapsoppdrag": "Beredskapsoppdrag",
+    "Brannhindrende tiltak komfyr": "Brannhindrande tiltak – komfyr", "Brannhindrende annet utenfor bygg": "Brannhindrande tiltak",
+    "RVR uten foregående innsats": "Restverdiredning", "Avbrutt utrykning alarm": "Avbroten utrykking (alarm)",
+    "Avbrutt utrykning samtale": "Avbroten utrykking", "Unødig kontroll av melding": "Kontroll av melding",
+    "Unødig andre alarmer": "Unødig alarm", "Unødig alarm privatmarked": "Unødig alarm", "Oppdrag fra andre alarmer": "Oppdrag frå annan alarm",
+}
+
+
+def bris_kategori(namn):
+    """(gruppe, type, tittel, alvor, stor) for ein oppdragstype i brannstatistikken."""
+    n = (namn or "").lower()
+    tittel = BRIS_TITTEL.get(namn, namn)
+    if n.startswith("aba "):
+        return "alarm", "alarm", "Brannalarm: " + ABA_ÅRSAK.get(n[4:], n[4:]), 1, False
+    if n.startswith(("avbrutt", "unødig", "oppdrag fra andre alarmer", "110-oppdrag", "politi uten", "testalarm", "øvelse")):
+        return "alarm", "alarm", tittel, 1, False
+    if n.startswith(("brann i ", "brann annet", "skogbrann")) or n == "brann":
+        btype = ("pipe" if "skorstein" in n or "pipe" in n else
+                 "kjoretoy" if re.search(r"bil|kjøretøy|buss|lastebil|motorsykkel|tungt", n) else
+                 "vegetasjon" if re.search(r"gress|innmark|skog|lyng|utmark|vegetasjon", n) else
+                 "baat" if re.search(r"båt|skip", n) else
+                 "bygning" if "bygning" in n else "anna")
+        return "brann", btype, tittel, 2, True
+    if "trafikk" in n:
+        return "utrykking", "trafikk", tittel, 2, True
+    if "person i vann" in n or "båt" in n or "skip" in n:
+        return "utrykking", "sjo", tittel, 2, True
+    if "forurensning" in n:
+        return ("utrykking", "utslepp", tittel, 2, True) if "akutt" in n else ("utrykking", "utslepp", tittel, 1, False)
+    if "dyr" in n:
+        return "utrykking", "dyr", tittel, 1, False
+    if "helse" in n:
+        return "utrykking", "helse", tittel, 1, False
+    if "brannhindrende" in n:
+        return "utrykking", "brannvern", tittel, 1, False
+    if "natur" in n:
+        return "utrykking", "utrykking", tittel, 2, True
+    if re.search(r"redning|søk|fastklem", n):
+        return "utrykking", "redning", tittel, 2, True
+    return "utrykking", "utrykking", tittel, 1, False
+
+
+def hent_bris():
+    """Alle oppdrag i Stord siste år frå brannstatistikk.no. Lagrar i bris.json (arkiv)."""
+    from datetime import date
+    lagra = les_json("bris.json", {})
+    skip, nye = 0, 0
+    try:
+        while True:
+            kropp = {"hitsToReturn": 200, "skipped": skip,
+                     "municipalities": {"ids": [KOMMUNENR], "isMissingValue": False},
+                     "periodStart": str(date.today() - timedelta(days=370)), "periodEnd": str(date.today() + timedelta(days=1)),
+                     "includeAssistanceMissions": True, "includeExercises": False,
+                     "includeMissionsHandledByHundredAndTen": True, "includePoliceCauseWithNoMission": False,
+                     "includeRVRMissionsFromBris": False, "includeApprovedMissions": True, "onlyApprovedMissions": False}
+            req = urllib.request.Request(BRIS_API, data=json.dumps(kropp).encode(), method="POST",
+                                         headers={"Content-Type": "application/json", "Accept": "application/json", **UA})
+            with urllib.request.urlopen(req, timeout=60) as svar:
+                d = json.loads(svar.read().decode("utf-8"))
+            treff = d.get("missionReport") or []
+            for m in treff:
+                if (m.get("municipality") or "").lower() != KOMMUNE.lower():
+                    continue
+                if m["id"] not in lagra:
+                    nye += 1
+                lagra[m["id"]] = {"id": m["id"], "type": m.get("revisedMissionType") or "", "tid": m["callTimeUtc"].replace("Z", "+00:00"),
+                                  "brannvesen": m.get("responsibleFireDepartmentName") or ""}
+            skip += len(treff)
+            if not treff or skip >= (d.get("totalHits") or 0):
+                break
+        skriv_json("bris.json", lagra)
+        print(f"BRIS: {len(lagra)} oppdrag i arkivet, {nye} nye")
+    except Exception as feil:
+        print(f"BRIS_FEIL: kunne ikkje hente brannstatistikk ({feil}) – brukar lagra data")
+    return list(lagra.values())
+
+
+def kombiner_med_bris(hendingar, bris, ekstra, geocache):
+    """Brannstatistikken avgjer kva som er skjedd; Politiloggen og media gir stad og detaljar."""
+    no = datetime.now(timezone.utc)
+    eldste_bris = min((datetime.fromisoformat(m["tid"]) for m in bris), default=no)
+    prioritet = {"brann": 0, "utrykking": 1, "alarm": 2}
+    oppdrag = sorted(((m, bris_kategori(m["type"])) for m in bris), key=lambda x: (prioritet[x[1][0]], x[0]["tid"]))
+    brukt = set()
+
+    def passar(h, kat):
+        g = h.get("gruppe", "brann")
+        if kat[0] == "brann" or kat[1] in ("brannvern", "alarm"):
+            return g == "brann" or (h.get("type") == "alarm")
+        return g == "utrykking"
+
+    for m, kat in oppdrag:
+        t = datetime.fromisoformat(m["tid"])
+        kand = []
+        for h in hendingar:
+            if h["id"] in brukt or h.get("bris"):
+                continue
+            diff = (datetime.fromisoformat(h["start"]) - t).total_seconds() / 60
+            media = h.get("kjelde_type") == "media"
+            if (-60 * 36 <= -diff <= 60) if media else (-15 <= diff <= 90):
+                if passar(h, kat):
+                    kand.append((0 if h.get("type") == kat[1] else 1, abs(diff), h))
+        if kand:
+            _, _, h = min(kand, key=lambda x: (x[0], x[1]))
+            brukt.add(h["id"])
+            if h.get("gruppe") != kat[0]:
+                h["type"] = kat[1]
+            h["gruppe"] = kat[0]
+            h["bris"] = {"id": m["id"], "type": m["type"], "tid": m["tid"]}
+            h["stor"] = kat[4]  # brannstatistikken avgjer om det var ei større hending
+            h["flagg"]["bris"] = True
+            continue
+        # Oppdrag berre i brannstatistikken
+        bid = "d-" + m["id"]
+        ex = ekstra.get(bid, {})
+        if ex.get("avvis_hending"):
+            continue
+        stad = ex.get("stad", KOMMUNE)
+        pos = ex.get("pos") or (geokod(stad, geocache) if stad != KOMMUNE else None)
+        hendingar.append({
+            "id": bid, "gruppe": kat[0], "kjelde_type": "bris",
+            "tittel": ex.get("tittel", kat[2]), "type": ex.get("type", kat[1]), "alvor": ex.get("alvor", kat[3]),
+            "stad": stad, "start": m["tid"], "sist": m["tid"], "aktiv": False, "pos": pos,
+            "flagg": {"personskade": False, "evakuert": False, "sak": False, "brannvesen": True,
+                      "omkomne": bool(ex.get("omkomne")), "bris": True},
+            "meldingar": [{"t": m["tid"], "tekst": ex.get("tekst") or f"{m['brannvesen'] or 'Brannvesenet'} registrerte oppdraget som «{m['type']}».", "endra": False}],
+            "kjelder": ex.get("kjelder", []),
+            "merknad": ex.get("merknad", "Frå brannstatistikken (DSB). Staden og detaljar er ikkje oppgitt der."),
+            "bilete": [], "bris": {"id": m["id"], "type": m["type"], "tid": m["tid"]}, "stor": kat[4],
+        })
+    # Utrykkingar frå Politiloggen som brannvesenet ikkje har registrert, var dei truleg ikkje med på
+    ut = []
+    for h in hendingar:
+        start = datetime.fromisoformat(h["start"])
+        if (h.get("gruppe") == "utrykking" and not h.get("bris") and h.get("kjelde_type") not in ("media", "bris")
+                and start > eldste_bris and no - start > timedelta(days=3)):
+            continue
+        h.setdefault("stor", True)
+        ut.append(h)
+    # Oppdrag berre i brannstatistikken som Claude kan finne meir om (siste 14 dagar, større hendingar)
+    grense = no - timedelta(days=14)
+    skriv_json("bris_utan_info.json", [{"id": h["id"], "tid": h["start"], "type": h["bris"]["type"]} for h in ut
+                                        if h.get("kjelde_type") == "bris" and h["stor"] and datetime.fromisoformat(h["start"]) > grense])
+    n_bris = sum(1 for h in ut if h.get("bris"))
+    print(f"BRIS: {n_bris} hendingar stadfesta av brannstatistikken, {sum(1 for h in ut if h.get('kjelde_type') == 'bris')} berre der")
+    return ut
+
+
 # ---------- Bygging ----------
 
 NETTSIDE_HOVUD = """<!doctype html>
@@ -497,6 +659,12 @@ def sjekk():
         if datetime.fromisoformat(r["tid"]) < grense or ex.get("sokt") or ex.get("avvis_hending"):
             continue
         print(f"MEDIA_HENDING: {mid} | {r['tid'][:16]} | {r['stad']} | {r['tittel']} | {r['url']}")
+        nye += 1
+    for m in les_json("bris_utan_info.json", []):
+        ex = ekstra.get(m["id"], {})
+        if ex.get("sokt") or ex.get("avvis_hending"):
+            continue
+        print(f"BRIS_UTAN_INFO: {m['id']} | {m['tid'][:16]} | {m['type']}")
         nye += 1
     print(f"SJEKK: OK, {nye} hendingar treng nyheitssøk eller kontroll")
 
@@ -591,6 +759,7 @@ def main():
     else:
         auto = les_json("auto_kjelder.json", {})
     brannar += lag_mediehendingar(ekstra, geocache)
+    brannar = kombiner_med_bris(brannar, hent_bris(), ekstra, geocache)
     skriv_json("geokode.json", geocache)
     brannar.sort(key=lambda b: b["start"], reverse=True)
     for b in brannar:
@@ -630,7 +799,8 @@ def main():
     grense = no - timedelta(days=VINDAUGE_DAGAR)
     siste = [b for b in brannar if datetime.fromisoformat(b["start"]) >= grense]
     n_brann = sum(1 for b in brannar if b["gruppe"] == "brann")
-    print(f"OK: {len(brannar)} hendingar totalt ({n_brann} brannar), {len(siste)} siste {VINDAUGE_DAGAR} dagar. "
+    n_alarm = sum(1 for b in brannar if b["gruppe"] == "alarm")
+    print(f"OK: {len(brannar)} hendingar totalt ({n_brann} brannar, {n_alarm} alarmar), {len(siste)} siste {VINDAUGE_DAGAR} dagar. "
           f"Skreiv stordbrann.html ({(MAPPE / 'stordbrann.html').stat().st_size // 1024} kB).")
     for b in siste:
         if not b["kjelder"] and not ekstra.get(b["id"], {}).get("sokt"):
@@ -664,7 +834,8 @@ def send_varsel(brannar):
         return
     varsla = set(les_json("varsla.json", []))
     grense = datetime.now(timezone.utc) - timedelta(hours=24)
-    nye = [b for b in brannar if b["id"] not in varsla and datetime.fromisoformat(b["start"]) >= grense]
+    nye = [b for b in brannar if b["id"] not in varsla and b.get("gruppe") != "alarm"
+           and datetime.fromisoformat(b["start"]) >= grense]
     for b in sorted(nye, key=lambda x: x["start"]):
         o = datetime.fromisoformat(b["start"]).astimezone()
         brann = b["gruppe"] == "brann"
