@@ -497,9 +497,13 @@ def main():
         vekk = {k["url"] for k in b["kjelder"]} | set(ekstra.get(b["id"], {}).get("avvis", []))
         b["kjelder"] = b["kjelder"] + [k for k in auto.get(b["id"], []) if k["url"] not in vekk]
 
+    import hashlib
+    innhald = [[b["id"], b["sist"], len(b["meldingar"]), len(b["kjelder"]), b["aktiv"]] for b in brannar]
+    kontrollsum = hashlib.sha1(json.dumps(innhald).encode()).hexdigest()[:12]
     no = datetime.now(timezone.utc)
     no_lokal = datetime.now().astimezone()
     data = {
+        "sum": kontrollsum,
         "oppdatert": no.isoformat(timespec="seconds"),
         "neste": neste_halvtime(no_lokal).isoformat(timespec="seconds"),
         "vindauge": VINDAUGE_DAGAR,
@@ -513,6 +517,9 @@ def main():
     side = mal.replace("/*__DATA__*/null", json_tekst)
     (MAPPE / "stordbrann.html").write_text(side, encoding="utf-8")
     skriv_nettside(side)
+    # Liten fil som opne sider sjekkar for å sjå om det finst nye data
+    (MAPPE / "nettside" / "status.json").write_text(
+        json.dumps({"oppdatert": data["oppdatert"], "neste": data["neste"], "sum": kontrollsum}), encoding="utf-8")
     tv_mal = MAPPE / "mal-tv.html"
     if tv_mal.exists():
         (MAPPE / "nettside" / "tv.html").write_text(

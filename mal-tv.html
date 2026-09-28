@@ -273,7 +273,17 @@ $("#oppd").textContent = `Data oppdatert ${relDag(ou).toLowerCase()} kl. ${kl(ou
 
 /* Hald skjermen vaken og hent nye data kvart kvarter */
 if (navigator.wakeLock) { const vak = () => navigator.wakeLock.request("screen").catch(() => {}); vak(); document.addEventListener("visibilitychange", () => document.visibilityState === "visible" && vak()); }
-setInterval(() => location.reload(), 15 * 60 * 1000);
+async function sjekkNyeData(){
+  try {
+    const svar = await fetch("status.json?t=" + Date.now(), {cache:"no-store"});
+    if (!svar.ok) return;
+    const st = await svar.json();
+    if (st.sum && st.sum !== D.sum) location.reload();
+    else if (st.oppdatert) { const o = oslo(st.oppdatert); $("#oppd").textContent = `Data oppdatert ${relDag(o).toLowerCase()} kl. ${kl(o)}`; }
+  } catch (e) {}
+}
+setInterval(sjekkNyeData, 2 * 60 * 1000);
+setInterval(() => location.reload(), 60 * 60 * 1000);  // tryggleiksnett: last heile sida på nytt kvar time
 })();
 </script>
 <script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});</script>

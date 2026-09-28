@@ -5,3 +5,4 @@ __pycache__/
 nettside/index.html
 nettside/tv.html
 varsel_kanal.txt
+nettside/status.json

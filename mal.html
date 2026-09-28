@@ -277,6 +277,13 @@ figure.foto figcaption{font-size:12px;color:var(--muted);margin-top:4px}
 .tip .eyebrow{margin-bottom:4px;color:var(--ember)}
 .tip p{margin:0}
 .fot{font-size:12.5px;color:var(--muted);text-align:center;padding-top:6px}
+.rapport{margin-top:14px;padding-top:14px;border-top:1px solid var(--line-2);display:grid;gap:8px}
+.rapport .rad{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.rapport .adr{font-family:var(--f-mono);font-size:13px;color:var(--ink-2);user-select:all;word-break:break-all}
+.nytt{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:40;
+  border:0;border-radius:999px;padding:10px 18px;background:var(--fire);color:#fff;font-weight:700;font-size:14px;
+  box-shadow:0 6px 20px rgba(0,0,0,.25);cursor:pointer;display:flex;gap:8px;align-items:center;white-space:nowrap}
+@media (min-width:1000px){.nytt{bottom:24px}}
 .kreditt{text-align:center;font-size:13px;color:var(--muted);padding-block:10px 4px;border-top:1px solid var(--line);letter-spacing:.02em}
 .kreditt b{color:var(--ink-2);font-weight:600}
 .kreditt p{margin:0}
@@ -449,6 +456,14 @@ figure.foto figcaption{font-size:12px;color:var(--muted);margin-top:4px}
         <li><b>Kart</b>: kystlinje © OpenStreetMap-bidragsytarar (ODbL), kommunegrense og stadnamn frå Kartverket.</li>
       </ul>
       <p style="margin-top:10px">Appen viser berre det politiet har loggført. Oppdrag som berre brannvesenet handterer, som katt i tre, vasslekkasjar og automatiske brannalarmar, kjem sjeldan med. Står det «Nødetatane», har politiet ikkje nemnt brannvesenet direkte. Alvorsgraden er rekna ut frå teksten i loggen og er ikkje ei offisiell vurdering.</p>
+      <div class="rapport">
+        <b>Fann du ein feil?</b>
+        <div class="rad">
+          <a class="btn" id="rapport-knapp" href="mailto:lillerudleander@gmail.com">Rapporter eit problem</a>
+          <button type="button" class="btn" id="kopier-epost">Kopier e-postadressa</button>
+        </div>
+        <span class="sub">Eller send e-post til <span class="adr">lillerudleander@gmail.com</span></span>
+      </div>
     </div>
     <div class="panel">
       <h3>Ved brann</h3>
@@ -461,6 +476,8 @@ figure.foto figcaption{font-size:12px;color:var(--muted);margin-top:4px}
     <p>Ikkje ein offisiell teneste frå Politiet, brannvesenet eller Stord kommune · Data frå Politiloggen</p>
   </footer>
 </main>
+
+<button type="button" class="nytt" id="nytt" hidden>Nye hendingar – trykk for å oppdatere</button>
 
 <nav class="tabbar" role="tablist" aria-label="Visning">
   <button role="tab" data-go="liste" aria-selected="true"><svg aria-hidden="true"><use href="#i-liste"/></svg>Liste</button>
@@ -851,11 +868,47 @@ document.addEventListener("keydown", e => {
 let sokT;
 $("#sok").addEventListener("input", e => { clearTimeout(sokT); sokT = setTimeout(() => { state.sok = e.target.value; renderList(); renderMap(); }, 120); });
 
-/* ---- Hent nye data når appen blir opna igjen etter ei stund ---- */
-const LASTA = Date.now();
-document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible" && Date.now() - LASTA > 20 * 60 * 1000) location.reload();
-});
+/* ---- Sjekk etter nye data medan sida står open ---- */
+let sistAktiv = Date.now();
+["pointerdown", "keydown", "touchstart", "wheel"].forEach(ev => addEventListener(ev, () => { sistAktiv = Date.now(); }, {passive:true}));
+async function sjekkNyeData(){
+  try {
+    const svar = await fetch("status.json?t=" + Date.now(), {cache:"no-store"});
+    if (!svar.ok) return;
+    const st = await svar.json();
+    if (!st.sum || st.sum === D.sum) {
+      // Ingen nye hendingar – berre oppdater klokkeslettet øvst
+      if (st.oppdatert && st.oppdatert !== D.oppdatert) { D.oppdatert = st.oppdatert; D.neste = st.neste; renderStatus(); }
+      return;
+    }
+    if (document.hidden || Date.now() - sistAktiv > 2 * 60 * 1000) location.reload();
+    else $("#nytt").hidden = false;
+  } catch (e) {}
+}
+$("#nytt").addEventListener("click", () => location.reload());
+setInterval(sjekkNyeData, 3 * 60 * 1000);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") sjekkNyeData(); });
+
+/* ---- Rapporter eit problem ---- */
+(function(){
+  const o = oslo(D.oppdatert);
+  const tekst = [
+    "Hei! Eg vil rapportere eit problem med Brannlogg Stord.",
+    "",
+    "Kva skjedde?",
+    "",
+    "",
+    "---",
+    "Data sist oppdatert: " + relDag(o) + " kl. " + kl(o),
+    "Skjerm: " + innerWidth + "×" + innerHeight,
+    "Nettlesar: " + navigator.userAgent
+  ].join(String.fromCharCode(10));
+  $("#rapport-knapp").href = "mailto:lillerudleander@gmail.com?subject=" + encodeURIComponent("Brannlogg Stord – problem") + "&body=" + encodeURIComponent(tekst);
+  $("#kopier-epost").addEventListener("click", async e => {
+    try { await navigator.clipboard.writeText("lillerudleander@gmail.com"); e.target.textContent = "Kopiert!"; }
+    catch (feil) { const r = document.createRange(); r.selectNodeContents($(".rapport .adr")); getSelection().removeAllRanges(); getSelection().addRange(r); }
+  });
+})();
 
 /* ---- Start ---- */
 renderStatus(); renderHero(); renderAll(); renderStats(); renderTip();
