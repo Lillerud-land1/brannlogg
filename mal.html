@@ -281,6 +281,16 @@ figure.foto figcaption{font-size:12px;color:var(--muted);margin-top:4px}
 .tip .eyebrow{margin-bottom:4px;color:var(--ember)}
 .tip p{margin:0}
 .fot{font-size:12.5px;color:var(--muted);text-align:center;padding-top:6px}
+.varsel{grid-column:1/-1}
+.steg{margin:0 0 14px;padding-left:20px;display:grid;gap:6px}
+.kanalar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:10px}
+.kanal{border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:grid;gap:8px;background:var(--surface-2)}
+.kanal .sub{display:block;margin-top:2px}
+.kanal .rad{display:flex;flex-wrap:wrap;gap:8px}
+.kanal .adr{font-family:var(--f-mono);font-size:13px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 8px;user-select:all;word-break:break-all}
+.bjelle{display:grid;place-items:center;width:34px;height:34px;border-radius:999px;border:1px solid var(--line);background:var(--chip);color:var(--ink-2);flex:none}
+.bjelle svg{width:18px;height:18px}
+@media (max-width:720px){.kanalar{grid-template-columns:minmax(0,1fr)}}
 .rapport{margin-top:14px;padding-top:14px;border-top:1px solid var(--line-2);display:grid;gap:8px}
 .rapport .rad{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .rapport .adr{font-family:var(--f-mono);font-size:13px;color:var(--ink-2);user-select:all;word-break:break-all}
@@ -381,6 +391,7 @@ figure.foto figcaption{font-size:12px;color:var(--muted);margin-top:4px}
     <nav class="desk-nav" aria-label="Seksjonar">
       <a href="#liste" data-go="liste">Liste</a><a href="#kart" data-go="kart">Kart</a><a href="#statistikk" data-go="stat">Statistikk</a><a href="#info" data-go="info">Om appen</a>
     </nav>
+    <a class="bjelle" href="#info" data-go="info" aria-label="Få varsel på mobilen" title="Få varsel på mobilen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg></a>
     <div class="status" id="status" title=""><span class="dot"></span><span id="status-txt">Lastar …</span></div>
   </div>
 </header>
@@ -444,13 +455,42 @@ figure.foto figcaption{font-size:12px;color:var(--muted);margin-top:4px}
   </div>
 
   <section class="vw info" id="v-info" aria-label="Om appen">
+    <div class="panel varsel" id="varsel">
+      <h3>Få varsel på mobilen</h3>
+      <p>Få ei melding på telefonen når det skjer noko nytt i Stord. Det er gratis og krev ingen konto.</p>
+      <ol class="steg">
+        <li>Last ned den gratis appen <b>ntfy</b>: <a href="https://apps.apple.com/app/ntfy/id1625396347" target="_blank" rel="noopener">App Store (iPhone)</a> · <a href="https://play.google.com/store/apps/details?id=io.heckel.ntfy" target="_blank" rel="noopener">Google Play (Android)</a></li>
+        <li>Vel kanal under og trykk <b>Kopier kanalnamnet</b>.</li>
+        <li>Opne ntfy, trykk <b>+</b>, lim inn kanalnamnet og trykk <b>Subscribe</b>. Tillat varsel når telefonen spør.</li>
+      </ol>
+      <div class="kanalar">
+        <div class="kanal">
+          <div><b>Alle utrykkingar</b><span class="sub">Brannar, trafikkulykker, sjø, dyreoppdrag og liknande. Ikkje automatiske brannalarmar.</span></div>
+          <code class="adr">brannlogg-stord-fa9d8bb7</code>
+          <div class="rad">
+            <button type="button" class="btn" data-kopier="brannlogg-stord-fa9d8bb7">Kopier kanalnamnet</button>
+            <a class="btn" href="ntfy://ntfy.sh/brannlogg-stord-fa9d8bb7">Opne i ntfy (Android)</a>
+            <a class="btn" href="https://ntfy.sh/brannlogg-stord-fa9d8bb7" target="_blank" rel="noopener">Opne på PC</a>
+          </div>
+        </div>
+        <div class="kanal">
+          <div><b>Berre brannar</b><span class="sub">Berre når det brenn. Færre meldingar.</span></div>
+          <code class="adr">brannlogg-stord-fa9d8bb7-brann</code>
+          <div class="rad">
+            <button type="button" class="btn" data-kopier="brannlogg-stord-fa9d8bb7-brann">Kopier kanalnamnet</button>
+            <a class="btn" href="ntfy://ntfy.sh/brannlogg-stord-fa9d8bb7-brann">Opne i ntfy (Android)</a>
+            <a class="btn" href="https://ntfy.sh/brannlogg-stord-fa9d8bb7-brann" target="_blank" rel="noopener">Opne på PC</a>
+          </div>
+        </div>
+      </div>
+      <p class="sub">Trykkjer du på eit varsel, opnar Brannlogg seg på hendinga. På PC: trykk «Opne på PC», så «Subscribe», og tillat varsel i nettlesaren.</p>
+    </div>
     <div class="panel">
       <h3>Legg appen på heimeskjermen</h3>
       <div class="plat">
         <div><b>iPhone og iPad</b>Opne sida i Safari, trykk på <span class="kbd">Del</span> (firkanten med pil opp) og vel <span class="kbd">Legg til på Heim-skjerm</span>.</div>
         <div><b>Android</b>Opne sida i Chrome, trykk på <span class="kbd">⋮</span> øvst til høgre og vel <span class="kbd">Legg til på startskjermen</span>.</div>
         <div><b>Windows</b>Opne sida i Edge, trykk på <span class="kbd">···</span> → <span class="kbd">Appar</span> → <span class="kbd">Installer denne nettstaden som app</span>. Du finn han då i Start-menyen.</div>
-        <div><b>Varsel på mobilen</b>Last ned den gratis appen <span class="kbd">ntfy</span> og abonner på kanalen for Brannlogg, så får du melding når noko nytt skjer. Kanalnamnet får du av Leander.</div>
         <div><b>Infoskjerm og TV</b>Eigen storskjerm-versjon som oppdaterer seg sjølv: <span class="kbd">lillerud-land1.github.io/brannlogg/tv.html</span></div>
       </div>
     </div>
@@ -904,6 +944,12 @@ async function sjekkNyeData(){
 $("#nytt").addEventListener("click", () => location.reload());
 setInterval(sjekkNyeData, 3 * 60 * 1000);
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") sjekkNyeData(); });
+
+/* ---- Kopier kanalnamn for varsel ---- */
+document.querySelectorAll("[data-kopier]").forEach(k => k.addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText(k.dataset.kopier); k.textContent = "Kopiert!"; setTimeout(() => { k.textContent = "Kopier kanalnamnet"; }, 2500); }
+  catch (feil) { const r = document.createRange(); r.selectNodeContents(k.closest(".kanal").querySelector(".adr")); getSelection().removeAllRanges(); getSelection().addRange(r); }
+}));
 
 /* ---- Rapporter eit problem ---- */
 (function(){

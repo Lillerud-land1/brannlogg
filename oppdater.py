@@ -834,7 +834,12 @@ def send_varsel(brannar):
         return
     varsla = set(les_json("varsla.json", []))
     grense = datetime.now(timezone.utc) - timedelta(hours=24)
-    nye = [b for b in brannar if b["id"] not in varsla and b.get("gruppe") != "alarm"
+
+    def nøklar(b):
+        # Same hending kan først kome frå Politiloggen og seinare frå brannstatistikken (eller omvendt)
+        return {b["id"]} | ({"d-" + b["bris"]["id"]} if b.get("bris") else set())
+
+    nye = [b for b in brannar if not (nøklar(b) & varsla) and b.get("gruppe") != "alarm"
            and datetime.fromisoformat(b["start"]) >= grense]
     for b in sorted(nye, key=lambda x: x["start"]):
         o = datetime.fromisoformat(b["start"]).astimezone()
@@ -847,15 +852,22 @@ def send_varsel(brannar):
             "priority": 4 if b["alvor"] == 3 or b["aktiv"] else 3,
             "click": f"{NETTSIDE}#b-{b['id']}",
         }
-        req = urllib.request.Request("https://ntfy.sh/", data=json.dumps(melding).encode("utf-8"),
-                                     headers={"Content-Type": "application/json", **UA}, method="POST")
+        # Alle hendingar går til hovudkanalen; brannar også til «-brann»-kanalen
+        kanalar = [kanal] + ([kanal + "-brann"] if brann else [])
         try:
-            urllib.request.urlopen(req, timeout=30).read()
-            varsla.add(b["id"])
-            print(f"VARSEL: sendt – {b['tittel']} ({b['stad']})")
+            for emne in kanalar:
+                req = urllib.request.Request("https://ntfy.sh/", data=json.dumps({**melding, "topic": emne}).encode("utf-8"),
+                                             headers={"Content-Type": "application/json", **UA}, method="POST")
+                urllib.request.urlopen(req, timeout=30).read()
+            varsla |= nøklar(b)
+            print(f"VARSEL: sendt til {len(kanalar)} kanal(ar) – {b['tittel']} ({b['stad']})")
         except Exception as feil:
             print(f"VARSEL_FEIL: {b['id']}: {feil}")
-    skriv_json("varsla.json", sorted(varsla | {b["id"] for b in brannar if b["id"] not in {n["id"] for n in nye}}))
+    nye_id = {n["id"] for n in nye}
+    for b in brannar:
+        if b["id"] not in nye_id:
+            varsla |= nøklar(b)
+    skriv_json("varsla.json", sorted(varsla))
     if not nye:
         print("VARSEL: ingen nye hendingar")
 
