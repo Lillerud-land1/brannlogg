@@ -1,7 +1,7 @@
 {
   "name": "Brannlogg Stord",
   "short_name": "Brannlogg",
-  "description": "Brannar i Stord kommune frå Politiloggen, oppdatert kvar time.",
+  "description": "Brannar i Stord kommune frå Politiloggen, oppdatert kvar halvtime.",
   "lang": "nn",
   "start_url": "./",
   "scope": "./",
