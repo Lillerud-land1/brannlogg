@@ -129,5 +129,65 @@
         "url": "https://radioh.no/rykker-ut-til-brann-i-kjoretoy-pa-stord/"
       }
     ]
+  },
+  "26xxv6": {
+    "sokt": "2026-09-28T16:13",
+    "kjelder": []
+  },
+  "262mw3": {
+    "sokt": "2026-09-28T16:13",
+    "kjelder": [
+      {
+        "kjelde": "NRK Vestland",
+        "tittel": "MC-ulykke på Stord",
+        "url": "https://www.nrk.no/vestland/mc-ulykke-pa-stord--1.17971281"
+      },
+      {
+        "kjelde": "Radio Haugaland",
+        "tittel": "MC-ulykke på Stord",
+        "url": "https://radioh.no/mc-forer-tilsett-etter-ulykke-pa-stord/"
+      }
+    ]
+  },
+  "26d6w6": {
+    "sokt": "2026-09-28T16:13",
+    "kjelder": [
+      {
+        "kjelde": "NRK",
+        "tittel": "Bil traff autovern – sperrer ett kjørefelt",
+        "url": "https://www.nrk.no/rogaland/bil-traff-autovern-_-sperrer-ett-kjorefelt-1.17969196"
+      }
+    ]
+  },
+  "26z5b0": {
+    "sokt": "2026-09-28T16:13",
+    "kjelder": [
+      {
+        "kjelde": "NRK Vestland",
+        "tittel": "To bilar i trafikkulukke i Bømlafjordtunnelen",
+        "url": "https://www.nrk.no/vestland/to-bilar-i-trafikkulukke-i-bomlafjordtunnelen-1.17932714"
+      },
+      {
+        "kjelde": "Haugesunds Avis",
+        "tittel": "Ulykke i Bømlafjordtunnelen ga lange køer",
+        "url": "https://www.h-avis.no/ulykke-i-bomlafjordtunnelen-lange-koer/s/5-62-2055069"
+      },
+      {
+        "kjelde": "Radio Haugaland",
+        "tittel": "Bømlafjordtunnelen stenges når bilene skal berges",
+        "url": "https://radioh.no/bomlafjordtunnelen-stengt-etter-trafikkulykke/"
+      }
+    ]
+  },
+  "26v4nf": {
+    "sokt": "2026-09-28T16:13",
+    "merknad": "Ifølgje Haugesunds Avis køyrde ein båtførar i 40-åra inn i ein fortøydd båt og erkjende å ha vore ruspåverka.",
+    "kjelder": [
+      {
+        "kjelde": "Haugesunds Avis",
+        "tittel": "Båtfører krasjet i fortøyd båt: – Erkjenner å ha vært beruset",
+        "url": "https://www.h-avis.no/batforer-krasjet-i-fortoyd-bat-erkjenner-a-ha-vart-beruset/s/5-62-2053654"
+      }
+    ]
   }
 }
