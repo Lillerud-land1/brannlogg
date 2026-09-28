@@ -529,6 +529,55 @@ def main():
     for b in brannar:
         if not b["pos"]:
             print(f"UTAN_KARTPLASS: {b['id']} | {b['stad']}")
+    if "--varsle" in sys.argv:
+        send_varsel(brannar)
+
+
+# ---------- Varsel på mobilen (ntfy.sh) ----------
+
+NETTSIDE = "https://lillerud-land1.github.io/brannlogg/"
+VARSEL_IKON = {"trafikk": "rotating_light", "sjo": "ocean", "ulykke": "warning", "utslepp": "droplet",
+               "redning": "sos", "dyr": "paw_prints", "utrykking": "rotating_light"}
+
+
+def send_varsel(brannar):
+    """Sender push-varsel via ntfy.sh for nye hendingar. Kanalnamnet ligg i NTFY_TOPIC (GitHub-hemmelegheit)."""
+    import os
+    kanal = os.environ.get("NTFY_TOPIC", "").strip()
+    if not kanal:
+        print("VARSEL: ikkje sett opp (NTFY_TOPIC manglar)")
+        return
+    fil = MAPPE / "varsla.json"
+    if not fil.exists():
+        # Første gong: merk alt som finst som varsla, så telefonen ikkje får 40 gamle meldingar.
+        skriv_json("varsla.json", sorted(b["id"] for b in brannar))
+        print(f"VARSEL: starta, {len(brannar)} gamle hendingar merkte som varsla")
+        return
+    varsla = set(les_json("varsla.json", []))
+    grense = datetime.now(timezone.utc) - timedelta(hours=24)
+    nye = [b for b in brannar if b["id"] not in varsla and datetime.fromisoformat(b["start"]) >= grense]
+    for b in sorted(nye, key=lambda x: x["start"]):
+        o = datetime.fromisoformat(b["start"]).astimezone()
+        brann = b["gruppe"] == "brann"
+        melding = {
+            "topic": kanal,
+            "title": f"{'🔥' if brann else '🚨'} {b['tittel']} – {b['stad']}",
+            "message": f"kl. {o:%H:%M}: {b['meldingar'][0]['tekst'][:300]}",
+            "tags": ["fire"] if brann else [VARSEL_IKON.get(b["type"], "rotating_light")],
+            "priority": 4 if b["alvor"] == 3 or b["aktiv"] else 3,
+            "click": f"{NETTSIDE}#b-{b['id']}",
+        }
+        req = urllib.request.Request("https://ntfy.sh/", data=json.dumps(melding).encode("utf-8"),
+                                     headers={"Content-Type": "application/json", **UA}, method="POST")
+        try:
+            urllib.request.urlopen(req, timeout=30).read()
+            varsla.add(b["id"])
+            print(f"VARSEL: sendt – {b['tittel']} ({b['stad']})")
+        except Exception as feil:
+            print(f"VARSEL_FEIL: {b['id']}: {feil}")
+    skriv_json("varsla.json", sorted(varsla | {b["id"] for b in brannar if b["id"] not in {n["id"] for n in nye}}))
+    if not nye:
+        print("VARSEL: ingen nye hendingar")
 
 
 if __name__ == "__main__":
