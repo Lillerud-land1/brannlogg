@@ -813,5 +813,1120 @@
     "type": "Published"
    }
   ]
+ },
+ "26xxv6": {
+  "id": "26xxv6",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Sjø",
+  "municipality": "Stord",
+  "area": "Leirvik",
+  "createdOn": "2026-08-19T10:59:17.1786835+00:00",
+  "updatedOn": "2026-08-19T11:21:45.5521639+00:00",
+  "lastMessageOn": "2026-08-19T11:21:40.2682292+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "26xxv6-0",
+    "text": "Innkom melding om person i vann ved Leirvik. Politi og brannvesen er på stedet og i kontakt/kontroll på en person som fremstår beruset.",
+    "createdOn": "2026-08-19T10:59:17.1781885+00:00",
+    "updatedOn": "2026-08-19T10:59:17.2243531+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26xxv6-2",
+    "text": "Person uskadd og blir dermed heller ikke fremstilt for helse. Avslutter.",
+    "createdOn": "2026-08-19T11:21:40.2682292+00:00",
+    "updatedOn": "2026-08-19T11:21:40.2682292+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "262mw3": {
+  "id": "262mw3",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Trafikk",
+  "municipality": "Stord",
+  "area": "Meatjønnsvegen",
+  "createdOn": "2026-07-28T11:29:08.8418867+00:00",
+  "updatedOn": "2026-07-28T12:20:45.8069245+00:00",
+  "lastMessageOn": "2026-07-28T11:57:41.4500676+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "262mw3-0",
+    "text": "Nødetatene er på stedet ifm. en trafikkulykke mellom en MC og en personbil. MC fører blir tilsett av helse på stedet. Trafikken er lite berørt.",
+    "createdOn": "2026-07-28T11:29:08.841697+00:00",
+    "updatedOn": "2026-07-28T11:29:08.9116945+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "262mw3-1",
+    "text": "MC fører hadde ikke behov for behandling av helse. Patruljen avhører førerne.",
+    "createdOn": "2026-07-28T11:57:41.4500676+00:00",
+    "updatedOn": "2026-07-28T11:57:41.4500676+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "26d6w6": {
+  "id": "26d6w6",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Trafikk",
+  "municipality": "Stord",
+  "area": "Sagvågsvegen",
+  "createdOn": "2026-07-25T18:28:42.3554312+00:00",
+  "updatedOn": "2026-07-25T19:22:52.2770901+00:00",
+  "lastMessageOn": "2026-07-25T19:22:50.7261992+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "26d6w6-0",
+    "text": "Singelulykke. Bil har truffet autovern i sving. Sagvågsvegen ved Valvatnavegen. Politipatrulje er på vei. Ikke meldt om personskade. Fører varslet selv politiet.",
+    "createdOn": "2026-07-25T18:28:42.355231+00:00",
+    "updatedOn": "2026-07-25T18:28:42.4100196+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26d6w6-1",
+    "text": "Sperrer et kjørefelt. Retning Heiane. God passering for øvrig trafikk.\nPatrulje på stedet. Melder ikke om trafikale utfordringer.",
+    "createdOn": "2026-07-25T18:30:22.5045312+00:00",
+    "updatedOn": "2026-07-25T18:30:22.5045312+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26d6w6-2",
+    "text": "Brannvesenet er fem minutter unna. Ikke meldt om brann men lukter litt svidd fra bilen.",
+    "createdOn": "2026-07-25T18:35:56.0963532+00:00",
+    "updatedOn": "2026-07-25T18:35:56.0963532+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26d6w6-3",
+    "text": "Nødetatene er ferdige på stedet. Berger har hentet bil. Ikke mistanke om rus. Patruljen oppretter sak på uaktsomhet.",
+    "createdOn": "2026-07-25T19:22:50.7261992+00:00",
+    "updatedOn": "2026-07-25T19:22:50.7261992+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "26z5b0": {
+  "id": "26z5b0",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Trafikk",
+  "municipality": "Stord",
+  "area": "Bømlafjordtunnelen",
+  "createdOn": "2026-06-23T14:36:56.276091+00:00",
+  "updatedOn": "2026-06-23T16:03:39.0773815+00:00",
+  "lastMessageOn": "2026-06-23T15:36:10.9289326+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "26z5b0-0",
+    "text": " Bømlafjordtunnelen er stengt. Det har vært en trafikkulykke mellom to biler. Det skal ha vært en påkjørsel bakfra. Nødetatene er på vei til stedet. Oppdateres.",
+    "createdOn": "2026-06-23T14:36:56.2758931+00:00",
+    "updatedOn": "2026-06-23T14:36:56.4402312+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26z5b0-1",
+    "text": "Ingen fastklemt. Ingen kastet ut av kjøretøy. Alle er våkne og kan snakke. Det er totalt tre personer som er involvert. Trafikken står og det er lang kø.",
+    "createdOn": "2026-06-23T14:38:05.5897502+00:00",
+    "updatedOn": "2026-06-23T14:38:05.5897502+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26z5b0-2",
+    "text": "Det er ikke meldt om alvorlig personskade.",
+    "createdOn": "2026-06-23T14:51:08.4997415+00:00",
+    "updatedOn": "2026-06-23T14:51:08.4997415+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26z5b0-3",
+    "text": "Alle tre personer blir tatt med til legevakt for sjekk.",
+    "createdOn": "2026-06-23T15:09:47.6542989+00:00",
+    "updatedOn": "2026-06-23T15:09:47.6542989+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26z5b0-4",
+    "text": "Tunnelen åpnet i begge retninger med redusert hastighet.",
+    "createdOn": "2026-06-23T15:18:02.2068757+00:00",
+    "updatedOn": "2026-06-23T15:18:02.2068757+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26z5b0-5",
+    "text": "Tunnelen blir stengt når bilene blir berget.",
+    "createdOn": "2026-06-23T15:36:10.9289326+00:00",
+    "updatedOn": "2026-06-23T15:36:10.9289326+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "26v4nf": {
+  "id": "26v4nf",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Ulykke",
+  "municipality": "Stord",
+  "area": "Leirvik",
+  "createdOn": "2026-06-20T23:59:17.0922568+00:00",
+  "updatedOn": "2026-06-21T00:21:06.1874496+00:00",
+  "lastMessageOn": "2026-06-21T00:18:54.6398824+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "26v4nf-0",
+    "text": "Nødetatene er på stedet ifm. en båtkollisjon i sjøen like utenfor Leirvik. En båt skal ha kollidert med en fortøyd båt. Fører har båten har fått seg en smell i hodet, men er ved bevissthet. Båtfører erkjenner selv å være beruset. Oppdateres.",
+    "createdOn": "2026-06-20T23:59:17.0920083+00:00",
+    "updatedOn": "2026-06-20T23:59:17.1459615+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26v4nf-1",
+    "text": "Båtfører, mann i 40-årene, er fraktet til Stord sykehus for behandling, samt blodprøve (promille). Politiet har dokumentert skader på siktedes båt, samt båten han kolliderte i.",
+    "createdOn": "2026-06-21T00:18:54.6398824+00:00",
+    "updatedOn": "2026-06-21T00:18:54.6398824+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "26578j": {
+  "id": "26578j",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Trafikk",
+  "municipality": "Stord",
+  "area": "Sagvåg",
+  "createdOn": "2026-06-19T17:32:38.1096556+00:00",
+  "updatedOn": "2026-06-19T17:58:33.2751903+00:00",
+  "lastMessageOn": "2026-06-19T17:58:31.786371+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "26578j-0",
+    "text": "Nødetatene rykker ut til trafikkulykke mellom bil og syklist. Oppdateres.",
+    "createdOn": "2026-06-19T17:32:38.1093967+00:00",
+    "updatedOn": "2026-06-19T17:32:38.1964653+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26578j-1",
+    "text": "Politiet på stedet melder om at det ikke har vært et sammenstøt mellom syklist og kjøretøy. Syklist har falt selv og er ivaretatt av helse. Politiet oppretter ikke sak.",
+    "createdOn": "2026-06-19T17:58:31.786371+00:00",
+    "updatedOn": "2026-06-19T17:58:31.786371+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "266kwz": {
+  "id": "266kwz",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Andre hendelser",
+  "municipality": "Stord",
+  "area": "Hamnegata",
+  "createdOn": "2026-05-25T17:37:59.1024117+00:00",
+  "updatedOn": "2026-05-25T21:01:03.8156548+00:00",
+  "lastMessageOn": "2026-05-25T17:37:59.1021753+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "266kwz-0",
+    "text": "Ifm fylling av en dieseltank så ble det en overfylling fra en tankbil på ca 1000 - 1500 liter. Noe av dette rant ut i sjøen. Brannvesenet rykket ut til stedet sammen med politi. Det har blitt lagt ut lenser for skadebegrensning, og avhør av de involverte er ivaretatt. Sak vurderes opprettet.",
+    "createdOn": "2026-05-25T17:37:59.1021753+00:00",
+    "updatedOn": "2026-05-25T17:37:59.2053859+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "26v5h4": {
+  "id": "26v5h4",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Trafikk",
+  "municipality": "Stord",
+  "area": "Stordbrua",
+  "createdOn": "2026-05-05T04:04:24.7273615+00:00",
+  "updatedOn": "2026-05-05T06:53:03.5678753+00:00",
+  "lastMessageOn": "2026-05-05T06:06:40.857598+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "26v5h4-0",
+    "text": "Nødetatene rykker ut til trafikkulykke på E39 Stordbrua. En bil har skader i front. Meldt om glatte kjøreforhold på stedet. ",
+    "createdOn": "2026-05-05T04:04:24.726961+00:00",
+    "updatedOn": "2026-05-05T04:04:24.7591935+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26v5h4-1",
+    "text": "Flere meldere informerer om at det er meget glatte kjøreforhold. Flere kjøretøy  har bulket på stedet.",
+    "createdOn": "2026-05-05T04:10:02.318502+00:00",
+    "updatedOn": "2026-05-05T04:10:02.318502+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26v5h4-2",
+    "text": "Politipatrulje er på stedet og melder om vanskelige kjøreforhold. Brua stenges i påvente av strøing/salting. VTS varslet.",
+    "createdOn": "2026-05-05T04:17:01.957957+00:00",
+    "updatedOn": "2026-05-05T04:17:01.957957+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26v5h4-3",
+    "text": "Kjøretøyene som har vært involvert i trafikkulykkene var borte fra brua før politiet ankom stedet.",
+    "createdOn": "2026-05-05T04:19:56.9161747+00:00",
+    "updatedOn": "2026-05-05T04:19:56.9161747+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26v5h4-4",
+    "text": "Brua er igjen åpen for trafikk. Politiet forblir på stedet for å dirigere av gårde en del trafikk som har hopet seg opp.",
+    "createdOn": "2026-05-05T06:06:40.857598+00:00",
+    "updatedOn": "2026-05-05T06:06:40.857598+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "26n0x6": {
+  "id": "26n0x6",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Ulykke",
+  "municipality": "Stord",
+  "area": "E39 Heiane Ved Hatland",
+  "createdOn": "2026-04-17T19:12:54.4638156+00:00",
+  "updatedOn": "2026-04-17T20:16:40.498424+00:00",
+  "lastMessageOn": "2026-04-17T19:23:27.0339323+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "26n0x6-0",
+    "text": "Melding om trafikkulykke mellom to biler. Nødetatene rykker ut, skal være en del materielle skader, men personen involvert skal være oppegående på stedet, oppdateres.",
+    "createdOn": "2026-04-17T19:12:54.4625999+00:00",
+    "updatedOn": "2026-04-17T19:12:54.5279087+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26n0x6-1",
+    "text": "Patrulje melder tilbake at det dreier seg om to biler og totalt fire personer involvert, men ingen fremstår som skadet. Et kjørefelt er blokkert, oppdateres.",
+    "createdOn": "2026-04-17T19:16:08.6612703+00:00",
+    "updatedOn": "2026-04-17T19:16:08.6612703+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26n0x6-2",
+    "text": "Veien er åpen igjen, vitner og parter avhøres. Sak opprettes på stedet.",
+    "createdOn": "2026-04-17T19:23:27.0339323+00:00",
+    "updatedOn": "2026-04-17T19:23:27.0339323+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "2626b0": {
+  "id": "2626b0",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Ulykke",
+  "municipality": "Stord",
+  "area": "",
+  "createdOn": "2026-04-03T12:38:42.7455674+00:00",
+  "updatedOn": "2026-04-03T16:39:34.0787054+00:00",
+  "lastMessageOn": "2026-04-03T14:50:49.0338864+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "2626b0-0",
+    "text": "Nødetatene rykker ut etter melding om mulig arbeidsulykke, oppdateres.",
+    "createdOn": "2026-04-03T12:38:42.7443949+00:00",
+    "updatedOn": "2026-04-03T12:38:42.7832245+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "2626b0-3",
+    "text": "Vi er på stedet og det jobbes med en pasient som fremstår alvorlig skadd. Pasienten har vært på jobb og det er i forbindelse med arbeid en ulykke har skjedd. Det er foreløpig uvisst hva hendelsesforløpet er, dette vil bli undersøkt.",
+    "createdOn": "2026-04-03T12:58:17.9180799+00:00",
+    "updatedOn": "2026-04-03T12:58:17.9180799+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "2626b0-6",
+    "text": "En mann er omkommet som følge av en klemulykke. Det opprettes sak. Nødetatene har nå forlatt stedet.",
+    "createdOn": "2026-04-03T14:50:49.0338864+00:00",
+    "updatedOn": "2026-04-03T14:50:49.0338864+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "26085b": {
+  "id": "26085b",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Trafikk",
+  "municipality": "Stord",
+  "area": "Leirvik Skule",
+  "createdOn": "2026-03-15T18:01:39.5717459+00:00",
+  "updatedOn": "2026-03-15T22:45:59.8178472+00:00",
+  "lastMessageOn": "2026-03-15T19:17:07.0205844+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "26085b-0",
+    "text": "Kl 1858. Nødetatene rykker ut etter melding om trafikkulykke, to biler involvert. Det er påkjørsel bakfra ,personene er ute av bilen og det er ikke meldt om alvorlig personskade ",
+    "createdOn": "2026-03-15T18:01:39.5713358+00:00",
+    "updatedOn": "2026-03-15T18:01:39.628731+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26085b-2",
+    "text": "Politiet er på stedet, den ene bilen blokkerer et kjørefelt. Det er bestilt bilberging til et kjøretøy.",
+    "createdOn": "2026-03-15T18:04:10.4528968+00:00",
+    "updatedOn": "2026-03-15T18:04:10.4528968+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26085b-3",
+    "text": "Det er mistanke om at fører av den ene bilen , ikke har overholdt vikeplikten i et T-kryss.",
+    "createdOn": "2026-03-15T18:14:07.6185441+00:00",
+    "updatedOn": "2026-03-15T18:14:07.6185441+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26085b-5",
+    "text": "Bilberger er på stedet og tar med begge bilene. De involverte personene er sjekket av helse , ikke behov for videre oppfølgning. Politiet gjennomfører avhør på stedet.",
+    "createdOn": "2026-03-15T18:29:37.2870621+00:00",
+    "updatedOn": "2026-03-15T18:29:37.2870621+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26085b-6",
+    "text": "Fører, som er mistenkt for brudd på vikeplikten, dame i 80 årene fikk beslaglagt førerkortet. Hun erkjente straffeskyld for forholdet og samtykket i beslaget.  Sak opprettet.",
+    "createdOn": "2026-03-15T19:17:07.0205844+00:00",
+    "updatedOn": "2026-03-15T19:17:07.0205844+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "26w6np": {
+  "id": "26w6np",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Trafikk",
+  "municipality": "Stord",
+  "area": "Fitjarvegen",
+  "createdOn": "2026-03-14T22:37:02.6647009+00:00",
+  "updatedOn": "2026-03-14T23:25:48.9905455+00:00",
+  "lastMessageOn": "2026-03-14T23:25:44.4196296+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "26w6np-0",
+    "text": "Nødetatene er på vei til melding om trafikkulykke. Et kjøretøy med fem personer har gått rundt, og ligger på taket. I følge meldingen skal alle personene være ved bevissthet. Det skal være glatt på stedet. Oppdateres.",
+    "createdOn": "2026-03-14T22:37:02.6644485+00:00",
+    "updatedOn": "2026-03-14T22:37:02.7527933+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26w6np-1",
+    "text": "De fem personene blir tilsett av ambulanse på stedet. Lite trafikk på stedet i følge politipatruljen.",
+    "createdOn": "2026-03-14T22:57:34.5004622+00:00",
+    "updatedOn": "2026-03-14T22:57:34.5004622+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26w6np-2",
+    "text": "Veien er åpen for trafikk. De involverte er fraktet til legevakt/sykehus for sjekk/behandling. Politiet oppretter sak.",
+    "createdOn": "2026-03-14T23:25:44.4196296+00:00",
+    "updatedOn": "2026-03-14T23:25:44.4196296+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "26rk12": {
+  "id": "26rk12",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Trafikk",
+  "municipality": "Stord",
+  "area": "",
+  "createdOn": "2026-03-01T20:37:04.3482167+00:00",
+  "updatedOn": "2026-03-01T23:37:28.7685453+00:00",
+  "lastMessageOn": "2026-03-01T23:37:08.9691949+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "26rk12-0",
+    "text": "Politiet rykker ut til en trafikkulykke på E39 ved Kattatveit. Skal være to biler involvert, uvisst skadeomfang, men ingen fremstår som alvorlig skadet. ",
+    "createdOn": "2026-03-01T20:37:04.347601+00:00",
+    "updatedOn": "2026-03-01T20:37:04.3813054+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26rk12-1",
+    "text": "Nødetatene fremme på stedet, skal være fire biler som er involvert i ulykken. Ingen som er alvorlig skadet. Veien er stengt ved ulykkesstedet.",
+    "createdOn": "2026-03-01T20:42:45.9920102+00:00",
+    "updatedOn": "2026-03-01T20:45:15.9241558+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Edited"
+   },
+   {
+    "id": "26rk12-2",
+    "text": "To biler har frontkontrollert, to andre biler har kjørt inn i de to bilene. Det er bestilt berging til tre biler. Involverte blir tilsett av helse på stedet. Veien er stengt inntil bilene er fjernet.",
+    "createdOn": "2026-03-01T21:05:36.5460828+00:00",
+    "updatedOn": "2026-03-01T21:05:36.5460828+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26rk12-3",
+    "text": "To personer blir kjørt til sykehus for undersøkelser og to blir kjørt til legevakt.",
+    "createdOn": "2026-03-01T21:12:00.6122698+00:00",
+    "updatedOn": "2026-03-01T21:12:00.6122698+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26rk12-4",
+    "text": "E39 er åpnet igjen.",
+    "createdOn": "2026-03-01T23:37:08.9691949+00:00",
+    "updatedOn": "2026-03-01T23:37:08.9691949+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "264x2n": {
+  "id": "264x2n",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Trafikk",
+  "municipality": "Stord",
+  "area": "Leirvik",
+  "createdOn": "2026-02-18T05:52:53.232496+00:00",
+  "updatedOn": "2026-02-18T07:28:37.8296497+00:00",
+  "lastMessageOn": "2026-02-18T06:48:45.676073+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "264x2n-0",
+    "text": "Melding om trafikkuhell mellom to biler på E39 litt nord for Leirvik. Ingen skal være skadet, men det er store materielle skader. Har skjedd i forbindelse med et kryss. Veien er sperret. Nødetatene er akkurat komt til stedet. Oppdateres.",
+    "createdOn": "2026-02-18T05:52:53.232226+00:00",
+    "updatedOn": "2026-02-18T05:52:53.2935385+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "264x2n-1",
+    "text": "Vi bestiller nå berger til bilene. Brannvesenet forsøker å flytte bilene midlertidig ut av veien for å kunne åpne opp veien raskt.",
+    "createdOn": "2026-02-18T05:56:06.6831631+00:00",
+    "updatedOn": "2026-02-18T05:56:06.6831631+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "264x2n-2",
+    "text": "Bilene skal være fjernet til siden slik at veien er åpnet for ferdsel.",
+    "createdOn": "2026-02-18T06:05:06.0465008+00:00",
+    "updatedOn": "2026-02-18T06:05:06.0465008+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "264x2n-3",
+    "text": "Politiet er ferdig med avhør og sak opprettes. Vi blir værende på stedet frem til bilberger har hentet kjøretøyene.",
+    "createdOn": "2026-02-18T06:48:45.676073+00:00",
+    "updatedOn": "2026-02-18T06:48:45.676073+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "268hwk": {
+  "id": "268hwk",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Trafikk",
+  "municipality": "Stord",
+  "area": "",
+  "createdOn": "2026-01-15T07:32:31.1900923+00:00",
+  "updatedOn": "2026-01-15T09:34:45.3913663+00:00",
+  "lastMessageOn": "2026-01-15T09:30:13.1132655+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "268hwk-0",
+    "text": "KL 0810 - melding om trafikkulykke på E39 ved Ådlandsvatnet.",
+    "createdOn": "2026-01-15T07:32:31.1884932+00:00",
+    "updatedOn": "2026-01-15T07:32:31.2507864+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "268hwk-1",
+    "text": "Nødetatene er kommet frem til stedet.\nTo biler involvert.\nTrafikkulykken har skjedd i tilknytning til krysset E39 - Vestlivegen.",
+    "createdOn": "2026-01-15T07:34:03.7314009+00:00",
+    "updatedOn": "2026-01-15T07:34:03.7314009+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "268hwk-2",
+    "text": "Ingen personskade.",
+    "createdOn": "2026-01-15T07:35:00.2082475+00:00",
+    "updatedOn": "2026-01-15T07:35:00.2082475+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "268hwk-3",
+    "text": "Trafikken går nå som normalt. Bilene er ute av veien.",
+    "createdOn": "2026-01-15T07:47:33.8544028+00:00",
+    "updatedOn": "2026-01-15T08:24:30.8273857+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Edited"
+   },
+   {
+    "id": "268hwk-4",
+    "text": "Den ene sjåføren har fått beslaglagt førerkortet sitt av politiet. \nPolitiet oppretter sak på brudd på vikeplikt.\nSak opprettet.",
+    "createdOn": "2026-01-15T09:30:13.1132655+00:00",
+    "updatedOn": "2026-01-15T09:30:13.1132655+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "261wjc": {
+  "id": "261wjc",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Ulykke",
+  "municipality": "Stord",
+  "area": "Meatjørn - Sagvågsveien",
+  "createdOn": "2026-01-05T02:33:29.3075372+00:00",
+  "updatedOn": "2026-01-05T04:42:53.9489236+00:00",
+  "lastMessageOn": "2026-01-05T02:58:00.4416393+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "261wjc-0",
+    "text": "Melding om en bil som hadde kjørt i tjørnet og at en mann hadde kommet seg ut. Han gikk på isen og kom seg opp fra vannet. Bilen lå halvveis under vann. Nødetatene har rykket ut til stedet og sjåføren, en mann i slutten av 20 årene, ble tatt med av ambulanse til til legevakten for sjekk etter noe som beskrives som et kraftig sammenstøt. Patruljer på stedet har verifisert at han var alene i bilen, oppdateres.",
+    "createdOn": "2026-01-05T02:33:29.3070289+00:00",
+    "updatedOn": "2026-01-05T02:33:29.3582289+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "261wjc-1",
+    "text": "Bil trukket ut av tjernet ved hjelp av  brannvesenet. Videre er bergingsbil bestilt på vegne av bileier., men blir ikke hentet før ut på morgenen. Den står ikke trafikkfarlig til. Sannsynligvis har bilen kommet bort i et autovern av ukjent årsak og gått sidelengs over dette før den havnet i tjernet, sak opprettet.",
+    "createdOn": "2026-01-05T02:58:00.4416393+00:00",
+    "updatedOn": "2026-01-05T02:58:00.4416393+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "25rhrm": {
+  "id": "25rhrm",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Ulykke",
+  "municipality": "Stord",
+  "area": "E39 Hagberg",
+  "createdOn": "2025-12-23T07:09:41.8644602+00:00",
+  "updatedOn": "2025-12-23T09:55:29.1843207+00:00",
+  "lastMessageOn": "2025-12-23T09:31:32.4110909+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "25rhrm-0",
+    "text": "Kl 0804 Nødetatene rykker til melding om en personbil som skal ha kjørt inn i en fjellvegg. Tre personer involvert. Mulig en person er fastklemt. Trafikk er stanset og det forventes køer, saken oppdateres.",
+    "createdOn": "2025-12-23T07:09:41.8640076+00:00",
+    "updatedOn": "2025-12-23T07:09:41.8953611+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "25rhrm-1",
+    "text": "Kl 08.20 første patrulje på stedet. Tre personer involvert, kraftig sammenstøt, alle tre er oppegående, oppdateres.",
+    "createdOn": "2025-12-23T07:21:35.4445169+00:00",
+    "updatedOn": "2025-12-23T07:21:35.4445169+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "25rhrm-2",
+    "text": "Personer involvert tilses av ambulanse på stedet før transport videre. Alle tre er oppegående, men skal ha fått noen skader, fremstår ikke som alvorlig skadet. Trafikken står fortsatt, men det forventes at man får åpnet et kjørefelt innen kort tid. Saken oppdateres.",
+    "createdOn": "2025-12-23T07:31:38.9029766+00:00",
+    "updatedOn": "2025-12-23T07:31:38.9029766+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "25rhrm-5",
+    "text": "Alle tre fraktes med ambulanse til Stord sykehus for videre oppfølgning. Trafikken vil snart bli dirigert forbi i et felt. Det meldes om glatte veier på stedet. Bergingsbil er rekvirert, saken oppdateres.",
+    "createdOn": "2025-12-23T07:42:56.7662324+00:00",
+    "updatedOn": "2025-12-23T07:42:56.7662324+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "25rhrm-6",
+    "text": "Politiet er fortsatt på stedet og driver åstedsarbeid. Det er lite trafikk på stedet nå, men fortsatt bare et felt åpent, oppdatert.",
+    "createdOn": "2025-12-23T08:52:21.1660852+00:00",
+    "updatedOn": "2025-12-23T08:52:21.1660852+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "25rhrm-7",
+    "text": "Politiet er nå ferdig på stedet. Bil er hentet av bilberger og veien er åpnet igjen for normal ferdsel, sak opprettet.",
+    "createdOn": "2025-12-23T09:31:32.4110909+00:00",
+    "updatedOn": "2025-12-23T09:31:32.4110909+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "250pjd": {
+  "id": "250pjd",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Trafikk",
+  "municipality": "Stord",
+  "area": "Leirvik",
+  "createdOn": "2025-12-08T17:02:13.1871375+00:00",
+  "updatedOn": "2025-12-08T17:58:17.2187673+00:00",
+  "lastMessageOn": "2025-12-08T17:57:27.3518524+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "250pjd-0",
+    "text": "Kl 1758. Nødetatene rykker ut etter melding om trafikkulykke , en person er påkjørt av en bil i et fotgjengerfelt.  Personen som er påkjørt er tilsnakkende, ukjent skadeomfang   ",
+    "createdOn": "2025-12-08T17:02:13.1868893+00:00",
+    "updatedOn": "2025-12-08T17:02:13.341844+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "250pjd-2",
+    "text": "Politiet og ambulanse er på stedet. Ikke påvist noen fysisk skade på fotgjengeren , utover at han er svimmel og uvel. Han undersøkes nærmere av ambulansepersonell.",
+    "createdOn": "2025-12-08T17:15:01.9220079+00:00",
+    "updatedOn": "2025-12-08T17:15:01.9220079+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "250pjd-3",
+    "text": "Politiet er i kontakt med bilfører.",
+    "createdOn": "2025-12-08T17:15:50.2708681+00:00",
+    "updatedOn": "2025-12-08T17:15:50.2708681+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "250pjd-5",
+    "text": "Bilfører, mann i 70 årene, er avhørt på stedet. Han samtykket i førerkort beslag. Det er ikke mistanke om ruskjøring.",
+    "createdOn": "2025-12-08T17:57:27.3518524+00:00",
+    "updatedOn": "2025-12-08T17:57:27.3518524+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "25tq31": {
+  "id": "25tq31",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Trafikk",
+  "municipality": "Stord",
+  "area": "Litlabøvegen",
+  "createdOn": "2025-12-02T09:44:56.7203099+00:00",
+  "updatedOn": "2025-12-02T10:50:24.2233905+00:00",
+  "lastMessageOn": "2025-12-02T10:49:49.1488578+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "25tq31-0",
+    "text": "Nødetatene mottok automatisk melding om trafikkuhell (E-call) på Litlabøvegen mellom Litlabø og Leirvik. Det er nå bekreftet at en bil har kjørt ut av veien. Fører og passasjer fremstår som uskadet. Nødetatene er akkurat komt frem til stedet. ",
+    "createdOn": "2025-12-02T09:44:56.7200407+00:00",
+    "updatedOn": "2025-12-02T09:44:56.7523067+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "25tq31-1",
+    "text": "Det er ingen utfordringer med fobipasserende trafikk. Politipatruljen er i gang med avhør av fører nå.",
+    "createdOn": "2025-12-02T10:23:23.8196424+00:00",
+    "updatedOn": "2025-12-02T10:23:23.8196424+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "25tq31-2",
+    "text": "Der foreligger ingen mistanke om kjøring i ruspåvirket tilstand. De involverte er tilsett av helse, ingen fysiske skader. Bilen måtte inntaues av bergingsselskap.\nBilfører fikk førerkort beslaglagt på stedet og der opprettes sak.",
+    "createdOn": "2025-12-02T10:49:49.1488578+00:00",
+    "updatedOn": "2025-12-02T10:49:49.1488578+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "254mwl": {
+  "id": "254mwl",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Ulykke",
+  "municipality": "Stord",
+  "area": "Ved Rådhuset",
+  "createdOn": "2025-11-21T12:38:45.9448973+00:00",
+  "updatedOn": "2025-11-21T14:06:14.1724119+00:00",
+  "lastMessageOn": "2025-11-21T14:05:57.1665649+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "254mwl-0",
+    "text": "Kvinne påkjørt i fotgjengerfelt, nødetatene rykker ut, fremstår våken og tilsnakkenes, saken oppdateres.",
+    "createdOn": "2025-11-21T12:38:45.9440295+00:00",
+    "updatedOn": "2025-11-21T12:38:45.9750388+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "254mwl-1",
+    "text": "Kvinne kjørt til legevakt med smerter i ben og hode, bil fjernet fra veibane og trafikken flyter som normalt, alle parter på stedet, politiet startet avhør, saken oppdateres.",
+    "createdOn": "2025-11-21T12:45:47.5189044+00:00",
+    "updatedOn": "2025-11-21T12:45:47.5189044+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "254mwl-2",
+    "text": "Politiet er ferdig på stedet. Politiet har tatt beslag i førerkortet til en mann i 90 årene.",
+    "createdOn": "2025-11-21T14:05:57.1665649+00:00",
+    "updatedOn": "2025-11-21T14:05:57.1665649+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "25jwtv": {
+  "id": "25jwtv",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Trafikk",
+  "municipality": "Stord",
+  "area": "",
+  "createdOn": "2025-11-20T16:22:55.4188125+00:00",
+  "updatedOn": "2025-11-20T20:03:07.9110866+00:00",
+  "lastMessageOn": "2025-11-20T16:33:29.4374402+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "25jwtv-0",
+    "text": "Politi og brann har rykket ut til Bømlafjordtunnelen etter melding om røykutvikling fra et kjøretøy. Mannskaper fra brann er fremme ved bilen som i en havarilomme, skal ikke være røykutvikling nå. Tunnelen er stengt. ",
+    "createdOn": "2025-11-20T16:22:55.4183776+00:00",
+    "updatedOn": "2025-11-20T16:22:55.4471222+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "25jwtv-1",
+    "text": "Har ikke vært brann i bilen. Bilberger er på stedet og frakter bilen bort. Tunnelen er åpnet med redusert hastighet.",
+    "createdOn": "2025-11-20T16:33:29.4374402+00:00",
+    "updatedOn": "2025-11-20T16:33:29.4374402+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "25sgtl": {
+  "id": "25sgtl",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Trafikk",
+  "municipality": "Stord",
+  "area": "Svartadalen",
+  "createdOn": "2025-11-11T18:33:48.0153822+00:00",
+  "updatedOn": "2025-11-11T18:55:21.6445165+00:00",
+  "lastMessageOn": "2025-11-11T18:46:47.0894356+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "25sgtl-0",
+    "text": "Nødetatene fikk melding om en trafikkulykke ved Svartadalen. En moped hadde kjørt av veien, fører skal være våken, ukjent skadeomfang.",
+    "createdOn": "2025-11-11T18:33:48.0150977+00:00",
+    "updatedOn": "2025-11-11T18:33:48.0453208+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "25sgtl-1",
+    "text": "Politi på stedet, mopedfører fremstår som uskadet.",
+    "createdOn": "2025-11-11T18:34:57.5340159+00:00",
+    "updatedOn": "2025-11-11T18:34:57.5340159+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "25sgtl-2",
+    "text": "Mopedfører har vært uheldig og kantret fra tilnærmet stillestående. Blir kjørt til legevakt for kontroll. Der opprettes ingen sak.",
+    "createdOn": "2025-11-11T18:46:47.0894356+00:00",
+    "updatedOn": "2025-11-11T18:46:47.0894356+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "25f0tm": {
+  "id": "25f0tm",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Trafikk",
+  "municipality": "Stord",
+  "area": "",
+  "createdOn": "2025-10-31T17:57:47.3730814+00:00",
+  "updatedOn": "2025-10-31T19:25:52.639349+00:00",
+  "lastMessageOn": "2025-10-31T19:25:47.9541426+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "25f0tm-0",
+    "text": "Kl 1851 - melding om trafikkuhell i Langelandsvegen. To biler skal være involvert. Involverte personer er gått ut av bilene. Nødetatene er på vei til stedet.",
+    "createdOn": "2025-10-31T17:57:47.3727541+00:00",
+    "updatedOn": "2025-10-31T17:57:47.3995972+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "25f0tm-1",
+    "text": "Et kjørefelt er sperret . Trafikken glir forbi.",
+    "createdOn": "2025-10-31T18:01:43.2188348+00:00",
+    "updatedOn": "2025-10-31T18:01:43.2188348+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "25f0tm-2",
+    "text": "To personer involvert. Sjekket av helsepersonell på stedet. Politiet oppretter sak.",
+    "createdOn": "2025-10-31T19:25:47.9541426+00:00",
+    "updatedOn": "2025-10-31T19:25:47.9541426+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "25lcq9": {
+  "id": "25lcq9",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Trafikk",
+  "municipality": "Stord",
+  "area": "E39 Grov",
+  "createdOn": "2025-10-17T23:01:47.8270691+00:00",
+  "updatedOn": "2025-10-18T00:27:54.5473442+00:00",
+  "lastMessageOn": "2025-10-18T00:27:46.3863398+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "25lcq9-0",
+    "text": "Politiet rykker ut etter melding om trafikkulykke, to kjøretøy involvert. Oppdateres.",
+    "createdOn": "2025-10-17T23:01:47.8264753+00:00",
+    "updatedOn": "2025-10-17T23:01:47.8817775+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "25lcq9-1",
+    "text": "Nødetatene er på stedet. Sørgående felt er sperret inntil videre. Involverte personer vil bli tilsett av helsepersonell, fremstår ikke alvorlig skadet.",
+    "createdOn": "2025-10-17T23:24:04.4512941+00:00",
+    "updatedOn": "2025-10-17T23:24:04.4512941+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "25lcq9-2",
+    "text": "Begge kjøretøy er fjernet ut av vegbanen, som straks åpnes for normal trafikk. To personer involvert, fremstår uskadd og tilses av helsepersonell på stedet.",
+    "createdOn": "2025-10-17T23:45:40.6499697+00:00",
+    "updatedOn": "2025-10-17T23:45:40.6499697+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "25lcq9-4",
+    "text": "Veien er åpnet for normal trafikk. Rettelse: manuell dirigering pågår, ett kjørefelt er åpnet.",
+    "createdOn": "2025-10-18T00:02:08.9595237+00:00",
+    "updatedOn": "2025-10-18T00:03:15.8763115+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Edited"
+   },
+   {
+    "id": "25lcq9-6",
+    "text": "Begge biler hentet av bilberging og veien er åpen, politiet har avsluttet på stedet. Sak opprettes.",
+    "createdOn": "2025-10-18T00:27:46.3863398+00:00",
+    "updatedOn": "2025-10-18T00:27:46.3863398+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
+ },
+ "256rv2": {
+  "id": "256rv2",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Trafikk",
+  "municipality": "Stord",
+  "area": "Svartadalen",
+  "createdOn": "2025-10-17T15:15:54.6772251+00:00",
+  "updatedOn": "2025-10-17T15:52:19.0468207+00:00",
+  "lastMessageOn": "2025-10-17T15:52:07.7750221+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "256rv2-0",
+    "text": "Nødetatene er på vei til Svartadalen etter melding om to MC`er har kollidert med hverandre. I følge meldingen har den ene føreren et mulig brudd i foten.",
+    "createdOn": "2025-10-17T15:15:54.6764199+00:00",
+    "updatedOn": "2025-10-17T15:15:54.7227311+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "256rv2-1",
+    "text": "Politiet er fortsatt på stedet og foretar avhør og sporsikring. En MC fører ble fraktet til sykehus med mistanke om brudd. Begge førerne kjørte på hver sin lett motorsykkel (125cc).",
+    "createdOn": "2025-10-17T15:52:07.7750221+00:00",
+    "updatedOn": "2025-10-17T15:52:07.7750221+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
  }
 }
