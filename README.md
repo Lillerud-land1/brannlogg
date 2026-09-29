@@ -1,6 +1,6 @@
 # Brannlogg Stord
 
-Ei nettside/app som viser brannar og andre oppdrag for brannvesenet i Stord kommune. Ho hentar data frå brannstatistikken, Politiloggen og lokale nyheiter, oppdaterer seg sjølv kvar halvtime og kan leggjast på heimeskjermen på iPhone, Android og Windows.
+Ei nettside/app som viser brannar og andre oppdrag for brannvesenet i Stord kommune. Ho hentar data frå brannstatistikken, Politiloggen og lokale nyheiter, oppdaterer seg sjølv kvart kvarter og kan leggjast på heimeskjermen på iPhone, Android og Windows.
 
 Laga av **Leander Wågen Lillerud**. Ikkje ein offisiell teneste frå Politiet, brannvesenet eller Stord kommune.
 
@@ -65,7 +65,7 @@ flowchart LR
   POL[Politiloggen] --> GH
   RSS[Nyheiter RSS] --> GH
   KV[Kartverket] --> GH
-  GH["GitHub Actions<br/>kvar halvtime<br/>python oppdater.py --nyheiter --varsle"] --> PAGES[GitHub Pages<br/>app + tv.html]
+  GH["GitHub Actions<br/>kvart kvarter<br/>python oppdater.py --nyheiter --varsle"] --> PAGES[GitHub Pages<br/>app + tv.html]
   GH --> NTFY[ntfy.sh<br/>push-varsel]
   GH --> REPO[(data i repoet<br/>arkiv, bris, …)]
   PC["Claude på PC-en<br/>kvar time når PC-en er på"] -->|ekstra.json| REPO
@@ -73,7 +73,7 @@ flowchart LR
   PAGES --> MOB[Mobil / PC / Infoskjerm]
 ```
 
-- **GitHub Actions** gjer hovudjobben kvar halvtime (kl. :00 og :30), heilt utan at PC-en er på. Det er gratis for offentlege prosjekt.
+- **GitHub Actions** gjer hovudjobben kvart kvarter (kl. :00, :15, :30 og :45), heilt utan at PC-en er på. Det er gratis for offentlege prosjekt.
 - **Claude på PC-en** (planlagd oppgåve i Claude-appen, kvar time kl. :10) er ein ekstra kvalitetssjekk når PC-en er på: kontrollerer automatiske nyheitslenker, finn fleire saker, stad for oppdrag som berre står i brannstatistikken, og hendingar som ingen andre har fanga opp. Resultatet blir skrive i `ekstra.json` og sendt til GitHub.
 - GitHub kan starte planlagde jobbar nokre minutt for seint (vanlegvis rundt 10 minutt).
 
@@ -86,7 +86,7 @@ flowchart LR
 | `oppdater.py` | Hovudskriptet: hentar alle kjelder, koplar, klassifiserer, byggjer sidene og sender varsel. Berre standardbiblioteket i Python. |
 | `mal.html` | Mal for appen. Data blir sett inn der det står `/*__DATA__*/null`. |
 | `mal-tv.html` | Mal for TV-/infoskjermversjonen. |
-| `.github/workflows/oppdater.yml` | GitHub Actions: køyrer skriptet kvar halvtime og legg ut sida. |
+| `.github/workflows/oppdater.yml` | GitHub Actions: køyrer skriptet kvart kvarter og legg ut sida. |
 | `ekstra.json` | Manuelle tillegg og rettingar per hending (sjå under). Skrive av Claude eller for hand. |
 | `arkiv.json` | Alle tråder frå Politiloggen som er tekne vare på (Politiloggen gir berre eitt år bakover). |
 | `bris.json` | Arkiv over oppdrag frå brannstatistikken. |
@@ -131,7 +131,7 @@ python oppdater.py --send-ekstra         # sender ekstra.json til GitHub, som by
 
 Lokalt kan sidene sjåast med `python -m http.server 8765` og opnast på `http://localhost:8765/nettside/`.
 
-Før eigne endringar lokalt: `git pull --rebase --autostash` (GitHub legg inn nye data kvar halvtime).
+Før eigne endringar lokalt: `git pull --rebase --autostash` (GitHub legg inn nye data kvart kvarter).
 
 ---
 
@@ -193,5 +193,5 @@ Brukarar kan rapportere feil med knappen **«Rapporter eit problem»** under Om 
 - Oppdrag brannvesenet ikkje registrerer, eller som berre står på Facebook, kjem ikkje med.
 - Brannstatistikken oppgir ikkje stad. Slike oppdrag står som «Stord» utan kartpunkt til ein annan kjelde gir stad.
 - Alvorsgraden er rekna ut automatisk frå teksten og er ikkje ei offisiell vurdering.
-- Nyheitsfeedane viser berre dei nyaste sakene. Derfor blir dei lesne kvar halvtime.
+- Nyheitsfeedane viser berre dei nyaste sakene. Derfor blir dei lesne kvart kvarter.
 - Politiloggen gir berre eitt år bakover. Eldre hendingar blir tekne vare på i `arkiv.json` frå no av.
