@@ -1,0 +1,18 @@
+{
+  "id": "tv.html",
+  "name": "Brannlogg Stord – infoskjerm",
+  "short_name": "Brannlogg TV",
+  "description": "Storskjerm-versjon av Brannlogg Stord for infoskjerm og TV. Oppdaterer seg sjølv.",
+  "lang": "nn",
+  "start_url": "tv.html",
+  "scope": "tv.html",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "landscape",
+  "background_color": "#0A0D11",
+  "theme_color": "#0A0D11",
+  "icons": [
+    {"src": "ikon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+    {"src": "ikon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ]
+}
