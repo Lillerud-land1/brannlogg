@@ -254,6 +254,18 @@ figure.foto figcaption{font-size:12px;color:var(--muted);margin-top:4px}
 .hbar .track{height:10px;border-radius:3px;background:var(--line-2);overflow:hidden}
 .hbar .fill{height:100%;background:var(--ink-2);border-radius:3px}
 .hbar .n{font-family:var(--f-mono);font-size:13px;text-align:right;color:var(--ink)}
+.stat-ctl{padding-bottom:16px;border-bottom:1px solid var(--line-2);margin-bottom:18px}
+.stat-ctl .seg{flex-wrap:wrap}
+.stat-ctl .chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;mask-image:linear-gradient(to right,#000 88%,transparent)}
+.stat-ctl .chips::-webkit-scrollbar{display:none}
+.stat-ctl .chip{flex:none}
+.innsikt{font-size:14.5px;color:var(--ink-2);margin:-2px 0 8px}
+.innsikt b{color:var(--ink)}
+.c-note{font-size:12px;color:var(--muted);margin-top:6px}
+button.hbar{width:100%;border:0;background:none;padding:2px 0;font:inherit;color:inherit;text-align:left;cursor:pointer;border-radius:4px}
+button.hbar:hover .lbl{color:var(--ink)}
+button.hbar[aria-pressed="true"] .lbl{color:var(--ink);font-weight:600}
+button.hbar[aria-pressed="true"] .fill{background:var(--ember)}
 .clock{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
 .clock div{border:1px solid var(--line-2);border-radius:6px;padding:10px;background:var(--surface-2)}
 .clock b{display:block;font-family:var(--f-display);font-size:28px;line-height:1;font-weight:800}
@@ -463,6 +475,13 @@ figure.foto figcaption{font-size:12px;color:var(--muted);margin-top:4px}
           <h2 class="h2">Statistikk</h2>
           <span class="sub">Siste 12 månader</span>
         </div>
+        <div class="controls stat-ctl">
+          <div class="row">
+            <div class="seg" role="group" aria-label="Kva hendingar" id="stat-gruppe"></div>
+            <div class="seg" role="group" aria-label="Fordel etter" id="stat-fordel"></div>
+          </div>
+          <div class="chips" id="stat-typar" role="group" aria-label="Type"></div>
+        </div>
         <div id="stats"></div>
       </section>
     </div>
@@ -611,7 +630,7 @@ try { sistSett = localStorage.getItem("brannlogg_sist_sett"); } catch(e) {}
 B.forEach(b => b._ny = !!sistSett && b.start > sistSett);
 try { if (B[0]) localStorage.setItem("brannlogg_sist_sett", B[0].start); } catch(e) {}
 
-const state = {gruppe:"alt", periode:"50", type:"alle", sok:"", valt:null, view:"liste", antal:20};
+const state = {gruppe:"alt", periode:"50", type:"alle", sok:"", valt:null, view:"liste", antal:20, fordel:"mnd", stype:"alle"};
 const SIDE = 20;   // tal på kort som blir viste om gongen
 const erBrann = b => (b.gruppe || "brann") === "brann";
 const erAlarm = b => b.gruppe === "alarm";
@@ -833,36 +852,79 @@ function renderPop(){
 }
 
 /* ---- Statistikk ---- */
-function renderStats(){
-  const aar = utval().filter(b => I_DAG.dn - b._dn < 365);
-  // Per månad
-  const mnd = [];
+const AARSTID = [
+  {n:"Vinter", om:"om vinteren", mnd:[12,1,2], t:"des–feb"}, {n:"Vår", om:"om våren", mnd:[3,4,5], t:"mars–mai"},
+  {n:"Sommar", om:"om sommaren", mnd:[6,7,8], t:"juni–aug"}, {n:"Haust", om:"om hausten", mnd:[9,10,11], t:"sep–nov"}];
+const VEKEDAG = [1,2,3,4,5,6,0];   // måndag først
+const FORDEL = {mnd:"Månad", aarstid:"Årstid", vekedag:"Vekedag", time:"Klokka"};
+const ogListe = a => a.length < 2 ? a.join("") : a.slice(0, -1).join(", ") + " og " + a[a.length - 1];
+function fordeling(liste){
+  if (state.fordel === "aarstid")
+    return {tittel:"Per årstid", note:AARSTID.map(x => `${x.n}: ${x.t}`).join(" · "),
+      d:AARSTID.map(x => ({l:x.n, om:x.om, n:liste.filter(b => x.mnd.includes(b._o.m)).length}))};
+  if (state.fordel === "vekedag")
+    return {tittel:"Per vekedag", d:VEKEDAG.map(w => ({l:DAG[w].slice(0, 3), om:`på ${DAG[w]}ar`, n:liste.filter(b => b._o.wd === w).length}))};
+  if (state.fordel === "time")
+    return {tittel:"Per klokketime", note:"Kvar stolpe er ein time, til dømes 15 = kl. 15:00–15:59.",
+      d:Array.from({length:24}, (_, h) => ({l:h % 3 ? "" : pad(h), om:`kl. ${pad(h)}–${pad((h + 1) % 24)}`, n:liste.filter(b => b._o.h === h).length}))};
+  const d = [];
   for (let i = 11; i >= 0; i--) {
     let m = I_DAG.m - i, y = I_DAG.y; while (m < 1) { m += 12; y--; }
-    mnd.push({y, m, n:aar.filter(b => b._o.y === y && b._o.m === m).length});
+    d.push({l:MND_K[m-1].replace(".", ""), om:`i ${MND[m-1]}`, n:liste.filter(b => b._o.y === y && b._o.m === m).length});
   }
-  const maks = Math.max(1, ...mnd.map(x => x.n));
-  const W = 400, H = 150, bw = W / 12, top = 22, base = H - 24;
-  const bars = mnd.map((x, i) => {
-    const h = x.n ? Math.max(4, (base - top) * x.n / maks) : 0;
-    const bx = i * bw + 5, now = i === 11;
-    return `<rect class="c-bar${now ? " no" : ""}" x="${bx.toFixed(1)}" y="${(base - h).toFixed(1)}" width="${(bw - 10).toFixed(1)}" height="${h.toFixed(1)}" rx="2"/>
-      <text class="c-val" x="${(bx + (bw - 10)/2).toFixed(1)}" y="${(base - h - 6).toFixed(1)}" text-anchor="middle">${x.n}</text>
-      <text class="c-lbl" x="${(bx + (bw - 10)/2).toFixed(1)}" y="${H - 6}" text-anchor="middle">${MND_K[x.m-1].replace(".","")}</text>`;
-  }).join("");
-  // Typar
-  const typar = Object.keys(TYPE).map(t => ({t, n:aar.filter(b => b.type === t).length})).filter(x => x.n).sort((a, c) => c.n - a.n);
-  const tmaks = Math.max(1, ...typar.map(x => x.n));
+  return {tittel:"Per månad", d};
+}
+function stolpar(d){
+  const maks = Math.max(1, ...d.map(x => x.n)), mange = d.length > 12;
+  const W = 400, H = 150, bw = W / d.length, gap = mange ? 2 : d.length <= 4 ? 20 : 5, top = 22, base = H - 24;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(d.map(x => `${x.om}: ${x.n}`).join(", "))}">` + d.map((x, i) => {
+    const h = x.n ? Math.max(4, (base - top) * x.n / maks) : 0, bx = i * bw + gap, w = bw - 2 * gap, mx = (bx + w / 2).toFixed(1);
+    const topp = x.n === maks && x.n > 0;
+    return `<rect class="c-bar${topp ? " no" : ""}" x="${bx.toFixed(1)}" y="${(base - h).toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" rx="2"/>` +
+      (!mange || topp ? `<text class="c-val" x="${mx}" y="${(base - h - 6).toFixed(1)}" text-anchor="middle">${x.n}</text>` : "") +
+      (x.l ? `<text class="c-lbl" x="${mange ? (i * bw).toFixed(1) : mx}" y="${H - 6}" text-anchor="${mange ? "start" : "middle"}">${x.l}</text>` : "");
+  }).join("") + `<line class="c-base" x1="0" x2="${W}" y1="${base + .5}" y2="${base + .5}"/></svg>`;
+}
+function renderStats(){
+  const alleAar = utval().filter(b => I_DAG.dn - b._dn < 365);
+  const typarN = Object.keys(TYPE).map(t => ({t, n:alleAar.filter(b => b.type === t).length})).filter(x => x.n).sort((a, c) => c.n - a.n);
+  if (state.stype !== "alle" && !typarN.some(x => x.t === state.stype)) state.stype = "alle";
+  const aar = state.stype === "alle" ? alleAar : alleAar.filter(b => b.type === state.stype);
+  const tNamn = state.stype === "alle" ? "" : TYPE[state.stype].n;
+  const ord = state.stype === "alle" ? ORD() : ["hending", "hendingar"];
+
+  // Knappar
+  const B12 = B.filter(b => I_DAG.dn - b._dn < 365);
+  $("#stat-gruppe").innerHTML =
+    `<button type="button" data-gruppe="alle" aria-pressed="${state.gruppe === "alle"}">Utrykkingar<span class="n">${B12.filter(b => !erAlarm(b)).length}</span></button>` +
+    `<button type="button" data-gruppe="brann" aria-pressed="${state.gruppe === "brann"}">Brannar<span class="n">${B12.filter(erBrann).length}</span></button>` +
+    `<button type="button" data-gruppe="alt" aria-pressed="${state.gruppe === "alt"}" title="Også automatiske brannalarmar og avbrotne utrykkingar">Alt<span class="n">${B12.length}</span></button>`;
+  $("#stat-fordel").innerHTML = Object.entries(FORDEL).map(([k, n]) => `<button type="button" data-fordel="${k}" aria-pressed="${state.fordel === k}">${n}</button>`).join("");
+  $("#stat-typar").innerHTML = `<button type="button" class="chip" data-stype="alle" aria-pressed="${state.stype === "alle"}">Alle typar</button>` +
+    typarN.map(x => `<button type="button" class="chip" data-stype="${x.t}" aria-pressed="${state.stype === x.t}">${ikon(TYPE[x.t].i)}${TYPE[x.t].n}</button>`).join("");
+
+  // Hovudgrafen
+  const f = fordeling(aar);
+  const fmaks = Math.max(0, ...f.d.map(x => x.n)), topp = f.d.filter(x => x.n === fmaks);
+  const kva = tNamn ? `${esc(tNamn)} – flest` : `Flest ${ord[1]}`;
+  const innsikt = !aar.length ? `Ingen ${ord[1]} dei siste 12 månadene.`
+    : topp.length === f.d.length ? `Like mange i alle.`
+    : topp.length > 1 ? `${kva} ${ogListe(topp.map(x => x.om))}: <b>${fmaks}</b> i kvar.`
+    : `${kva} ${topp[0].om}: <b>${fmaks}</b> av ${aar.length} (${Math.round(100 * fmaks / aar.length)} %).`;
+
+  // Typar (alltid alle typar, så ein kan samanlikne)
+  const tmaks = Math.max(1, ...typarN.map(x => x.n));
   // Tid på døgnet
   const bolk = [["Natt","00–06"],["Morgon","06–12"],["Dag","12–18"],["Kveld","18–24"]].map((x, i) => ({n:x[0], t:x[1], v:aar.filter(b => Math.floor(b._o.h / 6) === i).length}));
   const bmaks = Math.max(...bolk.map(x => x.v));
   const person = aar.filter(b => b.flagg?.personskade || b.flagg?.omkomne).length;
   const sak = aar.filter(b => b.flagg?.sak).length;
   $("#stats").innerHTML = `
-    <div class="stat-block chart"><div class="eyebrow"><span>Per månad</span><span>${fl(aar.length, ...ORD())}</span></div>
-      <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Hendingar per månad dei siste 12 månadene">${bars}<line class="c-base" x1="0" x2="${W}" y1="${base + .5}" y2="${base + .5}"/></svg></div>
-    <div class="stat-block"><div class="eyebrow"><span>Type</span></div>
-      <div class="hbars">${typar.map(x => `<div class="hbar"><span class="lbl">${ikon(TYPE[x.t].i)}${TYPE[x.t].n}</span><span class="track"><span class="fill" style="display:block;width:${(100 * x.n / tmaks).toFixed(0)}%"></span></span><span class="n">${x.n}</span></div>`).join("")}</div></div>
+    <div class="stat-block chart"><div class="eyebrow"><span>${f.tittel}${tNamn ? " · " + esc(tNamn) : ""}</span><span>${fl(aar.length, ...ord)}</span></div>
+      <p class="innsikt">${innsikt}</p>
+      ${stolpar(f.d)}${f.note ? `<p class="c-note">${f.note}</p>` : ""}</div>
+    <div class="stat-block"><div class="eyebrow"><span>Type</span><span>Trykk for å filtrere</span></div>
+      <div class="hbars">${typarN.map(x => `<button type="button" class="hbar" data-stype="${state.stype === x.t ? "alle" : x.t}" aria-pressed="${state.stype === x.t}"><span class="lbl">${ikon(TYPE[x.t].i)}${TYPE[x.t].n}</span><span class="track"><span class="fill" style="display:block;width:${(100 * x.n / tmaks).toFixed(0)}%"></span></span><span class="n">${x.n}</span></button>`).join("")}</div></div>
     <div class="stat-block"><div class="eyebrow"><span>Tid på døgnet</span></div>
       <div class="clock">${bolk.map(x => `<div${x.v === bmaks && x.v ? ` style="border-color:var(--ember)"` : ""}><b>${x.v}</b><span>${x.n}</span><small>${x.t}</small></div>`).join("")}</div></div>
     <div class="stat-block"><div class="eyebrow"><span>Konsekvensar</span></div>
@@ -922,13 +984,15 @@ function visKart(id){
 function renderAll(){ renderControls(); renderList(); renderMap(); }
 
 document.addEventListener("click", e => {
-  const t = e.target.closest("[data-go],[data-gruppe],[data-periode],[data-type],[data-vis],[data-kart],[data-mk],[data-meir]");
+  const t = e.target.closest("[data-go],[data-gruppe],[data-periode],[data-type],[data-fordel],[data-stype],[data-vis],[data-kart],[data-mk],[data-meir]");
   if (!t) return;
   if (t.dataset.go) { e.preventDefault(); setView(t.dataset.go); }
   else if (t.dataset.meir) { state.antal += SIDE; renderList(); }
   else if (t.dataset.gruppe) { state.gruppe = t.dataset.gruppe; state.antal = SIDE; renderHero(); renderAll(); renderStats(); }
   else if (t.dataset.periode) { state.periode = t.dataset.periode; state.antal = SIDE; renderAll(); if (t.closest(".hint")) $("#v-liste").scrollIntoView({behavior:"smooth"}); }
   else if (t.dataset.type) { state.type = t.dataset.type; state.antal = SIDE; renderAll(); }
+  else if (t.dataset.fordel) { state.fordel = t.dataset.fordel; renderStats(); }
+  else if (t.dataset.stype) { state.stype = t.dataset.stype; renderStats(); }
   else if (t.dataset.vis) visKort(t.dataset.vis);
   else if (t.dataset.kart) visKart(t.dataset.kart);
   else if (t.dataset.mk) { state.valt = t.dataset.mk; renderMap(); renderList(); }

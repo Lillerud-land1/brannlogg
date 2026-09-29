@@ -19,7 +19,7 @@ Laga av **Leander Wågen Lillerud**. Ikkje ein offisiell teneste frå Politiet, 
 - **Liste** over hendingar med stad, tid, alvorsgrad, heile politiloggen, nyheitslenker og lenke til kart. Viser 20 om gongen («Vis 20 til»).
 - **Filter**: Utrykkingar (standard) / Brannar / Alt (med automatiske brannalarmar), Siste 100 dagar / Siste år / Alle, type og fritekstsøk.
 - **Kart** over Stord med alle hendingar som har kjend stad.
-- **Statistikk** for siste 12 månader: per månad, type, tid på døgnet og konsekvensar.
+- **Statistikk** for siste 12 månader: knappar for å sjå fordelinga per månad, årstid, vekedag eller klokketime, og for å filtrere på gruppe og type. I tillegg type, tid på døgnet og konsekvensar.
 - **Varsel på mobilen** via den gratis appen ntfy.
 - **TV-versjon** for infoskjerm (til dømes Infoskjermen), med klokke, store tal og automatisk oppdatering.
 - Opne sider hentar nye data sjølv, så ei fane som står open, blir ikkje gammal.
