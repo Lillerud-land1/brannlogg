@@ -611,7 +611,7 @@ try { sistSett = localStorage.getItem("brannlogg_sist_sett"); } catch(e) {}
 B.forEach(b => b._ny = !!sistSett && b.start > sistSett);
 try { if (B[0]) localStorage.setItem("brannlogg_sist_sett", B[0].start); } catch(e) {}
 
-const state = {gruppe:"alle", periode:"50", type:"alle", sok:"", valt:null, view:"liste", antal:20};
+const state = {gruppe:"alt", periode:"50", type:"alle", sok:"", valt:null, view:"liste", antal:20};
 const SIDE = 20;   // tal på kort som blir viste om gongen
 const erBrann = b => (b.gruppe || "brann") === "brann";
 const erAlarm = b => b.gruppe === "alarm";
