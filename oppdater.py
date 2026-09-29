@@ -9,6 +9,7 @@ Kjelder: Politiloggen API (Politiet, NLOD 2.0), Kartverket (adresser/stadnamn).
 """
 import base64
 import json
+import math
 import re
 import subprocess
 import sys
@@ -16,6 +17,7 @@ import urllib.parse
 import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 sys.stdout.reconfigure(encoding="utf-8")
 
@@ -785,6 +787,7 @@ def main():
         "vindauge": VINDAUGE_DAGAR,
         "brannar": brannar,
         "kart": les_json("kart.json", None),
+        "brannfare": hent_brannfare(),
     }
     json_tekst = json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     mal = (MAPPE / "mal.html").read_text(encoding="utf-8")
@@ -795,7 +798,8 @@ def main():
     skriv_nettside(side)
     # Liten fil som opne sider sjekkar for å sjå om det finst nye data
     (MAPPE / "nettside" / "status.json").write_text(
-        json.dumps({"oppdatert": data["oppdatert"], "neste": data["neste"], "sum": kontrollsum}), encoding="utf-8")
+        json.dumps({"oppdatert": data["oppdatert"], "neste": data["neste"], "sum": kontrollsum,
+                    "brannfare": data["brannfare"]}, ensure_ascii=False), encoding="utf-8")
     tv_mal = MAPPE / "mal-tv.html"
     if tv_mal.exists():
         (MAPPE / "nettside" / "tv.html").write_text(
@@ -815,6 +819,146 @@ def main():
             print(f"UTAN_KARTPLASS: {b['id']} | {b['stad']}")
     if "--varsle" in sys.argv:
         send_varsel(brannar)
+
+
+# ---------- Skogbrannfare (Fire Weather Index frå vêrdata) ----------
+# Vêrdata frå Open-Meteo.com (CC BY 4.0), farevarsel frå MET Norway (api.met.no, CC BY 4.0).
+# Fire Weather Index (FWI) er det kanadiske systemet som også EU (EFFIS) brukar. Det blir rekna dag for dag
+# frå vêret kl. 12: temperatur, luftfukt, vind og nedbør siste døgn. Grensene for fareklassane er EFFIS sine.
+
+
+VER_POS = (59.78, 5.50)   # Leirvik
+MET_UA = {"User-Agent": "brannlogg-stord/1.0 github.com/Lillerud-land1/brannlogg"}
+FWI_GRENSER = [0, 5.2, 11.2, 21.3, 38.0, 50.0]   # svært låg, låg, moderat, høg, svært høg, ekstrem
+DMC_DAGLENGD = [6.5, 7.5, 9.0, 12.8, 13.9, 13.9, 12.4, 10.9, 9.4, 8.0, 7.0, 6.0]
+DC_DAGLENGD = [-1.6, -1.6, -1.6, 0.9, 3.8, 5.8, 6.4, 5.0, 2.4, 0.4, -1.6, -1.6]
+
+
+def fwi_dag(forrige, temp, fukt, vind, regn, mnd):
+    """Eitt døgn i FWI-systemet (Van Wagner 1987). vind i km/t, regn i mm siste 24 t. Gir (ffmc, dmc, dc, fwi)."""
+    ffmc0, dmc0, dc0 = forrige
+    fukt = min(fukt, 100.0)
+    # Fine Fuel Moisture Code
+    mo = 147.2 * (101 - ffmc0) / (59.5 + ffmc0)
+    if regn > 0.5:
+        rf = regn - 0.5
+        auke = 42.5 * rf * math.exp(-100 / (251 - mo)) * (1 - math.exp(-6.93 / rf))
+        if mo > 150:
+            auke += 0.0015 * (mo - 150) ** 2 * math.sqrt(rf)
+        mo = min(mo + auke, 250)
+    ed = 0.942 * fukt ** 0.679 + 11 * math.exp((fukt - 100) / 10) + 0.18 * (21.1 - temp) * (1 - math.exp(-0.115 * fukt))
+    if mo > ed:
+        ko = 0.424 * (1 - (fukt / 100) ** 1.7) + 0.0694 * math.sqrt(vind) * (1 - (fukt / 100) ** 8)
+        m = ed + (mo - ed) * 10 ** (-ko * 0.581 * math.exp(0.0365 * temp))
+    else:
+        ew = 0.618 * fukt ** 0.753 + 10 * math.exp((fukt - 100) / 10) + 0.18 * (21.1 - temp) * (1 - math.exp(-0.115 * fukt))
+        if mo < ew:
+            k1 = 0.424 * (1 - ((100 - fukt) / 100) ** 1.7) + 0.0694 * math.sqrt(vind) * (1 - ((100 - fukt) / 100) ** 8)
+            m = ew - (ew - mo) * 10 ** (-k1 * 0.581 * math.exp(0.0365 * temp))
+        else:
+            m = mo
+    ffmc = max(0.0, min(101.0, 59.5 * (250 - m) / (147.2 + m)))
+    # Duff Moisture Code
+    if regn > 1.5:
+        rw = 0.92 * regn - 1.27
+        wmi = 20 + 280 / math.exp(0.023 * dmc0)
+        b = 100 / (0.5 + 0.3 * dmc0) if dmc0 <= 33 else (14 - 1.3 * math.log(dmc0) if dmc0 <= 65 else 6.2 * math.log(dmc0) - 17.2)
+        wmr = wmi + 1000 * rw / (48.77 + b * rw)
+        pr = max(0.0, 43.43 * (5.6348 - math.log(wmr - 20)))
+    else:
+        pr = dmc0
+    rk = 1.894 * (max(temp, -1.1) + 1.1) * (100 - fukt) * DMC_DAGLENGD[mnd - 1] * 1e-4
+    dmc = max(0.0, pr + rk)
+    # Drought Code
+    if regn > 2.8:
+        rw = 0.83 * regn - 1.27
+        smi = 800 * math.exp(-dc0 / 400)
+        dr = max(0.0, dc0 - 400 * math.log(1 + 3.937 * rw / smi))
+    else:
+        dr = dc0
+    pe = max(0.0, (0.36 * (max(temp, -2.8) + 2.8) + DC_DAGLENGD[mnd - 1]) / 2)
+    dc = dr + pe
+    # Initial Spread Index, Buildup Index og Fire Weather Index
+    fm = 147.2 * (101 - ffmc) / (59.5 + ffmc)
+    isi = 19.115 * math.exp(-0.1386 * fm) * (1 + fm ** 5.31 / 4.93e7) * math.exp(0.05039 * vind)
+    if dmc == 0 and dc == 0:
+        bui = 0.0
+    elif dmc <= 0.4 * dc:
+        bui = 0.8 * dc * dmc / (dmc + 0.4 * dc)
+    else:
+        bui = dmc - (1 - 0.8 * dc / (dmc + 0.4 * dc)) * (0.92 + (0.0114 * dmc) ** 1.7)
+    bui = max(0.0, bui)
+    bb = 0.1 * isi * (0.626 * bui ** 0.809 + 2) if bui <= 80 else 0.1 * isi * (1000 / (25 + 108.64 * math.exp(-0.023 * bui)))
+    fwi = bb if bb <= 1 else math.exp(2.72 * (0.434 * math.log(bb)) ** 0.647)
+    return ffmc, dmc, dc, fwi
+
+
+def fwi_prosent(fwi):
+    """Plassering på skalaen svært låg–ekstrem som prosent (kvar fareklasse får like stor del av skalaen)."""
+    for i in range(5, -1, -1):
+        if fwi >= FWI_GRENSER[i]:
+            lo = FWI_GRENSER[i]
+            hi = FWI_GRENSER[i + 1] if i < 5 else 75.0
+            return i, round(min(100.0, (i + min(1.0, (fwi - lo) / (hi - lo))) / 6 * 100))
+    return 0, 0
+
+
+def hent_brannfare():
+    """Skogbrannfare for Stord no. Gir None om vêrdata manglar – det skal aldri stoppe bygginga."""
+    lat, lon = VER_POS
+    try:
+        req = urllib.request.Request(
+            f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}"
+            "&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation"
+            "&past_days=92&forecast_days=2&timezone=Europe%2FOslo", headers=MET_UA)
+        with urllib.request.urlopen(req, timeout=30) as r:
+            h = json.loads(r.read().decode("utf-8"))["hourly"]
+    except Exception as feil:
+        print(f"BRANNFARE_FEIL: {feil}")
+        return None
+    tider = h["time"]
+    rad = {t: i for i, t in enumerate(tider)}
+    no = datetime.now(ZoneInfo("Europe/Oslo")).replace(tzinfo=None)
+    no_tekst = no.strftime("%Y-%m-%dT%H:00")
+    idag = no.strftime("%Y-%m-%d")
+    # FWI dag for dag, frå kl. 12 til kl. 12. Startverdiane er standardverdiane for systemet.
+    koder, fwi, dagar = (85.0, 6.0, 15.0), 0.0, sorted({t[:10] for t in tider})
+    for dag in dagar[1:]:
+        i = rad.get(dag + "T12:00")
+        if i is None or i < 24 or dag > idag:
+            continue
+        regn = sum(x or 0 for x in h["precipitation"][i - 23:i + 1])
+        vals = [h["temperature_2m"][i], h["relative_humidity_2m"][i], h["wind_speed_10m"][i]]
+        if None in vals:
+            continue
+        *koder_ny, fwi = fwi_dag(koder, *vals, regn, int(dag[5:7]))
+        koder = tuple(koder_ny)
+    klasse, prosent = fwi_prosent(fwi)
+    # Sist det regna minst 1 mm på eit døgn, og regn siste 7 dagar
+    per_dag = {}
+    for t, mm in zip(tider, h["precipitation"]):
+        if t <= no_tekst and mm is not None:
+            per_dag[t[:10]] = per_dag.get(t[:10], 0) + mm
+    regndagar = [d for d, mm in per_dag.items() if mm >= 1.0]
+    sist_regn = max(regndagar) if regndagar else None
+    j = rad.get(no_tekst, len(tider) - 1)
+    regn_7d = sum(x or 0 for x in h["precipitation"][max(0, j - 167):j + 1])
+    ut = {"tid": datetime.now(timezone.utc).isoformat(timespec="seconds"), "fwi": round(fwi, 1), "klasse": klasse, "prosent": prosent,
+          "sist_regn": sist_regn, "regn_7d": round(regn_7d, 1), "temp": h["temperature_2m"][j],
+          "fukt": h["relative_humidity_2m"][j], "vind": round(h["wind_speed_10m"][j] / 3.6, 1), "varsel": None}
+    # Offisielt farevarsel om skogbrannfare frå MET, om det finst
+    try:
+        req = urllib.request.Request(f"https://api.met.no/weatherapi/metalerts/2.0/current.json?lat={lat}&lon={lon}", headers=MET_UA)
+        with urllib.request.urlopen(req, timeout=30) as r:
+            for f in json.loads(r.read().decode("utf-8")).get("features", []):
+                p = f["properties"]
+                if p.get("event") == "forestFire":
+                    nivaa = p.get("awareness_level", "2; yellow").split(";")
+                    ut["varsel"] = {"farge": nivaa[1].strip(), "til": f["when"]["interval"][1], "url": p.get("web")}
+                    break
+    except Exception as feil:
+        print(f"FAREVARSEL_FEIL: {feil}")
+    return ut
 
 
 # ---------- Varsel på mobilen (ntfy.sh) ----------

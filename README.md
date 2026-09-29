@@ -22,6 +22,7 @@ Laga av **Leander Wågen Lillerud**. Ikkje ein offisiell teneste frå Politiet, 
 - **Statistikk** for siste 12 månader: knappar for å sjå fordelinga per månad, årstid, vekedag eller klokketime, og for å filtrere på gruppe og type. I tillegg type, tid på døgnet og konsekvensar.
 - **Innstillingar** (eiga fane): språk (nynorsk, bokmål, engelsk), fargeblind-vennlege fargar, lys/mørk/automatisk utsjånad, stor tekst, rørsle av/på og kva appen opnar med. Blir lagra i nettlesaren (`localStorage`, nøkkel `brannlogg_innst`).
 - **Språk**: nynorsk er grunnspråket. Bokmål og engelsk er omsett med KI (Claude) i tabellen `OMSETJING` i `mal.html` (rader med `[nynorsk, bokmål, engelsk]`). Nye tekstar i appen må pakkast inn i `T("…")` og leggjast inn i tabellen. Tekst frå politiet og media blir ikkje omsett.
+- **Skogbrannfare** (i appen og på TV-sida): 0–100 % på ein skala frå svært låg til ekstrem, rekna ut med Fire Weather Index (same metode som EU/EFFIS) frå vêrdata for Leirvik frå Open-Meteo (temperatur, luftfukt, vind og nedbør dei siste tre månadene). Viser også sist det regna, og offisielt farevarsel om skogbrannfare frå MET når det finst. Ikkje ei offisiell vurdering. Koden er `hent_brannfare()` i `oppdater.py`.
 - **Varsel på mobilen** via den gratis appen ntfy.
 - **TV-versjon** for infoskjerm (til dømes Infoskjermen), med klokke, store tal og automatisk oppdatering.
 - Opne sider hentar nye data sjølv, så ei fane som står open, blir ikkje gammal.

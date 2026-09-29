@@ -34,6 +34,18 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font
 .namn small{display:block;font-family:var(--f-body);font-weight:600;font-size:1.05rem;letter-spacing:.14em;color:var(--muted);margin-top:.35rem}
 .batt{flex:1;height:1rem;border-radius:.2rem;background:conic-gradient(var(--hivis) 25%,var(--fire) 0 50%,var(--hivis) 0 75%,var(--fire) 0) 0 0/2.4rem 1rem;opacity:.9}
 .klokke{text-align:right;line-height:1}
+[hidden]{display:none!important}
+.bf{--bf0:#2E9E62; --bf1:#7DBA3C; --bf2:#E3BC00; --bf3:#F08A12; --bf4:#E0301E; --bf5:#A3123A;flex:1;display:grid;grid-template-columns:auto 1fr auto;column-gap:1.2rem;row-gap:.45rem;align-items:center;padding:0 1.6rem;border-left:1px solid var(--line);border-right:1px solid var(--line)}
+.bf-lbl{font-size:1.05rem;font-weight:700;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.bf-bar{grid-column:1 / -1;position:relative;height:1.3rem;border-radius:.65rem;background:linear-gradient(90deg,var(--bf0) 0 16.67%,var(--bf1) 0 33.33%,var(--bf2) 0 50%,var(--bf3) 0 66.67%,var(--bf4) 0 83.33%,var(--bf5) 0);overflow:hidden}
+.bf-bar .dim{position:absolute;top:0;bottom:0;right:0;background:var(--bg);opacity:.75}
+.bf-bar .merke{position:absolute;top:-.2rem;bottom:-.2rem;width:.4rem;margin-left:-.2rem;border-radius:.2rem;background:var(--ink);box-shadow:0 0 0 .2rem var(--bg)}
+.bf-verdi{font-family:var(--f-display);font-weight:800;font-size:2.6rem;line-height:.9;white-space:nowrap}
+.bf-verdi small{font-size:1.5rem;margin-left:.5rem;letter-spacing:.04em;text-transform:uppercase}
+.bf-fakta{grid-column:1 / -1;font-size:1.05rem;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bf-fakta b{color:var(--ink)}
+.bf-varsel{justify-self:start;padding:.1rem .6rem;border-radius:.3rem;background:var(--hivis);color:#1A1600;font-weight:800}
+.bf-varsel.orange{background:#EE7A10} .bf-varsel.red{background:#E0301E;color:#fff}
 .klokke b{font-family:var(--f-display);font-weight:800;font-size:4rem;font-variant-numeric:tabular-nums;letter-spacing:.02em}
 .klokke span{display:block;font-size:1.15rem;color:var(--ink-2);margin-top:.3rem}
 
@@ -140,7 +152,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font
   <header class="topp">
     <svg class="logo" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="8" fill="#1A1F26"/><path d="M17 28c-4.6 0-7.6-3-7.6-7 0-4.1 3-6.4 4.2-9.9 1.6 1.6 2.3 3.4 2.3 5.1 1.2-1.2 2.1-3 2.3-5.1 3.5 2.6 6.4 6.4 6.4 9.9 0 4-3 7-7.6 7Z" fill="url(#g-flamme)"/><path d="M17 28c-2 0-3.3-1.3-3.3-3.1 0-1.8 1.4-2.9 2-4.4 1.6 1.2 4.6 2.6 4.6 4.4 0 1.8-1.3 3.1-3.3 3.1Z" fill="#FFE9A6" opacity=".9"/></svg>
     <div class="namn">Brannlogg<small>HENDINGAR I STORD · BRANNSTATISTIKK, POLITI OG MEDIA</small></div>
-    <div class="batt" aria-hidden="true"></div>
+    <div class="batt" id="batt" aria-hidden="true"></div>
+    <div class="bf" id="bf" hidden></div>
     <div class="klokke"><b id="kl">--:--</b><span id="dato"></span></div>
   </header>
 
@@ -281,6 +294,25 @@ $("#tips").innerHTML = `<b>Brannvern i ${MND[IDAG.m-1]}</b>${TIPS[IDAG.m-1]}`;
 const ou = oslo(D.oppdatert);
 $("#oppd").textContent = `Data oppdatert ${relDag(ou).toLowerCase()} kl. ${kl(ou)}`;
 
+/* Skogbrannfare i topplinja (erstattar stripa når vêrdata finst) */
+const BF_KLASSE = ["Svært låg", "Låg", "Moderat", "Høg", "Svært høg", "Ekstrem"];
+function renderBrannfare(){
+  const f = D.brannfare, el = $("#bf");
+  const ok = f && Date.now() - new Date(f.tid) < 6 * 36e5;
+  el.hidden = !ok; $("#batt").hidden = !!ok;
+  if (!ok) return;
+  const d = f.sist_regn ? IDAG.dn - Date.UTC(...f.sist_regn.split("-").map((x, i) => i === 1 ? x - 1 : +x)) / 864e5 : null;
+  const sidan = d === null ? "over tre månader sidan" : d === 0 ? "i dag" : d === 1 ? "i går" : `${d} dagar sidan`;
+  const niva = {yellow:"gult", orange:"oransje", red:"raudt"}[f.varsel?.farge];
+  const varsel = f.varsel && new Date(f.varsel.til) > Date.now() ? `<span class="bf-varsel ${esc(f.varsel.farge)}">Farevarsel frå MET: ${niva} nivå</span>` : "";
+  const tal = n => n.toLocaleString("nb-NO", {maximumFractionDigits:1});
+  el.innerHTML = `<span class="bf-lbl">Skogbrannfare</span>${varsel || "<span></span>"}
+    <span class="bf-verdi" style="color:var(--bf${f.klasse})">${f.prosent} %<small>${BF_KLASSE[f.klasse]}</small></span>
+    <div class="bf-bar"><span class="dim" style="width:${100 - f.prosent}%"></span><span class="merke" style="left:${f.prosent}%"></span></div>
+    <span class="bf-fakta">Sist regn <b>${sidan}</b> · <b>${tal(f.regn_7d)} mm</b> siste veke · <b>${Math.round(f.temp)}°</b> · <b>${Math.round(f.fukt)} %</b> luftfukt · vind <b>${Math.round(f.vind)} m/s</b></span>`;
+}
+renderBrannfare();
+
 /* Hald skjermen vaken og hent nye data kvart kvarter */
 if (navigator.wakeLock) { const vak = () => navigator.wakeLock.request("screen").catch(() => {}); vak(); document.addEventListener("visibilitychange", () => document.visibilityState === "visible" && vak()); }
 async function sjekkNyeData(){
@@ -289,7 +321,10 @@ async function sjekkNyeData(){
     if (!svar.ok) return;
     const st = await svar.json();
     if (st.sum && st.sum !== D.sum) location.reload();
-    else if (st.oppdatert) { const o = oslo(st.oppdatert); $("#oppd").textContent = `Data oppdatert ${relDag(o).toLowerCase()} kl. ${kl(o)}`; }
+    else if (st.oppdatert) {
+      const o = oslo(st.oppdatert); $("#oppd").textContent = `Data oppdatert ${relDag(o).toLowerCase()} kl. ${kl(o)}`;
+      if ("brannfare" in st) { D.brannfare = st.brannfare; renderBrannfare(); }
+    }
   } catch (e) {}
 }
 setInterval(sjekkNyeData, 2 * 60 * 1000);
