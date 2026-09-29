@@ -224,10 +224,12 @@ let celler = "";
 for (let i = 0; i < VINDU; i++) { const dn = START + i; celler += `<i class="${perDag[dn] ? (perDag[dn].a ? "f" + perDag[dn].a : perDag[dn].u ? "fu" : "fa") : ""}${dn === IDAG.dn ? " idag" : ""}"></i>`; }
 const s0 = new Date(START * 864e5);
 const n50 = B.filter(b => b._o.dn >= START).length;
-const aar = B.filter(b => IDAG.dn - b._o.dn < 365).length;
+// I år: frå 1. januar – byrjar på null att etter nyttår. Snittet deler på månadene som er gått (denne medrekna).
+const aar = B.filter(b => b._o.y === IDAG.y).length;
+const snittAar = aar / IDAG.m;
 t += `<div class="stripe-boks"><div class="etikett">Siste ${VINDU} dagar · <span class="ruter"><span style="color:var(--sev2)">■</span> brann <span style="color:var(--utr)">■</span> utrykking <span style="color:var(--alarm)">■</span> alarm</span></div><div class="stripe" style="--kol:${VINDU}">${celler}</div>
       <div class="akse"><span>${s0.getUTCDate()}. ${MND_K[s0.getUTCMonth()]}</span><span>i dag</span></div>
-      <div class="tal"><div><b>${n50}</b><span>hendingar siste ${VINDU} dagar</span></div><div><b>${aar}</b><span>siste 12 mnd</span></div><div><b>${(aar / 12).toLocaleString("nb-NO", {maximumFractionDigits:1})}</b><span>snitt per månad</span></div></div></div>`;
+      <div class="tal"><div><b>${n50}</b><span>hendingar siste ${VINDU} dagar</span></div><div><b>${aar}</b><span>i år (sidan 1. jan.)</span></div><div><b>${snittAar.toLocaleString("nb-NO", {maximumFractionDigits:1})}</b><span>snitt per månad i år</span></div></div></div>`;
 $("#teljar").innerHTML = t;
 $("#blink-tekst").textContent = `Blinkar: siste ${VINDU} dagar`;
 
