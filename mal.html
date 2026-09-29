@@ -12,7 +12,8 @@
   --bg:#EEF0F2; --surface:#FFFFFF; --surface-2:#F4F6F8; --ink:#14171B; --ink-2:#39414A; --muted:#5F6974;
   --line:#D8DDE2; --line-2:#E7EAEE;
   --fire:#D4321D; --ember:#E97F10; --hivis:#F2C200;
-  --sev1:#667A90; --sev2:#D97708; --sev3:#D4321D; --utr:#2F6BC8; --alarm:#9AA3AD;
+  --sev1:#667A90; --std2:#D97708; --std3:#D4321D; --cb2:#CF9A00; --cb3:#8A1C00; --utr:#2F6BC8; --alarm:#9AA3AD;
+  --sev2:var(--std2); --sev3:var(--std3);
   --sea:#DCE5ED; --ctx:#C9D1D9; --land:#FFFFFF; --land-edge:#A9B4BF; --label:#56606B;
   --glow:rgba(233,127,16,.14); --topbar:rgba(238,240,242,.86); --chip:#E9ECF0;
   --f-display:"Big Shoulders Display","Big Shoulders","Arial Narrow","Roboto Condensed",sans-serif;
@@ -25,7 +26,7 @@
     --bg:#0C0F13; --surface:#141920; --surface-2:#1A2028; --ink:#ECEFF3; --ink-2:#C4CBD3; --muted:#8C96A2;
     --line:#28303A; --line-2:#20272F;
     --fire:#FF5A3D; --ember:#FFA03A; --hivis:#F5CB2A;
-    --sev1:#8FA4BB; --sev2:#FFA03A; --sev3:#FF5A3D; --utr:#5C9DFF; --alarm:#6E7883;
+    --sev1:#8FA4BB; --std2:#FFA03A; --std3:#FF5A3D; --cb2:#F5CB2A; --cb3:#FF5A3D; --utr:#5C9DFF; --alarm:#6E7883;
     --sea:#0F1821; --ctx:#1A212A; --land:#242C37; --land-edge:#3A4552; --label:#9AA4AF;
     --glow:rgba(255,120,40,.16); --topbar:rgba(12,15,19,.82); --chip:#1F262F;
   }
@@ -35,15 +36,13 @@
   --bg:#0C0F13; --surface:#141920; --surface-2:#1A2028; --ink:#ECEFF3; --ink-2:#C4CBD3; --muted:#8C96A2;
   --line:#28303A; --line-2:#20272F;
   --fire:#FF5A3D; --ember:#FFA03A; --hivis:#F5CB2A;
-  --sev1:#8FA4BB; --sev2:#FFA03A; --sev3:#FF5A3D; --utr:#5C9DFF; --alarm:#6E7883;
+  --sev1:#8FA4BB; --std2:#FFA03A; --std3:#FF5A3D; --cb2:#F5CB2A; --cb3:#FF5A3D; --utr:#5C9DFF; --alarm:#6E7883;
   --sea:#0F1821; --ctx:#1A212A; --land:#242C37; --land-edge:#3A4552; --label:#9AA4AF;
   --glow:rgba(255,120,40,.16); --topbar:rgba(12,15,19,.82); --chip:#1F262F;
 }
 
 /* Fargeblind-vennlege fargar: middels og alvorleg brann skil seg på lysstyrke, ikkje berre raudt mot oransje */
-:root[data-fargar="cb"]{--sev2:#C28A00; --sev3:#9E1F00}
-@media (prefers-color-scheme: dark){ :root[data-fargar="cb"]:not([data-theme="light"]){--sev2:#F5CB2A; --sev3:#FF5A3D} }
-:root[data-fargar="cb"][data-theme="dark"]{--sev2:#F5CB2A; --sev3:#FF5A3D}
+:root[data-fargar="cb"]{--sev2:var(--cb2); --sev3:var(--cb3)}
 :root[data-tekst="stor"] main.app{zoom:1.15}
 :root[data-tekst="stor"] body{overflow-x:clip}
 
@@ -335,7 +334,20 @@ button.hbar[aria-pressed="true"] .fill{background:var(--ember)}
 .innst-rad b{display:block;font-size:15px}
 .innst-rad .sub{display:block;margin-top:2px}
 .innst .seg{flex-wrap:wrap}
-.innst-fot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding-top:16px;border-top:1px solid var(--line-2)}
+.prove{display:inline-flex;gap:3px;margin-right:8px;vertical-align:-1px}
+.prove i{width:11px;height:11px;border-radius:50%}
+.prove i.kj{background-image:radial-gradient(circle,var(--surface) 0 30%,transparent 34%)}
+.innst-lagre{position:sticky;bottom:calc(72px + env(safe-area-inset-bottom,0px));z-index:5;background:var(--surface);
+  border-top:1px solid var(--line);margin-top:4px;padding:14px 0 4px;display:grid;gap:10px}
+.innst-lagre .rad{display:flex;gap:10px;align-items:center}
+.btn-lagre{flex:1;min-height:50px;border:0;border-radius:8px;background:#C92A15;color:#fff;font-size:17px;font-weight:700;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 2px 8px rgba(201,42,21,.3)}
+.btn-lagre:hover{background:#B02410}
+.btn-lagre svg{width:20px;height:20px}
+.btn-lagre.ok{background:#2E7D4F;box-shadow:none}
+.innst-lagre .btn{min-height:50px}
+.innst-endra{font-size:13.5px;font-weight:600;color:var(--ember)}
+@media (min-width:1000px){ .innst-lagre{bottom:16px} .btn-lagre{flex:0 1 280px} }
 
 .omsett{display:flex;align-items:center;gap:8px;font-size:12.5px;line-height:1.4;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 12px}
 .omsett svg{width:17px;height:17px;flex:none;color:var(--ink-2)}
@@ -605,7 +617,7 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
       </div>
       <div class="innst-rad">
         <div><b>Fargar</b><span class="sub">Fargeblind-vennlege fargar gjer det lettare å skilje alvorlege og middels brannar om du ser dårleg forskjell på raudt og grønt. Alvorlege brannar får òg ein kvit prikk på kartet og striper i dagsoversikta.</span></div>
-        <div class="seg" role="group" aria-label="Fargar" data-innst="fargar"><button type="button" data-verdi="vanleg">Vanlege</button><button type="button" data-verdi="cb">Fargeblind-vennlege</button></div>
+        <div class="seg" role="group" aria-label="Fargar" data-innst="fargar"><button type="button" data-verdi="vanleg"><span class="prove" aria-hidden="true"><i style="background-color:var(--std3)"></i><i style="background-color:var(--std2)"></i><i style="background-color:var(--sev1)"></i></span>Vanlege</button><button type="button" data-verdi="cb"><span class="prove" aria-hidden="true"><i class="kj" style="background-color:var(--cb3)"></i><i style="background-color:var(--cb2)"></i><i style="background-color:var(--sev1)"></i></span>Fargeblind-vennlege</button></div>
       </div>
       <div class="innst-rad">
         <div><b>Utsjånad</b><span class="sub">«Automatisk» følgjer innstillinga på telefonen eller PC-en.</span></div>
@@ -623,10 +635,14 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
         <div><b>Opne appen med</b><span class="sub">Kva lista og statistikken viser når du opnar appen.</span></div>
         <div class="seg" role="group" aria-label="Opne appen med" data-innst="gruppe"><button type="button" data-verdi="alle">Utrykkingar</button><button type="button" data-verdi="brann">Brannar</button><button type="button" data-verdi="alt">Alt</button></div>
       </div>
-      <div class="innst-fot">
-        <span class="sub">Innstillingane blir berre lagra i nettlesaren din, ikkje sende nokon stad.</span>
-        <button type="button" class="btn" id="innst-nullstill">Tilbakestill</button>
+      <div class="innst-lagre">
+        <span class="innst-endra" id="innst-endra" hidden>Du har endringar som ikkje er lagra.</span>
+        <div class="rad">
+          <button type="button" class="btn-lagre" id="innst-lagre">Lagre</button>
+          <button type="button" class="btn" id="innst-nullstill">Tilbakestill</button>
+        </div>
       </div>
+      <p class="sub" style="margin:10px 0 0">Innstillingane blir berre lagra i nettlesaren din, ikkje sende nokon stad.</p>
     </div>
   </section>
   <footer class="kreditt">
@@ -995,6 +1011,9 @@ const OMSETJING = [
   ["Kva lista og statistikken viser når du opnar appen.", "Hva listen og statistikken viser når du åpner appen.", "What the list and statistics show when you open the app."],
   ["Innstillingane blir berre lagra i nettlesaren din, ikkje sende nokon stad.", "Innstillingene lagres bare i nettleseren din og sendes ikke noe sted.", "Settings are only stored in your browser and are never sent anywhere."],
   ["Tilbakestill", "Tilbakestill", "Reset"],
+  ["Lagre", "Lagre", "Save"],
+  ["Lagra ✓", "Lagret ✓", "Saved ✓"],
+  ["Du har endringar som ikkje er lagra.", "Du har endringer som ikke er lagret.", "You have unsaved changes."],
   ["Kulde gir meir fyring. Hald avstand mellom omnen og alt som kan brenne, og set oska ut i ei metallbøtte med lok i fleire døgn.", "Kulde gir mer fyring. Hold avstand mellom ovnen og alt som kan brenne, og sett asken ut i en metallbøtte med lokk i flere døgn.", "Cold weather means more wood burning. Keep anything flammable away from the stove, and put ashes outside in a metal bucket with a lid for several days."],
   ["Sjekk at komfyrvakta verkar. Komfyren er ei av dei vanlegaste årsakene til brann i bustader.", "Sjekk at komfyrvakten virker. Komfyren er en av de vanligste årsakene til brann i boliger.", "Check that your cooker guard works. The cooker is one of the most common causes of house fires."],
   ["Tørt vårgras tek lett fyr. Snakk med brannvesenet før du brenn bråte eller gras.", "Tørt vårgress tar lett fyr. Snakk med brannvesenet før du brenner bråte eller gress.", "Dry spring grass catches fire easily. Talk to the fire service before burning brush or grass."],
@@ -1522,32 +1541,30 @@ document.querySelectorAll("[data-kopier]").forEach(k => k.addEventListener("clic
   });
 })();
 
-/* ---- Innstillingar ---- */
+/* ---- Innstillingar: vala er eit utkast til brukaren trykkjer «Lagre» ---- */
+let utkast = {...innst};
 function renderInnst(){
   document.querySelectorAll("[data-innst]").forEach(g => g.querySelectorAll("[data-verdi]").forEach(b =>
-    b.setAttribute("aria-pressed", String(innst[g.dataset.innst] === b.dataset.verdi))));
+    b.setAttribute("aria-pressed", String(utkast[g.dataset.innst] === b.dataset.verdi))));
+  $("#innst-endra").hidden = Object.keys(INNST_STD).every(k => utkast[k] === innst[k]);
 }
 function lagreInnst(){
+  const forrige = innst;
+  innst = {...utkast};
   try { localStorage.setItem("brannlogg_innst", JSON.stringify(innst)); } catch(e) {}
+  if (innst.sprak !== forrige.sprak) { location.reload(); return; }
   brannloggInnst(innst);
+  if (innst.gruppe !== forrige.gruppe) { state.gruppe = innst.gruppe; state.antal = SIDE; renderHero(); renderAll(); renderStats(); }
   renderInnst();
+  const k = $("#innst-lagre");
+  k.textContent = T("Lagra ✓"); k.classList.add("ok");
+  clearTimeout(k._t); k._t = setTimeout(() => { k.textContent = T("Lagre"); k.classList.remove("ok"); }, 2500);
 }
 $("#v-innst").addEventListener("click", e => {
   const b = e.target.closest("[data-verdi]");
-  if (b) {
-    const k = b.closest("[data-innst]").dataset.innst;
-    if (innst[k] === b.dataset.verdi) return;
-    innst[k] = b.dataset.verdi;
-    if (k === "sprak") { lagreInnst(); location.reload(); return; }
-    if (k === "gruppe") { state.gruppe = innst.gruppe; state.antal = SIDE; renderHero(); renderAll(); renderStats(); }
-  } else if (e.target.closest("#innst-nullstill")) {
-    const gruppeFor = innst.gruppe, sprakFor = innst.sprak;
-    innst = {...INNST_STD};
-    try { localStorage.removeItem("brannlogg_innst"); } catch(e) {}
-    if (sprakFor !== innst.sprak) { lagreInnst(); location.reload(); return; }
-    if (gruppeFor !== innst.gruppe) { state.gruppe = innst.gruppe; state.antal = SIDE; renderHero(); renderAll(); renderStats(); }
-  } else return;
-  lagreInnst();
+  if (b) { utkast[b.closest("[data-innst]").dataset.innst] = b.dataset.verdi; renderInnst(); }
+  else if (e.target.closest("#innst-nullstill")) { utkast = {...INNST_STD}; renderInnst(); }
+  else if (e.target.closest("#innst-lagre")) lagreInnst();
 });
 renderInnst();
 
