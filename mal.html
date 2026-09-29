@@ -315,6 +315,20 @@ figure.foto figcaption{font-size:12px;color:var(--muted);margin-top:4px}
   .tabbar{display:none}
   .desk-nav{display:flex}
   main.app{padding-bottom:40px}
+  /* Faner på PC òg: kvar fane er si eiga side, så ein slepp å rulle forbi alt */
+  .vw{display:none}
+  .app[data-view="liste"] #v-liste,.app[data-view="liste"] #v-kart,
+  .app[data-view="kart"] #v-kart,.app[data-view="stat"] #v-stat{display:block}
+  .app[data-view="info"] #v-info{display:grid}
+  .app:not([data-view="liste"]) .hero{display:none}
+  .app:not([data-view="liste"]) .layout{grid-template-columns:minmax(0,1fr)}
+  .app:not([data-view="liste"]) .side{position:static}
+  .side .map svg{max-height:calc(100vh - 290px);width:auto;max-width:100%;margin-inline:auto}
+  .app[data-view="kart"] .map svg{max-height:calc(100vh - 250px)}
+  .app[data-view="stat"] #stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 36px}
+  .app[data-view="stat"] .stat-block,.app[data-view="stat"] .stat-block+.stat-block{margin-top:0;padding-top:18px;border-top:1px solid var(--line-2)}
+  .app[data-view="stat"] .stat-block:nth-child(-n+2){border-top:0;padding-top:0}
+  .desk-nav a[aria-current="page"]{background:var(--chip);color:var(--ink)}
 }
 @media (max-width:999px){
   .layout{grid-template-columns:minmax(0,1fr)}
@@ -597,7 +611,8 @@ try { sistSett = localStorage.getItem("brannlogg_sist_sett"); } catch(e) {}
 B.forEach(b => b._ny = !!sistSett && b.start > sistSett);
 try { if (B[0]) localStorage.setItem("brannlogg_sist_sett", B[0].start); } catch(e) {}
 
-const state = {gruppe:"alle", periode:"50", type:"alle", sok:"", valt:null, view:"liste"};
+const state = {gruppe:"alle", periode:"50", type:"alle", sok:"", valt:null, view:"liste", antal:20};
+const SIDE = 20;   // tal på kort som blir viste om gongen
 const erBrann = b => (b.gruppe || "brann") === "brann";
 const erAlarm = b => b.gruppe === "alarm";
 const utval = () => state.gruppe === "brann" ? B.filter(erBrann) : state.gruppe === "alt" ? B : B.filter(b => !erAlarm(b));
@@ -718,7 +733,7 @@ function kort(b){
     f.evakuert ? `<span class="tag">Evakuering</span>` : "",
     f.sak ? `<span class="tag">Politisak oppretta</span>` : "",
     b.kjelde_type === "media" ? `<span class="tag">Frå media</span>` : "",
-    b.bris ? `<span class="tag bris" title="Registrert av brannvesenet i brannstatistikken (DSB)">Brannstatistikk: ${esc(b.bris.type)}</span>` :
+    b.bris ? `<span class="tag bris" title="Registrert av brannvesenet i brannstatistikken (DSB)">Brannstatistikk: ${esc(b.bris.type || "type kjem seinare")}</span>` :
       (erBrann(b) ? "" : `<span class="tag utr">${f.brannvesen ? "Brannvesenet" : "Nødetatane"}</span>`),
     `<span class="tag">${esc(t.n)}</span>`
   ].join("");
@@ -767,8 +782,9 @@ function renderList(){
       html += `<div class="month"><h2>${MND[o.m-1]} ${o.y}</h2><span>${fl(gruppe.length, ...ORD())}</span></div><div class="list">${gruppe.map(kort).join("")}</div>`;
       gruppe = [];
     };
-    liste.forEach(b => { const k = b._o.y * 12 + b._o.m; if (k !== mnd) { flush(); mnd = k; } gruppe.push(b); });
+    liste.slice(0, state.antal).forEach(b => { const k = b._o.y * 12 + b._o.m; if (k !== mnd) { flush(); mnd = k; } gruppe.push(b); });
     flush();
+    if (liste.length > state.antal) html += `<div class="hint"><span>Viser ${state.antal} av ${liste.length} ${ORD()[1]}.</span><button type="button" class="btn" data-meir="1">Vis ${Math.min(SIDE, liste.length - state.antal)} til ${ikon("i-pil")}</button></div>`;
   }
   if (state.periode === "50" && !state.sok && state.type === "alle") {
     const U = utval();
@@ -877,11 +893,8 @@ function setView(v, rull = true){
   state.view = v;
   $("#app").dataset.view = v;
   document.querySelectorAll(".tabbar button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.go === v)));
-  if (erMobil()) { if (rull) window.scrollTo({top:0}); }
-  else if (rull) {
-    const el = v === "liste" ? $(".hero") : $(v === "kart" ? "#v-kart" : v === "stat" ? "#v-stat" : "#v-info");
-    el?.scrollIntoView({behavior:"smooth", block:"start"});
-  }
+  document.querySelectorAll(".desk-nav a").forEach(a => a.dataset.go === v ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current"));
+  if (rull) window.scrollTo({top:0});
 }
 function visKort(id){
   state.valt = id;
@@ -889,6 +902,8 @@ function visKort(id){
   if (b && !iPeriode(b)) state.periode = iAar(b) ? "aar" : "alle";
   if (b && !erBrann(b) && state.gruppe === "brann") { state.gruppe = "alle"; renderHero(); renderStats(); }
   state.type = "alle"; state.sok = ""; $("#sok").value = "";
+  const idx = filtrert().findIndex(x => x.id === id);
+  state.antal = Math.max(SIDE, Math.ceil((idx + 1) / SIDE) * SIDE);
   renderAll();
   setView("liste", false);
   requestAnimationFrame(() => {
@@ -902,17 +917,18 @@ function visKart(id){
   state.valt = id;
   renderMap(); renderList();
   if (erMobil()) setView("kart");
-  else $("#v-kart").scrollIntoView({behavior:"smooth", block:"start"});
+  else if (state.view !== "liste" && state.view !== "kart") setView("kart");
 }
 function renderAll(){ renderControls(); renderList(); renderMap(); }
 
 document.addEventListener("click", e => {
-  const t = e.target.closest("[data-go],[data-gruppe],[data-periode],[data-type],[data-vis],[data-kart],[data-mk]");
+  const t = e.target.closest("[data-go],[data-gruppe],[data-periode],[data-type],[data-vis],[data-kart],[data-mk],[data-meir]");
   if (!t) return;
   if (t.dataset.go) { e.preventDefault(); setView(t.dataset.go); }
-  else if (t.dataset.gruppe) { state.gruppe = t.dataset.gruppe; renderHero(); renderAll(); renderStats(); }
-  else if (t.dataset.periode) { state.periode = t.dataset.periode; renderAll(); if (t.closest(".hint")) $("#v-liste").scrollIntoView({behavior:"smooth"}); }
-  else if (t.dataset.type) { state.type = t.dataset.type; renderAll(); }
+  else if (t.dataset.meir) { state.antal += SIDE; renderList(); }
+  else if (t.dataset.gruppe) { state.gruppe = t.dataset.gruppe; state.antal = SIDE; renderHero(); renderAll(); renderStats(); }
+  else if (t.dataset.periode) { state.periode = t.dataset.periode; state.antal = SIDE; renderAll(); if (t.closest(".hint")) $("#v-liste").scrollIntoView({behavior:"smooth"}); }
+  else if (t.dataset.type) { state.type = t.dataset.type; state.antal = SIDE; renderAll(); }
   else if (t.dataset.vis) visKort(t.dataset.vis);
   else if (t.dataset.kart) visKart(t.dataset.kart);
   else if (t.dataset.mk) { state.valt = t.dataset.mk; renderMap(); renderList(); }
@@ -922,7 +938,7 @@ document.addEventListener("keydown", e => {
   if (mk && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); state.valt = mk.dataset.mk; renderMap(); renderList(); document.querySelector(`[data-mk="${CSS.escape(state.valt)}"]`)?.focus(); }
 });
 let sokT;
-$("#sok").addEventListener("input", e => { clearTimeout(sokT); sokT = setTimeout(() => { state.sok = e.target.value; renderList(); renderMap(); }, 120); });
+$("#sok").addEventListener("input", e => { clearTimeout(sokT); sokT = setTimeout(() => { state.sok = e.target.value; state.antal = SIDE; renderList(); renderMap(); }, 120); });
 
 /* ---- Sjekk etter nye data medan sida står open ---- */
 let sistAktiv = Date.now();
@@ -977,6 +993,6 @@ renderStatus(); renderHero(); renderAll(); renderStats(); renderTip();
 const h = (location.hash || "").slice(1);
 const start = Object.keys(HASH).find(k => HASH[k] === h);
 if (h.startsWith("b-") && B.some(b => b.id === h.slice(2))) visKort(h.slice(2));
-else if (start && start !== "liste") setView(start, false);
+else setView(start || "liste", false);
 })();
 </script>

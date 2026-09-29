@@ -446,6 +446,9 @@ BRIS_TITTEL = {
 def bris_kategori(namn):
     """(gruppe, type, tittel, alvor, stor) for ein oppdragstype i brannstatistikken."""
     n = (namn or "").lower()
+    if not n:
+        # Brannvesenet har ikkje fylt ut typen enno – blir oppdatert ved neste henting
+        return "utrykking", "utrykking", "Nytt oppdrag (type ikkje registrert enno)", 1, False
     tittel = BRIS_TITTEL.get(namn, namn)
     if n.startswith("aba "):
         return "alarm", "alarm", "Brannalarm: " + ABA_ÅRSAK.get(n[4:], n[4:]), 1, False
@@ -560,7 +563,9 @@ def kombiner_med_bris(hendingar, bris, ekstra, geocache):
             "stad": stad, "start": m["tid"], "sist": m["tid"], "aktiv": False, "pos": pos,
             "flagg": {"personskade": False, "evakuert": False, "sak": False, "brannvesen": True,
                       "omkomne": bool(ex.get("omkomne")), "bris": True},
-            "meldingar": [{"t": m["tid"], "tekst": ex.get("tekst") or f"{m['brannvesen'] or 'Brannvesenet'} registrerte oppdraget som «{m['type']}».", "endra": False}],
+            "meldingar": [{"t": m["tid"], "tekst": ex.get("tekst") or (
+                f"{m['brannvesen'] or 'Brannvesenet'} registrerte oppdraget som «{m['type']}»." if m["type"] else
+                f"{m['brannvesen'] or 'Brannvesenet'} har registrert eit oppdrag. Kva slags oppdrag det var, er ikkje fylt ut enno."), "endra": False}],
             "kjelder": ex.get("kjelder", []),
             "merknad": ex.get("merknad", "Frå brannstatistikken (DSB). Staden og detaljar er ikkje oppgitt der."),
             "bilete": [], "bris": {"id": m["id"], "type": m["type"], "tid": m["tid"]}, "stor": kat[4],
