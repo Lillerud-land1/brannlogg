@@ -14,7 +14,7 @@
   color-scheme:dark;
   --bg:#0A0D11; --panel:#12171E; --panel-2:#181E26; --ink:#EEF1F4; --ink-2:#C2C9D1; --muted:#87919C;
   --line:#252D37; --fire:#FF5A3D; --ember:#FFA03A; --hivis:#F5CB2A;
-  --sev1:#8FA4BB; --sev2:#FFA03A; --sev3:#FF5A3D; --utr:#5C9DFF;
+  --sev1:#8FA4BB; --sev2:#FFA03A; --sev3:#FF5A3D; --utr:#5C9DFF; --alarm:#7A8591;
   --sea:#0E1620; --ctx:#19202A; --land:#232B36; --land-edge:#3A4552; --label:#9AA4AF;
   --f-display:"Big Shoulders Display","Arial Narrow",sans-serif;
   --f-body:"Schibsted Grotesk",system-ui,"Segoe UI",sans-serif;
@@ -52,7 +52,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font
 .stripe-boks{margin-top:auto}
 .stripe{display:grid;grid-template-columns:repeat(var(--kol,50),minmax(0,1fr));gap:.1rem;height:3.4rem;margin-top:.7rem}
 .stripe i{border-radius:.12rem;background:#1F2630}
-.stripe i.f1{background:var(--sev1)} .stripe i.f2{background:var(--sev2)} .stripe i.f3{background:var(--sev3)} .stripe i.fu{background:var(--utr)}
+.stripe i.f1{background:var(--sev1)} .stripe i.f2{background:var(--sev2)} .stripe i.f3{background:var(--sev3)} .stripe i.fu{background:var(--utr)} .stripe i.fa{background:var(--alarm)}
 .stripe i.idag{box-shadow:inset 0 0 0 .2rem var(--ink)}
 .akse{display:flex;justify-content:space-between;font-size:1rem;color:var(--muted);margin-top:.4rem}
 .tal{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-top:1rem}
@@ -97,6 +97,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font
 .forklaring span{display:inline-flex;align-items:center;gap:.5rem}
 .forklaring i{width:1rem;height:1rem;border-radius:50%;background:var(--sev)}
 .forklaring i.u{background:var(--utr)}
+.forklaring i.a{background:var(--alarm)}
 .ruter{font-weight:600;letter-spacing:0;text-transform:none}
 
 /* Botn */
@@ -136,7 +137,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font
 <div class="skjerm">
   <header class="topp">
     <svg class="logo" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="8" fill="#1A1F26"/><path d="M17 28c-4.6 0-7.6-3-7.6-7 0-4.1 3-6.4 4.2-9.9 1.6 1.6 2.3 3.4 2.3 5.1 1.2-1.2 2.1-3 2.3-5.1 3.5 2.6 6.4 6.4 6.4 9.9 0 4-3 7-7.6 7Z" fill="url(#g-flamme)"/><path d="M17 28c-2 0-3.3-1.3-3.3-3.1 0-1.8 1.4-2.9 2-4.4 1.6 1.2 4.6 2.6 4.6 4.4 0 1.8-1.3 3.1-3.3 3.1Z" fill="#FFE9A6" opacity=".9"/></svg>
-    <div class="namn">Brannlogg<small>STØRRE HENDINGAR I STORD · BRANNSTATISTIKK, POLITI OG MEDIA</small></div>
+    <div class="namn">Brannlogg<small>HENDINGAR I STORD · BRANNSTATISTIKK, POLITI OG MEDIA</small></div>
     <div class="batt" aria-hidden="true"></div>
     <div class="klokke"><b id="kl">--:--</b><span id="dato"></span></div>
   </header>
@@ -144,13 +145,13 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font
   <main class="hovud">
     <section class="panel teljar" id="teljar"></section>
     <section class="panel">
-      <div class="etikett">Siste større hendingar</div>
+      <div class="etikett">Siste hendingar</div>
       <ul class="liste" id="liste"></ul>
     </section>
     <section class="panel">
       <div class="etikett">Kart · <b>siste 12 månader</b></div>
       <div class="kart" id="kart"></div>
-      <div class="forklaring"><span class="s3"><i></i>Alvorleg</span><span class="s2"><i></i>Middels</span><span class="s1"><i></i>Mindre</span><span><i class="u"></i>Anna utrykking</span><span id="blink-tekst">Blinkar: siste 100 dagar</span></div>
+      <div class="forklaring"><span class="s3"><i></i>Alvorleg</span><span class="s2"><i></i>Middels</span><span class="s1"><i></i>Mindre</span><span><i class="u"></i>Utrykking</span><span><i class="a"></i>Alarm</span><span id="blink-tekst">Blinkar: siste 100 dagar</span></div>
     </section>
   </main>
 
@@ -159,7 +160,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font
     <div class="tips" id="tips"></div>
     <div class="qr"><img src="qr.svg" alt=""><span>Skann for å få Brannlogg på mobilen<small id="oppd"></small></span></div>
   </footer>
-  <p class="kreditt">Laga av <b>Leander Wågen Lillerud</b> · Ikkje ein offisiell teneste frå Politiet, brannvesenet eller Stord kommune · Viser større hendingar frå brannstatistikk.no, Politiloggen og media – ikkje alle oppdraga til brannvesenet</p>
+  <p class="kreditt">Laga av <b>Leander Wågen Lillerud</b> · Ikkje ein offisiell teneste frå Politiet, brannvesenet eller Stord kommune · Viser oppdrag registrerte i brannstatistikk.no, Politiloggen og media</p>
 </div>
 
 <script>
@@ -190,7 +191,7 @@ function relDag(o){
 }
 const TYPE = {bygning:"i-bygning", kjoretoy:"i-kjoretoy", vegetasjon:"i-vegetasjon", pipe:"i-pipe", alarm:"i-alarm", industri:"i-industri", baat:"i-baat", anna:"i-anna", trafikk:"i-trafikk", sjo:"i-sjo", ulykke:"i-ulykke", redning:"i-redning", dyr:"i-dyr", utslepp:"i-utslepp", utrykking:"i-utrykking"};
 // Berre større hendingar: brannar og viktige utrykkingar, ikkje alarmar og småoppdrag
-const B = D.brannar.filter(b => b.gruppe !== "alarm" && (b.gruppe === "brann" || b.stor !== false)).map(b => ({...b, _o:oslo(b.start)}));
+const B = D.brannar.map(b => ({...b, _o:oslo(b.start)}));   // alle hendingar, frå brannalarmar til husbrannar
 const START = IDAG.dn - (VINDU - 1);
 
 /* Klokke */
@@ -204,7 +205,7 @@ klokke(); setInterval(klokke, 1000);
 
 /* Teljar */
 const aktive = B.filter(b => b.aktiv);
-const ALLE = D.brannar.map(b => ({...b, _o:oslo(b.start)}));   // alle hendingar, også brannalarmar
+const ALLE = B;
 const siste = ALLE[0];
 const sisteBrann = ALLE.filter(b => (b.gruppe || "brann") === "brann")[0];
 let t = "";
@@ -218,22 +219,22 @@ if (aktive.length) {
         (sisteBrann && sisteBrann !== siste ? `<br>Siste brann: <b>${esc(sisteBrann.tittel)}</b> · ${sisteBrann._o.d}. ${MND[sisteBrann._o.m-1]}` : "") + `</p>`;
 }
 const perDag = {};
-B.filter(b => b._o.dn >= START).forEach(b => { const d = perDag[b._o.dn] ||= {a:0}; if (b.gruppe === "utrykking") d.u = true; else d.a = Math.max(d.a, b.alvor); });
+B.filter(b => b._o.dn >= START).forEach(b => { const d = perDag[b._o.dn] ||= {a:0}; if (b.gruppe === "utrykking") d.u = true; else if (b.gruppe === "alarm") d.al = true; else d.a = Math.max(d.a, b.alvor); });
 let celler = "";
-for (let i = 0; i < VINDU; i++) { const dn = START + i; celler += `<i class="${perDag[dn] ? (perDag[dn].a ? "f" + perDag[dn].a : "fu") : ""}${dn === IDAG.dn ? " idag" : ""}"></i>`; }
+for (let i = 0; i < VINDU; i++) { const dn = START + i; celler += `<i class="${perDag[dn] ? (perDag[dn].a ? "f" + perDag[dn].a : perDag[dn].u ? "fu" : "fa") : ""}${dn === IDAG.dn ? " idag" : ""}"></i>`; }
 const s0 = new Date(START * 864e5);
 const n50 = B.filter(b => b._o.dn >= START).length;
 const aar = B.filter(b => IDAG.dn - b._o.dn < 365).length;
-t += `<div class="stripe-boks"><div class="etikett">Siste ${VINDU} dagar · <span class="ruter"><span style="color:var(--sev2)">■</span> brann <span style="color:var(--utr)">■</span> anna utrykking</span></div><div class="stripe" style="--kol:${VINDU}">${celler}</div>
+t += `<div class="stripe-boks"><div class="etikett">Siste ${VINDU} dagar · <span class="ruter"><span style="color:var(--sev2)">■</span> brann <span style="color:var(--utr)">■</span> utrykking <span style="color:var(--alarm)">■</span> alarm</span></div><div class="stripe" style="--kol:${VINDU}">${celler}</div>
       <div class="akse"><span>${s0.getUTCDate()}. ${MND_K[s0.getUTCMonth()]}</span><span>i dag</span></div>
-      <div class="tal"><div><b>${n50}</b><span>større hendingar siste ${VINDU} dagar</span></div><div><b>${aar}</b><span>siste 12 mnd</span></div><div><b>${(aar / 12).toLocaleString("nb-NO", {maximumFractionDigits:1})}</b><span>snitt per månad</span></div></div></div>`;
+      <div class="tal"><div><b>${n50}</b><span>hendingar siste ${VINDU} dagar</span></div><div><b>${aar}</b><span>siste 12 mnd</span></div><div><b>${(aar / 12).toLocaleString("nb-NO", {maximumFractionDigits:1})}</b><span>snitt per månad</span></div></div></div>`;
 $("#teljar").innerHTML = t;
 $("#blink-tekst").textContent = `Blinkar: siste ${VINDU} dagar`;
 
 /* Liste – dei siste hendingane */
 const rader = B.slice(0, 6).map(b => `<li class="rad s${b.alvor}${IDAG.dn - b._o.dn < 2 ? " ny" : ""}">
     <span class="strek"></span>
-    <span class="ic"${b.gruppe === "utrykking" ? ` style="--sev:var(--utr)"` : ""}><svg aria-hidden="true"><use href="#${TYPE[b.type] || "i-anna"}"/></svg></span>
+    <span class="ic"${b.gruppe === "utrykking" ? ` style="--sev:var(--utr)"` : b.gruppe === "alarm" ? ` style="--sev:var(--alarm)"` : ""}><svg aria-hidden="true"><use href="#${TYPE[b.type] || "i-anna"}"/></svg></span>
     <div><h3>${esc(b.tittel)}</h3><p><b>${esc(b.stad)}</b> · ${b.aktiv ? `<span class="pagar"><i></i>Pågår</span>` : "Avslutta"}</p></div>
     <div class="kor"><b>${relDag(b._o)}</b>kl. ${kl(b._o)}</div></li>`).join("");
 $("#liste").innerHTML = rader || `<li class="tomt">Ingen hendingar registrerte.</li>`;
@@ -244,7 +245,7 @@ if (K) {
   const P = K.proj;
   const xy = p => [(p[1] - P.lon0) * P.cos * P.k, (P.lat1 - p[0]) * P.k];
   const col = {1:"var(--sev1)", 2:"var(--sev2)", 3:"var(--sev3)"};
-  const farge = b => b.gruppe === "utrykking" ? "var(--utr)" : col[b.alvor];
+  const farge = b => b.gruppe === "utrykking" ? "var(--utr)" : b.gruppe === "alarm" ? "var(--alarm)" : col[b.alvor];
   const mk = B.filter(b => b.pos && IDAG.dn - b._o.dn < 365).map(b => ({b, p:xy(b.pos)}))
     .filter(({p}) => p[0] > 0 && p[0] < K.w && p[1] > 0 && p[1] < K.h)
     .sort((a, c) => a.b._o.dn - c.b._o.dn)
