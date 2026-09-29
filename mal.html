@@ -350,31 +350,24 @@ button.hbar[aria-pressed="true"] .fill{background:var(--ember)}
 @media (min-width:1000px){ .innst-lagre{bottom:16px} .btn-lagre{flex:0 1 280px} }
 
 /* Skogbrannfare */
-.brannfare{--bf0:#2E9E62; --bf1:#7DBA3C; --bf2:#E3BC00; --bf3:#F08A12; --bf4:#E0301E; --bf5:#A3123A;border-top:1px solid var(--line-2)}
-.brannfare summary{list-style:none;cursor:pointer;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:12px 24px}
+.brannfare{--bf0:#2E9E62; --bf1:#7DBA3C; --bf2:#E3BC00; --bf3:#F08A12; --bf4:#E0301E; --bf5:#A3123A;margin-top:12px}
+.brannfare summary{list-style:none;cursor:pointer;display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px 8px;max-width:100%;
+  padding:4px 10px 4px 12px;border:1px solid var(--line);border-radius:999px;background:var(--surface-2);font-size:13px;color:var(--ink-2)}
 .brannfare summary::-webkit-details-marker{display:none}
-.brannfare summary:hover .bf-pil{color:var(--ink)}
-.bf-pst{font-family:var(--f-display);font-weight:800;font-size:22px;line-height:1;font-variant-numeric:tabular-nums}
-.bf-klasse{font-weight:700;font-size:14px}
-.bf-varsel{font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px;background:var(--hivis);color:#1A1600;text-decoration:none;white-space:nowrap}
+.brannfare summary:hover{border-color:var(--ink-2)}
+.bf-pst{color:var(--ink);font-variant-numeric:tabular-nums}
+.bf-klasse{font-weight:700}
+.bf-varsel{font-size:11.5px;font-weight:700;padding:1px 7px;border-radius:999px;background:var(--hivis);color:#1A1600;text-decoration:none;white-space:nowrap}
 .bf-varsel.orange{background:#EE7A10} .bf-varsel.red{background:#E0301E;color:#fff}
-.bf-bar{flex:1 1 120px;position:relative;height:10px;border-radius:5px;background:linear-gradient(90deg,var(--bf0) 0 16.67%,var(--bf1) 0 33.33%,var(--bf2) 0 50%,var(--bf3) 0 66.67%,var(--bf4) 0 83.33%,var(--bf5) 0);overflow:hidden}
-.bf-bar .dim{position:absolute;top:0;bottom:0;right:0;background:var(--surface);opacity:.78}
-.bf-bar .merke{position:absolute;top:-2px;bottom:-2px;width:4px;margin-left:-2px;border-radius:2px;background:var(--ink);box-shadow:0 0 0 2px var(--surface)}
-.bf-sist{font-size:13px;color:var(--muted);white-space:nowrap}
-.bf-pil{width:16px;height:16px;flex:none;color:var(--muted);transition:transform .15s}
+.bf-bar{flex:none;width:52px;position:relative;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--bf0) 0 16.67%,var(--bf1) 0 33.33%,var(--bf2) 0 50%,var(--bf3) 0 66.67%,var(--bf4) 0 83.33%,var(--bf5) 0);overflow:hidden}
+.bf-bar .dim{position:absolute;top:0;bottom:0;right:0;background:var(--surface-2);opacity:.78}
+.bf-bar .merke{position:absolute;top:0;bottom:0;width:3px;margin-left:-1.5px;background:var(--ink)}
+.bf-pil{width:13px;height:13px;flex:none;color:var(--muted);transition:transform .15s}
 .brannfare[open] .bf-pil{transform:rotate(90deg)}
-.bf-detaljar{padding:0 24px 16px;display:grid;gap:8px}
-.bf-fakta{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13.5px;color:var(--ink-2)}
+.bf-detaljar{margin-top:8px;padding:10px 12px;border:1px solid var(--line-2);border-radius:8px;background:var(--surface-2);display:grid;gap:6px}
+.bf-fakta{display:flex;flex-wrap:wrap;gap:2px 14px;font-size:13px;color:var(--ink-2)}
 .bf-fakta b{color:var(--ink)}
 .bf-note{margin:0;font-size:12px;color:var(--muted)}
-@media (max-width:720px){
-  .brannfare summary{padding:12px 16px}
-  .bf-bar{order:9;flex-basis:100%}
-  .bf-sist{display:none}
-  .bf-pil{margin-left:auto}
-  .bf-detaljar{padding:0 16px 14px}
-}
 .omsett{display:flex;align-items:center;gap:8px;font-size:12.5px;line-height:1.4;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 12px}
 .omsett svg{width:17px;height:17px;flex:none;color:var(--ink-2)}
 
@@ -505,7 +498,7 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
   <section class="hero" aria-label="Samandrag">
     <div class="batt" aria-hidden="true"></div>
     <div class="hero-inner">
-      <div class="counter" id="counter"></div>
+      <div><div class="counter" id="counter"></div><details class="brannfare" id="brannfare" hidden></details></div>
       <div>
         <div class="strip-head">
           <div class="eyebrow">Brannstripa · <b id="strip-tittel">siste 100 dagar</b></div>
@@ -517,7 +510,6 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
         <div class="kpis" id="kpis"></div>
       </div>
     </div>
-    <details class="brannfare" id="brannfare" hidden></details>
   </section>
 
   <div class="layout">
@@ -1263,11 +1255,9 @@ function renderBrannfare(){
   const varsel = f.varsel && new Date(f.varsel.til) > Date.now()
     ? `<a class="bf-varsel ${esc(f.varsel.farge)}" href="${esc(f.varsel.url || "https://www.met.no")}" target="_blank" rel="noopener">${T("Farevarsel frå MET: {n}", {n:niva[f.varsel.farge] || ""})}</a>` : "";
   const tal = n => n.toLocaleString(LOCALE, {maximumFractionDigits:1});
-  el.innerHTML = `<summary><span class="eyebrow">${T("Skogbrannfare")}</span><b class="bf-pst">${f.prosent} %</b>
-      <span class="bf-klasse" style="color:var(--bf${f.klasse})">${klasse}</span>${varsel}
-      <span class="bf-bar" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${f.prosent}" aria-label="${T("Skogbrannfare")} ${f.prosent} %, ${klasse}">
+  el.innerHTML = `<summary><span class="bf-bar" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${f.prosent}" aria-label="${T("Skogbrannfare")} ${f.prosent} %, ${klasse}">
         <span class="dim" style="width:${100 - f.prosent}%"></span><span class="merke" style="left:${f.prosent}%"></span></span>
-      <span class="bf-sist">${T("Sist regn:")} ${sidan}</span>${ikon("i-pil", "bf-pil")}</summary>
+      <span>${T("Skogbrannfare")} <b class="bf-pst">${f.prosent} %</b></span><span class="bf-klasse" style="color:var(--bf${f.klasse})">${klasse}</span>${varsel}${ikon("i-pil", "bf-pil")}</summary>
     <div class="bf-detaljar"><div class="bf-fakta"><span>${T("Sist regn:")} <b>${sidan}</b></span><span>${T("Regn siste 7 dagar:")} <b>${tal(f.regn_7d)} mm</b></span>
       <span><b>${tal(f.temp)}°</b></span><span>${T("Luftfukt")} <b>${Math.round(f.fukt)} %</b></span><span>${T("Vind")} <b>${Math.round(f.vind)} m/s</b></span></div>
     <p class="bf-note">${T("Rekna ut frå temperatur, luftfukt, vind og nedbør dei siste vekene (Fire Weather Index). Prosenten viser kvar på skalaen frå svært låg til ekstrem brannfare vêret ligg, ikkje sannsynet for at det brenn. Ikkje ei offisiell vurdering.")}</p></div>`;
