@@ -78,6 +78,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font
 .rad .kor{text-align:right;font-family:var(--f-mono);font-size:1.15rem;color:var(--muted);line-height:1.35;white-space:nowrap}
 .rad .kor b{display:block;font-family:var(--f-display);font-size:2rem;color:var(--ink);font-weight:800}
 .rad.ny{outline:.15rem solid var(--ember)}
+.ny-merke{display:inline-block;vertical-align:.2em;margin-right:.6rem;padding:.15rem .5rem;border-radius:.3rem;background:var(--hivis);color:#1A1600;
+  font-family:var(--f-body);font-size:.85rem;font-weight:800;letter-spacing:.08em;line-height:1.2}
 .pagar{display:inline-flex;align-items:center;gap:.5rem;color:var(--fire);font-weight:700;font-family:var(--f-body)}
 .pagar i{width:.8rem;height:.8rem;border-radius:50%;background:var(--fire);animation:blink 1s steps(2) infinite}
 @keyframes blink{50%{opacity:.2}}
@@ -234,10 +236,11 @@ $("#teljar").innerHTML = t;
 $("#blink-tekst").textContent = `Blinkar: siste ${VINDU} dagar`;
 
 /* Liste – dei siste hendingane */
-const rader = B.slice(0, 6).map(b => `<li class="rad s${b.alvor}${IDAG.dn - b._o.dn < 2 ? " ny" : ""}">
+const erNy = b => Date.now() - new Date(b.start) < 48 * 36e5;   // nyare enn to døgn
+const rader = B.slice(0, 6).map(b => `<li class="rad s${b.alvor}${erNy(b) ? " ny" : ""}">
     <span class="strek"></span>
     <span class="ic"${b.gruppe === "utrykking" ? ` style="--sev:var(--utr)"` : b.gruppe === "alarm" ? ` style="--sev:var(--alarm)"` : ""}><svg aria-hidden="true"><use href="#${TYPE[b.type] || "i-anna"}"/></svg></span>
-    <div><h3>${esc(b.tittel)}</h3><p><b>${esc(b.stad)}</b> · ${b.aktiv ? `<span class="pagar"><i></i>Pågår</span>` : "Avslutta"}</p></div>
+    <div><h3>${erNy(b) ? `<span class="ny-merke">NY</span>` : ""}${esc(b.tittel)}</h3><p><b>${esc(b.stad)}</b> · ${b.aktiv ? `<span class="pagar"><i></i>Pågår</span>` : "Avslutta"}</p></div>
     <div class="kor"><b>${relDag(b._o)}</b>kl. ${kl(b._o)}</div></li>`).join("");
 $("#liste").innerHTML = rader || `<li class="tomt">Ingen hendingar registrerte.</li>`;
 
