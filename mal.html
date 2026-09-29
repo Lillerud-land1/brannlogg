@@ -337,6 +337,9 @@ button.hbar[aria-pressed="true"] .fill{background:var(--ember)}
 .innst .seg{flex-wrap:wrap}
 .innst-fot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding-top:16px;border-top:1px solid var(--line-2)}
 
+.omsett{display:flex;align-items:center;gap:8px;font-size:12.5px;line-height:1.4;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 12px}
+.omsett svg{width:17px;height:17px;flex:none;color:var(--ink-2)}
+
 /* ---------- Faneline (mobil) ---------- */
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--topbar);-webkit-backdrop-filter:blur(14px) saturate(1.3);backdrop-filter:blur(14px) saturate(1.3);
   border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(5,1fr)}
@@ -401,6 +404,7 @@ function brannloggInnst(s){
   set("data-fargar", s.fargar === "cb" ? "cb" : "");
   set("data-tekst", s.tekst === "stor" ? "stor" : "");
   set("data-rorsle", s.rorsle === "av" ? "av" : "");
+  r.lang = s.sprak === "en" ? "en" : s.sprak === "nb" ? "nb" : "nn";
 }
 try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")); } catch (e) {}
 </script>
@@ -433,6 +437,7 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
   <symbol id="i-stat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 20.5h16"/><path d="M7 17V11M12 17V6M17 17v-8"/></symbol>
   <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5"/><circle cx="12" cy="7.8" r=".6" fill="currentColor"/></symbol>
   <symbol id="i-innst" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h9M18 7h2M4 17h3M12 17h8"/><circle cx="15.5" cy="7" r="2.3"/><circle cx="9.5" cy="17" r="2.3"/></symbol>
+  <symbol id="i-omset" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17"/><path d="M12 3.5c2.4 2.5 3.6 5.3 3.6 8.5s-1.2 6-3.6 8.5c-2.4-2.5-3.6-5.3-3.6-8.5s1.2-6 3.6-8.5Z"/></symbol>
   <symbol id="i-sok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
   <symbol id="i-pil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></symbol>
   <symbol id="i-ut" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/><path d="M18 14v5.5H4.5V6H10"/></symbol>
@@ -458,6 +463,7 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
 </header>
 
 <main class="app wrap" id="app" data-view="liste">
+  <div class="omsett" id="omsett" hidden><svg aria-hidden="true"><use href="#i-omset"/></svg><span id="omsett-txt"></span></div>
   <section class="hero" aria-label="Samandrag">
     <div class="batt" aria-hidden="true"></div>
     <div class="hero-inner">
@@ -594,6 +600,10 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
         <h2 class="h2">Innstillingar</h2>
       </div>
       <div class="innst-rad">
+        <div><b>Språk · Language</b><span class="sub">Bokmål og engelsk er omsett med KI (Claude). Tekstar frå politiet og media blir ikkje omsette.</span></div>
+        <div class="seg" role="group" aria-label="Språk" data-innst="sprak"><button type="button" data-verdi="nn" lang="nn">Nynorsk</button><button type="button" data-verdi="nb" lang="nb">Bokmål</button><button type="button" data-verdi="en" lang="en">English</button></div>
+      </div>
+      <div class="innst-rad">
         <div><b>Fargar</b><span class="sub">Fargeblind-vennlege fargar gjer det lettare å skilje alvorlege og middels brannar om du ser dårleg forskjell på raudt og grønt. Alvorlege brannar får òg ein kvit prikk på kartet og striper i dagsoversikta.</span></div>
         <div class="seg" role="group" aria-label="Fargar" data-innst="fargar"><button type="button" data-verdi="vanleg">Vanlege</button><button type="button" data-verdi="cb">Fargeblind-vennlege</button></div>
       </div>
@@ -636,6 +646,371 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
 </nav>
 
 <script>
+// Omsetjing av brukargrensesnittet: [nynorsk, bokmål, engelsk], omsett med KI (Claude).
+// Nynorsk er grunnspråket. null eller manglande rad = originalteksten blir vist.
+const OMSETJING = [
+  ["Brannlogg Stord – til lista", "Brannlogg Stord – til listen", "Brannlogg Stord – back to the list"],
+  ["Stord kommune", "Stord kommune", "Stord municipality"],
+  ["Seksjonar", "Seksjoner", "Sections"],
+  ["Liste", "Liste", "List"],
+  ["Kart", "Kart", "Map"],
+  ["Statistikk", "Statistikk", "Statistics"],
+  ["Om appen", "Om appen", "About"],
+  ["Innstillingar", "Innstillinger", "Settings"],
+  ["Visning", "Visning", "View"],
+  ["Få varsel på mobilen", "Få varsel på mobilen", "Get alerts on your phone"],
+  ["Lastar …", "Laster …", "Loading …"],
+  ["Nye hendingar – trykk for å oppdatere", "Nye hendelser – trykk for å oppdatere", "New incidents – tap to refresh"],
+  ["Nytt", "Nytt", "New"],
+  ["Omsett frå nynorsk med KI (Claude).", "Oversatt fra nynorsk med KI (Claude).", "Translated from Norwegian with AI (Claude). Police reports and news stories are shown in Norwegian."],
+  ["kl.", "kl.", "at"],
+  ["i dag", "i dag", "today"],
+  ["i går", "i går", "yesterday"],
+  ["i morgon", "i morgen", "tomorrow"],
+  ["Oppdatert", "Oppdatert", "Updated"],
+  ["Neste oppdatering: {t}.", "Neste oppdatering: {t}.", "Next update: {t}."],
+  ["Data henta frå Politiloggen {t}.", "Data hentet fra Politiloggen {t}.", "Data fetched {t}."],
+  ["Appen hentar nye data frå Politiloggen kvart kvarter. Sist oppdatert: <b>{t}</b>.", "Appen henter nye data fra Politiloggen hvert kvarter. Sist oppdatert: <b>{t}</b>.", "The app fetches new data every 15 minutes. Last updated: <b>{t}</b>."],
+  ["Dataa er meir enn tre timar gamle. Prøv å laste sida på nytt.", "Dataene er mer enn tre timer gamle. Prøv å laste inn siden på nytt.", "The data is more than three hours old. Try reloading the page."],
+  ["Samandrag", "Sammendrag", "Summary"],
+  ["Akkurat no", "Akkurat nå", "Right now"],
+  ["Pågår no", "Pågår nå", "Ongoing"],
+  ["starta kl. {k}", "startet kl. {k}", "started at {k}"],
+  ["Følg loggen", "Følg loggen", "Follow the log"],
+  ["Dagar sidan siste hending", "Dager siden siste hendelse", "Days since last incident"],
+  ["{n} dagar sidan siste hending", "{n} dager siden siste hendelse", "{n} days since last incident"],
+  ["dag", "dag", "day"],
+  ["dagar", "dager", "days"],
+  ["Siste:", "Siste:", "Latest:"],
+  ["Siste brann:", "Siste brann:", "Latest fire:"],
+  ["{d} sidan", "{d} siden", "{d} ago"],
+  ["Ingen hendingar i dataa.", "Ingen hendelser i dataene.", "No incidents in the data."],
+  ["Brannstripa ·", "Brannstripen ·", "Daily strip ·"],
+  ["Brannar per dag", "Branner per dag", "Fires per day"],
+  ["ingen hending", "ingen hendelse", "no incidents"],
+  ["Hendingar per dag, siste {n} dagar", "Hendelser per dag, siste {n} dager", "Incidents per day, last {n} days"],
+  ["siste {n} dagar", "siste {n} dager", "last {n} days"],
+  ["Siste {n} dagar", "Siste {n} dager", "Last {n} days"],
+  ["Øvst: {a} · Nedst: {b}", "Øverst: {a} · Nederst: {b}", "Top: {a} · Bottom: {b}"],
+  ["{d} med brann", "{d} med brann", "{d} with fires"],
+  ["{d} med utrykking", "{d} med utrykning", "{d} with call-outs"],
+  ["Brann", "Brann", "Fire"],
+  ["brann", "brann", "fire"],
+  ["brannar", "branner", "fires"],
+  ["hending", "hendelse", "incident"],
+  ["hendingar", "hendelser", "incidents"],
+  ["/mnd", "/mnd", "/mo"],
+  ["siste 12 månader", "siste 12 måneder", "last 12 months"],
+  ["Siste 12 månader", "Siste 12 måneder", "Last 12 months"],
+  ["snitt siste år", "snitt siste år", "avg. last year"],
+  ["Brannar", "Branner", "Fires"],
+  ["Utrykkingar", "Utrykninger", "Call-outs"],
+  ["Alt", "Alt", "All"],
+  ["Kva hendingar", "Hvilke hendelser", "Which incidents"],
+  ["Periode", "Periode", "Period"],
+  ["Søk etter stad eller ord", "Søk etter sted eller ord", "Search for a place or word"],
+  ["Type brann", "Type brann", "Fire type"],
+  ["Også automatiske brannalarmar og avbrotne utrykkingar", "Også automatiske brannalarmer og avbrutte utrykninger", "Also automatic fire alarms and cancelled call-outs"],
+  ["Siste år", "Siste år", "Last year"],
+  ["Alle", "Alle", "All time"],
+  ["alle", "alle", "all time"],
+  ["siste år", "siste år", "last year"],
+  ["Alle typar", "Alle typer", "All types"],
+  ["Alvorleg", "Alvorlig", "Serious"],
+  ["Middels", "Middels", "Moderate"],
+  ["Mindre", "Mindre", "Minor"],
+  ["Alvorsgrad (rekna ut frå loggen)", "Alvorlighetsgrad (beregnet ut fra loggen)", "Severity (estimated from the log)"],
+  ["NY", "NY", "NEW"],
+  ["Omkomne", "Omkomne", "Fatalities"],
+  ["Personskade", "Personskade", "Injuries"],
+  ["Evakuering", "Evakuering", "Evacuation"],
+  ["Politisak oppretta", "Politisak opprettet", "Police case opened"],
+  ["Frå media", "Fra media", "From the media"],
+  ["Registrert av brannvesenet i brannstatistikken (DSB)", "Registrert av brannvesenet i brannstatistikken (DSB)", "Registered by the fire service in the national fire statistics (DSB)"],
+  ["Brannstatistikk", "Brannstatistikk", "Fire statistics"],
+  ["type kjem seinare", "type kommer senere", "type to follow"],
+  ["Brannvesenet", "Brannvesenet", "Fire service"],
+  ["Nødetatane", "Nødetatene", "Emergency services"],
+  ["(endra)", "(endret)", "(edited)"],
+  ["Pågår", "Pågår", "Ongoing"],
+  ["Avslutta", "Avsluttet", "Closed"],
+  ["Bilete frå hendinga på {s}", "Bilde fra hendelsen på {s}", "Photo from the incident at {s}"],
+  ["Heile politiloggen", "Hele politiloggen", "Full police log"],
+  ["melding", "melding", "message"],
+  ["meldingar", "meldinger", "messages"],
+  ["I media", "I media", "In the media"],
+  ["Vis på kartet", "Vis på kartet", "Show on map"],
+  ["Ingen {x} passar med filteret.", "Ingen {x} passer med filteret.", "No {x} match the filter."],
+  ["Ingen {x} registrerte i Stord dei siste {n} dagane.", "Ingen {x} registrert i Stord de siste {n} dagene.", "No {x} recorded in Stord in the last {n} days."],
+  ["Viser {a} av {b} {x}.", "Viser {a} av {b} {x}.", "Showing {a} of {b} {x}."],
+  ["Vis {n} til", "Vis {n} til", "Show {n} more"],
+  ["eldre brann", "eldre brann", "older fire"],
+  ["eldre brannar", "eldre branner", "older fires"],
+  ["eldre hending", "eldre hendelse", "older incident"],
+  ["eldre hendingar", "eldre hendelser", "older incidents"],
+  ["{d} frå siste år.", "{d} fra siste år.", "{d} from the last year."],
+  ["Vis siste år", "Vis siste år", "Show last year"],
+  ["Alarm", "Alarm", "Alarm"],
+  ["Kartet manglar.", "Kartet mangler.", "The map is missing."],
+  ["Kart over Stord kommune med brannar og utrykkingar", "Kart over Stord kommune med branner og utrykninger", "Map of Stord municipality with fires and call-outs"],
+  ["{d} utan kjend kartplassering er ikkje med på kartet.", "{d} uten kjent kartplassering er ikke med på kartet.", "{d} without a known location are not on the map."],
+  ["Trykk på ein prikk for å sjå kva som skjedde.", "Trykk på en prikk for å se hva som skjedde.", "Tap a dot to see what happened."],
+  ["Vis i lista", "Vis i listen", "Show in list"],
+  ["Fordel etter", "Fordel etter", "Group by"],
+  ["Type", "Type", "Type"],
+  ["Vinter", "Vinter", "Winter"],
+  ["Vår", "Vår", "Spring"],
+  ["Sommar", "Sommer", "Summer"],
+  ["Haust", "Høst", "Autumn"],
+  ["om vinteren", "om vinteren", "in winter"],
+  ["om våren", "om våren", "in spring"],
+  ["om sommaren", "om sommeren", "in summer"],
+  ["om hausten", "om høsten", "in autumn"],
+  ["des–feb", "des–feb", "Dec–Feb"],
+  ["mars–mai", "mars–mai", "Mar–May"],
+  ["juni–aug", "juni–aug", "Jun–Aug"],
+  ["sep–nov", "sep–nov", "Sep–Nov"],
+  ["Månad", "Måned", "Month"],
+  ["Årstid", "Årstid", "Season"],
+  ["Vekedag", "Ukedag", "Weekday"],
+  ["Klokka", "Klokka", "Hour"],
+  ["Per årstid", "Per årstid", "By season"],
+  ["Per vekedag", "Per ukedag", "By weekday"],
+  ["Per klokketime", "Per klokketime", "By hour"],
+  ["Per månad", "Per måned", "By month"],
+  ["Kvar stolpe er ein time, til dømes 15 = kl. 15:00–15:59.", "Hver stolpe er én time, for eksempel 15 = kl. 15.00–15.59.", "Each bar is one hour, e.g. 15 = 15:00–15:59."],
+  ["på {d}ar", "på {d}er", "on {d}s"],
+  ["kl. {a}–{b}", "kl. {a}–{b}", "between {a}:00 and {b}:00"],
+  ["i {m}", "i {m}", "in {m}"],
+  ["og", "og", "and"],
+  ["{t} – flest", "{t} – flest", "{t} – most"],
+  ["Flest {x}", "Flest {x}", "Most {x}"],
+  ["Ingen {x} dei siste 12 månadene.", "Ingen {x} de siste 12 månedene.", "No {x} in the last 12 months."],
+  ["Like mange i alle.", "Like mange i alle.", "The same number in each."],
+  ["i kvar", "i hver", "each"],
+  ["av", "av", "of"],
+  ["Trykk for å filtrere", "Trykk for å filtrere", "Tap to filter"],
+  ["Tid på døgnet", "Tid på døgnet", "Time of day"],
+  ["Natt", "Natt", "Night"],
+  ["Morgon", "Morgen", "Morning"],
+  ["Dag", "Dag", "Day"],
+  ["Kveld", "Kveld", "Evening"],
+  ["Konsekvensar", "Konsekvenser", "Consequences"],
+  ["med personskade", "med personskade", "with injuries"],
+  ["med politisak", "med politisak", "with a police case"],
+  ["Brannvern i {m}", "Brannvern i {m}", "Fire safety in {m}"],
+  ["Bygning", "Bygning", "Building"],
+  ["Kjøretøy", "Kjøretøy", "Vehicle"],
+  ["Gras og lyng", "Gress og lyng", "Grass and heather"],
+  ["Pipebrann", "Pipebrann", "Chimney fire"],
+  ["Brannalarm", "Brannalarm", "Fire alarm"],
+  ["Industri/avfall", "Industri/avfall", "Industry/waste"],
+  ["Båt", "Båt", "Boat"],
+  ["Anna brann", "Annen brann", "Other fire"],
+  ["Trafikkulykke", "Trafikkulykke", "Traffic accident"],
+  ["Sjø", "Sjø", "Sea"],
+  ["Ulykke", "Ulykke", "Accident"],
+  ["Redning", "Redning", "Rescue"],
+  ["Dyr", "Dyr", "Animals"],
+  ["Utslepp", "Utslipp", "Spill"],
+  ["Anna utrykking", "Annen utrykning", "Other call-out"],
+  ["Helseoppdrag", "Helseoppdrag", "Medical assist"],
+  ["Brannvern", "Brannvern", "Fire prevention"],
+  ["Avbroten utrykking (alarm)", "Avbrutt utrykning (alarm)", "Cancelled call-out (alarm)"],
+  ["Avbroten utrykking", "Avbrutt utrykning", "Cancelled call-out"],
+  ["Kontroll av melding", "Kontroll av melding", "Checking a report"],
+  ["Brannalarm: matlaging", "Brannalarm: matlaging", "Fire alarm: cooking"],
+  ["Brannalarm: vassdamp", "Brannalarm: vanndamp", "Fire alarm: steam"],
+  ["Brannalarm: ukjend årsak", "Brannalarm: ukjent årsak", "Fire alarm: unknown cause"],
+  ["Brannalarm: teknisk feil", "Brannalarm: teknisk feil", "Fire alarm: technical fault"],
+  ["Brannalarm: manuell melder", "Brannalarm: manuell melder", "Fire alarm: manual call point"],
+  ["Brannalarm: anna røyk", "Brannalarm: annen røyk", "Fire alarm: other smoke"],
+  ["Brannalarm: arbeid i bygget", "Brannalarm: arbeid i bygget", "Fire alarm: building work"],
+  ["Brannalarm: trykkfall i sprinklar", "Brannalarm: trykkfall i sprinkler", "Fire alarm: sprinkler pressure drop"],
+  ["Brannalarm: skade på anlegget", "Brannalarm: skade på anlegget", "Fire alarm: damage to the system"],
+  ["Brannalarm: eksos", "Brannalarm: eksos", "Fire alarm: exhaust fumes"],
+  ["Brannalarm: røyking", "Brannalarm: røyking", "Fire alarm: smoking"],
+  ["Brannalarm: test av anlegget", "Brannalarm: test av anlegget", "Fire alarm: system test"],
+  ["Brannalarm: anna", "Brannalarm: annet", "Fire alarm: other"],
+  ["Anna oppdrag", "Annet oppdrag", "Other job"],
+  ["Brann (anna)", "Brann (annet)", "Fire (other)"],
+  ["Dyreoppdrag", "Dyreoppdrag", "Animal rescue"],
+  ["Brannhindrande tiltak – komfyr", "Brannforebyggende tiltak – komfyr", "Fire prevention – cooker"],
+  ["Brannhindrande tiltak", "Brannforebyggende tiltak", "Fire prevention"],
+  ["Bilbrann", "Bilbrann", "Car fire"],
+  ["Båtbrann", "Båtbrann", "Boat fire"],
+  ["Unødig alarm", "Unødig alarm", "False alarm"],
+  ["Mindre forureining", "Mindre forurensning", "Minor pollution"],
+  ["Akutt forureining", "Akutt forurensning", "Acute pollution"],
+  ["Røyk frå matlaging", "Røyk fra matlaging", "Smoke from cooking"],
+  ["Gras- og lyngbrann", "Gress- og lyngbrann", "Grass and heather fire"],
+  ["Restverdiredning", "Restverdiredning", "Salvage"],
+  ["Brann i gras eller innmark", "Brann i gress eller innmark", "Grass or farmland fire"],
+  ["Brann i bygning", "Brann i bygning", "Building fire"],
+  ["Brann i bustad", "Brann i bolig", "House fire"],
+  ["Brann i einebustad", "Brann i enebolig", "Fire in a detached house"],
+  ["Brann i rekkjehus", "Brann i rekkehus", "Fire in a terraced house"],
+  ["Brann i leilegheit", "Brann i leilighet", "Flat fire"],
+  ["Brann i husvegg", "Brann i husvegg", "Fire in an outer wall"],
+  ["Brann i industri/avfall", "Brann i industri/avfall", "Industrial or waste fire"],
+  ["Brann på hotell", "Brann på hotell", "Hotel fire"],
+  ["Brann på skule", "Brann på skole", "School fire"],
+  ["Røykutvikling i bygning", "Røykutvikling i bygning", "Smoke in a building"],
+  ["Røykutvikling i bustad", "Røykutvikling i bolig", "Smoke in a house"],
+  ["Røykutvikling i einebustad", "Røykutvikling i enebolig", "Smoke in a detached house"],
+  ["Røykutvikling i rekkjehus", "Røykutvikling i rekkehus", "Smoke in a terraced house"],
+  ["Røykutvikling i leilegheit", "Røykutvikling i leilighet", "Smoke in a flat"],
+  ["Røykutvikling i husvegg", "Røykutvikling i husvegg", "Smoke in an outer wall"],
+  ["Røykutvikling i industri/avfall", "Røykutvikling i industri/avfall", "Smoke at an industrial or waste site"],
+  ["Varmgang i sikringsskap", "Varmgang i sikringsskap", "Overheating in a fuse box"],
+  ["Utløyst brannalarm", "Utløst brannalarm", "Fire alarm activated"],
+  ["Helseoppdrag (bering/løft)", "Helseoppdrag (bæring/løft)", "Medical assist (lifting/carrying)"],
+  ["Nytt oppdrag (type ikkje registrert enno)", "Nytt oppdrag (type ikke registrert ennå)", "New call-out (type not yet registered)"],
+  ["Oppdrag frå annan alarm", "Oppdrag fra annen alarm", "Call-out from another alarm"],
+  ["Person i vatnet", "Person i vannet", "Person in the water"],
+  ["Person i sjøen", "Person i sjøen", "Person in the sea"],
+  ["Bil i vatnet", "Bil i vannet", "Car in the water"],
+  ["Bistand til politiet", "Bistand til politiet", "Assisting the police"],
+  ["Båtulykke", "Båtulykke", "Boat accident"],
+  ["Arbeidsulykke", "Arbeidsulykke", "Workplace accident"],
+  ["Beredskapsoppdrag", "Beredskapsoppdrag", "Standby job"],
+  ["Berging av verdiar", "Berging av verdier", "Salvaging property"],
+  ["Vind og uvêr", "Vind og uvær", "Wind and storm"],
+  ["Dieselutslepp", "Dieselutslipp", "Diesel spill"],
+  ["Oljeutslepp", "Oljeutslipp", "Oil spill"],
+  ["Trafikkulykke med MC", "Trafikkulykke med MC", "Motorcycle accident"],
+  ["Påkøyrsle av syklist", "Påkjørsel av syklist", "Cyclist hit by a vehicle"],
+  ["Påkøyrsle av fotgjengar", "Påkjørsel av fotgjenger", "Pedestrian hit by a vehicle"],
+  ["Røyk frå køyretøy", "Røyk fra kjøretøy", "Smoke from a vehicle"],
+  ["Hending på sjøen", "Hendelse på sjøen", "Incident at sea"],
+  ["Redningsaksjon", "Redningsaksjon", "Rescue operation"],
+  ["Dyr i naud", "Dyr i nød", "Animal in distress"],
+  ["Utrykking", "Utrykning", "Call-out"],
+  ["{v} registrerte oppdraget som «{t}».", "{v} registrerte oppdraget som «{t}».", "{v} registered the call-out as “{t}”."],
+  ["{v} har registrert eit oppdrag. Kva slags oppdrag det var, er ikkje fylt ut enno.", "{v} har registrert et oppdrag. Hva slags oppdrag det var, er ikke fylt ut ennå.", "{v} has registered a call-out. The type has not been filled in yet."],
+  ["Frå brannstatistikken (DSB). Staden og detaljar er ikkje oppgitt der.", "Fra brannstatistikken (DSB). Sted og detaljer er ikke oppgitt der.", "From the national fire statistics (DSB). The location and details are not given there."],
+  ["Frå media – hendinga står ikkje i Politiloggen.", "Fra media – hendelsen står ikke i Politiloggen.", "From the media – the incident is not in Politiloggen."],
+  ["Avbrutt utrykning alarm", null, "Cancelled call-out (alarm)"],
+  ["Avbrutt utrykning samtale", null, "Cancelled call-out (phone call)"],
+  ["Unødig kontroll av melding", null, "Unnecessary check of report"],
+  ["Unødig andre alarmer", null, "Unnecessary, other alarms"],
+  ["Unødig alarm privatmarked", null, "Unnecessary alarm, private"],
+  ["Oppdrag fra andre alarmer", null, "Call-out from other alarms"],
+  ["ABA matlaging", null, "Automatic alarm: cooking"],
+  ["ABA vanndamp", null, "Automatic alarm: steam"],
+  ["ABA ukjent", null, "Automatic alarm: unknown"],
+  ["ABA teknisk feil", null, "Automatic alarm: technical fault"],
+  ["ABA manuell melder", null, "Automatic alarm: manual call point"],
+  ["ABA annen røyk", null, "Automatic alarm: other smoke"],
+  ["ABA arbeid på/i bygg", null, "Automatic alarm: building work"],
+  ["ABA røyking", null, "Automatic alarm: smoking"],
+  ["ABA trykkfall sprinkler", null, "Automatic alarm: sprinkler pressure drop"],
+  ["ABA fysisk skade på anlegget", null, "Automatic alarm: physical damage to system"],
+  ["ABA eksos", null, "Automatic alarm: exhaust"],
+  ["ABA øvelse/service/test av anlegg", null, "Automatic alarm: drill/service/test"],
+  ["ABA annet", null, "Automatic alarm: other"],
+  ["Helseoppdrag annet", null, "Medical assist, other"],
+  ["Helseoppdrag bære/løfte", null, "Medical assist, lifting/carrying"],
+  ["Andre oppdrag", null, "Other jobs"],
+  ["Brann i skorstein", null, "Chimney fire"],
+  ["Brann annet", null, "Fire, other"],
+  ["Brann i personbil", null, "Car fire"],
+  ["Brann i gress- eller innmark", null, "Grass or farmland fire"],
+  ["Brannhindrende tiltak komfyr", null, "Fire prevention, cooker"],
+  ["Brannhindrende annet utenfor bygg", null, "Fire prevention, other outside buildings"],
+  ["Person i vann", null, "Person in water"],
+  ["Ulykke båt eller skip", null, "Boat or ship accident"],
+  ["Ubetydelig forurensning", null, "Minor pollution"],
+  ["Akutt forurensning", null, "Acute pollution"],
+  ["RVR uten foregående innsats", null, "Salvage without prior response"],
+  ["Bistand politi", null, "Assisting police"],
+  ["Berging av verdier", null, "Salvaging property"],
+  ["Naturhendelse vind", null, "Natural event: wind"],
+  ["Få ei melding på telefonen når det skjer noko nytt i Stord. Det er gratis og krev ingen konto.", "Få en melding på telefonen når det skjer noe nytt i Stord. Det er gratis og krever ingen konto.", "Get a notification on your phone when something new happens in Stord. It's free and needs no account."],
+  ["Last ned den gratis appen", "Last ned den gratis appen", "Download the free app"],
+  ["Vel kanal under og trykk", "Velg kanal under og trykk", "Choose a channel below and tap"],
+  ["Kopier kanalnamnet", "Kopier kanalnavnet", "Copy channel name"],
+  ["Kopiert!", "Kopiert!", "Copied!"],
+  ["Opne ntfy, trykk", "Åpne ntfy, trykk", "Open ntfy, tap"],
+  [", lim inn kanalnamnet og trykk", ", lim inn kanalnavnet og trykk", ", paste the channel name and tap"],
+  [". Tillat varsel når telefonen spør.", ". Tillat varsler når telefonen spør.", ". Allow notifications when your phone asks."],
+  ["Alle utrykkingar", "Alle utrykninger", "All call-outs"],
+  ["Brannar, trafikkulykker, sjø, dyreoppdrag og liknande. Ikkje automatiske brannalarmar.", "Branner, trafikkulykker, sjø, dyreoppdrag og lignende. Ikke automatiske brannalarmer.", "Fires, traffic accidents, sea incidents, animal rescues and similar. Not automatic fire alarms."],
+  ["Opne i ntfy (Android)", "Åpne i ntfy (Android)", "Open in ntfy (Android)"],
+  ["Opne på PC", "Åpne på PC", "Open on PC"],
+  ["Berre brannar", "Bare branner", "Fires only"],
+  ["Berre når det brenn. Færre meldingar.", "Bare når det brenner. Færre meldinger.", "Only when something is on fire. Fewer notifications."],
+  ["Trykkjer du på eit varsel, opnar Brannlogg seg på hendinga. På PC: trykk «Opne på PC», så «Subscribe», og tillat varsel i nettlesaren.", "Trykker du på et varsel, åpnes Brannlogg på hendelsen. På PC: trykk «Åpne på PC», så «Subscribe», og tillat varsler i nettleseren.", "Tapping a notification opens Brannlogg at that incident. On a PC: click “Open on PC”, then “Subscribe”, and allow notifications in your browser."],
+  ["Legg appen på heimeskjermen", "Legg appen på hjemskjermen", "Add the app to your home screen"],
+  ["iPhone og iPad", "iPhone og iPad", "iPhone and iPad"],
+  ["Opne sida i Safari, trykk på", "Åpne siden i Safari, trykk på", "Open the page in Safari, tap"],
+  ["Del", "Del", "Share"],
+  ["(firkanten med pil opp) og vel", "(firkanten med pil opp) og velg", "(the square with an arrow pointing up) and choose"],
+  ["Legg til på Heim-skjerm", "Legg til på Hjem-skjerm", "Add to Home Screen"],
+  ["Opne sida i Chrome, trykk på", "Åpne siden i Chrome, trykk på", "Open the page in Chrome, tap"],
+  ["øvst til høgre og vel", "øverst til høyre og velg", "in the top right and choose"],
+  ["Legg til på startskjermen", "Legg til på startskjermen", "Add to Home screen"],
+  ["Opne sida i Edge, trykk på", "Åpne siden i Edge, trykk på", "Open the page in Edge, click"],
+  ["Appar", "Apper", "Apps"],
+  ["Installer denne nettstaden som app", "Installer dette nettstedet som en app", "Install this site as an app"],
+  [". Du finn han då i Start-menyen.", ". Du finner den da i Start-menyen.", ". You'll then find it in the Start menu."],
+  ["Infoskjerm og TV", "Infoskjerm og TV", "Info screen and TV"],
+  ["Eigen storskjerm-versjon som oppdaterer seg sjølv:", "Egen storskjermversjon som oppdaterer seg selv:", "A big-screen version that updates itself:"],
+  ["Oppdatering og kjelder", "Oppdatering og kilder", "Updates and sources"],
+  [", DSB): hovudkjelda. Her registrerer Stord brann og redning alle oppdraga sine, også små, men utan stad og detaljar. Automatiske brannalarmar og avbrotne utrykkingar er berre med under «Alt».", ", DSB): hovedkilden. Her registrerer Stord brann og redning alle oppdragene sine, også små, men uten sted og detaljer. Automatiske brannalarmer og avbrutte utrykninger er bare med under «Alt».", ", DSB): the main source. Stord fire and rescue logs all its call-outs here, including small ones, but without location or details. Automatic fire alarms and cancelled call-outs are only included under “All”."],
+  ["(Politiet, NLOD 2.0) gir stad og kva som skjedde, og kjem ofte først: alle brannar i Stord kommune, og andre hendingar der politiet nemner brannvesenet eller nødetatane, som trafikkulykker, ulykker på sjøen og utslepp.", "(Politiet, NLOD 2.0) gir sted og hva som skjedde, og kommer ofte først: alle branner i Stord kommune, og andre hendelser der politiet nevner brannvesenet eller nødetatene, som trafikkulykker, ulykker på sjøen og utslipp.", "(the Norwegian police incident log, NLOD 2.0) gives the location and what happened, and is often first: all fires in Stord municipality, plus other incidents where the police mention the fire service or emergency services, such as traffic accidents, accidents at sea and spills."],
+  ["Nyheitssaker", "Nyhetssaker", "News stories"],
+  ["frå mellom anna Radio Haugaland, Sunnhordland, Stord24, NRK og Haugesunds Avis blir funne automatisk og lenka til. Skriv media om ein brann eller ei ulykke på Stord som ikkje står i Politiloggen, kjem ho med som ei eiga hending merkt «Frå media». Ein sjeldan gong kan ei lenke eller ei slik hending vere feil.", "fra blant annet Radio Haugaland, Sunnhordland, Stord24, NRK og Haugesunds Avis blir funnet automatisk og lenket til. Skriver media om en brann eller en ulykke på Stord som ikke står i Politiloggen, kommer den med som en egen hendelse merket «Fra media». En sjelden gang kan en lenke eller en slik hendelse være feil.", "from Radio Haugaland, Sunnhordland, Stord24, NRK, Haugesunds Avis and others are found and linked automatically. If the media report a fire or accident on Stord that isn't in Politiloggen, it is added as a separate incident marked “From the media”. Occasionally a link or such an incident may be wrong."],
+  [": kystlinje © OpenStreetMap-bidragsytarar (ODbL), kommunegrense og stadnamn frå Kartverket.", ": kystlinje © OpenStreetMap-bidragsytere (ODbL), kommunegrense og stedsnavn fra Kartverket.", ": coastline © OpenStreetMap contributors (ODbL), municipal boundary and place names from Kartverket."],
+  ["Appen viser berre det politiet har loggført. Oppdrag som berre brannvesenet handterer, som katt i tre, vasslekkasjar og automatiske brannalarmar, kjem sjeldan med. Står det «Nødetatane», har politiet ikkje nemnt brannvesenet direkte. Alvorsgraden er rekna ut frå teksten i loggen og er ikkje ei offisiell vurdering.", "Appen viser bare det politiet har loggført. Oppdrag som bare brannvesenet håndterer, som katt i tre, vannlekkasjer og automatiske brannalarmer, kommer sjelden med. Står det «Nødetatene», har politiet ikke nevnt brannvesenet direkte. Alvorlighetsgraden er beregnet ut fra teksten i loggen og er ikke en offisiell vurdering.", "The app only shows what the police have logged. Jobs handled only by the fire service, such as cats up trees, water leaks and automatic fire alarms, are rarely included. Where it says “Emergency services”, the police did not mention the fire service directly. The severity is estimated from the log text and is not an official assessment."],
+  ["Fann du ein feil?", "Fant du en feil?", "Found a mistake?"],
+  ["Rapporter eit problem", "Rapporter et problem", "Report a problem"],
+  ["Kopier e-postadressa", "Kopier e-postadressen", "Copy email address"],
+  ["Eller send e-post til", "Eller send e-post til", "Or email"],
+  ["Ved brann", "Ved brann", "In case of fire"],
+  ["Ring brannvesenet.", "Ring brannvesenet.", "Call the fire service."],
+  ["Varsle, redd, sløkk.", "Varsle, redde, slukke.", "Alert, rescue, extinguish."],
+  ["Laga av", "Laget av", "Made by"],
+  ["Ikkje ein offisiell teneste frå Politiet, brannvesenet eller Stord kommune · Data frå brannstatistikk.no (DSB), Politiloggen og media", "Ikke en offisiell tjeneste fra Politiet, brannvesenet eller Stord kommune · Data fra brannstatistikk.no (DSB), Politiloggen og media", "Not an official service of the police, the fire service or Stord municipality · Data from brannstatistikk.no (DSB), Politiloggen and the media"],
+  ["Språk · Language", "Språk · Language", "Language"],
+  ["Bokmål og engelsk er omsett med KI (Claude). Tekstar frå politiet og media blir ikkje omsette.", "Bokmål og engelsk er oversatt med KI (Claude). Tekster fra politiet og media blir ikke oversatt.", "Bokmål and English are translated with AI (Claude). Texts from the police and media are not translated."],
+  ["Fargar", "Farger", "Colours"],
+  ["Fargeblind-vennlege fargar gjer det lettare å skilje alvorlege og middels brannar om du ser dårleg forskjell på raudt og grønt. Alvorlege brannar får òg ein kvit prikk på kartet og striper i dagsoversikta.", "Fargeblindvennlige farger gjør det lettere å skille alvorlige og middels branner hvis du ser dårlig forskjell på rødt og grønt. Alvorlige branner får også en hvit prikk på kartet og striper i dagsoversikten.", "Colour-blind friendly colours make it easier to tell serious and moderate fires apart if you find red and green hard to distinguish. Serious fires also get a white dot on the map and stripes in the daily strip."],
+  ["Vanlege", "Vanlige", "Standard"],
+  ["Fargeblind-vennlege", "Fargeblindvennlige", "Colour-blind friendly"],
+  ["Utsjånad", "Utseende", "Appearance"],
+  ["«Automatisk» følgjer innstillinga på telefonen eller PC-en.", "«Automatisk» følger innstillingen på telefonen eller PC-en.", "“Automatic” follows your phone or computer setting."],
+  ["Automatisk", "Automatisk", "Automatic"],
+  ["Lys", "Lys", "Light"],
+  ["Mørk", "Mørk", "Dark"],
+  ["Tekststorleik", "Tekststørrelse", "Text size"],
+  ["Gjer tekst, knappar og kart større.", "Gjør tekst, knapper og kart større.", "Makes text, buttons and the map larger."],
+  ["Normal", "Normal", "Normal"],
+  ["Stor", "Stor", "Large"],
+  ["Rørsle", "Bevegelse", "Motion"],
+  ["Skru av blinkande og pulserande prikkar om det blir for mykje.", "Skru av blinkende og pulserende prikker hvis det blir for mye.", "Turn off blinking and pulsing dots if it gets too much."],
+  ["På", "På", "On"],
+  ["Av", "Av", "Off"],
+  ["Opne appen med", "Åpne appen med", "Open the app with"],
+  ["Kva lista og statistikken viser når du opnar appen.", "Hva listen og statistikken viser når du åpner appen.", "What the list and statistics show when you open the app."],
+  ["Innstillingane blir berre lagra i nettlesaren din, ikkje sende nokon stad.", "Innstillingene lagres bare i nettleseren din og sendes ikke noe sted.", "Settings are only stored in your browser and are never sent anywhere."],
+  ["Tilbakestill", "Tilbakestill", "Reset"],
+  ["Kulde gir meir fyring. Hald avstand mellom omnen og alt som kan brenne, og set oska ut i ei metallbøtte med lok i fleire døgn.", "Kulde gir mer fyring. Hold avstand mellom ovnen og alt som kan brenne, og sett asken ut i en metallbøtte med lokk i flere døgn.", "Cold weather means more wood burning. Keep anything flammable away from the stove, and put ashes outside in a metal bucket with a lid for several days."],
+  ["Sjekk at komfyrvakta verkar. Komfyren er ei av dei vanlegaste årsakene til brann i bustader.", "Sjekk at komfyrvakten virker. Komfyren er en av de vanligste årsakene til brann i boliger.", "Check that your cooker guard works. The cooker is one of the most common causes of house fires."],
+  ["Tørt vårgras tek lett fyr. Snakk med brannvesenet før du brenn bråte eller gras.", "Tørt vårgress tar lett fyr. Snakk med brannvesenet før du brenner bråte eller gress.", "Dry spring grass catches fire easily. Talk to the fire service before burning brush or grass."],
+  ["Frå 15. april til 15. september er det forbode å gjere opp eld i eller nær skog og anna utmark utan løyve.", "Fra 15. april til 15. september er det forbudt å gjøre opp ild i eller nær skog og annen utmark uten tillatelse.", "From 15 April to 15 September it is forbidden to light fires in or near forests and other open land without permission."],
+  ["Set grillen på trygg avstand frå huset og tørr vegetasjon, og la eingongsgrillen kjølast heilt før du kastar han.", "Sett grillen på trygg avstand fra huset og tørr vegetasjon, og la engangsgrillen kjøle seg helt ned før du kaster den.", "Keep the barbecue a safe distance from the house and dry vegetation, and let disposable barbecues cool completely before throwing them away."],
+  ["Før sankthans: sjekk kommunen sine reglar og skogbrannfaren før du tenner bål.", "Før sankthans: sjekk kommunens regler og skogbrannfaren før du tenner bål.", "Before Midsummer Eve: check the municipality's rules and the forest fire risk before lighting a bonfire."],
+  ["Lad elsykkel og elsparkesykkel på ein brannsikker stad, og ikkje medan alle søv.", "Lad elsykkel og elsparkesykkel på et brannsikkert sted, og ikke mens alle sover.", "Charge e-bikes and e-scooters somewhere fire-safe, and not while everyone is asleep."],
+  ["Tørt vêr: kast aldri sigarettar eller eingongsgrillar i terrenget.", "Tørt vær: kast aldri sigaretter eller engangsgriller i terrenget.", "Dry weather: never throw cigarettes or disposable barbecues away outdoors."],
+  ["Før fyringssesongen: få pipa og eldstaden sjekka, og fjern sot og skrot rundt omnen.", "Før fyringssesongen: få pipa og ildstedet sjekket, og fjern sot og skrot rundt ovnen.", "Before the heating season: have your chimney and stove checked, and clear soot and clutter around the stove."],
+  ["Test røykvarslarane no. Byt batteri om det er eldre enn eitt år.", "Test røykvarslerne nå. Bytt batteri hvis det er eldre enn ett år.", "Test your smoke alarms now. Replace the battery if it is more than a year old."],
+  ["Ha brannslokkingsapparat eller brannslange lett tilgjengeleg, og sjekk at alle i huset veit kvar det er.", "Ha brannslukningsapparat eller brannslange lett tilgjengelig, og sjekk at alle i huset vet hvor det er.", "Keep a fire extinguisher or fire hose within easy reach, and make sure everyone in the house knows where it is."],
+  ["Aldri gå frå levande lys, og set dei på eit underlag som ikkje brenn. 1. desember er røykvarslardagen.", "Aldri gå fra levende lys, og sett dem på et underlag som ikke brenner. 1. desember er røykvarslerdagen.", "Never leave candles unattended, and put them on a non-flammable surface. 1 December is Smoke Alarm Day in Norway."],
+];
+</script>
+
+<script>
 const DATA = /*__DATA__*/null;
 (function(){
 "use strict";
@@ -643,12 +1018,26 @@ const D = DATA || {brannar:[], oppdatert:new Date().toISOString(), neste:null, k
 const VINDU = D.vindauge || 50;
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const fl = (n, ein, fleire) => `${n} ${n === 1 ? ein : fleire}`;
+
+/* ---- Innstillingar og språk ---- */
+const INNST_STD = {sprak:"nn", fargar:"vanleg", tema:"auto", tekst:"normal", rorsle:"pa", gruppe:"alt"};
+let innst = {...INNST_STD};
+try { innst = {...INNST_STD, ...JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")}; } catch(e) {}
+const SPRAK = ["nb", "en"].includes(innst.sprak) ? innst.sprak : "nn";
+const OMS = SPRAK === "nn" ? {} : Object.fromEntries(OMSETJING.map(r => [r[0], r[SPRAK === "nb" ? 1 : 2]]).filter(r => r[1] != null));
+const T = (tekst, v) => { const r = OMS[tekst] ?? tekst; return v ? r.replace(/\{(\w+)\}/g, (_, k) => v[k]) : r; };
+const LOCALE = SPRAK === "en" ? "en-GB" : "nb-NO";
+const fl = (n, ein, fleire) => `${n} ${T(n === 1 ? ein : fleire)}`;
 
 /* ---- Tid (Europe/Oslo) ---- */
-const MND = ["januar","februar","mars","april","mai","juni","juli","august","september","oktober","november","desember"];
-const MND_K = ["jan.","feb.","mars","apr.","mai","juni","juli","aug.","sep.","okt.","nov.","des."];
-const DAG = ["sundag","måndag","tysdag","onsdag","torsdag","fredag","laurdag"];
+const MND = SPRAK === "en" ? ["January","February","March","April","May","June","July","August","September","October","November","December"]
+  : ["januar","februar","mars","april","mai","juni","juli","august","september","oktober","november","desember"];
+const MND_K = SPRAK === "en" ? ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+  : ["jan.","feb.","mars","apr.","mai","juni","juli","aug.","sep.","okt.","nov.","des."];
+const DAG = SPRAK === "en" ? ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
+  : SPRAK === "nb" ? ["søndag","mandag","tirsdag","onsdag","torsdag","fredag","lørdag"]
+  : ["sundag","måndag","tysdag","onsdag","torsdag","fredag","laurdag"];
+const dagMnd = (d, m) => SPRAK === "en" ? `${d} ${MND_K[m-1]}` : `${d}. ${MND_K[m-1]}`;
 const fmtParts = new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Oslo",year:"numeric",month:"numeric",day:"numeric",hour:"numeric",minute:"numeric",hourCycle:"h23"});
 function oslo(iso){
   const d = iso instanceof Date ? iso : new Date(iso);
@@ -661,17 +1050,18 @@ const kl = o => `${pad(o.h)}:${pad(o.min)}`;
 const NO = new Date(), I_DAG = oslo(NO);
 function relDag(o){
   const diff = I_DAG.dn - o.dn;
-  if (diff === 0) return "i dag";
-  if (diff === 1) return "i går";
-  if (diff === -1) return "i morgon";
-  return `${DAG[o.wd]} ${o.d}. ${MND_K[o.m-1]}${o.y !== I_DAG.y ? " " + o.y : ""}`;
+  if (diff === 0) return T("i dag");
+  if (diff === 1) return T("i går");
+  if (diff === -1) return T("i morgon");
+  return `${DAG[o.wd]} ${dagMnd(o.d, o.m)}${o.y !== I_DAG.y ? " " + o.y : ""}`;
 }
-const datoKort = o => `${o.d}. ${MND_K[o.m-1]}${o.y !== I_DAG.y ? " " + o.y : ""}`;
+const naar = o => `${relDag(o)} ${T("kl.")} ${kl(o)}`;
+const datoKort = o => `${dagMnd(o.d, o.m)}${o.y !== I_DAG.y ? " " + o.y : ""}`;
 function varigheit(a, b){
   const min = Math.max(0, Math.round((new Date(b) - new Date(a)) / 6e4));
   if (min < 1) return null;
   const t = Math.floor(min/60), m = min % 60;
-  return t ? `${t} t${m ? " " + m + " min" : ""}` : `${m} min`;
+  return t ? `${t} ${SPRAK === "en" ? "h" : "t"}${m ? " " + m + " min" : ""}` : `${m} min`;
 }
 
 /* ---- Typar ---- */
@@ -682,13 +1072,26 @@ const TYPE = {
   trafikk:{n:"Trafikkulykke", i:"i-trafikk"}, sjo:{n:"Sjø", i:"i-sjo"}, ulykke:{n:"Ulykke", i:"i-ulykke"},
   redning:{n:"Redning", i:"i-redning"}, dyr:{n:"Dyr", i:"i-dyr"}, utslepp:{n:"Utslepp", i:"i-utslepp"}, utrykking:{n:"Anna utrykking", i:"i-utrykking"}, helse:{n:"Helseoppdrag", i:"i-helse"}, brannvern:{n:"Brannvern", i:"i-brannvern"}
 };
-const ALVOR = {1:"Mindre", 2:"Middels", 3:"Alvorleg"};
+Object.values(TYPE).forEach(t => t.n = T(t.n));
+const ALVOR = {1:T("Mindre"), 2:T("Middels"), 3:T("Alvorleg")};
 const ikon = (id, cls="") => `<svg class="i ${cls}" aria-hidden="true"><use href="#${id}"/></svg>`;
 
 /* ---- Førebu data ---- */
-const B = D.brannar.map(b => {
-  const o = oslo(b.start);
-  return {...b, _o:o, _dn:o.dn, _tekst:(b.stad + " " + b.tittel + " " + b.meldingar.map(m => m.tekst).join(" ")).toLowerCase()};
+// Faste tekstar frå byggjeskriptet (titlar, brannstatistikk) blir omsette. Tekst frå politiet og media blir ståande.
+function omsetHending(b){
+  if (SPRAK === "nn") return b;
+  const melding = t => {
+    let m = /^(.+) registrerte oppdraget som «(.+)»\.$/.exec(t);
+    if (m) return T("{v} registrerte oppdraget som «{t}».", {v:m[1], t:T(m[2])});
+    m = /^(.+) har registrert eit oppdrag\. Kva slags oppdrag det var, er ikkje fylt ut enno\.$/.exec(t);
+    return m ? T("{v} har registrert eit oppdrag. Kva slags oppdrag det var, er ikkje fylt ut enno.", {v:m[1]}) : t;
+  };
+  return {...b, tittel:T(b.tittel), merknad:b.merknad && T(b.merknad),
+    meldingar:b.kjelde_type === "bris" ? b.meldingar.map(m => ({...m, tekst:melding(m.tekst)})) : b.meldingar};
+}
+const B = D.brannar.map(b0 => {
+  const b = omsetHending(b0), o = oslo(b.start);
+  return {...b, _o:o, _dn:o.dn, _tekst:(b.stad + " " + b.tittel + " " + b0.tittel + " " + b.meldingar.map(m => m.tekst).join(" ")).toLowerCase()};
 });
 const START_DN = I_DAG.dn - (VINDU - 1);
 B.forEach(b => b._nyleg = b._dn >= START_DN);
@@ -698,9 +1101,6 @@ try { sistSett = localStorage.getItem("brannlogg_sist_sett"); } catch(e) {}
 B.forEach(b => b._ny = !!sistSett && b.start > sistSett);
 try { if (B[0]) localStorage.setItem("brannlogg_sist_sett", B[0].start); } catch(e) {}
 
-const INNST_STD = {fargar:"vanleg", tema:"auto", tekst:"normal", rorsle:"pa", gruppe:"alt"};
-let innst = {...INNST_STD};
-try { innst = {...INNST_STD, ...JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")}; } catch(e) {}
 const state = {gruppe:innst.gruppe, periode:"50", type:"alle", sok:"", valt:null, view:"liste", antal:20, fordel:"mnd", stype:"alle"};
 const SIDE = 20;   // tal på kort som blir viste om gongen
 const erBrann = b => (b.gruppe || "brann") === "brann";
@@ -709,7 +1109,7 @@ const utval = () => state.gruppe === "brann" ? B.filter(erBrann) : state.gruppe 
 const ORD = () => state.gruppe === "brann" ? ["brann", "brannar"] : ["hending", "hendingar"];
 const iAar = b => I_DAG.dn - b._dn < 365;
 const iPeriode = b => state.periode === "alle" ? true : state.periode === "aar" ? iAar(b) : b._nyleg;
-const periodeNamn = () => state.periode === "alle" ? "alle" : state.periode === "aar" ? "siste år" : `siste ${VINDU} dagar`;
+const periodeNamn = () => state.periode === "alle" ? T("alle") : state.periode === "aar" ? T("siste år") : T("siste {n} dagar", {n:VINDU});
 
 /* ---- Status ---- */
 function renderStatus(){
@@ -717,12 +1117,11 @@ function renderStatus(){
   const timar = (NO - new Date(D.oppdatert)) / 36e5;
   const el = $("#status");
   el.classList.toggle("gammal", timar > 3);
-  $("#status-txt").innerHTML = `<span class="full">Oppdatert </span>${relDag(o)} kl. ${kl(o)}`;
-  let neste = "";
-  if (D.neste) { const n = oslo(D.neste); neste = ` Neste oppdatering: ${relDag(n)} kl. ${kl(n)}.`; }
-  el.title = `Data henta frå Politiloggen ${relDag(o)} kl. ${kl(o)}.${neste}`;
-  $("#info-oppd").innerHTML = `Appen hentar nye data frå Politiloggen kvart kvarter. Sist oppdatert: <b>${relDag(o)} kl. ${kl(o)}</b>.${neste}` +
-    (timar > 3 ? ` <b style="color:var(--ember)">Dataa er meir enn tre timar gamle. Prøv å laste sida på nytt.</b>` : "");
+  $("#status-txt").innerHTML = `<span class="full">${T("Oppdatert")} </span>${naar(o)}`;
+  const neste = D.neste ? " " + T("Neste oppdatering: {t}.", {t:naar(oslo(D.neste))}) : "";
+  el.title = T("Data henta frå Politiloggen {t}.", {t:naar(o)}) + neste;
+  $("#info-oppd").innerHTML = T("Appen hentar nye data frå Politiloggen kvart kvarter. Sist oppdatert: <b>{t}</b>.", {t:naar(o)}) + neste +
+    (timar > 3 ? ` <b style="color:var(--ember)">${T("Dataa er meir enn tre timar gamle. Prøv å laste sida på nytt.")}</b>` : "");
 }
 
 /* ---- Hero ---- */
@@ -733,18 +1132,18 @@ function renderHero(){
   let html = "";
   if (aktive.length) {
     const a = aktive[0];
-    html += `<div class="eyebrow">Akkurat no</div>
-      <div class="alert" role="status"><span class="pulse"></span><div><h2>Pågår no</h2>
-      <p><b>${esc(a.tittel)}</b> · ${esc(a.stad)} · starta kl. ${kl(a._o)}</p>
-      <button class="last-link" data-vis="${a.id}"><b>Følg loggen</b> ${ikon("i-pil")}</button></div></div>`;
+    html += `<div class="eyebrow">${T("Akkurat no")}</div>
+      <div class="alert" role="status"><span class="pulse"></span><div><h2>${T("Pågår no")}</h2>
+      <p><b>${esc(a.tittel)}</b> · ${esc(a.stad)} · ${T("starta kl. {k}", {k:kl(a._o)})}</p>
+      <button class="last-link" data-vis="${a.id}"><b>${T("Følg loggen")}</b> ${ikon("i-pil")}</button></div></div>`;
   } else if (siste) {
     const dagar = I_DAG.dn - siste._dn;
-    html += `<div class="eyebrow">Dagar sidan siste hending</div>
-      <div class="big" aria-label="${dagar} dagar sidan siste hending">${dagar === 0 ? "0" : dagar}<small>${dagar === 1 ? "dag" : "dagar"}</small></div>
-      <button class="last-link" data-vis="${siste.id}">Siste: <b>${esc(siste.tittel)}</b> · ${esc(siste.stad)} · ${relDag(siste._o)} kl. ${kl(siste._o)}</button>`;
-    if (sisteBrann && sisteBrann !== siste) html += `<button class="last-link" data-vis="${sisteBrann.id}">Siste brann: <b>${esc(sisteBrann.tittel)}</b> · ${esc(sisteBrann.stad)} · ${datoKort(sisteBrann._o)} (${fl(I_DAG.dn - sisteBrann._dn, "dag", "dagar")} sidan)</button>`;
+    html += `<div class="eyebrow">${T("Dagar sidan siste hending")}</div>
+      <div class="big" aria-label="${T("{n} dagar sidan siste hending", {n:dagar})}">${dagar === 0 ? "0" : dagar}<small>${T(dagar === 1 ? "dag" : "dagar")}</small></div>
+      <button class="last-link" data-vis="${siste.id}">${T("Siste:")} <b>${esc(siste.tittel)}</b> · ${esc(siste.stad)} · ${naar(siste._o)}</button>`;
+    if (sisteBrann && sisteBrann !== siste) html += `<button class="last-link" data-vis="${sisteBrann.id}">${T("Siste brann:")} <b>${esc(sisteBrann.tittel)}</b> · ${esc(sisteBrann.stad)} · ${datoKort(sisteBrann._o)} (${T("{d} sidan", {d:fl(I_DAG.dn - sisteBrann._dn, "dag", "dagar")})})</button>`;
   } else {
-    html += `<div class="eyebrow">Dagar sidan siste hending</div><div class="big">–</div><p class="sub">Ingen hendingar i dataa.</p>`;
+    html += `<div class="eyebrow">${T("Dagar sidan siste hending")}</div><div class="big">–</div><p class="sub">${T("Ingen hendingar i dataa.")}</p>`;
   }
   $("#counter").innerHTML = html;
 
@@ -757,7 +1156,7 @@ function renderHero(){
     const dt = new Date(dn * 864e5), dd = dt.getUTCDate(), mm = dt.getUTCMonth();
     const liste = perDag[dn] || [];
     const maks = liste.filter(erBrann).reduce((m, b) => Math.max(m, b.alvor), 0);
-    const lbl = `${dd}. ${MND_K[mm]}: ${liste.length ? liste.map(b => b.tittel + ", " + b.stad).join("; ") : "ingen hending"}`;
+    const lbl = `${dagMnd(dd, mm + 1)}: ${liste.length ? liste.map(b => b.tittel + ", " + b.stad).join("; ") : T("ingen hending")}`;
     const cls = [maks ? "f" + maks : liste.some(b => b.gruppe === "utrykking") ? "fu" : (liste.length ? "fa" : ""), dn === I_DAG.dn ? "idag" : "", (dd === 1 && i > 0) ? "ny-mnd" : ""].join(" ").trim();
     cells += `<button type="button" class="${cls}" title="${esc(lbl)}" aria-label="${esc(lbl)}"${liste.length ? ` data-vis="${liste[0].id}"` : ` tabindex="-1"`}></button>`;
   }
@@ -765,25 +1164,25 @@ function renderHero(){
   strip.innerHTML = cells;
   strip.style.setProperty("--kol", VINDU);
   strip.style.setProperty("--kol2", Math.ceil(VINDU / 2));
-  strip.setAttribute("aria-label", `Hendingar per dag, siste ${VINDU} dagar`);
-  $("#strip-tittel").textContent = `siste ${VINDU} dagar`;
-  $("#legend-nyleg").textContent = `Siste ${VINDU} dagar`;
+  strip.setAttribute("aria-label", T("Hendingar per dag, siste {n} dagar", {n:VINDU}));
+  $("#strip-tittel").textContent = T("siste {n} dagar", {n:VINDU});
+  $("#legend-nyleg").textContent = T("Siste {n} dagar", {n:VINDU});
   const s0 = new Date(START_DN * 864e5), mid = new Date((START_DN + Math.floor(VINDU / 2)) * 864e5);
   const m2 = new Date((START_DN + Math.ceil(VINDU / 2)) * 864e5), m1 = new Date((START_DN + Math.ceil(VINDU / 2) - 1) * 864e5);
-  const dt = d => `${d.getUTCDate()}. ${MND_K[d.getUTCMonth()]}`;
-  $("#strip-axis").innerHTML = `<span class="desk">${dt(s0)}</span><span class="desk">${dt(mid)}</span><span class="desk">i dag</span>` +
-    `<span class="mob">Øvst: ${dt(s0)}–${dt(m1)} · Nedst: ${dt(m2)}–i dag</span>`;
+  const dt = d => dagMnd(d.getUTCDate(), d.getUTCMonth() + 1);
+  $("#strip-axis").innerHTML = `<span class="desk">${dt(s0)}</span><span class="desk">${dt(mid)}</span><span class="desk">${T("i dag")}</span>` +
+    `<span class="mob">${T("Øvst: {a} · Nedst: {b}", {a:`${dt(s0)}–${dt(m1)}`, b:`${dt(m2)}–${T("i dag")}`})}</span>`;
   const n50 = utval().filter(b => b._nyleg).length;
   const dagarMed = Object.keys(perDag).length;
-  $("#strip-sum").textContent = `${fl(dagarMed, "dag", "dagar")} med ${state.gruppe === "brann" ? "brann" : "utrykking"}`;
-  $("#strip-legend").innerHTML = state.gruppe === "brann" ? "" : `<span><i style="background:var(--sev2)"></i>Brann</span><span><i style="background:var(--utr)"></i>Anna utrykking</span>` + (state.gruppe === "alt" ? `<span><i style="background:var(--alarm)"></i>Alarm</span>` : "");
+  $("#strip-sum").textContent = T(state.gruppe === "brann" ? "{d} med brann" : "{d} med utrykking", {d:fl(dagarMed, "dag", "dagar")});
+  $("#strip-legend").innerHTML = state.gruppe === "brann" ? "" : `<span><i style="background:var(--sev2)"></i>${T("Brann")}</span><span><i style="background:var(--utr)"></i>${T("Anna utrykking")}</span>` + (state.gruppe === "alt" ? `<span><i style="background:var(--alarm)"></i>${T("Alarm")}</span>` : "");
 
   const aar = utval().filter(b => I_DAG.dn - b._dn < 365);
-  const snitt = (aar.length / 12).toLocaleString("nb-NO", {maximumFractionDigits:1});
+  const snitt = (aar.length / 12).toLocaleString(LOCALE, {maximumFractionDigits:1});
   $("#kpis").innerHTML = `
-    <div class="kpi"><div class="v">${n50}</div><div class="l">${n50 === 1 ? ORD()[0] : ORD()[1]} siste ${VINDU} dagar</div></div>
-    <div class="kpi"><div class="v">${aar.length}</div><div class="l">siste 12 månader</div></div>
-    <div class="kpi"><div class="v">${snitt}<span>/mnd</span></div><div class="l">snitt siste år</div></div>`;
+    <div class="kpi"><div class="v">${n50}</div><div class="l">${T(n50 === 1 ? ORD()[0] : ORD()[1])} ${T("siste {n} dagar", {n:VINDU})}</div></div>
+    <div class="kpi"><div class="v">${aar.length}</div><div class="l">${T("siste 12 månader")}</div></div>
+    <div class="kpi"><div class="v">${snitt}<span>${T("/mnd")}</span></div><div class="l">${T("snitt siste år")}</div></div>`;
 }
 
 /* ---- Filter ---- */
@@ -796,16 +1195,16 @@ function filtrert(){
 function renderControls(){
   const n50 = utval().filter(b => b._nyleg).length;
   $("#seg-gruppe").innerHTML =
-    `<button type="button" data-gruppe="alle" aria-pressed="${state.gruppe === "alle"}">Utrykkingar<span class="n">${B.filter(b => !erAlarm(b) && iPeriode(b)).length}</span></button>` +
-    `<button type="button" data-gruppe="brann" aria-pressed="${state.gruppe === "brann"}">Brannar<span class="n">${B.filter(b => erBrann(b) && iPeriode(b)).length}</span></button>` +
-    `<button type="button" data-gruppe="alt" aria-pressed="${state.gruppe === "alt"}" title="Også automatiske brannalarmar og avbrotne utrykkingar">Alt<span class="n">${B.filter(iPeriode).length}</span></button>`;
+    `<button type="button" data-gruppe="alle" aria-pressed="${state.gruppe === "alle"}">${T("Utrykkingar")}<span class="n">${B.filter(b => !erAlarm(b) && iPeriode(b)).length}</span></button>` +
+    `<button type="button" data-gruppe="brann" aria-pressed="${state.gruppe === "brann"}">${T("Brannar")}<span class="n">${B.filter(b => erBrann(b) && iPeriode(b)).length}</span></button>` +
+    `<button type="button" data-gruppe="alt" aria-pressed="${state.gruppe === "alt"}" title="${T("Også automatiske brannalarmar og avbrotne utrykkingar")}">${T("Alt")}<span class="n">${B.filter(iPeriode).length}</span></button>`;
   $("#seg-periode").innerHTML =
-    `<button type="button" data-periode="50" aria-pressed="${state.periode === "50"}">Siste ${VINDU} dagar<span class="n">${n50}</span></button>` +
-    `<button type="button" data-periode="aar" aria-pressed="${state.periode === "aar"}">Siste år<span class="n">${utval().filter(iAar).length}</span></button>` +
-    (utval().length > utval().filter(iAar).length ? `<button type="button" data-periode="alle" aria-pressed="${state.periode === "alle"}">Alle<span class="n">${utval().length}</span></button>` : "");
+    `<button type="button" data-periode="50" aria-pressed="${state.periode === "50"}">${T("Siste {n} dagar", {n:VINDU})}<span class="n">${n50}</span></button>` +
+    `<button type="button" data-periode="aar" aria-pressed="${state.periode === "aar"}">${T("Siste år")}<span class="n">${utval().filter(iAar).length}</span></button>` +
+    (utval().length > utval().filter(iAar).length ? `<button type="button" data-periode="alle" aria-pressed="${state.periode === "alle"}">${T("Alle")}<span class="n">${utval().length}</span></button>` : "");
   const typar = [...new Set(utval().filter(iPeriode).map(b => b.type))];
   if (state.type !== "alle" && !typar.includes(state.type)) state.type = "alle";
-  $("#chips").innerHTML = `<button type="button" class="chip" data-type="alle" aria-pressed="${state.type === "alle"}">Alle typar</button>` +
+  $("#chips").innerHTML = `<button type="button" class="chip" data-type="alle" aria-pressed="${state.type === "alle"}">${T("Alle typar")}</button>` +
     Object.keys(TYPE).filter(t => typar.includes(t)).map(t =>
       `<button type="button" class="chip" data-type="${t}" aria-pressed="${state.type === t}">${ikon(TYPE[t].i)}${TYPE[t].n}</button>`).join("");
 }
@@ -816,15 +1215,15 @@ function kort(b){
   const var_ = varigheit(b.start, b.sist);
   const f = b.flagg || {};
   const tags = [
-    `<span class="sev s${b.alvor}" title="Alvorsgrad (rekna ut frå loggen)"><i>${[1,2,3].map(n => `<b class="${n <= b.alvor ? "on" : ""}"></b>`).join("")}</i>${ALVOR[b.alvor]}</span>`,
-    b._ny ? `<span class="tag ny">NY</span>` : "",
-    f.omkomne ? `<span class="tag warn">Omkomne</span>` : "",
-    f.personskade ? `<span class="tag warn">Personskade</span>` : "",
-    f.evakuert ? `<span class="tag">Evakuering</span>` : "",
-    f.sak ? `<span class="tag">Politisak oppretta</span>` : "",
-    b.kjelde_type === "media" ? `<span class="tag">Frå media</span>` : "",
-    b.bris ? `<span class="tag bris" title="Registrert av brannvesenet i brannstatistikken (DSB)">Brannstatistikk: ${esc(b.bris.type || "type kjem seinare")}</span>` :
-      (erBrann(b) ? "" : `<span class="tag utr">${f.brannvesen ? "Brannvesenet" : "Nødetatane"}</span>`),
+    `<span class="sev s${b.alvor}" title="${T("Alvorsgrad (rekna ut frå loggen)")}"><i>${[1,2,3].map(n => `<b class="${n <= b.alvor ? "on" : ""}"></b>`).join("")}</i>${ALVOR[b.alvor]}</span>`,
+    b._ny ? `<span class="tag ny">${T("NY")}</span>` : "",
+    f.omkomne ? `<span class="tag warn">${T("Omkomne")}</span>` : "",
+    f.personskade ? `<span class="tag warn">${T("Personskade")}</span>` : "",
+    f.evakuert ? `<span class="tag">${T("Evakuering")}</span>` : "",
+    f.sak ? `<span class="tag">${T("Politisak oppretta")}</span>` : "",
+    b.kjelde_type === "media" ? `<span class="tag">${T("Frå media")}</span>` : "",
+    b.bris ? `<span class="tag bris" title="${T("Registrert av brannvesenet i brannstatistikken (DSB)")}">${T("Brannstatistikk")}: ${esc(b.bris.type ? T(b.bris.type) : T("type kjem seinare"))}</span>` :
+      (erBrann(b) ? "" : `<span class="tag utr">${T(f.brannvesen ? "Brannvesenet" : "Nødetatane")}</span>`),
     `<span class="tag">${esc(t.n)}</span>`
   ].join("");
   let forrigeDag = b._dn;
@@ -832,7 +1231,7 @@ function kort(b){
     const o = oslo(m.t);
     const dag = o.dn !== forrigeDag ? `<span class="dag">${datoKort(o)}</span>` : "";
     forrigeDag = o.dn;
-    return `<li><time datetime="${esc(m.t)}">${dag}${kl(o)}</time><p>${esc(m.tekst)}${m.endra ? ` <span class="sub">(endra)</span>` : ""}</p></li>`;
+    return `<li><time datetime="${esc(m.t)}">${dag}${kl(o)}</time><p>${esc(m.tekst)}${m.endra ? ` <span class="sub">${T("(endra)")}</span>` : ""}</p></li>`;
   }).join("");
   const kartUrl = b.pos ? `https://www.google.com/maps/search/?api=1&query=${b.pos[0]},${b.pos[1]}`
                         : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(b.stad + ", Stord")}`;
@@ -840,19 +1239,19 @@ function kort(b){
     <div class="card-top">
       <div class="ic"${erBrann(b) ? "" : erAlarm(b) ? ` style="--sev:var(--alarm)"` : ` style="--sev:var(--utr)"`}>${ikon(t.i)}</div>
       <div><h3>${esc(b.tittel)}</h3>
-        <div class="meta"><span class="stad">${esc(b.stad)}</span><time datetime="${esc(b.start)}">${relDag(b._o)} kl. ${kl(b._o)}</time></div></div>
-      ${b.aktiv ? `<span class="pill aktiv"><i></i>Pågår</span>` : `<span class="pill">Avslutta</span>`}
+        <div class="meta"><span class="stad">${esc(b.stad)}</span><time datetime="${esc(b.start)}">${naar(b._o)}</time></div></div>
+      ${b.aktiv ? `<span class="pill aktiv"><i></i>${T("Pågår")}</span>` : `<span class="pill">${T("Avslutta")}</span>`}
     </div>
     <p class="summary">${esc(b.meldingar[0]?.tekst || "")}</p>
     <div class="tags">${tags}</div>
     ${b.merknad ? `<div class="note">${ikon("i-merk")}<span>${esc(b.merknad)}</span></div>` : ""}
-    ${(b.bilete || []).map(p => `<figure class="foto"><img src="${p.src}" alt="Bilete frå hendinga på ${esc(b.stad)}" loading="lazy"><figcaption>${esc(p.kreditt)}</figcaption></figure>`).join("")}
-    ${b.kjelde_type === "media" || b.kjelde_type === "bris" ? "" : `<details class="log"${b.aktiv ? " open" : ""}><summary>${ikon("i-pil")}Heile politiloggen <span class="mono">${fl(b.meldingar.length, "melding", "meldingar")}${var_ ? " · " + var_ : ""}</span></summary><ol class="tl">${logg}</ol></details>`}
-    ${b.kjelder?.length ? `<div class="media"><div class="eyebrow">I media</div><ul>${b.kjelder.map(k =>
+    ${(b.bilete || []).map(p => `<figure class="foto"><img src="${p.src}" alt="${T("Bilete frå hendinga på {s}", {s:esc(b.stad)})}" loading="lazy"><figcaption>${esc(p.kreditt)}</figcaption></figure>`).join("")}
+    ${b.kjelde_type === "media" || b.kjelde_type === "bris" ? "" : `<details class="log"${b.aktiv ? " open" : ""}><summary>${ikon("i-pil")}${T("Heile politiloggen")} <span class="mono">${fl(b.meldingar.length, "melding", "meldingar")}${var_ ? " · " + var_ : ""}</span></summary><ol class="tl">${logg}</ol></details>`}
+    ${b.kjelder?.length ? `<div class="media"><div class="eyebrow">${T("I media")}</div><ul>${b.kjelder.map(k =>
       `<li><a href="${esc(k.url)}" target="_blank" rel="noopener"><span class="src">${esc(k.kjelde)}</span><span class="t">${esc(k.tittel)}</span>${ikon("i-ut","")}</a></li>`).join("")}</ul></div>` : ""}
     <div class="actions">
-      ${b.pos ? `<button type="button" class="btn" data-kart="${esc(b.id)}">${ikon("i-kart")}Vis på kartet</button>` : ""}
-      ${b.kjelde_type === "bris" ? `<a class="btn" href="https://brannstatistikk.no/search" target="_blank" rel="noopener">${ikon("i-ut")}Brannstatistikk</a>` : ""}
+      ${b.pos ? `<button type="button" class="btn" data-kart="${esc(b.id)}">${ikon("i-kart")}${T("Vis på kartet")}</button>` : ""}
+      ${b.kjelde_type === "bris" ? `<a class="btn" href="https://brannstatistikk.no/search" target="_blank" rel="noopener">${ikon("i-ut")}${T("Brannstatistikk")}</a>` : ""}
       ${b.kjelde_type === "media" || b.kjelde_type === "bris" ? "" : `<a class="btn" href="https://www.politiet.no/politiloggen/hendelse/${encodeURIComponent(b.id)}" target="_blank" rel="noopener">${ikon("i-ut")}Politiloggen</a>`}
       <a class="btn" href="${kartUrl}" target="_blank" rel="noopener">${ikon("i-ut")}Google Maps</a>
     </div>
@@ -863,7 +1262,7 @@ function renderList(){
   const liste = filtrert();
   let html = "";
   if (!liste.length) {
-    html = `<div class="empty">${state.sok || state.type !== "alle" ? `Ingen ${ORD()[1]} passar med filteret.` : `Ingen ${ORD()[1]} registrerte i Stord dei siste ${VINDU} dagane.`}</div>`;
+    html = `<div class="empty">${T(state.sok || state.type !== "alle" ? "Ingen {x} passar med filteret." : "Ingen {x} registrerte i Stord dei siste {n} dagane.", {x:T(ORD()[1]), n:VINDU})}</div>`;
   } else {
     let mnd = null, gruppe = [];
     const flush = () => {
@@ -874,12 +1273,12 @@ function renderList(){
     };
     liste.slice(0, state.antal).forEach(b => { const k = b._o.y * 12 + b._o.m; if (k !== mnd) { flush(); mnd = k; } gruppe.push(b); });
     flush();
-    if (liste.length > state.antal) html += `<div class="hint"><span>Viser ${state.antal} av ${liste.length} ${ORD()[1]}.</span><button type="button" class="btn" data-meir="1">Vis ${Math.min(SIDE, liste.length - state.antal)} til ${ikon("i-pil")}</button></div>`;
+    if (liste.length > state.antal) html += `<div class="hint"><span>${T("Viser {a} av {b} {x}.", {a:state.antal, b:liste.length, x:T(ORD()[1])})}</span><button type="button" class="btn" data-meir="1">${T("Vis {n} til", {n:Math.min(SIDE, liste.length - state.antal)})} ${ikon("i-pil")}</button></div>`;
   }
   if (state.periode === "50" && !state.sok && state.type === "alle") {
     const U = utval();
     const eldre = U.filter(iAar).length - U.filter(b => b._nyleg).length;
-    if (eldre) html += `<div class="hint"><span>${fl(eldre, "eldre " + ORD()[0], "eldre " + ORD()[1])} frå siste år.</span><button type="button" class="btn" data-periode="aar">Vis siste år ${ikon("i-pil")}</button></div>`;
+    if (eldre) html += `<div class="hint"><span>${T("{d} frå siste år.", {d:fl(eldre, "eldre " + ORD()[0], "eldre " + ORD()[1])})}</span><button type="button" class="btn" data-periode="aar">${T("Vis siste år")} ${ikon("i-pil")}</button></div>`;
   }
   $("#list").innerHTML = html;
 }
@@ -887,7 +1286,7 @@ function renderList(){
 /* ---- Kart ---- */
 function renderMap(){
   const K = D.kart;
-  if (!K) { $("#map").innerHTML = `<div class="empty">Kartet manglar.</div>`; return; }
+  if (!K) { $("#map").innerHTML = `<div class="empty">${T("Kartet manglar.")}</div>`; return; }
   const P = K.proj;
   const xy = p => [(p[1] - P.lon0) * P.cos * P.k, (P.lat1 - p[0]) * P.k];
   const liste = filtrert();
@@ -902,7 +1301,7 @@ function renderMap(){
       ${b._nyleg ? `<circle class="ring" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="16" stroke="${farge(b)}"/>` : ""}
       <circle class="c" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${b.id === state.valt ? 20 : (b._nyleg ? 16 : 12)}" fill="${farge(b)}"/>${erBrann(b) && b.alvor === 3 ? `<circle class="kjerne" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${b.id === state.valt ? 7 : (b._nyleg ? 6 : 4.5)}"/>` : ""}
       <title>${esc(b.tittel + " – " + b.stad + ", " + datoKort(b._o))}</title></g>`).join("");
-  $("#map").innerHTML = `<svg viewBox="0 0 ${K.w} ${K.h}" role="img" aria-label="Kart over Stord kommune med brannar og utrykkingar">
+  $("#map").innerHTML = `<svg viewBox="0 0 ${K.w} ${K.h}" role="img" aria-label="${T("Kart over Stord kommune med brannar og utrykkingar")}">
     <path class="m-ctx" d="${K.kontekst}" fill-rule="evenodd"/>
     <path class="m-land" d="${K.land}" fill-rule="evenodd"/>
     ${nabo}${lbl}${mk}
@@ -911,39 +1310,39 @@ function renderMap(){
   </svg>`;
   $("#kart-sub").textContent = `${fl(synlege.length, ...ORD())} · ${periodeNamn()}`;
   const utan = liste.filter(b => !b.pos).length;
-  $("#utan").textContent = utan ? `${fl(utan, "hending", "hendingar")} utan kjend kartplassering er ikkje med på kartet.` : "";
+  $("#utan").textContent = utan ? T("{d} utan kjend kartplassering er ikkje med på kartet.", {d:fl(utan, "hending", "hendingar")}) : "";
   renderPop();
 }
 function renderPop(){
   const b = B.find(x => x.id === state.valt);
-  if (!b || !b.pos) { $("#pop").innerHTML = `<p class="sub" style="margin:10px 0 0">Trykk på ein prikk for å sjå kva som skjedde.</p>`; return; }
+  if (!b || !b.pos) { $("#pop").innerHTML = `<p class="sub" style="margin:10px 0 0">${T("Trykk på ein prikk for å sjå kva som skjedde.")}</p>`; return; }
   $("#pop").innerHTML = `<div class="pop s${b.alvor}"><h3>${esc(b.tittel)}</h3>
-    <div class="meta"><span class="stad">${esc(b.stad)}</span><span>${relDag(b._o)} kl. ${kl(b._o)}</span><span class="sev s${b.alvor}">${ALVOR[b.alvor]}</span></div>
-    <div class="actions"><button type="button" class="btn" data-vis="${esc(b.id)}">${ikon("i-liste")}Vis i lista</button></div></div>`;
+    <div class="meta"><span class="stad">${esc(b.stad)}</span><span>${naar(b._o)}</span><span class="sev s${b.alvor}">${ALVOR[b.alvor]}</span></div>
+    <div class="actions"><button type="button" class="btn" data-vis="${esc(b.id)}">${ikon("i-liste")}${T("Vis i lista")}</button></div></div>`;
 }
 
 /* ---- Statistikk ---- */
 const AARSTID = [
-  {n:"Vinter", om:"om vinteren", mnd:[12,1,2], t:"des–feb"}, {n:"Vår", om:"om våren", mnd:[3,4,5], t:"mars–mai"},
-  {n:"Sommar", om:"om sommaren", mnd:[6,7,8], t:"juni–aug"}, {n:"Haust", om:"om hausten", mnd:[9,10,11], t:"sep–nov"}];
+  {n:T("Vinter"), om:T("om vinteren"), mnd:[12,1,2], t:T("des–feb")}, {n:T("Vår"), om:T("om våren"), mnd:[3,4,5], t:T("mars–mai")},
+  {n:T("Sommar"), om:T("om sommaren"), mnd:[6,7,8], t:T("juni–aug")}, {n:T("Haust"), om:T("om hausten"), mnd:[9,10,11], t:T("sep–nov")}];
 const VEKEDAG = [1,2,3,4,5,6,0];   // måndag først
-const FORDEL = {mnd:"Månad", aarstid:"Årstid", vekedag:"Vekedag", time:"Klokka"};
-const ogListe = a => a.length < 2 ? a.join("") : a.slice(0, -1).join(", ") + " og " + a[a.length - 1];
+const FORDEL = {mnd:T("Månad"), aarstid:T("Årstid"), vekedag:T("Vekedag"), time:T("Klokka")};
+const ogListe = a => a.length < 2 ? a.join("") : a.slice(0, -1).join(", ") + ` ${T("og")} ` + a[a.length - 1];
 function fordeling(liste){
   if (state.fordel === "aarstid")
-    return {tittel:"Per årstid", note:AARSTID.map(x => `${x.n}: ${x.t}`).join(" · "),
+    return {tittel:T("Per årstid"), note:AARSTID.map(x => `${x.n}: ${x.t}`).join(" · "),
       d:AARSTID.map(x => ({l:x.n, om:x.om, n:liste.filter(b => x.mnd.includes(b._o.m)).length}))};
   if (state.fordel === "vekedag")
-    return {tittel:"Per vekedag", d:VEKEDAG.map(w => ({l:DAG[w].slice(0, 3), om:`på ${DAG[w]}ar`, n:liste.filter(b => b._o.wd === w).length}))};
+    return {tittel:T("Per vekedag"), d:VEKEDAG.map(w => ({l:DAG[w].slice(0, 3), om:T("på {d}ar", {d:DAG[w]}), n:liste.filter(b => b._o.wd === w).length}))};
   if (state.fordel === "time")
-    return {tittel:"Per klokketime", note:"Kvar stolpe er ein time, til dømes 15 = kl. 15:00–15:59.",
-      d:Array.from({length:24}, (_, h) => ({l:h % 3 ? "" : pad(h), om:`kl. ${pad(h)}–${pad((h + 1) % 24)}`, n:liste.filter(b => b._o.h === h).length}))};
+    return {tittel:T("Per klokketime"), note:T("Kvar stolpe er ein time, til dømes 15 = kl. 15:00–15:59."),
+      d:Array.from({length:24}, (_, h) => ({l:h % 3 ? "" : pad(h), om:T("kl. {a}–{b}", {a:pad(h), b:pad((h + 1) % 24)}), n:liste.filter(b => b._o.h === h).length}))};
   const d = [];
   for (let i = 11; i >= 0; i--) {
     let m = I_DAG.m - i, y = I_DAG.y; while (m < 1) { m += 12; y--; }
-    d.push({l:MND_K[m-1].replace(".", ""), om:`i ${MND[m-1]}`, n:liste.filter(b => b._o.y === y && b._o.m === m).length});
+    d.push({l:MND_K[m-1].replace(".", ""), om:T("i {m}", {m:MND[m-1]}), n:liste.filter(b => b._o.y === y && b._o.m === m).length});
   }
-  return {tittel:"Per månad", d};
+  return {tittel:T("Per månad"), d};
 }
 function stolpar(d){
   const maks = Math.max(1, ...d.map(x => x.n)), mange = d.length > 12;
@@ -967,26 +1366,26 @@ function renderStats(){
   // Knappar
   const B12 = B.filter(b => I_DAG.dn - b._dn < 365);
   $("#stat-gruppe").innerHTML =
-    `<button type="button" data-gruppe="alle" aria-pressed="${state.gruppe === "alle"}">Utrykkingar<span class="n">${B12.filter(b => !erAlarm(b)).length}</span></button>` +
-    `<button type="button" data-gruppe="brann" aria-pressed="${state.gruppe === "brann"}">Brannar<span class="n">${B12.filter(erBrann).length}</span></button>` +
-    `<button type="button" data-gruppe="alt" aria-pressed="${state.gruppe === "alt"}" title="Også automatiske brannalarmar og avbrotne utrykkingar">Alt<span class="n">${B12.length}</span></button>`;
+    `<button type="button" data-gruppe="alle" aria-pressed="${state.gruppe === "alle"}">${T("Utrykkingar")}<span class="n">${B12.filter(b => !erAlarm(b)).length}</span></button>` +
+    `<button type="button" data-gruppe="brann" aria-pressed="${state.gruppe === "brann"}">${T("Brannar")}<span class="n">${B12.filter(erBrann).length}</span></button>` +
+    `<button type="button" data-gruppe="alt" aria-pressed="${state.gruppe === "alt"}" title="${T("Også automatiske brannalarmar og avbrotne utrykkingar")}">${T("Alt")}<span class="n">${B12.length}</span></button>`;
   $("#stat-fordel").innerHTML = Object.entries(FORDEL).map(([k, n]) => `<button type="button" data-fordel="${k}" aria-pressed="${state.fordel === k}">${n}</button>`).join("");
-  $("#stat-typar").innerHTML = `<button type="button" class="chip" data-stype="alle" aria-pressed="${state.stype === "alle"}">Alle typar</button>` +
+  $("#stat-typar").innerHTML = `<button type="button" class="chip" data-stype="alle" aria-pressed="${state.stype === "alle"}">${T("Alle typar")}</button>` +
     typarN.map(x => `<button type="button" class="chip" data-stype="${x.t}" aria-pressed="${state.stype === x.t}">${ikon(TYPE[x.t].i)}${TYPE[x.t].n}</button>`).join("");
 
   // Hovudgrafen
   const f = fordeling(aar);
   const fmaks = Math.max(0, ...f.d.map(x => x.n)), topp = f.d.filter(x => x.n === fmaks);
-  const kva = tNamn ? `${esc(tNamn)} – flest` : `Flest ${ord[1]}`;
-  const innsikt = !aar.length ? `Ingen ${ord[1]} dei siste 12 månadene.`
-    : topp.length === f.d.length ? `Like mange i alle.`
-    : topp.length > 1 ? `${kva} ${ogListe(topp.map(x => x.om))}: <b>${fmaks}</b> i kvar.`
-    : `${kva} ${topp[0].om}: <b>${fmaks}</b> av ${aar.length} (${Math.round(100 * fmaks / aar.length)} %).`;
+  const kva = tNamn ? T("{t} – flest", {t:esc(tNamn)}) : T("Flest {x}", {x:T(ord[1])});
+  const innsikt = !aar.length ? T("Ingen {x} dei siste 12 månadene.", {x:T(ord[1])})
+    : topp.length === f.d.length ? T("Like mange i alle.")
+    : topp.length > 1 ? `${kva} ${ogListe(topp.map(x => x.om))}: <b>${fmaks}</b> ${T("i kvar")}.`
+    : `${kva} ${topp[0].om}: <b>${fmaks}</b> ${T("av")} ${aar.length} (${Math.round(100 * fmaks / aar.length)} %).`;
 
   // Typar (alltid alle typar, så ein kan samanlikne)
   const tmaks = Math.max(1, ...typarN.map(x => x.n));
   // Tid på døgnet
-  const bolk = [["Natt","00–06"],["Morgon","06–12"],["Dag","12–18"],["Kveld","18–24"]].map((x, i) => ({n:x[0], t:x[1], v:aar.filter(b => Math.floor(b._o.h / 6) === i).length}));
+  const bolk = [["Natt","00–06"],["Morgon","06–12"],["Dag","12–18"],["Kveld","18–24"]].map((x, i) => ({n:T(x[0]), t:x[1], v:aar.filter(b => Math.floor(b._o.h / 6) === i).length}));
   const bmaks = Math.max(...bolk.map(x => x.v));
   const person = aar.filter(b => b.flagg?.personskade || b.flagg?.omkomne).length;
   const sak = aar.filter(b => b.flagg?.sak).length;
@@ -994,12 +1393,12 @@ function renderStats(){
     <div class="stat-block chart"><div class="eyebrow"><span>${f.tittel}${tNamn ? " · " + esc(tNamn) : ""}</span><span>${fl(aar.length, ...ord)}</span></div>
       <p class="innsikt">${innsikt}</p>
       ${stolpar(f.d)}${f.note ? `<p class="c-note">${f.note}</p>` : ""}</div>
-    <div class="stat-block"><div class="eyebrow"><span>Type</span><span>Trykk for å filtrere</span></div>
+    <div class="stat-block"><div class="eyebrow"><span>${T("Type")}</span><span>${T("Trykk for å filtrere")}</span></div>
       <div class="hbars">${typarN.map(x => `<button type="button" class="hbar" data-stype="${state.stype === x.t ? "alle" : x.t}" aria-pressed="${state.stype === x.t}"><span class="lbl">${ikon(TYPE[x.t].i)}${TYPE[x.t].n}</span><span class="track"><span class="fill" style="display:block;width:${(100 * x.n / tmaks).toFixed(0)}%"></span></span><span class="n">${x.n}</span></button>`).join("")}</div></div>
-    <div class="stat-block"><div class="eyebrow"><span>Tid på døgnet</span></div>
+    <div class="stat-block"><div class="eyebrow"><span>${T("Tid på døgnet")}</span></div>
       <div class="clock">${bolk.map(x => `<div${x.v === bmaks && x.v ? ` style="border-color:var(--ember)"` : ""}><b>${x.v}</b><span>${x.n}</span><small>${x.t}</small></div>`).join("")}</div></div>
-    <div class="stat-block"><div class="eyebrow"><span>Konsekvensar</span></div>
-      <div class="facts"><div><b>${person}</b>med personskade</div><div><b>${sak}</b>med politisak</div></div></div>`;
+    <div class="stat-block"><div class="eyebrow"><span>${T("Konsekvensar")}</span></div>
+      <div class="facts"><div><b>${person}</b>${T("med personskade")}</div><div><b>${sak}</b>${T("med politisak")}</div></div></div>`;
 }
 
 /* ---- Brannvern ---- */
@@ -1017,7 +1416,7 @@ const TIPS = [
   "Ha brannslokkingsapparat eller brannslange lett tilgjengeleg, og sjekk at alle i huset veit kvar det er.",
   "Aldri gå frå levande lys, og set dei på eit underlag som ikkje brenn. 1. desember er røykvarslardagen."
 ];
-function renderTip(){ $("#tip").innerHTML = `<div class="eyebrow">Brannvern i ${MND[I_DAG.m-1]}</div><p>${TIPS[I_DAG.m-1]}</p>`; }
+function renderTip(){ $("#tip").innerHTML = `<div class="eyebrow">${T("Brannvern i {m}", {m:MND[I_DAG.m-1]})}</div><p>${T(TIPS[I_DAG.m-1])}</p>`; }
 
 /* ---- Visningar og hendingar ---- */
 const HASH = {liste:"liste", kart:"kart", stat:"statistikk", info:"info", innst:"innstillingar"};
@@ -1098,7 +1497,7 @@ document.addEventListener("visibilitychange", () => { if (document.visibilitySta
 
 /* ---- Kopier kanalnamn for varsel ---- */
 document.querySelectorAll("[data-kopier]").forEach(k => k.addEventListener("click", async () => {
-  try { await navigator.clipboard.writeText(k.dataset.kopier); k.textContent = "Kopiert!"; setTimeout(() => { k.textContent = "Kopier kanalnamnet"; }, 2500); }
+  try { await navigator.clipboard.writeText(k.dataset.kopier); k.textContent = T("Kopiert!"); setTimeout(() => { k.textContent = T("Kopier kanalnamnet"); }, 2500); }
   catch (feil) { const r = document.createRange(); r.selectNodeContents(k.closest(".kanal").querySelector(".adr")); getSelection().removeAllRanges(); getSelection().addRange(r); }
 }));
 
@@ -1118,7 +1517,7 @@ document.querySelectorAll("[data-kopier]").forEach(k => k.addEventListener("clic
   ].join(String.fromCharCode(10));
   $("#rapport-knapp").href = "mailto:lillerudleander@gmail.com?subject=" + encodeURIComponent("Brannlogg Stord – problem") + "&body=" + encodeURIComponent(tekst);
   $("#kopier-epost").addEventListener("click", async e => {
-    try { await navigator.clipboard.writeText("lillerudleander@gmail.com"); e.target.textContent = "Kopiert!"; }
+    try { await navigator.clipboard.writeText("lillerudleander@gmail.com"); e.target.textContent = T("Kopiert!"); }
     catch (feil) { const r = document.createRange(); r.selectNodeContents($(".rapport .adr")); getSelection().removeAllRanges(); getSelection().addRange(r); }
   });
 })();
@@ -1137,17 +1536,39 @@ $("#v-innst").addEventListener("click", e => {
   const b = e.target.closest("[data-verdi]");
   if (b) {
     const k = b.closest("[data-innst]").dataset.innst;
+    if (innst[k] === b.dataset.verdi) return;
     innst[k] = b.dataset.verdi;
+    if (k === "sprak") { lagreInnst(); location.reload(); return; }
     if (k === "gruppe") { state.gruppe = innst.gruppe; state.antal = SIDE; renderHero(); renderAll(); renderStats(); }
   } else if (e.target.closest("#innst-nullstill")) {
-    const gruppeFor = innst.gruppe;
+    const gruppeFor = innst.gruppe, sprakFor = innst.sprak;
     innst = {...INNST_STD};
     try { localStorage.removeItem("brannlogg_innst"); } catch(e) {}
+    if (sprakFor !== innst.sprak) { lagreInnst(); location.reload(); return; }
     if (gruppeFor !== innst.gruppe) { state.gruppe = innst.gruppe; state.antal = SIDE; renderHero(); renderAll(); renderStats(); }
   } else return;
   lagreInnst();
 });
 renderInnst();
+
+/* ---- Omset faste tekstar i HTML-en (dei dynamiske blir omsette med T) ---- */
+function omsetDOM(rot){
+  const hopp = el => el.closest("script,style,code,.adr,[data-innst=sprak]");
+  const w = document.createTreeWalker(rot, NodeFilter.SHOW_TEXT);
+  for (let n; (n = w.nextNode());) {
+    const t = n.data.trim();
+    if (t && OMS[t] && !hopp(n.parentElement)) n.data = n.data.replace(t, OMS[t]);
+  }
+  rot.querySelectorAll("[aria-label],[title],[placeholder],[alt]").forEach(el => {
+    if (hopp(el) && el !== rot) return;
+    for (const a of ["aria-label", "title", "placeholder", "alt"]) { const v = el.getAttribute(a); if (v && OMS[v]) el.setAttribute(a, OMS[v]); }
+  });
+}
+if (SPRAK !== "nn") {
+  omsetDOM(document.body);
+  $("#omsett-txt").textContent = T("Omsett frå nynorsk med KI (Claude).");
+  $("#omsett").hidden = false;
+}
 
 /* ---- Start ---- */
 renderStatus(); renderHero(); renderAll(); renderStats(); renderTip();
