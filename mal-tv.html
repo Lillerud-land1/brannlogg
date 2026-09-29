@@ -44,10 +44,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font
 .etikett b{color:var(--ink)}
 
 .teljar{position:relative;overflow:hidden;background-image:radial-gradient(120% 80% at 0% 100%,rgba(255,120,40,.16),transparent 60%),linear-gradient(var(--panel),var(--panel))}
-.stort{font-family:var(--f-display);font-weight:800;font-size:15rem;line-height:.8;margin-top:1rem;font-variant-numeric:tabular-nums;
+.stort{font-family:var(--f-display);font-weight:800;font-size:12rem;line-height:.8;margin-top:.8rem;font-variant-numeric:tabular-nums;
   background:linear-gradient(175deg,var(--hivis),var(--ember) 40%,var(--fire) 90%);-webkit-background-clip:text;background-clip:text;color:transparent}
 .stort-tekst{font-family:var(--f-display);font-weight:600;font-size:2.6rem;text-transform:uppercase;letter-spacing:.03em;margin-top:.4rem}
-.siste{margin-top:1rem;font-size:1.3rem;color:var(--ink-2);line-height:1.35}
+.siste{margin-top:.6rem;font-size:1.25rem;color:var(--ink-2);line-height:1.35}
 .siste b{color:var(--ink)}
 .stripe-boks{margin-top:auto}
 .stripe{display:grid;grid-template-columns:repeat(var(--kol,50),minmax(0,1fr));gap:.1rem;height:3.4rem;margin-top:.7rem}
@@ -55,7 +55,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font
 .stripe i.f1{background:var(--sev1)} .stripe i.f2{background:var(--sev2)} .stripe i.f3{background:var(--sev3)} .stripe i.fu{background:var(--utr)}
 .stripe i.idag{box-shadow:inset 0 0 0 .2rem var(--ink)}
 .akse{display:flex;justify-content:space-between;font-size:1rem;color:var(--muted);margin-top:.4rem}
-.tal{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-top:1.3rem}
+.tal{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-top:1rem}
 .tal div{background:var(--panel-2);border-radius:.5rem;padding:.8rem 1rem}
 .tal b{display:block;font-family:var(--f-display);font-weight:800;font-size:2.8rem;line-height:1;font-variant-numeric:tabular-nums}
 .tal span{font-size:1rem;color:var(--muted)}
@@ -204,15 +204,18 @@ klokke(); setInterval(klokke, 1000);
 
 /* Teljar */
 const aktive = B.filter(b => b.aktiv);
-const siste = B.filter(b => b.gruppe !== "utrykking")[0];
+const ALLE = D.brannar.map(b => ({...b, _o:oslo(b.start)}));   // alle hendingar, også brannalarmar
+const siste = ALLE[0];
+const sisteBrann = ALLE.filter(b => (b.gruppe || "brann") === "brann")[0];
 let t = "";
 if (aktive.length) {
   const a = aktive[0];
   t += `<div class="etikett">Akkurat no</div><div class="alarm"><h2>Pågår no</h2><p><b>${esc(a.tittel)}</b><br>${esc(a.stad)} · starta kl. ${kl(a._o)}</p></div>`;
 } else if (siste) {
   const dagar = IDAG.dn - siste._o.dn;
-  t += `<div class="etikett">Dagar sidan siste brann</div><div class="stort">${dagar}</div><div class="stort-tekst">${dagar === 1 ? "dag" : "dagar"}</div>
-        <p class="siste">Siste: <b>${esc(siste.tittel)}</b><br>${esc(siste.stad)} · ${siste._o.d}. ${MND[siste._o.m-1]}</p>`;
+  t += `<div class="etikett">Dagar sidan siste hending</div><div class="stort">${dagar}</div><div class="stort-tekst">${dagar === 1 ? "dag" : "dagar"}</div>
+        <p class="siste">Siste: <b>${esc(siste.tittel)}</b><br>${esc(siste.stad)} · ${relDag(siste._o).toLowerCase()} kl. ${kl(siste._o)}` +
+        (sisteBrann && sisteBrann !== siste ? `<br>Siste brann: <b>${esc(sisteBrann.tittel)}</b> · ${sisteBrann._o.d}. ${MND[sisteBrann._o.m-1]}` : "") + `</p>`;
 }
 const perDag = {};
 B.filter(b => b._o.dn >= START).forEach(b => { const d = perDag[b._o.dn] ||= {a:0}; if (b.gruppe === "utrykking") d.u = true; else d.a = Math.max(d.a, b.alvor); });

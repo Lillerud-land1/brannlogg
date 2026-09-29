@@ -623,7 +623,8 @@ function renderStatus(){
 /* ---- Hero ---- */
 function renderHero(){
   const aktive = B.filter(b => b.aktiv);
-  const siste = B.filter(erBrann)[0];
+  const siste = B[0];                      // siste hending av alle slag, også brannalarmar
+  const sisteBrann = B.filter(erBrann)[0];
   let html = "";
   if (aktive.length) {
     const a = aktive[0];
@@ -633,13 +634,12 @@ function renderHero(){
       <button class="last-link" data-vis="${a.id}"><b>Følg loggen</b> ${ikon("i-pil")}</button></div></div>`;
   } else if (siste) {
     const dagar = I_DAG.dn - siste._dn;
-    html += `<div class="eyebrow">Dagar sidan siste brann</div>
-      <div class="big" aria-label="${dagar} dagar sidan siste brann">${dagar === 0 ? "0" : dagar}<small>${dagar === 1 ? "dag" : "dagar"}</small></div>
-      <button class="last-link" data-vis="${siste.id}">Siste: <b>${esc(siste.tittel)}</b> · ${esc(siste.stad)} · ${datoKort(siste._o)}</button>`;
-    const su = B.find(b => !erAlarm(b));
-    if (su && su.gruppe === "utrykking") html += `<button class="last-link" data-vis="${su.id}">Siste utrykking: <b>${esc(su.tittel)}</b> · ${esc(su.stad)} · ${datoKort(su._o)}</button>`;
+    html += `<div class="eyebrow">Dagar sidan siste hending</div>
+      <div class="big" aria-label="${dagar} dagar sidan siste hending">${dagar === 0 ? "0" : dagar}<small>${dagar === 1 ? "dag" : "dagar"}</small></div>
+      <button class="last-link" data-vis="${siste.id}">Siste: <b>${esc(siste.tittel)}</b> · ${esc(siste.stad)} · ${relDag(siste._o)} kl. ${kl(siste._o)}</button>`;
+    if (sisteBrann && sisteBrann !== siste) html += `<button class="last-link" data-vis="${sisteBrann.id}">Siste brann: <b>${esc(sisteBrann.tittel)}</b> · ${esc(sisteBrann.stad)} · ${datoKort(sisteBrann._o)} (${fl(I_DAG.dn - sisteBrann._dn, "dag", "dagar")} sidan)</button>`;
   } else {
-    html += `<div class="eyebrow">Dagar sidan siste brann</div><div class="big">–</div><p class="sub">Ingen brannar i dataa.</p>`;
+    html += `<div class="eyebrow">Dagar sidan siste hending</div><div class="big">–</div><p class="sub">Ingen hendingar i dataa.</p>`;
   }
   $("#counter").innerHTML = html;
 
