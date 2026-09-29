@@ -68,7 +68,7 @@ h1,h2,h3{margin:0;text-wrap:balance}
 .brand-text{display:flex;flex-direction:column;line-height:1}
 .brand-name{font-family:var(--f-display);font-weight:800;font-size:23px;letter-spacing:.02em;text-transform:uppercase}
 .brand-sub{font-size:11.5px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-top:3px}
-.status{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-2);
+.status{cursor:pointer;margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-2);
   background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:5px 11px 5px 9px;white-space:nowrap}
 .status .dot{width:8px;height:8px;border-radius:50%;background:#2E9E62;box-shadow:0 0 0 3px color-mix(in srgb,#2E9E62 22%,transparent)}
 .status.gammal .dot{background:var(--ember);box-shadow:0 0 0 3px color-mix(in srgb,var(--ember) 25%,transparent)}
@@ -381,6 +381,21 @@ button.hbar[aria-pressed="true"] .fill{background:var(--ember)}
 .omsett{display:flex;align-items:center;gap:8px;font-size:12.5px;line-height:1.4;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 12px}
 .omsett svg{width:17px;height:17px;flex:none;color:var(--ink-2)}
 
+/* ---------- Oppdater: statusknapp og «dra ned for å oppdatere» ---------- */
+html{overscroll-behavior-y:contain}
+.status .oppd-ic{width:13px;height:13px;color:var(--muted);margin-left:-2px}
+.status:hover{border-color:var(--ink-2)}
+.status:hover .oppd-ic{color:var(--ink)}
+.status.laster .oppd-ic{animation:snurr .8s linear infinite}
+.dra{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 58px);z-index:19;width:42px;height:42px;border-radius:50%;
+  background:var(--surface);border:1px solid var(--line);box-shadow:0 4px 14px rgba(0,0,0,.2);display:grid;place-items:center;color:var(--muted);
+  transform:translate(-50%,-56px);opacity:0;transition:transform .25s ease,opacity .25s;pointer-events:none}
+.dra svg{width:22px;height:22px}
+.dra.klar{color:var(--fire)}
+.dra.laster{opacity:1;color:var(--fire)}
+.dra.laster svg{animation:snurr .8s linear infinite}
+@keyframes snurr{to{transform:rotate(360deg)}}
+
 /* ---------- Faneline (mobil) ---------- */
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--topbar);-webkit-backdrop-filter:blur(14px) saturate(1.3);backdrop-filter:blur(14px) saturate(1.3);
   border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(5,1fr)}
@@ -486,6 +501,7 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
   <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5"/><circle cx="12" cy="7.8" r=".6" fill="currentColor"/></symbol>
   <symbol id="i-innst" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h9M18 7h2M4 17h3M12 17h8"/><circle cx="15.5" cy="7" r="2.3"/><circle cx="9.5" cy="17" r="2.3"/></symbol>
   <symbol id="i-omset" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17"/><path d="M12 3.5c2.4 2.5 3.6 5.3 3.6 8.5s-1.2 6-3.6 8.5c-2.4-2.5-3.6-5.3-3.6-8.5s1.2-6 3.6-8.5Z"/></symbol>
+  <symbol id="i-oppdater" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v5h-5"/></symbol>
   <symbol id="i-sok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
   <symbol id="i-pil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></symbol>
   <symbol id="i-ut" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/><path d="M18 14v5.5H4.5V6H10"/></symbol>
@@ -506,7 +522,7 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
       <a href="#liste" data-go="liste">Liste</a><a href="#kart" data-go="kart">Kart</a><a href="#statistikk" data-go="stat">Statistikk</a><a href="#info" data-go="info">Om appen</a><a href="#innstillingar" data-go="innst">Innstillingar</a>
     </nav>
     <a class="bjelle" href="#info" data-go="info" data-hopp-til="varsel" aria-label="Få varsel på mobilen" title="Få varsel på mobilen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg></a>
-    <div class="status" id="status" title=""><span class="dot"></span><span id="status-txt">Lastar …</span></div>
+    <div class="status" id="status" title="" role="button" tabindex="0"><span class="dot"></span><span id="status-txt">Lastar …</span><svg class="oppd-ic" aria-hidden="true"><use href="#i-oppdater"/></svg></div>
   </div>
 </header>
 
@@ -696,6 +712,8 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
 </main>
 
 <button type="button" class="nytt" id="nytt" hidden title="Nye hendingar – trykk for å oppdatere" aria-label="Nye hendingar – trykk for å oppdatere"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v5h-5"/></svg>Nytt</button>
+
+<div class="dra" id="dra" aria-hidden="true"><svg><use href="#i-oppdater"/></svg></div>
 
 <nav class="tabbar" role="tablist" aria-label="Visning">
   <button role="tab" data-go="liste" aria-selected="true"><svg aria-hidden="true"><use href="#i-liste"/></svg>Liste</button>
@@ -1058,6 +1076,7 @@ const OMSETJING = [
   ["Innstillingane blir berre lagra i nettlesaren din, ikkje sende nokon stad.", "Innstillingene lagres bare i nettleseren din og sendes ikke noe sted.", "Settings are only stored in your browser and are never sent anywhere."],
   ["Tilbakestill", "Tilbakestill", "Reset"],
   ["Lagre", "Lagre", "Save"],
+  ["Trykk for å laste sida på nytt.", "Trykk for å laste inn siden på nytt.", "Tap to reload the page."],
   ["Innhald", "Innhold", "Contents"],
   ["Skogbrannfare", "Skogbrannfare", "Forest fire danger"],
   ["Svært låg", "Svært lav", "Very low"],
@@ -1203,7 +1222,7 @@ function renderStatus(){
   el.classList.toggle("gammal", timar > 3);
   $("#status-txt").innerHTML = `<span class="full">${T("Oppdatert")} </span>${naar(o)}`;
   const neste = D.neste ? " " + T("Neste oppdatering: {t}.", {t:naar(oslo(D.neste))}) : "";
-  el.title = T("Data henta frå Politiloggen {t}.", {t:naar(o)}) + neste;
+  el.title = T("Data henta frå Politiloggen {t}.", {t:naar(o)}) + neste + " " + T("Trykk for å laste sida på nytt.");
   $("#info-oppd").innerHTML = T("Appen hentar nye data frå Politiloggen kvart kvarter. Sist oppdatert: <b>{t}</b>.", {t:naar(o)}) + neste +
     (timar > 3 ? ` <b style="color:var(--ember)">${T("Dataa er meir enn tre timar gamle. Prøv å laste sida på nytt.")}</b>` : "");
 }
@@ -1599,7 +1618,57 @@ async function sjekkNyeData(){
 }
 $("#nytt").addEventListener("click", () => location.reload());
 setInterval(sjekkNyeData, 3 * 60 * 1000);
-document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") sjekkNyeData(); });
+// Har appen lege i bakgrunnen lenge, eller det er blitt ein ny dag, blir heile sida lasta på nytt
+let skjultFraa = 0;
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") { skjultFraa = Date.now(); return; }
+  if (oslo(new Date()).dn !== I_DAG.dn || (skjultFraa && Date.now() - skjultFraa > 30 * 60 * 1000)) lastPaaNytt();
+  else sjekkNyeData();
+});
+
+/* ---- Last sida på nytt: statusknappen øvst, eller dra ned når du er øvst på sida ---- */
+function lastPaaNytt(){
+  $("#status").classList.add("laster");
+  $("#dra").classList.add("laster"); $("#dra").style.transform = "translate(-50%,22px)";
+  location.reload();
+}
+$("#status").addEventListener("click", lastPaaNytt);
+$("#status").addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); lastPaaNytt(); } });
+(function(){
+  const dra = $("#dra"), ikon = dra.firstElementChild, GRENSE = 70, MAKS = 110;
+  let y0 = null, x0 = 0, dy = 0, aktiv = false;
+  const vis = d => {
+    dra.style.transform = `translate(-50%,${d - 56}px)`;
+    dra.style.opacity = Math.min(1, d / 40);
+    ikon.style.transform = `rotate(${d * 3}deg)`;
+    dra.classList.toggle("klar", d >= GRENSE);
+  };
+  addEventListener("touchstart", e => {
+    y0 = scrollY <= 0 && e.touches.length === 1 && !dra.classList.contains("laster") ? e.touches[0].clientY : null;
+    if (y0 !== null) { x0 = e.touches[0].clientX; dy = 0; aktiv = false; }
+  }, {passive:true});
+  addEventListener("touchmove", e => {
+    if (y0 === null) return;
+    const ry = e.touches[0].clientY - y0, rx = e.touches[0].clientX - x0;
+    if (!aktiv) {
+      if (ry > 8 && ry > Math.abs(rx) * 1.5 && scrollY <= 0) { aktiv = true; dra.style.transition = "none"; }
+      else { if (ry < 0 || Math.abs(rx) > 10) y0 = null; return; }
+    }
+    e.preventDefault();
+    dy = Math.min(MAKS, ry * 0.5);
+    vis(dy);
+  }, {passive:false});
+  const slepp = () => {
+    if (y0 === null) return;
+    y0 = null;
+    if (!aktiv) return;
+    dra.style.transition = "";
+    if (dy >= GRENSE) { ikon.style.transform = ""; lastPaaNytt(); }
+    else vis(0);
+  };
+  addEventListener("touchend", slepp);
+  addEventListener("touchcancel", slepp);
+})();
 
 /* ---- Kopier kanalnamn for varsel ---- */
 document.querySelectorAll("[data-kopier]").forEach(k => k.addEventListener("click", async () => {
