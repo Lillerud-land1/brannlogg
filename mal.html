@@ -286,7 +286,14 @@ button.hbar[aria-pressed="true"] .fill{background:var(--ember)}
 .facts b{display:block;font-size:20px;color:var(--ink);font-family:var(--f-display);font-weight:800}
 
 /* ---------- Info ---------- */
-.info{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.info{display:grid;grid-template-columns:210px minmax(0,780px);gap:18px 28px;align-items:start}
+.info-nav{position:sticky;top:calc(env(safe-area-inset-top,0px) + 76px);display:grid;gap:2px}
+.info-nav button{border:0;border-left:3px solid transparent;background:none;text-align:left;padding:8px 12px;border-radius:0 6px 6px 0;font-size:14px;font-weight:500;color:var(--ink-2);cursor:pointer}
+.info-nav button:hover{background:var(--chip)}
+.info-nav button[aria-current="true"]{border-left-color:var(--fire);background:var(--chip);color:var(--ink);font-weight:600}
+.info-innhald{display:grid;gap:18px;min-width:0}
+.info-innhald > .panel{scroll-margin-top:84px}
+.app[data-view="info"] .layout,.app[data-view="innst"] .layout{display:none}
 .info .panel h3{font-size:16px;margin-bottom:8px}
 .info p,.info li{font-size:14px;color:var(--ink-2)}
 .info p{margin:0 0 10px}
@@ -303,17 +310,20 @@ button.hbar[aria-pressed="true"] .fill{background:var(--ember)}
 .tip .eyebrow{margin-bottom:4px;color:var(--ember)}
 .tip p{margin:0}
 .fot{font-size:12.5px;color:var(--muted);text-align:center;padding-top:6px}
-.varsel{grid-column:1/-1}
-.steg{margin:0 0 14px;padding-left:20px;display:grid;gap:6px}
+.steg{margin:0 0 12px;padding-left:20px;display:grid;gap:4px}
+.info .steg li{font-size:13.5px}
 .kanalar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:10px}
-.kanal{border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:grid;gap:8px;background:var(--surface-2)}
+.kanal{border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:grid;gap:6px;background:var(--surface-2)}
 .kanal .sub{display:block;margin-top:2px}
-.kanal .rad{display:flex;flex-wrap:wrap;gap:8px}
+.kanal .rad{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.kanal .rad .adr{flex:1 1 auto;min-width:0}
 .kanal .adr{font-family:var(--f-mono);font-size:13px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 8px;user-select:all;word-break:break-all}
 .bjelle{display:grid;place-items:center;width:34px;height:34px;border-radius:999px;border:1px solid var(--line);background:var(--chip);color:var(--ink-2);flex:none}
 .bjelle svg{width:18px;height:18px}
 @media (max-width:720px){.kanalar{grid-template-columns:minmax(0,1fr)}}
-.rapport{margin-top:14px;padding-top:14px;border-top:1px solid var(--line-2);display:grid;gap:8px}
+.rapport{display:grid;gap:8px}
+.rapport h3{margin-bottom:0!important}
+@media (min-width:1000px){ .kanal .mob-berre{display:none} }
 .rapport .rad{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .rapport .adr{font-family:var(--f-mono);font-size:13px;color:var(--ink-2);user-select:all;word-break:break-all}
 .nytt{position:fixed;right:12px;bottom:calc(74px + env(safe-area-inset-bottom,0px));z-index:40;
@@ -400,7 +410,14 @@ button.hbar[aria-pressed="true"] .fill{background:var(--ember)}
 @media (max-width:999px){
   .layout{grid-template-columns:minmax(0,1fr)}
   .side{position:static}
-  .info{grid-template-columns:minmax(0,1fr)}
+  .info{grid-template-columns:minmax(0,1fr);gap:12px}
+  .info-nav{top:calc(env(safe-area-inset-top,0px) + 58px);z-index:15;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;
+    margin:0 -16px;padding:10px 16px;background:var(--bg);border-bottom:1px solid var(--line)}
+  .info-nav::-webkit-scrollbar{display:none}
+  .info-nav button{flex:none;white-space:nowrap;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;background:var(--surface)}
+  .info-nav button[aria-current="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+  .info-innhald > .panel{scroll-margin-top:118px}
+  .kanal .pc-berre{display:none}
   .vw{display:none}
   .app[data-view="liste"] #v-liste,.app[data-view="liste"] .hero,
   .app[data-view="kart"] #v-kart,.app[data-view="stat"] #v-stat,.app[data-view="info"] #v-info,.app[data-view="innst"] #v-innst{display:block}
@@ -488,7 +505,7 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
     <nav class="desk-nav" aria-label="Seksjonar">
       <a href="#liste" data-go="liste">Liste</a><a href="#kart" data-go="kart">Kart</a><a href="#statistikk" data-go="stat">Statistikk</a><a href="#info" data-go="info">Om appen</a><a href="#innstillingar" data-go="innst">Innstillingar</a>
     </nav>
-    <a class="bjelle" href="#info" data-go="info" aria-label="Få varsel på mobilen" title="Få varsel på mobilen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg></a>
+    <a class="bjelle" href="#info" data-go="info" data-hopp-til="varsel" aria-label="Få varsel på mobilen" title="Få varsel på mobilen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg></a>
     <div class="status" id="status" title=""><span class="dot"></span><span id="status-txt">Lastar …</span></div>
   </div>
 </header>
@@ -560,37 +577,28 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
   </div>
 
   <section class="vw info" id="v-info" aria-label="Om appen">
-    <div class="panel varsel" id="varsel">
-      <h3>Få varsel på mobilen</h3>
-      <p>Få ei melding på telefonen når det skjer noko nytt i Stord. Det er gratis og krev ingen konto.</p>
-      <ol class="steg">
-        <li>Last ned den gratis appen <b>ntfy</b>: <a href="https://apps.apple.com/app/ntfy/id1625396347" target="_blank" rel="noopener">App Store (iPhone)</a> · <a href="https://play.google.com/store/apps/details?id=io.heckel.ntfy" target="_blank" rel="noopener">Google Play (Android)</a></li>
-        <li>Vel kanal under og trykk <b>Kopier kanalnamnet</b>.</li>
-        <li>Opne ntfy, trykk <b>+</b>, lim inn kanalnamnet og trykk <b>Subscribe</b>. Tillat varsel når telefonen spør.</li>
-      </ol>
-      <div class="kanalar">
-        <div class="kanal">
-          <div><b>Alle utrykkingar</b><span class="sub">Brannar, trafikkulykker, sjø, dyreoppdrag og liknande. Ikkje automatiske brannalarmar.</span></div>
-          <code class="adr">brannlogg-stord-fa9d8bb7</code>
-          <div class="rad">
-            <button type="button" class="btn" data-kopier="brannlogg-stord-fa9d8bb7">Kopier kanalnamnet</button>
-            <a class="btn" href="ntfy://ntfy.sh/brannlogg-stord-fa9d8bb7">Opne i ntfy (Android)</a>
-            <a class="btn" href="https://ntfy.sh/brannlogg-stord-fa9d8bb7" target="_blank" rel="noopener">Opne på PC</a>
-          </div>
-        </div>
-        <div class="kanal">
-          <div><b>Berre brannar</b><span class="sub">Berre når det brenn. Færre meldingar.</span></div>
-          <code class="adr">brannlogg-stord-fa9d8bb7-brann</code>
-          <div class="rad">
-            <button type="button" class="btn" data-kopier="brannlogg-stord-fa9d8bb7-brann">Kopier kanalnamnet</button>
-            <a class="btn" href="ntfy://ntfy.sh/brannlogg-stord-fa9d8bb7-brann">Opne i ntfy (Android)</a>
-            <a class="btn" href="https://ntfy.sh/brannlogg-stord-fa9d8bb7-brann" target="_blank" rel="noopener">Opne på PC</a>
-          </div>
-        </div>
-      </div>
-      <p class="sub">Trykkjer du på eit varsel, opnar Brannlogg seg på hendinga. På PC: trykk «Opne på PC», så «Subscribe», og tillat varsel i nettlesaren.</p>
+    <nav class="info-nav" aria-label="Innhald">
+      <button type="button" data-hopp="info-brann" aria-current="true">Ved brann</button>
+      <button type="button" data-hopp="info-feil">Rapporter eit problem</button>
+      <button type="button" data-hopp="info-heim">Legg appen på heimeskjermen</button>
+      <button type="button" data-hopp="info-kjelder">Oppdatering og kjelder</button>
+      <button type="button" data-hopp="varsel">Få varsel på mobilen</button>
+    </nav>
+    <div class="info-innhald">
+    <div class="panel" id="info-brann">
+      <h3>Ved brann</h3>
+      <div class="n110"><b>110</b><span>Ring brannvesenet.<br>Varsle, redd, sløkk.</span></div>
+      <div class="tip" id="tip"></div>
     </div>
-    <div class="panel">
+    <div class="panel rapport" id="info-feil">
+      <h3>Fann du ein feil?</h3>
+        <div class="rad">
+          <a class="btn" id="rapport-knapp" href="mailto:lillerudleander@gmail.com">Rapporter eit problem</a>
+          <button type="button" class="btn" id="kopier-epost">Kopier e-postadressa</button>
+        </div>
+        <span class="sub">Eller send e-post til <span class="adr">lillerudleander@gmail.com</span></span>
+    </div>
+    <div class="panel" id="info-heim">
       <h3>Legg appen på heimeskjermen</h3>
       <div class="plat">
         <div><b>iPhone og iPad</b>Opne sida i Safari, trykk på <span class="kbd">Del</span> (firkanten med pil opp) og vel <span class="kbd">Legg til på Heim-skjerm</span>.</div>
@@ -599,7 +607,7 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
         <div><b>Infoskjerm og TV</b>Eigen storskjerm-versjon som oppdaterer seg sjølv: <span class="kbd">lillerud-land1.github.io/brannlogg/tv.html</span></div>
       </div>
     </div>
-    <div class="panel">
+    <div class="panel" id="info-kjelder">
       <h3>Oppdatering og kjelder</h3>
       <p id="info-oppd"></p>
       <ul>
@@ -610,19 +618,35 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
         <li><b>Kart</b>: kystlinje © OpenStreetMap-bidragsytarar (ODbL), kommunegrense og stadnamn frå Kartverket.</li>
       </ul>
       <p style="margin-top:10px">Appen viser berre det politiet har loggført. Oppdrag som berre brannvesenet handterer, som katt i tre, vasslekkasjar og automatiske brannalarmar, kjem sjeldan med. Står det «Nødetatane», har politiet ikkje nemnt brannvesenet direkte. Alvorsgraden er rekna ut frå teksten i loggen og er ikkje ei offisiell vurdering.</p>
-      <div class="rapport">
-        <b>Fann du ein feil?</b>
-        <div class="rad">
-          <a class="btn" id="rapport-knapp" href="mailto:lillerudleander@gmail.com">Rapporter eit problem</a>
-          <button type="button" class="btn" id="kopier-epost">Kopier e-postadressa</button>
-        </div>
-        <span class="sub">Eller send e-post til <span class="adr">lillerudleander@gmail.com</span></span>
-      </div>
     </div>
-    <div class="panel">
-      <h3>Ved brann</h3>
-      <div class="n110"><b>110</b><span>Ring brannvesenet.<br>Varsle, redd, sløkk.</span></div>
-      <div class="tip" id="tip"></div>
+    <div class="panel varsel" id="varsel">
+      <h3>Få varsel på mobilen</h3>
+      <p>Få ei melding på telefonen når det skjer noko nytt i Stord. Det er gratis og krev ingen konto.</p>
+      <ol class="steg">
+        <li>Last ned den gratis appen <b>ntfy</b>: <a href="https://apps.apple.com/app/ntfy/id1625396347" target="_blank" rel="noopener">App Store (iPhone)</a> · <a href="https://play.google.com/store/apps/details?id=io.heckel.ntfy" target="_blank" rel="noopener">Google Play (Android)</a></li>
+        <li>Vel kanal under og trykk <b>Kopier</b>.</li>
+        <li>Opne ntfy, trykk <b>+</b>, lim inn kanalnamnet og trykk <b>Subscribe</b>. Tillat varsel når telefonen spør.</li>
+      </ol>
+      <div class="kanalar">
+        <div class="kanal">
+          <div><b>Alle utrykkingar</b><span class="sub">Brannar, trafikkulykker, sjø, dyreoppdrag og liknande. Ikkje automatiske brannalarmar.</span></div>
+          <div class="rad"><code class="adr">brannlogg-stord-fa9d8bb7</code><button type="button" class="btn" data-kopier="brannlogg-stord-fa9d8bb7">Kopier</button></div>
+          <div class="rad">
+            <a class="btn mob-berre" href="ntfy://ntfy.sh/brannlogg-stord-fa9d8bb7">Opne i ntfy (Android)</a>
+            <a class="btn pc-berre" href="https://ntfy.sh/brannlogg-stord-fa9d8bb7" target="_blank" rel="noopener">Opne på PC</a>
+          </div>
+        </div>
+        <div class="kanal">
+          <div><b>Berre brannar</b><span class="sub">Berre når det brenn. Færre meldingar.</span></div>
+          <div class="rad"><code class="adr">brannlogg-stord-fa9d8bb7-brann</code><button type="button" class="btn" data-kopier="brannlogg-stord-fa9d8bb7-brann">Kopier</button></div>
+          <div class="rad">
+            <a class="btn mob-berre" href="ntfy://ntfy.sh/brannlogg-stord-fa9d8bb7-brann">Opne i ntfy (Android)</a>
+            <a class="btn pc-berre" href="https://ntfy.sh/brannlogg-stord-fa9d8bb7-brann" target="_blank" rel="noopener">Opne på PC</a>
+          </div>
+        </div>
+      </div>
+      <p class="sub">Trykkjer du på eit varsel, opnar Brannlogg seg på hendinga. På PC: trykk «Opne på PC», så «Subscribe», og tillat varsel i nettlesaren.</p>
+    </div>
     </div>
   </section>
 
@@ -966,6 +990,7 @@ const OMSETJING = [
   ["Last ned den gratis appen", "Last ned den gratis appen", "Download the free app"],
   ["Vel kanal under og trykk", "Velg kanal under og trykk", "Choose a channel below and tap"],
   ["Kopier kanalnamnet", "Kopier kanalnavnet", "Copy channel name"],
+  ["Kopier", "Kopier", "Copy"],
   ["Kopiert!", "Kopiert!", "Copied!"],
   ["Opne ntfy, trykk", "Åpne ntfy, trykk", "Open ntfy, tap"],
   [", lim inn kanalnamnet og trykk", ", lim inn kanalnavnet og trykk", ", paste the channel name and tap"],
@@ -1033,6 +1058,7 @@ const OMSETJING = [
   ["Innstillingane blir berre lagra i nettlesaren din, ikkje sende nokon stad.", "Innstillingene lagres bare i nettleseren din og sendes ikke noe sted.", "Settings are only stored in your browser and are never sent anywhere."],
   ["Tilbakestill", "Tilbakestill", "Reset"],
   ["Lagre", "Lagre", "Save"],
+  ["Innhald", "Innhold", "Contents"],
   ["Skogbrannfare", "Skogbrannfare", "Forest fire danger"],
   ["Svært låg", "Svært lav", "Very low"],
   ["Låg", "Lav", "Low"],
@@ -1535,7 +1561,7 @@ function renderAll(){ renderControls(); renderList(); renderMap(); }
 document.addEventListener("click", e => {
   const t = e.target.closest("[data-go],[data-gruppe],[data-periode],[data-type],[data-fordel],[data-stype],[data-vis],[data-kart],[data-mk],[data-meir]");
   if (!t) return;
-  if (t.dataset.go) { e.preventDefault(); setView(t.dataset.go); }
+  if (t.dataset.go) { e.preventDefault(); setView(t.dataset.go); if (t.dataset.hoppTil) requestAnimationFrame(() => visInfo(t.dataset.hoppTil)); }
   else if (t.dataset.meir) { state.antal += SIDE; renderList(); }
   else if (t.dataset.gruppe) { state.gruppe = t.dataset.gruppe; state.antal = SIDE; renderHero(); renderAll(); renderStats(); }
   else if (t.dataset.periode) { state.periode = t.dataset.periode; state.antal = SIDE; renderAll(); if (t.closest(".hint")) $("#v-liste").scrollIntoView({behavior:"smooth"}); }
@@ -1577,7 +1603,7 @@ document.addEventListener("visibilitychange", () => { if (document.visibilitySta
 
 /* ---- Kopier kanalnamn for varsel ---- */
 document.querySelectorAll("[data-kopier]").forEach(k => k.addEventListener("click", async () => {
-  try { await navigator.clipboard.writeText(k.dataset.kopier); k.textContent = T("Kopiert!"); setTimeout(() => { k.textContent = T("Kopier kanalnamnet"); }, 2500); }
+  try { await navigator.clipboard.writeText(k.dataset.kopier); const tekst = k.textContent; k.textContent = T("Kopiert!"); setTimeout(() => { k.textContent = tekst; }, 2500); }
   catch (feil) { const r = document.createRange(); r.selectNodeContents(k.closest(".kanal").querySelector(".adr")); getSelection().removeAllRanges(); getSelection().addRange(r); }
 }));
 
@@ -1646,6 +1672,24 @@ if (SPRAK !== "nn") {
   omsetDOM(document.body);
   $("#omsett-txt").textContent = T("Omsett frå nynorsk med KI (Claude).");
   $("#omsett").hidden = false;
+}
+
+/* ---- Info: innhaldsliste som hoppar til og markerer boksane ---- */
+const infoNav = $(".info-nav");
+function markerInfo(id){
+  infoNav.querySelectorAll("[data-hopp]").forEach(b => {
+    const no = b.dataset.hopp === id;
+    b.setAttribute("aria-current", String(no));
+    if (no && erMobil()) infoNav.scrollLeft = b.offsetLeft - 16;
+  });
+}
+let hoppTil = 0;   // medan sida rullar etter eit trykk, skal ikkje rullinga flytte markeringa
+function visInfo(id){ hoppTil = Date.now() + 1200; markerInfo(id); document.getElementById(id)?.scrollIntoView({behavior:"smooth", block:"start"}); }
+infoNav.addEventListener("click", e => { const b = e.target.closest("[data-hopp]"); if (b) visInfo(b.dataset.hopp); });
+if ("IntersectionObserver" in window) {
+  const obs = new IntersectionObserver(ent => ent.forEach(x => { if (x.isIntersecting && state.view === "info" && Date.now() > hoppTil) markerInfo(x.target.id); }),
+    {rootMargin:"-130px 0px -60% 0px"});
+  document.querySelectorAll(".info-innhald > .panel").forEach(p => obs.observe(p));
 }
 
 /* ---- Start ---- */
