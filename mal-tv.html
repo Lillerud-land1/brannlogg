@@ -372,7 +372,7 @@ const TIPS = [
   "Aldri gå frå levande lys, og set dei på eit underlag som ikkje brenn. 1. desember er røykvarslardagen."
 ];
 /* «Visste du?»: fakta om brannvesenet rekna ut frå dataa, i tillegg til månadens brannverntips.
-   Tekstane byter kvart 25. sekund i tilfeldig rekkjefølgje, så det ikkje er det same heile tida. */
+   Tekstane byter kvart 15. sekund i tilfeldig rekkjefølgje, så det ikkje er det same heile tida. */
 const AAR = B.filter(b => IDAG.dn - b._o.dn < 365);
 const talTekst = n => n.toLocaleString("nb-NO", {maximumFractionDigits:1});
 const stor = t => t[0].toUpperCase() + t.slice(1);
@@ -436,7 +436,7 @@ visTips(TIPS_NO); tipsForrige = TIPS_NO;
 setInterval(() => {
   const el = $("#tips"); el.classList.add("skjul");
   setTimeout(() => { visTips(nesteTips()); el.classList.remove("skjul"); }, 600);
-}, 25 * 1000);
+}, 15 * 1000);
 const ou = oslo(D.oppdatert);
 $("#oppd").textContent = `Data oppdatert ${relDag(ou).toLowerCase()} kl. ${kl(ou)}`;
 
