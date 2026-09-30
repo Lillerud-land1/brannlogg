@@ -119,6 +119,37 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font
 .forklaring i.a{background:var(--alarm)}
 .ruter{font-weight:600;letter-spacing:0;text-transform:none}
 
+/* Alarmmodus: ei hending pågår */
+.alarmvising{display:grid;grid-template-columns:56fr 44fr;gap:1.4rem;min-height:0}
+.av-info{border:.25rem solid var(--fire);border-radius:.8rem;padding:1.8rem 2rem;display:flex;flex-direction:column;min-height:0;overflow:hidden;
+  background:linear-gradient(160deg,rgba(255,90,61,.24),rgba(255,90,61,.05) 60%),var(--panel);animation:alarmglo 2s ease-in-out infinite}
+@keyframes alarmglo{50%{box-shadow:0 0 0 .6rem rgba(255,90,61,.22)}}
+.av-topp{display:flex;align-items:center;gap:1rem;font-family:var(--f-display);font-weight:800;font-size:3.4rem;line-height:1;color:var(--fire);letter-spacing:.04em;text-transform:uppercase}
+.av-topp i{width:1.6rem;height:1.6rem;border-radius:50%;background:var(--fire);animation:blink 1s steps(2) infinite}
+.av-tittel{display:flex;align-items:center;gap:1.4rem;margin-top:1.6rem}
+.av-tittel .ic{width:6.4rem;height:6.4rem;flex:none;border-radius:.8rem;display:grid;place-items:center;color:var(--fire);background:rgba(255,90,61,.16)}
+.av-tittel .ic svg{width:4rem;height:4rem}
+.av-tittel h2{font-family:var(--f-display);font-weight:800;font-size:6rem;line-height:.9;text-transform:uppercase}
+.av-stad{font-size:2.6rem;font-weight:700;margin-top:1.2rem}
+.av-tid{font-size:1.7rem;color:var(--ink-2);margin-top:.4rem}
+.av-tid b{color:var(--ink)}
+.av-logg{list-style:none;padding:0;margin-top:1.6rem;display:grid;gap:.9rem;align-content:start;min-height:0;overflow:hidden}
+.av-logg li{display:grid;grid-template-columns:5.2rem 1fr;gap:1rem;font-size:1.45rem;line-height:1.35;color:var(--ink-2)}
+.av-logg li:first-child{color:var(--ink)}
+.av-logg time{font-family:var(--f-mono);color:var(--muted)}
+.av-logg p{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.av-fleire{margin-top:auto;padding-top:1rem;font-size:1.4rem;font-weight:700;color:var(--ember)}
+.av-kart{padding:0;overflow:hidden}
+.av-kart .kart{margin:0;border-radius:.8rem;height:100%}
+.av-kart .m-lbl{font-size:13px}
+.av-kart .mk circle.c{stroke-width:2.5}
+.av-kart .mk .ring{stroke-width:2.5}
+.av-utan{position:absolute;left:1.4rem;bottom:1.2rem;font-size:1.3rem;color:var(--ink-2);background:rgba(10,13,17,.8);padding:.4rem .8rem;border-radius:.4rem}
+
+/* «Visste du?» – byter tekst av og til */
+.tips{transition:opacity .6s}
+.tips.skjul{opacity:0}
+
 /* Botn */
 .botn{display:grid;grid-template-columns:auto 1fr auto;gap:1.4rem;align-items:center}
 .n110{display:flex;align-items:center;gap:1rem;background:var(--fire);color:#fff;border-radius:.6rem;padding:.6rem 1.3rem}
@@ -162,7 +193,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font
     <div class="klokke"><b id="kl">--:--</b><span id="dato"></span></div>
   </header>
 
-  <main class="hovud">
+  <section class="alarmvising" id="alarmvising" hidden></section>
+
+  <main class="hovud" id="hovud">
     <section class="panel teljar" id="teljar"></section>
     <section class="panel">
       <div class="etikett">Siste hendingar</div>
@@ -280,6 +313,49 @@ if (K) {
   $("#kart").innerHTML = `<svg viewBox="0 0 ${K.w} ${K.h}" preserveAspectRatio="xMidYMid meet"><path class="m-ctx" d="${K.kontekst}" fill-rule="evenodd"/><path class="m-land" d="${K.land}" fill-rule="evenodd"/>${lbl}${mk}</svg>`;
 }
 
+/* Alarmmodus: når ei hending pågår, tek ho over heile skjermen.
+   Politiloggen kan la ei hending stå som aktiv lenge, så ho må ha fått ei ny melding dei siste 3 timane. */
+const ALARM_MAKS = 3 * 36e5;
+const alarmNo = () => B.filter(b => b.aktiv && Date.now() - new Date(b.sist) < ALARM_MAKS);
+const ALARM = alarmNo();
+function sidanTekst(fraa){
+  const min = Math.max(0, Math.round((Date.now() - new Date(fraa)) / 6e4));
+  return min < 60 ? `${min} min` : `${Math.floor(min / 60)} t ${min % 60} min`;
+}
+if (ALARM.length) {
+  const a = ALARM[0];
+  const logg = [...a.meldingar].sort((x, y) => y.t.localeCompare(x.t)).slice(0, 4)
+    .map(m => `<li><time>${kl(oslo(m.t))}</time><p>${esc(m.tekst)}</p></li>`).join("");
+  const fleire = ALARM.slice(1).map(b => `${esc(b.tittel)}, ${esc(b.stad)}`).join(" · ");
+  let kart = "";
+  if (K) {
+    const P = K.proj, p = a.pos ? [(a.pos[1] - P.lon0) * P.cos * P.k, (P.lat1 - a.pos[0]) * P.k] : null;
+    const inne = p && p[0] > 0 && p[0] < K.w && p[1] > 0 && p[1] < K.h;
+    const w = K.w * .42, h = w * 1.05;
+    const vb = inne ? `${(p[0] - w / 2).toFixed(0)} ${(p[1] - h / 2).toFixed(0)} ${w.toFixed(0)} ${h.toFixed(0)}` : `0 0 ${K.w} ${K.h}`;
+    const lbl = K.stader.map(s => `<circle class="m-dot" cx="${s.x}" cy="${s.y}" r="3.5"/><text class="m-lbl" x="${s.x + 7}" y="${s.y + 5}">${esc(s.namn)}</text>`).join("");
+    const mk = inne ? `<g class="mk"><circle class="ring" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="16" stroke="var(--fire)"/><circle class="c" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="16" fill="var(--fire)"/></g>` : "";
+    kart = `<div class="kart"><svg viewBox="${vb}" preserveAspectRatio="xMidYMid slice"><path class="m-ctx" d="${K.kontekst}" fill-rule="evenodd"/><path class="m-land" d="${K.land}" fill-rule="evenodd"/>${lbl}${mk}</svg></div>` +
+      (inne ? "" : `<span class="av-utan">Staden er ikkje kjend på kartet</span>`);
+  }
+  $("#alarmvising").innerHTML = `<div class="panel av-info">
+      <div class="av-topp"><i></i>Pågår no</div>
+      <div class="av-tittel"><span class="ic"><svg><use href="#${TYPE[a.type] || "i-anna"}"/></svg></span><h2>${esc(a.tittel)}</h2></div>
+      <div class="av-stad">${esc(a.stad)}</div>
+      <div class="av-tid">Starta kl. <b>${kl(a._o)}</b> · <b id="av-sidan">${sidanTekst(a.start)}</b> sidan</div>
+      <ul class="av-logg">${logg}</ul>
+      ${fleire ? `<div class="av-fleire">Pågår òg: ${fleire}</div>` : ""}
+    </div>
+    <div class="panel av-kart" style="position:relative">${kart}</div>`;
+  $("#alarmvising").hidden = false;
+  $("#hovud").hidden = true;
+}
+// Sjekk kvart minutt om alarmen skal slå seg av eller på (til dømes når det har gått 3 timar utan ny melding)
+setInterval(() => {
+  if (ALARM.length) { const el = $("#av-sidan"); if (el) el.textContent = sidanTekst(ALARM[0].start); }
+  if ((alarmNo().length > 0) !== (ALARM.length > 0)) location.reload();
+}, 60 * 1000);
+
 /* Botn */
 const TIPS = [
   "Kulde gir meir fyring. Hald avstand mellom omnen og alt som kan brenne, og set oska ut i ei metallbøtte med lok.",
@@ -295,7 +371,69 @@ const TIPS = [
   "Ha brannslokkingsapparat eller brannslange lett tilgjengeleg, og sjekk at alle i huset veit kvar det er.",
   "Aldri gå frå levande lys, og set dei på eit underlag som ikkje brenn. 1. desember er røykvarslardagen."
 ];
-$("#tips").innerHTML = `<b>Brannvern i ${MND[IDAG.m-1]}</b>${TIPS[IDAG.m-1]}`;
+/* «Visste du?»: fakta om brannvesenet rekna ut frå dataa, i tillegg til månadens brannverntips.
+   Tekstane byter kvart 25. sekund i tilfeldig rekkjefølgje, så det ikkje er det same heile tida. */
+const AAR = B.filter(b => IDAG.dn - b._o.dn < 365);
+const talTekst = n => n.toLocaleString("nb-NO", {maximumFractionDigits:1});
+const stor = t => t[0].toUpperCase() + t.slice(1);
+function lagFakta(){
+  const f = [];
+  const brannar = AAR.filter(b => (b.gruppe || "brann") === "brann");
+  const bygg = B.find(b => (b.gruppe || "brann") === "brann" && b.type === "bygning");
+  if (bygg) {
+    const d = IDAG.dn - bygg._o.dn;
+    f.push(d === 0 ? "Det har vore brann i ein bygning i Stord i dag." : d === 1 ? "Det var brann i ein bygning i Stord i går."
+      : `Det er ${d} dagar sidan sist det brann i ein bygning i Stord.`);
+  }
+  if (AAR.length) f.push(`Brannvesenet på Stord har hatt ${AAR.length} oppdrag siste 12 månader. Det er i snitt ${talTekst(AAR.length / 52)} i veka.`);
+  if (brannar.length) f.push(`Siste 12 månader har det vore ${brannar.length} brannar i Stord kommune.`);
+  if (AAR.length && brannar.length) f.push(`Berre ${Math.round(100 * brannar.length / AAR.length)} % av oppdraga til brannvesenet siste år var brannar. Resten var alarmar, ulykker og anna hjelp.`);
+  const aba = AAR.filter(b => (b.bris?.type || "").startsWith("ABA"));
+  const mat = aba.filter(b => /matlaging/i.test(b.bris.type)).length;
+  if (aba.length >= 5) f.push(`Automatiske brannalarmar gjekk ${aba.length} gonger siste år.` + (mat ? ` ${Math.round(100 * mat / aba.length)} % av dei kom av matlaging.` : ""));
+  if (AAR.length >= 20) {
+    const vd = [0,0,0,0,0,0,0]; AAR.forEach(b => vd[b._o.wd]++);
+    f.push(`${stor(DAG[vd.indexOf(Math.max(...vd))])} er dagen med flest oppdrag for brannvesenet på Stord.`);
+    const bolk = Array(8).fill(0); AAR.forEach(b => bolk[Math.floor(b._o.h / 3)]++);
+    const i = bolk.indexOf(Math.max(...bolk));
+    f.push(`Flest oppdrag kjem mellom kl. ${pad(i * 3)} og ${pad((i * 3 + 3) % 24)}.`);
+    const mnd = {}; AAR.forEach(b => { const k = b._o.y * 12 + b._o.m - 1; mnd[k] = (mnd[k] || 0) + 1; });
+    const [topp, n] = Object.entries(mnd).sort((a, c) => c[1] - a[1])[0];
+    f.push(`${stor(MND[topp % 12])} ${Math.floor(topp / 12)} var den travlaste månaden siste år, med ${n} oppdrag.`);
+  }
+  const tal = t => AAR.filter(b => b.type === t).length;
+  if (tal("pipe")) f.push(`Brannvesenet rykte ut til ${tal("pipe")} pipebrannar siste år. Feiing og sjekk av pipa hindrar pipebrann.`);
+  if (tal("trafikk")) f.push(`Brannvesenet hjelper òg ved trafikkulykker, og rykte ut til ${tal("trafikk")} slike siste år.`);
+  if (tal("dyr")) f.push(`Brannvesenet hjelpte dyr i naud ${tal("dyr")} gonger siste år.`);
+  if (tal("helse")) f.push(`${tal("helse")} gonger siste år hjelpte brannvesenet helsevesenet, til dømes med å bere pasientar.`);
+  const brannDagar = [...new Set(brannar.map(b => b._o.dn))].sort((a, c) => a - c);
+  if (brannDagar.length >= 2) {
+    const punkt = [IDAG.dn - 364, ...brannDagar, IDAG.dn];
+    let lengst = 0; for (let i = 1; i < punkt.length; i++) lengst = Math.max(lengst, punkt[i] - punkt[i - 1]);
+    if (lengst >= 7) f.push(`Den lengste perioden utan brann i Stord siste år var ${lengst} dagar.`);
+  }
+  if (D.brannfare && D.brannfare.klasse >= 3) f.push("Skogbrannfaren er høg no. Ikkje gjer opp eld ute, og ver forsiktig med grill og sigarettar.");
+  return f.map(t => ({lbl:"Visste du?", t}));
+}
+const TIPS_NO = {lbl:`Brannvern i ${MND[IDAG.m-1]}`, t:TIPS[IDAG.m-1]};
+let tipsKo = [], tipsForrige = null;
+function nesteTips(){
+  if (!tipsKo.length) {
+    tipsKo = [TIPS_NO, ...lagFakta()].sort(() => Math.random() - .5);
+    if (tipsKo[0] === tipsForrige && tipsKo.length > 1) tipsKo.push(tipsKo.shift());
+  }
+  return tipsForrige = tipsKo.shift();
+}
+function visTips(ok){
+  const el = $("#tips");
+  if (el.classList.contains("fv")) return;   // eit farevarsel står der – la det stå
+  el.innerHTML = `<b>${esc(ok.lbl)}</b>${esc(ok.t)}`;
+}
+visTips(TIPS_NO); tipsForrige = TIPS_NO;
+setInterval(() => {
+  const el = $("#tips"); el.classList.add("skjul");
+  setTimeout(() => { visTips(nesteTips()); el.classList.remove("skjul"); }, 600);
+}, 25 * 1000);
 const ou = oslo(D.oppdatert);
 $("#oppd").textContent = `Data oppdatert ${relDag(ou).toLowerCase()} kl. ${kl(ou)}`;
 
