@@ -416,13 +416,16 @@ function lagFakta(){
   return f.map(t => ({lbl:"Visste du?", t}));
 }
 const TIPS_NO = {lbl:`Brannvern i ${MND[IDAG.m-1]}`, t:TIPS[IDAG.m-1]};
-let tipsKo = [], tipsForrige = null;
+// Brannverntipset kjem annakvar gong: tips, fakta, tips, fakta … Faktaa kjem i tilfeldig rekkjefølgje.
+let tipsKo = [], tipsForrige = null, sisteFakta = null;
 function nesteTips(){
+  if (tipsForrige !== TIPS_NO) return tipsForrige = TIPS_NO;
   if (!tipsKo.length) {
-    tipsKo = [TIPS_NO, ...lagFakta()].sort(() => Math.random() - .5);
-    if (tipsKo[0] === tipsForrige && tipsKo.length > 1) tipsKo.push(tipsKo.shift());
+    tipsKo = lagFakta().sort(() => Math.random() - .5);
+    if (tipsKo.length > 1 && sisteFakta && tipsKo[0].t === sisteFakta.t) tipsKo.push(tipsKo.shift());
   }
-  return tipsForrige = tipsKo.shift();
+  if (!tipsKo.length) return tipsForrige = TIPS_NO;
+  return tipsForrige = sisteFakta = tipsKo.shift();
 }
 function visTips(ok){
   const el = $("#tips");
