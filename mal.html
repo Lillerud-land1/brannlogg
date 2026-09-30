@@ -356,6 +356,13 @@ button.hbar[aria-pressed="true"] .fill{background:var(--ember)}
 .btn-lagre svg{width:20px;height:20px}
 .btn-lagre.ok{background:#2E7D4F;box-shadow:none}
 .innst-lagre .btn{min-height:50px}
+.admin{margin-top:18px}
+.admin-kode{display:flex;gap:8px}
+.admin-kode input{width:110px;font:inherit;font-size:16px;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);letter-spacing:.2em}
+.admin-feil{margin:0;font-size:13.5px;font-weight:600;color:var(--fire)}
+.admin-lenke{display:grid;gap:8px;padding-top:4px}
+.admin-lenke .adr{font-family:var(--f-mono);font-size:14px;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:8px 10px;user-select:all;word-break:break-all}
+.admin-lenke .rad{display:flex;flex-wrap:wrap;gap:8px}
 .innst-endra{font-size:13.5px;font-weight:600;color:var(--ember)}
 @media (min-width:1000px){ .innst-lagre{bottom:16px} .btn-lagre{flex:0 1 280px} }
 
@@ -620,7 +627,6 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
         <div><b>iPhone og iPad</b>Opne sida i Safari, trykk på <span class="kbd">Del</span> (firkanten med pil opp) og vel <span class="kbd">Legg til på Heim-skjerm</span>.</div>
         <div><b>Android</b>Opne sida i Chrome, trykk på <span class="kbd">⋮</span> øvst til høgre og vel <span class="kbd">Legg til på startskjermen</span>.</div>
         <div><b>Windows</b>Opne sida i Edge, trykk på <span class="kbd">···</span> → <span class="kbd">Appar</span> → <span class="kbd">Installer denne nettstaden som app</span>. Du finn han då i Start-menyen.</div>
-        <div><b>Infoskjerm og TV</b>Eigen storskjerm-versjon som oppdaterer seg sjølv: <span class="kbd">lillerud-land1.github.io/brannlogg/tv.html</span></div>
       </div>
     </div>
     <div class="panel" id="info-kjelder">
@@ -704,6 +710,24 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
         </div>
       </div>
       <p class="sub" style="margin:10px 0 0">Innstillingane blir berre lagra i nettlesaren din, ikkje sende nokon stad.</p>
+    </div>
+    <div class="panel innst admin" id="admin">
+      <div class="innst-rad">
+        <div><b>Admin-tilgang</b><span class="sub">Skriv inn koden for å få lenka til infoskjermen på brannstasjonen.</span></div>
+        <form class="admin-kode" id="admin-skjema" autocomplete="off">
+          <input id="admin-kode" type="password" inputmode="numeric" maxlength="8" aria-label="Kode" placeholder="Kode">
+          <button type="submit" class="btn">Opne</button>
+        </form>
+      </div>
+      <p class="admin-feil" id="admin-feil" hidden>Feil kode.</p>
+      <div class="admin-lenke" id="admin-lenke" hidden>
+        <code class="adr" id="admin-url"></code>
+        <div class="rad">
+          <button type="button" class="btn" id="admin-kopier">Kopier lenka</button>
+          <a class="btn" id="admin-opne" target="_blank" rel="noopener">Opne infoskjermen</a>
+        </div>
+        <span class="sub" id="admin-status"></span>
+      </div>
     </div>
   </section>
   <footer class="kreditt">
@@ -1034,8 +1058,6 @@ const OMSETJING = [
   ["Appar", "Apper", "Apps"],
   ["Installer denne nettstaden som app", "Installer dette nettstedet som en app", "Install this site as an app"],
   [". Du finn han då i Start-menyen.", ". Du finner den da i Start-menyen.", ". You'll then find it in the Start menu."],
-  ["Infoskjerm og TV", "Infoskjerm og TV", "Info screen and TV"],
-  ["Eigen storskjerm-versjon som oppdaterer seg sjølv:", "Egen storskjermversjon som oppdaterer seg selv:", "A big-screen version that updates itself:"],
   ["Oppdatering og kjelder", "Oppdatering og kilder", "Updates and sources"],
   [", DSB): hovudkjelda. Her registrerer Stord brann og redning alle oppdraga sine, også små, men utan stad og detaljar. Automatiske brannalarmar og avbrotne utrykkingar er berre med under «Alt».", ", DSB): hovedkilden. Her registrerer Stord brann og redning alle oppdragene sine, også små, men uten sted og detaljer. Automatiske brannalarmer og avbrutte utrykninger er bare med under «Alt».", ", DSB): the main source. Stord fire and rescue logs all its call-outs here, including small ones, but without location or details. Automatic fire alarms and cancelled call-outs are only included under “All”."],
   ["(Politiet, NLOD 2.0) gir stad og kva som skjedde, og kjem ofte først: alle brannar i Stord kommune, og andre hendingar der politiet nemner brannvesenet eller nødetatane, som trafikkulykker, ulykker på sjøen og utslepp.", "(Politiet, NLOD 2.0) gir sted og hva som skjedde, og kommer ofte først: alle branner i Stord kommune, og andre hendelser der politiet nevner brannvesenet eller nødetatene, som trafikkulykker, ulykker på sjøen og utslipp.", "(the Norwegian police incident log, NLOD 2.0) gives the location and what happened, and is often first: all fires in Stord municipality, plus other incidents where the police mention the fire service or emergency services, such as traffic accidents, accidents at sea and spills."],
@@ -1077,6 +1099,15 @@ const OMSETJING = [
   ["Innstillingane blir berre lagra i nettlesaren din, ikkje sende nokon stad.", "Innstillingene lagres bare i nettleseren din og sendes ikke noe sted.", "Settings are only stored in your browser and are never sent anywhere."],
   ["Tilbakestill", "Tilbakestill", "Reset"],
   ["Lagre", "Lagre", "Save"],
+  ["Admin-tilgang", "Admin-tilgang", "Admin access"],
+  ["Skriv inn koden for å få lenka til infoskjermen på brannstasjonen.", "Skriv inn koden for å få lenken til infoskjermen på brannstasjonen.", "Enter the code to get the link to the fire station's info screen."],
+  ["Kode", "Kode", "Code"],
+  ["Opne", "Åpne", "Open"],
+  ["Feil kode.", "Feil kode.", "Wrong code."],
+  ["Kopier lenka", "Kopier lenken", "Copy link"],
+  ["Opne infoskjermen", "Åpne infoskjermen", "Open info screen"],
+  ["Lenka er kopiert. Lim henne inn i adresselinja i nettlesaren.", "Lenken er kopiert. Lim den inn i adressefeltet i nettleseren.", "The link is copied. Paste it into the browser's address bar."],
+  ["Lenka er merkt. Kopier henne med Ctrl+C.", "Lenken er merket. Kopier den med Ctrl+C.", "The link is selected. Copy it with Ctrl+C."],
   ["Du får også ei melding når skogbrannfaren blir høg, eller når Meteorologisk institutt sender ut farevarsel om skogbrann.", "Du får også en melding når skogbrannfaren blir høy, eller når Meteorologisk institutt sender ut farevarsel om skogbrann.", "You also get a notification when the forest fire danger becomes high, or when the Norwegian Meteorological Institute issues a forest fire warning."],
   ["Trykk for å laste sida på nytt.", "Trykk for å laste inn siden på nytt.", "Tap to reload the page."],
   ["Innhald", "Innhold", "Contents"],
@@ -1744,6 +1775,30 @@ if (SPRAK !== "nn") {
   $("#omsett-txt").textContent = T("Omsett frå nynorsk med KI (Claude).");
   $("#omsett").hidden = false;
 }
+
+/* ---- Admin-tilgang: lenka til infoskjermen. Koden ligg berre som SHA-256-hash i sida. ---- */
+const ADMIN_HASH = "a0ed825223812b4e35b289f41b286b077314674f0b349d16f2cfc202c02f02cc";
+const tvUrl = () => new URL("tv.html", location.href).href;
+async function kopierAdmin(){
+  try { await navigator.clipboard.writeText(tvUrl()); $("#admin-status").textContent = T("Lenka er kopiert. Lim henne inn i adresselinja i nettlesaren."); }
+  catch (e) { const r = document.createRange(); r.selectNodeContents($("#admin-url")); getSelection().removeAllRanges(); getSelection().addRange(r);
+    $("#admin-status").textContent = T("Lenka er merkt. Kopier henne med Ctrl+C."); }
+}
+$("#admin-skjema").addEventListener("submit", async e => {
+  e.preventDefault();
+  const kode = $("#admin-kode").value.trim();
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("brannlogg:" + kode));
+  const hash = [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2, "0")).join("");
+  const ok = hash === ADMIN_HASH;
+  $("#admin-feil").hidden = ok;
+  $("#admin-lenke").hidden = !ok;
+  if (!ok) { $("#admin-kode").select(); return; }
+  $("#admin-url").textContent = tvUrl();
+  $("#admin-opne").href = tvUrl();
+  $("#admin-kode").value = "";
+  kopierAdmin();
+});
+$("#admin-kopier").addEventListener("click", kopierAdmin);
 
 /* ---- Info: innhaldsliste som hoppar til og markerer boksane ---- */
 const infoNav = $(".info-nav");
