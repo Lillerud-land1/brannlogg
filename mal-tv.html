@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Brannlogg Stord – infoskjerm</title>
+<title>Stord brann og redning – infoskjerm</title>
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="manifest" href="tv.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -35,7 +35,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font
 /* Topp */
 .topp{display:flex;align-items:center;gap:1.4rem}
 .logo{width:3.6rem;height:3.6rem;flex:none}
-.namn{font-family:var(--f-display);font-weight:800;font-size:3.2rem;letter-spacing:.03em;text-transform:uppercase;line-height:.9}
+.namn{white-space:nowrap;font-family:var(--f-display);font-weight:800;font-size:3.2rem;letter-spacing:.03em;text-transform:uppercase;line-height:.9}
 .namn small{display:block;font-family:var(--f-body);font-weight:600;font-size:1.05rem;letter-spacing:.14em;color:var(--muted);margin-top:.35rem}
 .batt{flex:1;height:1rem;border-radius:.2rem;background:conic-gradient(var(--hivis) 25%,var(--fire) 0 50%,var(--hivis) 0 75%,var(--fire) 0) 0 0/2.4rem 1rem;opacity:.9}
 .klokke{text-align:right;line-height:1}
@@ -187,7 +187,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font
 <div class="skjerm">
   <header class="topp">
     <svg class="logo" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="8" fill="#1A1F26"/><path d="M17 28c-4.6 0-7.6-3-7.6-7 0-4.1 3-6.4 4.2-9.9 1.6 1.6 2.3 3.4 2.3 5.1 1.2-1.2 2.1-3 2.3-5.1 3.5 2.6 6.4 6.4 6.4 9.9 0 4-3 7-7.6 7Z" fill="url(#g-flamme)"/><path d="M17 28c-2 0-3.3-1.3-3.3-3.1 0-1.8 1.4-2.9 2-4.4 1.6 1.2 4.6 2.6 4.6 4.4 0 1.8-1.3 3.1-3.3 3.1Z" fill="#FFE9A6" opacity=".9"/></svg>
-    <div class="namn">Brannlogg<small>HENDINGAR I STORD · BRANNSTATISTIKK, POLITI OG MEDIA</small></div>
+    <div class="namn">Stord brann og redning<small>BRANNLOGG · HENDINGAR I STORD KOMMUNE</small></div>
     <div class="batt" id="batt" aria-hidden="true"></div>
     <div class="bf" id="bf" hidden></div>
     <div class="klokke"><b id="kl">--:--</b><span id="dato"></span></div>
@@ -213,7 +213,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font
     <div class="tips" id="tips"></div>
     <div class="qr"><img src="qr.svg" alt=""><span>Skann for å få Brannlogg på mobilen<small id="oppd"></small></span></div>
   </footer>
-  <p class="kreditt">Laga av <b>Leander Wågen Lillerud</b> · Ikkje ein offisiell teneste</p>
+  <p class="kreditt">Laga av <b>Leander Wågen Lillerud</b> for Stord brann og redning</p>
 </div>
 
 <script>
