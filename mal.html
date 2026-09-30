@@ -356,6 +356,9 @@ button.hbar[aria-pressed="true"] .fill{background:var(--ember)}
 .btn-lagre svg{width:20px;height:20px}
 .btn-lagre.ok{background:#2E7D4F;box-shadow:none}
 .innst-lagre .btn{min-height:50px}
+.installer{margin:0 0 14px}
+.installer .btn-lagre{width:100%;max-width:320px}
+#installert{margin:0 0 12px}
 .admin{margin-top:18px;scroll-margin-top:84px}
 .admin-kode{display:flex;gap:8px}
 .admin-kode input{width:110px;font:inherit;font-size:16px;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);letter-spacing:.2em}
@@ -623,9 +626,14 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
     </div>
     <div class="panel" id="info-heim">
       <h3>Legg appen på heimeskjermen</h3>
+      <div class="installer" id="installer" hidden>
+        <button type="button" class="btn-lagre" id="installer-knapp">Installer appen</button>
+      </div>
+      <p class="sub" id="installert" hidden>Appen er installert. Du finn han på heimeskjermen eller i app-lista.</p>
       <div class="plat">
         <div><b>iPhone og iPad</b>Opne sida i Safari, trykk på <span class="kbd">Del</span> (firkanten med pil opp) og vel <span class="kbd">Legg til på Heim-skjerm</span>.</div>
-        <div><b>Android</b>Opne sida i Chrome, trykk på <span class="kbd">⋮</span> øvst til høgre og vel <span class="kbd">Legg til på startskjermen</span>.</div>
+        <div><b>Android (Chrome)</b>Trykk på <span class="kbd">⋮</span> øvst til høgre og vel <span class="kbd">Installer appen</span> eller <span class="kbd">Legg til på startskjermen</span>.</div>
+        <div><b>Samsung (Samsung Internet)</b>Trykk på ikonet med ei pil ned i adresselinja om det finst. Elles: trykk på <span class="kbd">≡</span> nede til høgre, vel <span class="kbd">Legg til side på</span> og så <span class="kbd">Startskjerm</span>.</div>
         <div><b>Windows</b>Opne sida i Edge, trykk på <span class="kbd">···</span> → <span class="kbd">Appar</span> → <span class="kbd">Installer denne nettstaden som app</span>. Du finn han då i Start-menyen.</div>
         <div><b>Infoskjerm og TV</b>Det finst ein eigen storskjerm-versjon for infoskjermen på brannstasjonen. Lenka får du med admin-kode under <a href="#innstillingar" data-go="innst" data-hopp-til="admin">Innstillingar → Admin-tilgang</a>.</div>
       </div>
@@ -1052,9 +1060,19 @@ const OMSETJING = [
   ["Del", "Del", "Share"],
   ["(firkanten med pil opp) og vel", "(firkanten med pil opp) og velg", "(the square with an arrow pointing up) and choose"],
   ["Legg til på Heim-skjerm", "Legg til på Hjem-skjerm", "Add to Home Screen"],
-  ["Opne sida i Chrome, trykk på", "Åpne siden i Chrome, trykk på", "Open the page in Chrome, tap"],
-  ["øvst til høgre og vel", "øverst til høyre og velg", "in the top right and choose"],
   ["Legg til på startskjermen", "Legg til på startskjermen", "Add to Home screen"],
+  ["Installer appen", "Installer appen", "Install app"],
+  ["Appen er installert. Du finn han på heimeskjermen eller i app-lista.", "Appen er installert. Du finner den på hjemskjermen eller i app-listen.", "The app is installed. You'll find it on your home screen or in your app list."],
+  ["Android (Chrome)", "Android (Chrome)", "Android (Chrome)"],
+  ["Trykk på", "Trykk på", "Tap"],
+  ["øvst til høgre og vel", "øverst til høyre og velg", "in the top right and choose"],
+  ["eller", "eller", "or"],
+  ["Samsung (Samsung Internet)", "Samsung (Samsung Internet)", "Samsung (Samsung Internet)"],
+  ["Trykk på ikonet med ei pil ned i adresselinja om det finst. Elles: trykk på", "Trykk på ikonet med en pil ned i adressefeltet hvis det finnes. Ellers: trykk på", "Tap the icon with a down arrow in the address bar if there is one. Otherwise: tap"],
+  ["nede til høgre, vel", "nede til høyre, velg", "at the bottom right, choose"],
+  ["og så", "og så", "and then"],
+  ["Legg til side på", null, "Add page to"],
+  ["Startskjerm", null, "Home screen"],
   ["Opne sida i Edge, trykk på", "Åpne siden i Edge, trykk på", "Open the page in Edge, click"],
   ["Appar", "Apper", "Apps"],
   ["Installer denne nettstaden som app", "Installer dette nettstedet som en app", "Install this site as an app"],
@@ -1779,6 +1797,19 @@ if (SPRAK !== "nn") {
   $("#omsett-txt").textContent = T("Omsett frå nynorsk med KI (Claude).");
   $("#omsett").hidden = false;
 }
+
+/* ---- Installer appen (Android og PC). iPhone har ikkje dette, der gjeld rettleiinga. ---- */
+let installerHending = null;
+addEventListener("beforeinstallprompt", e => { e.preventDefault(); installerHending = e; $("#installer").hidden = false; });
+addEventListener("appinstalled", () => { installerHending = null; $("#installer").hidden = true; $("#installert").hidden = false; });
+$("#installer-knapp").addEventListener("click", async () => {
+  if (!installerHending) return;
+  installerHending.prompt();
+  const val = await installerHending.userChoice.catch(() => null);
+  if (val && val.outcome === "accepted") { $("#installer").hidden = true; $("#installert").hidden = false; }
+  installerHending = null;
+});
+if (matchMedia("(display-mode: standalone)").matches || navigator.standalone) $("#installert").hidden = false;
 
 /* ---- Admin-tilgang: lenka til infoskjermen. Koden ligg berre som SHA-256-hash i sida. ---- */
 const ADMIN_HASH = "a0ed825223812b4e35b289f41b286b077314674f0b349d16f2cfc202c02f02cc";
