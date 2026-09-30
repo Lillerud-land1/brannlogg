@@ -356,7 +356,7 @@ button.hbar[aria-pressed="true"] .fill{background:var(--ember)}
 .btn-lagre svg{width:20px;height:20px}
 .btn-lagre.ok{background:#2E7D4F;box-shadow:none}
 .innst-lagre .btn{min-height:50px}
-.admin{margin-top:18px}
+.admin{margin-top:18px;scroll-margin-top:84px}
 .admin-kode{display:flex;gap:8px}
 .admin-kode input{width:110px;font:inherit;font-size:16px;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);letter-spacing:.2em}
 .admin-feil{margin:0;font-size:13.5px;font-weight:600;color:var(--fire)}
@@ -627,6 +627,7 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
         <div><b>iPhone og iPad</b>Opne sida i Safari, trykk på <span class="kbd">Del</span> (firkanten med pil opp) og vel <span class="kbd">Legg til på Heim-skjerm</span>.</div>
         <div><b>Android</b>Opne sida i Chrome, trykk på <span class="kbd">⋮</span> øvst til høgre og vel <span class="kbd">Legg til på startskjermen</span>.</div>
         <div><b>Windows</b>Opne sida i Edge, trykk på <span class="kbd">···</span> → <span class="kbd">Appar</span> → <span class="kbd">Installer denne nettstaden som app</span>. Du finn han då i Start-menyen.</div>
+        <div><b>Infoskjerm og TV</b>Det finst ein eigen storskjerm-versjon for infoskjermen på brannstasjonen. Lenka får du med admin-kode under <a href="#innstillingar" data-go="innst" data-hopp-til="admin">Innstillingar → Admin-tilgang</a>.</div>
       </div>
     </div>
     <div class="panel" id="info-kjelder">
@@ -1099,6 +1100,9 @@ const OMSETJING = [
   ["Innstillingane blir berre lagra i nettlesaren din, ikkje sende nokon stad.", "Innstillingene lagres bare i nettleseren din og sendes ikke noe sted.", "Settings are only stored in your browser and are never sent anywhere."],
   ["Tilbakestill", "Tilbakestill", "Reset"],
   ["Lagre", "Lagre", "Save"],
+  ["Infoskjerm og TV", "Infoskjerm og TV", "Info screen and TV"],
+  ["Det finst ein eigen storskjerm-versjon for infoskjermen på brannstasjonen. Lenka får du med admin-kode under", "Det finnes en egen storskjermversjon for infoskjermen på brannstasjonen. Lenken får du med admin-kode under", "There is a separate big-screen version for the info screen at the fire station. You get the link with an admin code under"],
+  ["Innstillingar → Admin-tilgang", "Innstillinger → Admin-tilgang", "Settings → Admin access"],
   ["Admin-tilgang", "Admin-tilgang", "Admin access"],
   ["Skriv inn koden for å få lenka til infoskjermen på brannstasjonen.", "Skriv inn koden for å få lenken til infoskjermen på brannstasjonen.", "Enter the code to get the link to the fire station's info screen."],
   ["Kode", "Kode", "Code"],
@@ -1613,7 +1617,7 @@ function renderAll(){ renderControls(); renderList(); renderMap(); }
 document.addEventListener("click", e => {
   const t = e.target.closest("[data-go],[data-gruppe],[data-periode],[data-type],[data-fordel],[data-stype],[data-vis],[data-kart],[data-mk],[data-meir]");
   if (!t) return;
-  if (t.dataset.go) { e.preventDefault(); setView(t.dataset.go); if (t.dataset.hoppTil) requestAnimationFrame(() => visInfo(t.dataset.hoppTil)); }
+  if (t.dataset.go) { e.preventDefault(); setView(t.dataset.go); if (t.dataset.hoppTil) setTimeout(() => visInfo(t.dataset.hoppTil), 30); }
   else if (t.dataset.meir) { state.antal += SIDE; renderList(); }
   else if (t.dataset.gruppe) { state.gruppe = t.dataset.gruppe; state.antal = SIDE; renderHero(); renderAll(); renderStats(); }
   else if (t.dataset.periode) { state.periode = t.dataset.periode; state.antal = SIDE; renderAll(); if (t.closest(".hint")) $("#v-liste").scrollIntoView({behavior:"smooth"}); }
