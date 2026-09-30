@@ -819,6 +819,7 @@ def main():
             print(f"UTAN_KARTPLASS: {b['id']} | {b['stad']}")
     if "--varsle" in sys.argv:
         send_varsel(brannar)
+        send_brannfare_varsel(data["brannfare"])
 
 
 # ---------- Skogbrannfare (Fire Weather Index frå vêrdata) ----------
@@ -954,7 +955,8 @@ def hent_brannfare():
                 p = f["properties"]
                 if p.get("event") == "forestFire":
                     nivaa = p.get("awareness_level", "2; yellow").split(";")
-                    ut["varsel"] = {"farge": nivaa[1].strip(), "til": f["when"]["interval"][1], "url": p.get("web")}
+                    ut["varsel"] = {"farge": nivaa[1].strip(), "til": f["when"]["interval"][1], "url": p.get("web"),
+                                    "tekst": p.get("description")}
                     break
     except Exception as feil:
         print(f"FAREVARSEL_FEIL: {feil}")
@@ -1019,6 +1021,71 @@ def send_varsel(brannar):
     skriv_json("varsla.json", sorted(varsla))
     if not nye:
         print("VARSEL: ingen nye hendingar")
+
+
+BF_NAMN = ["svært låg", "låg", "moderat", "høg", "svært høg", "ekstrem"]
+MET_FARGE = {"yellow": ("gult", "🟡"), "orange": ("oransje", "🟠"), "red": ("raudt", "🔴")}
+
+
+def send_ntfy(melding):
+    """Sender same melding til hovudkanalen og «-brann»-kanalen."""
+    import os
+    kanal = os.environ.get("NTFY_TOPIC", "").strip()
+    if not kanal:
+        return False
+    for emne in (kanal, kanal + "-brann"):
+        req = urllib.request.Request("https://ntfy.sh/", data=json.dumps({**melding, "topic": emne}).encode("utf-8"),
+                                     headers={"Content-Type": "application/json", **UA}, method="POST")
+        urllib.request.urlopen(req, timeout=30).read()
+    return True
+
+
+def send_brannfare_varsel(bf):
+    """Varsel når skogbrannfaren stig til høg eller meir, og når MET sender farevarsel om skogbrann.
+    Kvart nivå blir varsla éin gong. Nivåa blir nullstilte når faren fell til låg, så det ikkje kjem
+    nye meldingar kvar gong faren vippar rundt grensa."""
+    if not bf:
+        return
+    varsla = set(les_json("varsla.json", []))
+    før = set(varsla)
+    k = bf["klasse"]
+    if k <= 1:
+        varsla -= {f"skogbrannfare-{n}" for n in (3, 4, 5)}
+    nye = [n for n in (3, 4, 5) if n <= k and f"skogbrannfare-{n}" not in varsla]
+    if nye:
+        d = datetime.fromisoformat(bf["sist_regn"]) if bf["sist_regn"] else None
+        regn = f" Sist det regna minst 1 mm var {d.day}.{d.month}." if d else " Det har ikkje regna minst 1 mm på over tre månader."
+        melding = {
+            "title": f"🌲🔥 {BF_NAMN[k].capitalize()} skogbrannfare på Stord",
+            "message": f"Skogbrannfaren er no {BF_NAMN[k]} ({bf['prosent']} %).{regn} Ver forsiktig med eld ute, grilling og sigarettar.",
+            "tags": ["evergreen_tree", "fire"], "priority": 4 if k >= 4 else 3, "click": NETTSIDE,
+        }
+        try:
+            if send_ntfy(melding):
+                varsla |= {f"skogbrannfare-{n}" for n in (3, 4, 5) if n <= k}
+                print(f"VARSEL: skogbrannfare {BF_NAMN[k]} ({bf['prosent']} %)")
+        except Exception as feil:
+            print(f"VARSEL_FEIL: skogbrannfare: {feil}")
+    v = bf.get("varsel")
+    if not v:
+        varsla = {x for x in varsla if not x.startswith("met-skogbrann-")}
+    elif f"met-skogbrann-{v['farge']}" not in varsla:
+        namn, merke = MET_FARGE.get(v["farge"], (v["farge"], "⚠️"))
+        til = datetime.fromisoformat(v["til"]).astimezone(ZoneInfo("Europe/Oslo"))
+        melding = {
+            "title": f"{merke} Farevarsel om skogbrannfare – {namn} nivå",
+            "message": (v.get("tekst") or "Meteorologisk institutt har sendt ut farevarsel om skogbrannfare.") + f" Gjeld til {til:%d.%m. kl. %H:%M}.",
+            "tags": ["warning", "evergreen_tree"], "priority": 4 if v["farge"] in ("orange", "red") else 3,
+            "click": v.get("url") or NETTSIDE,
+        }
+        try:
+            if send_ntfy(melding):
+                varsla.add(f"met-skogbrann-{v['farge']}")
+                print(f"VARSEL: farevarsel skogbrann ({namn})")
+        except Exception as feil:
+            print(f"VARSEL_FEIL: farevarsel skogbrann: {feil}")
+    if varsla != før:
+        skriv_json("varsla.json", sorted(varsla))
 
 
 if __name__ == "__main__":
