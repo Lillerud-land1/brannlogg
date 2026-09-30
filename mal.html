@@ -605,7 +605,7 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
   <section class="vw info" id="v-info" aria-label="Om appen">
     <nav class="info-nav" aria-label="Innhald">
       <button type="button" data-hopp="info-brann" aria-current="true">Ved brann</button>
-      <button type="button" data-hopp="info-feil">Rapporter eit problem</button>
+      <button type="button" data-hopp="info-feil">Feil og forslag</button>
       <button type="button" data-hopp="info-heim">Legg appen på heimeskjermen</button>
       <button type="button" data-hopp="info-kjelder">Oppdatering og kjelder</button>
       <button type="button" data-hopp="varsel">Få varsel på mobilen</button>
@@ -617,9 +617,10 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
       <div class="tip" id="tip"></div>
     </div>
     <div class="panel rapport" id="info-feil">
-      <h3>Fann du ein feil?</h3>
+      <h3>Feil eller forslag?</h3>
+      <p>Har du funne ein feil, eller har du eit forslag til korleis sida kan bli betre? Send ein e-post.</p>
         <div class="rad">
-          <a class="btn" id="rapport-knapp" href="mailto:lillerudleander@gmail.com">Rapporter eit problem</a>
+          <a class="btn" id="rapport-knapp" href="mailto:lillerudleander@gmail.com">Send feil eller forslag</a>
           <button type="button" class="btn" id="kopier-epost">Kopier e-postadressa</button>
         </div>
         <span class="sub">Eller send e-post til <span class="adr">lillerudleander@gmail.com</span></span>
@@ -1085,8 +1086,10 @@ const OMSETJING = [
   [": rekna ut med Fire Weather Index-metoden frå vêrdata frå Open-Meteo.com (CC BY 4.0). Offisielle farevarsel frå Meteorologisk institutt (CC BY 4.0).", ": beregnet med Fire Weather Index-metoden fra værdata fra Open-Meteo.com (CC BY 4.0). Offisielle farevarsler fra Meteorologisk institutt (CC BY 4.0).", ": calculated with the Fire Weather Index method from weather data from Open-Meteo.com (CC BY 4.0). Official warnings from the Norwegian Meteorological Institute (CC BY 4.0)."],
   [": kystlinje © OpenStreetMap-bidragsytarar (ODbL), kommunegrense og stadnamn frå Kartverket.", ": kystlinje © OpenStreetMap-bidragsytere (ODbL), kommunegrense og stedsnavn fra Kartverket.", ": coastline © OpenStreetMap contributors (ODbL), municipal boundary and place names from Kartverket."],
   ["Appen viser berre det politiet har loggført. Oppdrag som berre brannvesenet handterer, som katt i tre, vasslekkasjar og automatiske brannalarmar, kjem sjeldan med. Står det «Nødetatane», har politiet ikkje nemnt brannvesenet direkte. Alvorsgraden er rekna ut frå teksten i loggen og er ikkje ei offisiell vurdering.", "Appen viser bare det politiet har loggført. Oppdrag som bare brannvesenet håndterer, som katt i tre, vannlekkasjer og automatiske brannalarmer, kommer sjelden med. Står det «Nødetatene», har politiet ikke nevnt brannvesenet direkte. Alvorlighetsgraden er beregnet ut fra teksten i loggen og er ikke en offisiell vurdering.", "The app only shows what the police have logged. Jobs handled only by the fire service, such as cats up trees, water leaks and automatic fire alarms, are rarely included. Where it says “Emergency services”, the police did not mention the fire service directly. The severity is estimated from the log text and is not an official assessment."],
-  ["Fann du ein feil?", "Fant du en feil?", "Found a mistake?"],
-  ["Rapporter eit problem", "Rapporter et problem", "Report a problem"],
+  ["Feil og forslag", "Feil og forslag", "Bugs and ideas"],
+  ["Feil eller forslag?", "Feil eller forslag?", "Found a bug or have an idea?"],
+  ["Har du funne ein feil, eller har du eit forslag til korleis sida kan bli betre? Send ein e-post.", "Har du funnet en feil, eller har du et forslag til hvordan siden kan bli bedre? Send en e-post.", "Found a bug, or have an idea for how to make the site better? Send an email."],
+  ["Send feil eller forslag", "Send feil eller forslag", "Send a bug report or idea"],
   ["Kopier e-postadressa", "Kopier e-postadressen", "Copy email address"],
   ["Eller send e-post til", "Eller send e-post til", "Or email"],
   ["Ved brann", "Ved brann", "In case of fire"],
@@ -1735,9 +1738,9 @@ document.querySelectorAll("[data-kopier]").forEach(k => k.addEventListener("clic
 (function(){
   const o = oslo(D.oppdatert);
   const tekst = [
-    "Hei! Eg vil rapportere eit problem med Brannlogg Stord.",
+    "Hei! Eg har ein feil eller eit forslag til Brannlogg Stord.",
     "",
-    "Kva skjedde?",
+    "Kva gjeld det?",
     "",
     "",
     "---",
@@ -1745,7 +1748,7 @@ document.querySelectorAll("[data-kopier]").forEach(k => k.addEventListener("clic
     "Skjerm: " + innerWidth + "×" + innerHeight,
     "Nettlesar: " + navigator.userAgent
   ].join(String.fromCharCode(10));
-  $("#rapport-knapp").href = "mailto:lillerudleander@gmail.com?subject=" + encodeURIComponent("Brannlogg Stord – problem") + "&body=" + encodeURIComponent(tekst);
+  $("#rapport-knapp").href = "mailto:lillerudleander@gmail.com?subject=" + encodeURIComponent("Brannlogg Stord – feil eller forslag") + "&body=" + encodeURIComponent(tekst);
   $("#kopier-epost").addEventListener("click", async e => {
     try { await navigator.clipboard.writeText("lillerudleander@gmail.com"); e.target.textContent = T("Kopiert!"); }
     catch (feil) { const r = document.createRange(); r.selectNodeContents($(".rapport .adr")); getSelection().removeAllRanges(); getSelection().addRange(r); }
