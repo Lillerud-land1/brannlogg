@@ -37,7 +37,7 @@ På PC fungerer fanene øvst (Liste, Kart, Statistikk, Om appen, Innstillingar) 
 |---|---|---|
 | **Brannstatistikk.no** (DSB/BRIS) | **Hovudkjelda.** Alle oppdrag Stord brann og redning har registrert: type og tidspunkt. | Ingen stad eller tekst. Kommunenummer 4614. |
 | **Politiloggen** (Politiet, NLOD 2.0) | Stad, tekst og tidslinje for hendingar. Kjem ofte først. | Kategorien «Brann», og andre hendingar der teksten nemner brannvesenet eller «nødetatene». |
-| **Nyheiter via RSS** | Lenker til saker, og eigne «Frå media»-hendingar. | Radio Haugaland, Sunnhordland, Stord24, NRK Vestland, Haugesunds Avis, Bømlo-Nytt. |
+| **Nyheiter via RSS** | Berre lenker og tilleggsinfo til hendingar frå Politiloggen og brannstatistikken – aldri eigne hendingar. | Radio Haugaland, Sunnhordland, Stord24, NRK Vestland, Haugesunds Avis, Bømlo-Nytt. |
 | **Kartverket** | Stadfesting (adresse/stadnamn → koordinatar) og kommunegrense. | ws.geonorge.no |
 | **OpenStreetMap** | Kystlinja i kartet (© OpenStreetMap-bidragsytarar, ODbL). | Henta éin gong med `lag_kart.py`. |
 
@@ -52,7 +52,7 @@ Bilete frå nyheitssaker blir **ikkje** kopierte (opphavsrett). Appen lenkjer be
    - **Kopla hending**: tekst og stad frå Politiloggen/media + merket «Brannstatistikk: *type*».
    - **Berre i brannstatistikken**: vist som til dømes «Brann (anna) · Stord», utan stad.
    - **Berre i Politiloggen**: blir vist med ein gong. Utrykkingar (ikkje brannar) som brannvesenet ikkje har registrert etter 3 dagar, blir fjerna, sidan brannvesenet då truleg ikkje var med.
-   - **Berre i media**: merkt «Frå media».
+   - **Berre i media**: blir ikkje vist. Ei nyheitssak kan nemne Stord utan at noko skjedde her (døme: ei sak om ein person frå Stord som drukna i Nord-Noreg).
 5. Oppdragstypen frå brannstatistikken avgjer gruppa:
    - **brann**: «Brann i bygning», «Brann annet», «Brann i skorstein», «Brann i personbil» …
    - **utrykking**: trafikkulykke, person i vatn, dyreoppdrag, helseoppdrag, forureining, brannhindrande tiltak …
@@ -95,7 +95,6 @@ flowchart LR
 | `bris.json` | Arkiv over oppdrag frå brannstatistikken. |
 | `bris_utan_info.json` | Oppdrag berre i brannstatistikken (siste 14 dagar) som Claude kan finne stad for. |
 | `auto_kjelder.json` | Nyheitslenker funne automatisk. |
-| `nyheitshendingar.json` | Hendingar funne berre i media. |
 | `varsla.json` | Hendingar det alt er sendt varsel om (så ingen får same varsel to gonger). |
 | `geokode.json` | Mellomlager for stadfesting frå Kartverket. |
 | `kart.json` | SVG-kart over Stord (laga av `lag_kart.py`). |
@@ -116,7 +115,7 @@ Nøkkelen er id-en til hendinga: id frå Politiloggen (t.d. `26bmrv`), `d-<id>` 
 | `avvis_hending` | `true` skjuler ei feil mediehending/oppdrag |
 | `sokt` | Tidspunkt Claude sist søkte etter nyheiter (unngår nye søk) |
 
-I tillegg kan lista `_hendingar` innehalde hendingar som er lagde inn for hand (id `m-…`).
+Lista `_hendingar` (hendingar lagde inn for hand) blir ikkje lenger brukt – alle hendingar skal kome frå Politiloggen eller brannstatistikken.
 
 ---
 

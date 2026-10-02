@@ -336,18 +336,7 @@ def finn_nyheiter(brannar, alle_saker=None, lagre=True):
     return auto
 
 
-# ---------- Hendingar som berre står i media ----------
-
-STORD_STADER = re.compile(
-    r"\b(stord|leirvik|sagvåg|heiane|litlabø|huglo|føyno|digernes|rommetveit|hystad|eldøy|eldøyane|nysæter|"
-    r"vabakken|kårevik|tjødnalio|frugarden|ådland|valvatna|hamnegata|borggata|stordabrua|stordbrua|sørstokken|"
-    r"fitjarvegen|meatjønn|sponavika|storamyro|åsringen|hjortåsen)\b", re.I)
-HENDINGSORD = re.compile(
-    r"rykte ut|rykka ut|rykket ut|rykker ut|rykkjer ut|sløkte|sløkt|slokket|slokka|slukket|slukka|brann i|brenn i|"
-    r"brann på|bålbrann|ut av kontroll|spreidd seg|spredt seg|røykutvikling|trafikkulykke|trafikkuhell|kolliderte|kollisjon|utforkøyring|"
-    r"utforkjøring|påkøyrd|påkjørt|sat fast|satt fast|redningsaksjon|person i sjøen|i sjøen", re.I)
-IKKJE_HENDING = re.compile(r"\b(fotball|kamp|kampen|seier|serien|cup|stord il|håndball|handball|tabell)\b", re.I)
-
+# ---------- Nyheiter: berre lenker til hendingar frå Politiloggen og brannstatistikken ----------
 
 def hent_alle_saker():
     saker = []
@@ -357,70 +346,6 @@ def hent_alle_saker():
         except Exception as feil:
             print(f"  kunne ikkje lese {kjelde} ({url}): {feil}")
     return saker
-
-
-def finn_nyheitshendingar(brannar, alle_saker, auto, ekstra, geocache):
-    """Nyheitssaker om brann/ulykke på Stord som ikkje høyrer til nokon hending i Politiloggen."""
-    import hashlib
-    lagra = les_json("nyheitshendingar.json", {})
-    kjende_url = {k["url"] for v in auto.values() for k in v}
-    kjende_url |= {k["url"] for v in ekstra.values() if isinstance(v, dict) for k in v.get("kjelder", [])}
-    kjende_url |= {r["url"] for r in lagra.values()}
-    nye = 0
-    for kjelde, krev_stad, tittel, lenke, tekst, tid in alle_saker:
-        heil = f"{tittel} {tekst}"
-        if not lenke or lenke in kjende_url or IKKJE_HENDING.search(heil) or not HENDINGSORD.search(heil):
-            continue
-        stader = [m.group(1) for m in STORD_STADER.finditer(heil)]
-        if not stader:
-            continue
-        # Hopp over saker som truleg gjeld ei hending som alt står i Politiloggen
-        if any(abs(datetime.fromisoformat(b["start"]) - tid) < timedelta(hours=12) for b in brannar):
-            continue
-        spesifikk = [s for s in stader if s.lower() != "stord"]
-        stad = spesifikk[0].capitalize() if spesifikk else KOMMUNE
-        pos = geokod(stad, geocache) if spesifikk else None
-        mid = "n-" + hashlib.sha1(lenke.encode()).hexdigest()[:10]
-        lagra[mid] = {"id": mid, "kjelde": kjelde, "tittel": tittel, "url": lenke, "tekst": tekst[:600],
-                      "tid": tid.astimezone(timezone.utc).isoformat(timespec="seconds"), "stad": stad, "pos": pos}
-        kjende_url.add(lenke)
-        nye += 1
-        print(f"MEDIA: ny hending frå {kjelde}: {tittel} ({stad})")
-    skriv_json("nyheitshendingar.json", lagra)
-    print(f"MEDIA: {nye} nye hendingar frå nyheitene")
-
-
-def lag_mediehendingar(ekstra, geocache=None):
-    """Gjer om lagra nyheitshendingar og manuelle hendingar (ekstra.json «_hendingar») til vanlege hendingar."""
-    ut = []
-    kjelder = list(les_json("nyheitshendingar.json", {}).values())
-    for m in ekstra.get("_hendingar", []):
-        kjelder.append({"id": m["id"], "kjelde": None, "tittel": m["tittel"], "url": None, "tekst": m.get("tekst", ""),
-                        "tid": m["tid"], "stad": m.get("stad", KOMMUNE), "pos": m.get("pos"), "manuell": m})
-    for r in kjelder:
-        ex = ekstra.get(r["id"], {})
-        if ex.get("avvis_hending"):
-            continue
-        tekst = f"{r['tittel']}. {r['tekst']}"
-        manuell = r.get("manuell") or {}
-        if not r.get("pos") and geocache is not None and r["stad"] != KOMMUNE:
-            r["pos"] = geokod(r["stad"], geocache)
-        gruppe = manuell.get("gruppe") or ("brann" if re.search(r"brann|brenn|\bbål|røyk|flamm|sløkk|slokk|slukk", tekst, re.I) else "utrykking")
-        btype, _, alvor, flagg = klassifiser(tekst) if gruppe == "brann" else klassifiser_utrykking(tekst)
-        flagg.update({"brannvesen": False, "omkomne": bool(ex.get("omkomne")), "media": True})
-        eigne = manuell.get("kjelder") or ([{"kjelde": r["kjelde"], "tittel": r["tittel"], "url": r["url"]}] if r["url"] else [])
-        ut.append({
-            "id": r["id"], "gruppe": gruppe, "kjelde_type": "media",
-            "tittel": ex.get("tittel", r["tittel"]), "type": ex.get("type", manuell.get("type", btype)),
-            "alvor": ex.get("alvor", manuell.get("alvor", min(alvor, 2))),
-            "stad": r["stad"], "start": r["tid"], "sist": r["tid"], "aktiv": False,
-            "pos": ex.get("pos", r["pos"]), "flagg": flagg,
-            "meldingar": [{"t": r["tid"], "tekst": r["tekst"] or r["tittel"], "endra": False}],
-            "kjelder": eigne + [k for k in ex.get("kjelder", []) if k["url"] not in {e["url"] for e in eigne}],
-            "merknad": ex.get("merknad", "Frå media – hendinga står ikkje i Politiloggen."),
-            "bilete": [],
-        })
-    return ut
 
 
 # ---------- Brannstatistikk (DSB / BRIS) – hovudkjelda for oppdraga ----------
@@ -538,8 +463,7 @@ def kombiner_med_bris(hendingar, bris, ekstra, geocache):
             if h["id"] in brukt or h.get("bris"):
                 continue
             diff = (datetime.fromisoformat(h["start"]) - t).total_seconds() / 60
-            media = h.get("kjelde_type") == "media"
-            if (-60 * 36 <= -diff <= 60) if media else (-15 <= diff <= 90):
+            if -15 <= diff <= 90:
                 if passar(h, kat):
                     kand.append((0 if h.get("type") == kat[1] else 1, abs(diff), h))
         if kand:
@@ -661,12 +585,6 @@ def sjekk():
             if a["url"] not in ex.get("avvis", []):
                 print(f"  AUTO: {a['url']} | {a['kjelde']} | {a['tittel']}")
         nye += 1
-    for mid, r in les_json("nyheitshendingar.json", {}).items():
-        ex = ekstra.get(mid, {})
-        if datetime.fromisoformat(r["tid"]) < grense or ex.get("sokt") or ex.get("avvis_hending"):
-            continue
-        print(f"MEDIA_HENDING: {mid} | {r['tid'][:16]} | {r['stad']} | {r['tittel']} | {r['url']}")
-        nye += 1
     for m in les_json("bris_utan_info.json", []):
         ex = ekstra.get(m["id"], {})
         if ex.get("sokt") or ex.get("avvis_hending"):
@@ -761,11 +679,10 @@ def main():
     if "--nyheiter" in sys.argv:
         saker = hent_alle_saker()
         auto = finn_nyheiter(brannar, saker)
-        finn_nyheitshendingar(brannar, saker, auto, ekstra, geocache)
-        skriv_json("geokode.json", geocache)
     else:
         auto = les_json("auto_kjelder.json", {})
-    brannar += lag_mediehendingar(ekstra, geocache)
+    # Hendingar kjem berre frå Politiloggen og brannstatistikken. Nyheiter blir aldri eigne hendingar
+    # (ei sak kan nemne Stord utan at noko skjedde her), berre lenker og tilleggsinfo.
     brannar = kombiner_med_bris(brannar, hent_bris(), ekstra, geocache)
     skriv_json("geokode.json", geocache)
     brannar.sort(key=lambda b: b["start"], reverse=True)
