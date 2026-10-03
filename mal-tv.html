@@ -91,6 +91,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font
 .s1{--sev:var(--sev1)} .s2{--sev:var(--sev2)} .s3{--sev:var(--sev3)}
 .rad .ic{width:3.6rem;height:3.6rem;border-radius:.5rem;display:grid;place-items:center;color:var(--sev);background:color-mix(in srgb,var(--sev) 15%,transparent)}
 .rad .ic svg{width:2.1rem;height:2.1rem}
+/* Kjeldemerke: 110 = registrert av brannvesenet i brannstatistikken (DSB), 112 = berre i Politiloggen */
+.rad .nr{width:3.6rem;height:3.6rem;border-radius:.5rem;display:grid;place-items:center;color:#fff;
+  font-family:var(--f-display);font-weight:800;font-size:1.75rem;letter-spacing:.02em;line-height:1}
+.rad .nr110{background:#D4321D}
+.rad .nr112{background:#1E5BC6}
 .rad h3{font-size:1.65rem;font-weight:700;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rad p{font-size:1.2rem;color:var(--ink-2);margin-top:.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rad p b{color:var(--ink);font-weight:600}
@@ -292,7 +297,7 @@ $("#blink-tekst").textContent = `Blinkar: siste ${VINDU} dagar`;
 const erNy = b => Date.now() - new Date(b.start) < 48 * 36e5;   // nyare enn to døgn
 const rader = B.slice(0, 6).map(b => `<li class="rad s${b.alvor}${erNy(b) ? " ny" : ""}">
     <span class="strek"></span>
-    <span class="ic"${b.gruppe === "utrykking" ? ` style="--sev:var(--utr)"` : b.gruppe === "alarm" ? ` style="--sev:var(--alarm)"` : ""}><svg aria-hidden="true"><use href="#${TYPE[b.type] || "i-anna"}"/></svg></span>
+    ${b.bris ? `<span class="nr nr110" title="Brannstatistikken (DSB)">110</span>` : `<span class="nr nr112" title="Politiloggen">112</span>`}
     <div><h3>${erNy(b) ? `<span class="ny-merke">NY</span>` : ""}${esc(b.tittel)}</h3><p><b>${esc(b.stad)}</b> · ${b.aktiv ? `<span class="pagar"><i></i>Pågår</span>` : "Avslutta"}</p></div>
     <div class="kor"><b>${relDag(b._o)}</b>kl. ${kl(b._o)}</div></li>`).join("");
 $("#liste").innerHTML = rader || `<li class="tomt">Ingen hendingar registrerte.</li>`;
