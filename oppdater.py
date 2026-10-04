@@ -556,6 +556,40 @@ def les_tid(tekst):
     return tid if tid.tzinfo else tid.astimezone()
 
 
+REPO = "Lillerud-land1/brannlogg"
+
+
+def vakt():
+    """Startar oppdateringa på GitHub om nettsida er meir enn ein time gammal.
+    Køyrer som ein del av --sjekk, altså berre når PC-en er på."""
+    try:
+        url = f"https://lillerud-land1.github.io/brannlogg/status.json?t={int(datetime.now().timestamp())}"
+        with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=30) as r:
+            alder = datetime.now(timezone.utc) - datetime.fromisoformat(json.loads(r.read())["oppdatert"])
+    except Exception as feil:
+        print(f"VAKT: kunne ikkje lese status.json ({feil})")
+        return
+    minutt = int(alder.total_seconds() // 60)
+    if alder < timedelta(hours=1):
+        print(f"VAKT: OK, nettsida vart oppdatert for {minutt} min sidan")
+        return
+    try:
+        går = subprocess.run(["gh", "run", "list", "-R", REPO, "--workflow", "oppdater.yml", "--json", "status",
+                              "-q", '[.[] | select(.status != "completed")] | length'],
+                             capture_output=True, text=True, timeout=60)
+        if går.returncode == 0 and går.stdout.strip() not in ("", "0"):
+            print(f"VAKT: nettsida er {minutt} min gammal, men ei oppdatering går alt")
+            return
+        start = subprocess.run(["gh", "workflow", "run", "oppdater.yml", "-R", REPO, "--ref", "main"],
+                               capture_output=True, text=True, timeout=60)
+        if start.returncode == 0:
+            print(f"VAKT: nettsida var {minutt} min gammal – starta oppdateringa på GitHub")
+        else:
+            print(f"VAKT_FEIL: kunne ikkje starte oppdateringa: {start.stderr.strip()}")
+    except Exception as feil:
+        print(f"VAKT_FEIL: {feil}")
+
+
 def sjekk():
     """Listar brannar som Claude bør søkje nyheiter for. Skriv ingen filer.
 
@@ -563,6 +597,7 @@ def sjekk():
     gammal, manglar kjelder og det er meir enn 3 timar sidan førre søk (nye saker kjem ofte seint).
     Lenker GitHub har funne automatisk blir viste som AUTO-linjer, så Claude kan kontrollere dei.
     """
+    vakt()
     git("pull", "--rebase", "--autostash")
     ekstra = les_json("ekstra.json", {})
     auto = les_json("auto_kjelder.json", {})
