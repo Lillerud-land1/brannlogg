@@ -76,7 +76,7 @@ flowchart LR
   PAGES --> MOB[Mobil / PC / Infoskjerm]
 ```
 
-- **GitHub Actions** gjer hovudjobben kvart kvarter (kl. :00, :15, :30 og :45), heilt utan at PC-en er på. Det er gratis for offentlege prosjekt.
+- **GitHub Actions** gjer hovudjobben kvart kvarter, heilt utan at PC-en er på. Det er gratis for offentlege prosjekt. GitHub sine planlagde køyringar blir ofte hoppa over, så kvar køyring startar sjølv den neste etter om lag 15 minutt (jobben `neste` i arbeidsflyten). Cron på skeive minutt (:07, :22, :37, :52) er reserve om kjeda stoppar.
 - **Claude på PC-en** (planlagd oppgåve i Claude-appen, kvar time kl. :10) er ein ekstra kvalitetssjekk når PC-en er på: kontrollerer automatiske nyheitslenker, finn fleire saker, stad for oppdrag som berre står i brannstatistikken, og hendingar som ingen andre har fanga opp. Resultatet blir skrive i `ekstra.json` og sendt til GitHub.
 - GitHub kan starte planlagde jobbar nokre minutt for seint (vanlegvis rundt 10 minutt).
 

@@ -610,11 +610,6 @@ def send_ekstra():
     print("SENDT: OK – GitHub byggjer nettsida på nytt om eitt par minutt")
 
 
-def neste_kvarter(no_lokal):
-    t = no_lokal.replace(minute=no_lokal.minute // 15 * 15, second=0, microsecond=0)
-    return t + timedelta(minutes=15)
-
-
 def main():
     ekstra = les_json("ekstra.json", {})
     arkiv = les_json("arkiv.json", {})
@@ -700,7 +695,7 @@ def main():
     data = {
         "sum": kontrollsum,
         "oppdatert": no.isoformat(timespec="seconds"),
-        "neste": neste_kvarter(no_lokal).isoformat(timespec="seconds"),
+        "neste": (no_lokal + timedelta(minutes=15)).replace(second=0, microsecond=0).isoformat(timespec="seconds"),
         "vindauge": VINDAUGE_DAGAR,
         "brannar": brannar,
         "kart": les_json("kart.json", None),

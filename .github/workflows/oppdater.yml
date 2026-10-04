@@ -1,10 +1,12 @@
 name: Oppdater Brannlogg Stord
 
-# Hentar nye brannar og utrykkingar frå Politiloggen kvart kvarter (:00, :15, :30 og :45), finn nyheitssaker via RSS og legg ut nettsida.
-# GitHub kan av og til starte planlagde jobbar nokre minutt for seint.
+# Hentar nye data frå brannstatistikken og Politiloggen kvart kvarter, finn nyheitslenker og legg ut nettsida.
+# GitHub sine planlagde køyringar (cron) er ikkje til å stole på – dei blir ofte forseinka eller hoppa over,
+# særleg på heile kvarter. Difor startar kvar køyring sjølv den neste om om lag 15 minutt (jobben «neste»).
+# Cron på skeive minutt er berre ein reserve som startar kjeda igjen om ho skulle stoppe.
 on:
   schedule:
-    - cron: "0,15,30,45 * * * *"
+    - cron: "7,22,37,52 * * * *"
   push:
     branches: [main]
     paths: ["ekstra.json", "mal.html", "mal-tv.html", "oppdater.py", ".github/workflows/oppdater.yml"]
@@ -14,14 +16,14 @@ permissions:
   contents: write
   pages: write
   id-token: write
-
-concurrency:
-  group: brannlogg
-  cancel-in-progress: false
+  actions: write
 
 jobs:
   oppdater:
     runs-on: ubuntu-latest
+    concurrency:
+      group: brannlogg
+      cancel-in-progress: false
     environment:
       name: github-pages
       url: ${{ steps.publiser.outputs.page_url }}
@@ -58,3 +60,25 @@ jobs:
 
       - id: publiser
         uses: actions/deploy-pages@v5
+
+  neste:
+    # Startar neste køyring sjølv. Berre éi kjede om gongen: går det alt ei anna køyring, blir det ikkje starta fleire.
+    needs: oppdater
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Vent 13 minutt og start neste køyring
+        run: |
+          sleep 780
+          andre=$(gh run list --workflow oppdater.yml --limit 20 --json databaseId,status \
+            -q '[.[] | select(.databaseId != ${{ github.run_id }}) | select(.status != "completed")] | length')
+          if [ "$andre" = "0" ]; then
+            gh workflow run oppdater.yml --ref main
+            echo "Starta neste køyring"
+          else
+            echo "Det går alt $andre anna køyring(ar) – startar ikkje fleire"
+          fi
