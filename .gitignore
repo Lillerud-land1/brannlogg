@@ -6,3 +6,14 @@ nettside/index.html
 nettside/tv.html
 varsel_kanal.txt
 nettside/status.json
+# Hemmelegheiter skal aldri i repoet (bruk GitHub-hemmelegheiter)
+.env
+.env.*
+*.pem
+*.key
+# Originalfilene til logoen – berre nettside/logo-stord-brann.png skal publiserast
+Stord Brannvesen logo.pdf
+logo brannvesenet.webp
+logo_SBR.jpg
+logo_Stord brann og redning.docx
+logo_blå.tif

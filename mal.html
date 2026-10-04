@@ -1,5 +1,7 @@
 <meta charset="utf-8">
 <title>Brannlogg Stord</title>
+<!-- Berre skripta i sida får køyre (hashane blir fylte inn av oppdater.py) -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src __SKRIPT_HASHAR__; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; child-src 'self'; base-uri 'none'; form-action 'self'; object-src 'none'">
 <meta name="theme-color" content="#0C0F13">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Brannlogg">
@@ -1387,6 +1389,8 @@ const D = DATA || {brannar:[], oppdatert:new Date().toISOString(), neste:null, k
 const VINDU = D.vindauge || 50;
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+// Berre vanlege http(s)-lenker – aldri javascript: eller andre typar
+const trygUrl = u => { try { const x = new URL(u); return /^https?:$/.test(x.protocol) ? x.href : "#"; } catch (e) { return "#"; } };
 
 /* ---- Innstillingar og språk ---- */
 const INNST_STD = {sprak:"nn", fargar:"vanleg", tema:"auto", tekst:"normal", rorsle:"pa", gruppe:"alt"};
@@ -1529,7 +1533,7 @@ function renderHero(){
     const maks = liste.filter(erBrann).reduce((m, b) => Math.max(m, b.alvor), 0);
     const lbl = `${dagMnd(dd, mm + 1)}: ${liste.length ? liste.map(b => b.tittel + ", " + b.stad).join("; ") : T("ingen hending")}`;
     const cls = [maks ? "f" + maks : liste.some(b => b.gruppe === "utrykking") ? "fu" : (liste.length ? "fa" : ""), dn === I_DAG.dn ? "idag" : "", (dd === 1 && i > 0) ? "ny-mnd" : ""].join(" ").trim();
-    cells += `<button type="button" class="${cls}" title="${esc(lbl)}" aria-label="${esc(lbl)}"${liste.length ? ` data-vis="${liste[0].id}"` : ` tabindex="-1"`}></button>`;
+    cells += `<button type="button" class="${cls}" title="${esc(lbl)}" aria-label="${esc(lbl)}"${liste.length ? ` data-vis="${esc(liste[0].id)}"` : ` tabindex="-1"`}></button>`;
   }
   const strip = $("#strip");
   strip.innerHTML = cells;
@@ -1566,7 +1570,7 @@ function renderBrannfare(){
     : (d => d === 0 ? T("i dag") : d === 1 ? T("i går") : T("{n} dagar sidan", {n:d}))(I_DAG.dn - Date.UTC(...f.sist_regn.split("-").map((x, i) => i === 1 ? x - 1 : +x)) / 864e5);
   const niva = {yellow:T("gult nivå"), orange:T("oransje nivå"), red:T("raudt nivå")};
   const varsel = f.varsel && new Date(f.varsel.til) > Date.now()
-    ? `<a class="bf-varsel ${esc(f.varsel.farge)}" href="${esc(f.varsel.url || "https://www.met.no")}" target="_blank" rel="noopener">${T("Farevarsel frå MET: {n}", {n:niva[f.varsel.farge] || ""})}</a>` : "";
+    ? `<a class="bf-varsel ${esc(f.varsel.farge)}" href="${esc(trygUrl(f.varsel.url || "https://www.met.no"))}" target="_blank" rel="noopener">${T("Farevarsel frå MET: {n}", {n:niva[f.varsel.farge] || ""})}</a>` : "";
   const tal = n => n.toLocaleString(LOCALE, {maximumFractionDigits:1});
   el.innerHTML = `<summary><span class="bf-bar" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${f.prosent}" aria-label="${T("Skogbrannfare")} ${f.prosent} %, ${klasse}">
         <span class="dim" style="width:${100 - f.prosent}%"></span><span class="merke" style="left:${f.prosent}%"></span></span>
@@ -1637,10 +1641,10 @@ function kort(b){
     <p class="summary">${esc(b.meldingar[0]?.tekst || "")}</p>
     <div class="tags">${tags}</div>
     ${b.merknad ? `<div class="note">${ikon("i-merk")}<span>${esc(b.merknad)}</span></div>` : ""}
-    ${(b.bilete || []).map(p => `<figure class="foto"><img src="${p.src}" alt="${T("Bilete frå hendinga på {s}", {s:esc(b.stad)})}" loading="lazy"><figcaption>${esc(p.kreditt)}</figcaption></figure>`).join("")}
+    ${(b.bilete || []).map(p => `<figure class="foto"><img src="${esc(p.src)}" alt="${T("Bilete frå hendinga på {s}", {s:esc(b.stad)})}" loading="lazy"><figcaption>${esc(p.kreditt)}</figcaption></figure>`).join("")}
     ${b.kjelde_type === "media" || b.kjelde_type === "bris" ? "" : `<details class="log"${b.aktiv ? " open" : ""}><summary>${ikon("i-pil")}${T("Heile politiloggen")} <span class="mono">${fl(b.meldingar.length, "melding", "meldingar")}${var_ ? " · " + var_ : ""}</span></summary><ol class="tl">${logg}</ol></details>`}
     ${b.kjelder?.length ? `<div class="media"><div class="eyebrow">${T("I media")}</div><ul>${b.kjelder.map(k =>
-      `<li><a href="${esc(k.url)}" target="_blank" rel="noopener"><span class="src">${esc(k.kjelde)}</span><span class="t">${esc(k.tittel)}</span>${ikon("i-ut","")}</a></li>`).join("")}</ul></div>` : ""}
+      `<li><a href="${esc(trygUrl(k.url))}" target="_blank" rel="noopener"><span class="src">${esc(k.kjelde)}</span><span class="t">${esc(k.tittel)}</span>${ikon("i-ut","")}</a></li>`).join("")}</ul></div>` : ""}
     <div class="actions">
       ${b.pos ? `<button type="button" class="btn" data-kart="${esc(b.id)}">${ikon("i-kart")}${T("Vis på kartet")}</button>` : ""}
       ${b.kjelde_type === "bris" ? `<a class="btn" href="https://brannstatistikk.no/search" target="_blank" rel="noopener">${ikon("i-ut")}${T("Brannstatistikk")}</a>` : ""}

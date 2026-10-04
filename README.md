@@ -197,3 +197,27 @@ Brukarar kan rapportere feil med knappen **«Rapporter eit problem»** under Om 
 - Alvorsgraden er rekna ut automatisk frå teksten og er ikkje ei offisiell vurdering.
 - Nyheitsfeedane viser berre dei nyaste sakene. Derfor blir dei lesne kvart kvarter.
 - Politiloggen gir berre eitt år bakover. Eldre hendingar blir tekne vare på i `arkiv.json` frå no av.
+
+---
+
+## 11. Tryggleik
+
+Appen er ei statisk nettside på GitHub Pages: det finst ingen server, database, innlogging eller eigne API-endepunkt som kan angripast. Alle data i appen er offentlege frå før. Det som er gjort for å hindre misbruk:
+
+| Vern | Kva det hindrar |
+|---|---|
+| **Kontroll av alle data** før dei kjem inn i sida (`rens_hending()`, `rens_brannfare()` i `oppdater.py`) | Ugyldige felt blir retta eller fjerna. Lenker må vere `http(s)` til ein godkjend nettstad (`LENKE_DOMENE`) – `javascript:`-lenker og ukjende nettstader blir fjerna og lista som `AVVIST_LENKE` i loggen. |
+| **Escaping** av all tekst i sida (`esc()`, `trygUrl()` i malane) og `<` → `<` i dataa | Tekst frå Politiloggen, nyheiter eller `ekstra.json` kan ikkje bli til HTML eller skript. |
+| **Content-Security-Policy** med sha256-hashar (`med_csp()`) | Nettlesaren køyrer berre skripta som er i malen. Innsmugla skript, `onerror=` o.l. og skript frå andre nettstader blir blokkerte. |
+| **GitHub Actions**: ingen løyve som standard, kvar jobb berre det han treng; actions låste til commit-SHA | Ein kapra action eller jobb kan gjere minst mogleg. |
+| **GitHub**: secret scanning og push protection er på; berre eigaren kan skrive til repoet | Nøklar som ved eit uhell blir lagde inn, blir stoppa. |
+| **Claude-oppgåva** (planlagd på PC-en) har berre løyve til to faste kommandoar + nettsøk, og har fått beskjed om at innhald frå nettet aldri er instruksjonar | Ei nettside med skjulte instruksjonar («prompt injection») kan ikkje styre agenten. Sjølv om ho skulle klare det, stoppar kontrollen over farlege lenker og skript. |
+| `.gitignore` | `.env`, nøklar og originalfilene til logoen kan ikkje kome med i repoet ved eit uhell. |
+
+**Hemmelegheiter:** Den einaste er `NTFY_TOPIC` (GitHub-hemmelegheit). Kanalnamnet står òg i appen og her, sidan brukarane treng det for å abonnere – så det er ikkje eigentleg hemmeleg. Legg aldri nøklar, passord eller token i filene i repoet; bruk GitHub-hemmelegheiter.
+
+**Admin-koden** er berre ein «gardin», ikkje ein lås: på ei statisk nettside kan alt lesast i kjeldekoden, og ein firesifra kode kan prøvast ut på eit augeblink. Han skjuler berre lenka til TV-sida, som ikkje er hemmeleg. Legg aldri noko som må vere hemmeleg bak admin-koden.
+
+**Kjende avgrensingar:** Alle som kjenner ntfy-kanalnamnet, kan sende falske varsel til kanalen (gratisversjonen av ntfy har ingen tilgangsstyring). Det kan berre løysast med betalt ntfy-konto med reservert kanal eller eigen ntfy-server.
+
+Når nye tekstfelt eller lenker blir lagde til i appen: legg dei inn i `rens_hending()` (elles blir dei fjerna) og bruk `esc()` / `trygUrl()` i malen. Nye `<script>`-blokker i malane får hash automatisk; inline-hendingar som `onclick="…"` vil ikkje verke (bruk `addEventListener`).

@@ -8,6 +8,7 @@ Bygginga kvart kvarter skjer i GitHub Actions (.github/workflows/oppdater.yml).
 Kjelder: Politiloggen API (Politiet, NLOD 2.0), Kartverket (adresser/stadnamn).
 """
 import base64
+import hashlib
 import json
 import math
 import re
@@ -539,8 +540,145 @@ def skriv_nettside(side):
     mappe = MAPPE / "nettside"
     mappe.mkdir(exist_ok=True)
     (mappe / "index.html").write_text(
-        NETTSIDE_HOVUD + hovud + "\n</head>\n<body>\n" + side[delepunkt:] + "\n" + NETTSIDE_SLUTT, encoding="utf-8")
+        med_csp(NETTSIDE_HOVUD + hovud + "\n</head>\n<body>\n" + side[delepunkt:] + "\n" + NETTSIDE_SLUTT), encoding="utf-8")
     (mappe / ".nojekyll").touch()
+
+
+# ---------- Tryggleik ----------
+# Alt som kjem utanfrå (Politiloggen, brannstatistikken, nyheitsfeedar, MET og ekstra.json, som Claude skriv etter
+# nettsøk) blir kontrollert her før det kjem inn i sida, så ingen kan smugle inn skript eller farlege lenker.
+
+TYPAR_OK = {"bygning", "kjoretoy", "vegetasjon", "pipe", "alarm", "industri", "baat", "anna", "trafikk", "sjo",
+            "ulykke", "redning", "dyr", "utslepp", "utrykking", "helse", "brannvern"}   # same som TYPE i mal.html
+GRUPPER_OK = {"brann", "utrykking", "alarm"}
+# Nyheitslenker blir berre viste når dei går til ein av desse nettstadene (eller eit underdomene av dei).
+LENKE_DOMENE = ("radioh.no", "sunnhordland.no", "stord24.no", "nrk.no", "h-avis.no", "bomlo-nytt.no", "vg.no", "bt.no",
+                "tv2.no", "dagbladet.no", "aftenposten.no", "nettavisen.no", "e24.no", "abcnyheter.no", "framtida.no",
+                "kvinnheringen.no", "grenda.no", "tysnesbladet.no", "politiet.no", "dsb.no", "brannstatistikk.no",
+                "stord.kommune.no", "vegvesen.no", "kystverket.no", "hovedredningssentralen.no", "met.no", "yr.no")
+MET_DOMENE = ("met.no", "yr.no")
+CSP_MERKE = "__SKRIPT_HASHAR__"
+
+
+def trygg_url(url, domene=LENKE_DOMENE):
+    """Gir lenka att om ho er ei vanleg http(s)-lenke til ein godkjend nettstad, elles None.
+    Stoppar mellom anna javascript:-lenker og lenker til ukjende nettstader."""
+    if not isinstance(url, str):
+        return None
+    url = url.strip()
+    if not url or len(url) > 2000 or re.search(r"[\s\x00-\x1f\x7f\"<>\\`]", url):
+        return None
+    try:
+        delar = urllib.parse.urlsplit(url)
+        vert = (delar.hostname or "").lower()
+    except ValueError:
+        return None
+    if delar.scheme not in ("https", "http") or "@" in delar.netloc:
+        return None
+    return url if any(vert == d or vert.endswith("." + d) for d in domene) else None
+
+
+def _tekst(v):
+    return v if isinstance(v, str) else "" if v is None else str(v)
+
+
+def _tal(v):
+    return v if isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v) else None
+
+
+def _heiltal(v, lag, hog, standard):
+    try:
+        return min(hog, max(lag, int(v)))
+    except (TypeError, ValueError, OverflowError):
+        return standard
+
+
+def rens_hending(b):
+    """Kontrollerer éi hending før ho blir lagd inn i sida. Gir None om ho ikkje kan visast trygt."""
+    bid = b.get("id")
+    if not isinstance(bid, str) or not re.fullmatch(r"[A-Za-z0-9_-]{1,80}", bid):
+        print(f"AVVIST_HENDING: ugyldig id {bid!r}")
+        return None
+    meldingar = [{"t": _tekst(m.get("t")), "tekst": _tekst(m.get("tekst")), "endra": bool(m.get("endra"))}
+                 for m in (b.get("meldingar") or []) if isinstance(m, dict)]
+    if not meldingar:
+        print(f"AVVIST_HENDING: {bid} har ingen meldingar")
+        return None
+    gruppe = b.get("gruppe") if b.get("gruppe") in GRUPPER_OK else "brann"
+    pos = b.get("pos")
+    pos_ok = (isinstance(pos, (list, tuple)) and len(pos) == 2 and all(_tal(x) is not None for x in pos)
+              and -90 <= pos[0] <= 90 and -180 <= pos[1] <= 180)
+    kjelder = []
+    for k in b.get("kjelder") or []:
+        url = trygg_url(k.get("url")) if isinstance(k, dict) else None
+        if not url:
+            print(f"AVVIST_LENKE: {bid}: {(k.get('url') if isinstance(k, dict) else k)!r}")
+            continue
+        kjelder.append({"kjelde": _tekst(k.get("kjelde")), "tittel": _tekst(k.get("tittel")), "url": url,
+                        **({"dato": _tekst(k["dato"])} if "dato" in k else {})})
+    ut = {
+        "id": bid,
+        "gruppe": gruppe,
+        "tittel": _tekst(b.get("tittel")),
+        "type": b.get("type") if b.get("type") in TYPAR_OK else ("anna" if gruppe == "brann" else gruppe),
+        "alvor": _heiltal(b.get("alvor"), 1, 3, 1),
+        "stad": _tekst(b.get("stad")),
+        "start": _tekst(b.get("start")),
+        "sist": _tekst(b.get("sist")),
+        "aktiv": bool(b.get("aktiv")),
+        "pos": [pos[0], pos[1]] if pos_ok else None,
+        "flagg": {str(k): bool(v) for k, v in b["flagg"].items()} if isinstance(b.get("flagg"), dict) else {},
+        "meldingar": meldingar,
+        "kjelder": kjelder,
+        "merknad": _tekst(b.get("merknad")),
+        # Bilete frå Politiloggen blir lagra som data:-adresser. Alt anna blir fjerna.
+        "bilete": [{"src": p["src"], "kreditt": _tekst(p.get("kreditt"))} for p in (b.get("bilete") or [])
+                   if isinstance(p, dict) and isinstance(p.get("src"), str)
+                   and re.fullmatch(r"data:image/(?:jpeg|png|webp);base64,[A-Za-z0-9+/]+={0,2}", p["src"])],
+    }
+    if "stor" in b:
+        ut["stor"] = bool(b["stor"])
+    if "bris" in b:
+        br = b["bris"]
+        ut["bris"] = {"id": _tekst(br.get("id")), "tid": _tekst(br.get("tid")),
+                      "type": br.get("type") if isinstance(br.get("type"), str) else None} if isinstance(br, dict) else None
+    if b.get("kjelde_type") in ("bris", "media"):
+        ut["kjelde_type"] = b["kjelde_type"]
+    return ut
+
+
+def rens_brannfare(bf):
+    """Kontrollerer skogbrannfaren (vêrdata frå Open-Meteo og farevarsel frå MET) før han kjem inn i sida."""
+    if not isinstance(bf, dict):
+        return None
+    sist_regn = bf.get("sist_regn")
+    ut = {"tid": _tekst(bf.get("tid")), "fwi": _tal(bf.get("fwi")), "klasse": _heiltal(bf.get("klasse"), 0, 5, 0),
+          "prosent": _heiltal(bf.get("prosent"), 0, 100, 0),
+          "sist_regn": sist_regn if isinstance(sist_regn, str) and re.fullmatch(r"\d{4}-\d{2}-\d{2}", sist_regn) else None,
+          "regn_7d": _tal(bf.get("regn_7d")), "temp": _tal(bf.get("temp")), "fukt": _tal(bf.get("fukt")),
+          "vind": _tal(bf.get("vind")), "varsel": None}
+    v = bf.get("varsel")
+    if isinstance(v, dict) and isinstance(v.get("farge"), str) and re.fullmatch(r"[a-z]{1,20}", v["farge"]):
+        ut["varsel"] = {"farge": v["farge"], "til": _tekst(v.get("til")), "url": trygg_url(v.get("url"), MET_DOMENE),
+                        "tekst": _tekst(v.get("tekst")) if v.get("tekst") is not None else None}
+    return ut
+
+
+def json_til_skript(data):
+    """JSON som kan stå trygt inne i <script>: alle «<» blir \\u003c, så teksten aldri kan avslutte skriptet."""
+    return json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c")
+
+
+def med_csp(html):
+    """Fyller inn sha256-hashar for skripta i sida i Content-Security-Policy-taggen.
+    Då får berre desse skripta køyre – skript som nokon måtte klare å smugle inn, blir blokkerte av nettlesaren."""
+    skript = re.findall(r"<script>(.*?)</script>", html, re.S)
+    if html.count(CSP_MERKE) != 1 or len(skript) != len(re.findall(r"<script", html, re.I)) \
+            or len(skript) != len(re.findall(r"</script", html, re.I)):
+        sys.exit("Content-Security-Policy: fann ikkje __SKRIPT_HASHAR__ éin gong, eller skripta i malen har uventa form")
+    hashar = dict.fromkeys("'sha256-" + base64.b64encode(hashlib.sha256(s.encode("utf-8")).digest()).decode() + "'"
+                           for s in skript)
+    return html.replace(CSP_MERKE, " ".join(hashar))
 
 
 def git(*arg):
@@ -721,8 +859,8 @@ def main():
         # – utanom dei Claude har avvist som feil.
         vekk = {k["url"] for k in b["kjelder"]} | set(ekstra.get(b["id"], {}).get("avvis", []))
         b["kjelder"] = b["kjelder"] + [k for k in auto.get(b["id"], []) if k["url"] not in vekk]
+    brannar = [r for r in map(rens_hending, brannar) if r]
 
-    import hashlib
     innhald = [[b["id"], b["sist"], len(b["meldingar"]), len(b["kjelder"]), b["aktiv"]] for b in brannar]
     kontrollsum = hashlib.sha1(json.dumps(innhald).encode()).hexdigest()[:12]
     no = datetime.now(timezone.utc)
@@ -734,14 +872,14 @@ def main():
         "vindauge": VINDAUGE_DAGAR,
         "brannar": brannar,
         "kart": les_json("kart.json", None),
-        "brannfare": hent_brannfare(),
+        "brannfare": rens_brannfare(hent_brannfare()),
     }
-    json_tekst = json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
+    json_tekst = json_til_skript(data)
     mal = (MAPPE / "mal.html").read_text(encoding="utf-8")
     if "/*__DATA__*/null" not in mal:
         sys.exit("Fann ikkje /*__DATA__*/null i mal.html")
     side = mal.replace("/*__DATA__*/null", json_tekst)
-    (MAPPE / "stordbrann.html").write_text(side, encoding="utf-8")
+    (MAPPE / "stordbrann.html").write_text(med_csp(side), encoding="utf-8")
     skriv_nettside(side)
     # Liten fil som opne sider sjekkar for å sjå om det finst nye data
     (MAPPE / "nettside" / "status.json").write_text(
@@ -750,7 +888,7 @@ def main():
     tv_mal = MAPPE / "mal-tv.html"
     if tv_mal.exists():
         (MAPPE / "nettside" / "tv.html").write_text(
-            tv_mal.read_text(encoding="utf-8").replace("/*__DATA__*/null", json_tekst), encoding="utf-8")
+            med_csp(tv_mal.read_text(encoding="utf-8").replace("/*__DATA__*/null", json_tekst)), encoding="utf-8")
 
     grense = no - timedelta(days=VINDAUGE_DAGAR)
     siste = [b for b in brannar if datetime.fromisoformat(b["start"]) >= grense]

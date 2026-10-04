@@ -12,15 +12,17 @@ on:
     paths: ["ekstra.json", "mal.html", "mal-tv.html", "oppdater.py", ".github/workflows/oppdater.yml"]
   workflow_dispatch:
 
-permissions:
-  contents: write
-  pages: write
-  id-token: write
-  actions: write
+# Tryggleik: ingen løyve som standard – kvar jobb får berre det han treng.
+# Actions er låste til ein fast versjon (commit-SHA), så ein kapra versjonstagg ikkje kan endre bygginga.
+permissions: {}
 
 jobs:
   oppdater:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write   # lagre nye data i repoet
+      pages: write      # leggje ut nettsida
+      id-token: write   # krevst av deploy-pages
     concurrency:
       group: brannlogg
       cancel-in-progress: false
@@ -30,9 +32,9 @@ jobs:
     env:
       TZ: Europe/Oslo
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
-      - uses: actions/setup-python@v7
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
           python-version: "3.12"
 
@@ -52,14 +54,14 @@ jobs:
             git push
           fi
 
-      - uses: actions/configure-pages@v6
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d  # v6.0.0
 
-      - uses: actions/upload-pages-artifact@v5
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9  # v5.0.0
         with:
           path: nettside
 
       - id: publiser
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346  # v5.0.1
 
   neste:
     # Startar neste køyring sjølv. Berre éi kjede om gongen: går det alt ei anna køyring, blir det ikkje starta fleire.
@@ -67,6 +69,9 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      actions: write    # sjå køyringar og starte neste
+      contents: read
     env:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
