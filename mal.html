@@ -68,7 +68,9 @@ h1,h2,h3{margin:0;text-wrap:balance}
 .brand-text{display:flex;flex-direction:column;line-height:1}
 .brand-name{font-family:var(--f-display);font-weight:800;font-size:23px;letter-spacing:.02em;text-transform:uppercase}
 .brand-sub{font-size:11.5px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-top:3px}
-.status{cursor:pointer;margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-2);
+.brand{flex-shrink:0}
+#status-txt{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.status{min-width:0;cursor:pointer;margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-2);
   background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:5px 11px 5px 9px;white-space:nowrap}
 .status .dot{width:8px;height:8px;border-radius:50%;background:#2E9E62;box-shadow:0 0 0 3px color-mix(in srgb,#2E9E62 22%,transparent)}
 .status.gammal .dot{background:var(--ember);box-shadow:0 0 0 3px color-mix(in srgb,var(--ember) 25%,transparent)}
@@ -293,7 +295,25 @@ button.hbar[aria-pressed="true"] .fill{background:var(--ember)}
 .info-nav button[aria-current="true"]{border-left-color:var(--fire);background:var(--chip);color:var(--ink);font-weight:600}
 .info-innhald{display:grid;gap:18px;min-width:0}
 .info-innhald > .panel{scroll-margin-top:84px}
-.app[data-view="info"] .layout,.app[data-view="innst"] .layout{display:none}
+.app[data-view="info"] .layout,.app[data-view="innst"] .layout,.app[data-view="personvern"] .layout,.app[data-view="cookies"] .layout,.app[data-view="vilkar"] .layout{display:none}
+.juridisk .panel{max-width:760px}
+.jur-tilbake{margin-bottom:14px}
+.jur-tekst{font-size:14.5px;color:var(--ink-2);line-height:1.6}
+.jur-tekst h3{font-size:16px;color:var(--ink);margin:18px 0 4px}
+.jur-tekst p{margin:0 0 8px}
+.jur-tekst ul{margin:0 0 8px;padding-left:20px;display:grid;gap:4px}
+.jur-tekst code{font-family:var(--f-mono);font-size:13px;background:var(--chip);border-radius:4px;padding:0 4px}
+.jur-tekst > .sub{margin:6px 0 4px}
+.jur-lenker{margin-bottom:6px!important}
+.jur-lenker a{color:var(--ink-2);text-decoration:none}
+.jur-lenker a:hover{text-decoration:underline}
+.personvern-melding{position:fixed;left:12px;right:12px;bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:45;max-width:560px;margin-inline:auto;
+  background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.22);padding:14px 16px;display:grid;gap:10px}
+.personvern-melding p{margin:0;font-size:14px;color:var(--ink-2)}
+.personvern-melding .rad{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.personvern-melding a{font-size:14px;color:var(--ink-2)}
+.personvern-melding .btn-lagre{margin-left:auto;flex:0 0 auto;min-height:40px;padding:0 26px;font-size:15px}
+@media (min-width:1000px){ .personvern-melding{bottom:20px} }
 .info .panel h3{font-size:16px;margin-bottom:8px}
 .info p,.info li{font-size:14px;color:var(--ink-2)}
 .info p{margin:0 0 10px}
@@ -421,7 +441,8 @@ html{overscroll-behavior-y:contain}
   /* Faner på PC òg: kvar fane er si eiga side, så ein slepp å rulle forbi alt */
   .vw{display:none}
   .app[data-view="liste"] #v-liste,.app[data-view="liste"] #v-kart,
-  .app[data-view="kart"] #v-kart,.app[data-view="stat"] #v-stat,.app[data-view="innst"] #v-innst{display:block}
+  .app[data-view="kart"] #v-kart,.app[data-view="stat"] #v-stat,.app[data-view="innst"] #v-innst,
+  .app[data-view="personvern"] #v-personvern,.app[data-view="cookies"] #v-cookies,.app[data-view="vilkar"] #v-vilkar{display:block}
   .app[data-view="info"] #v-info{display:grid}
   .app:not([data-view="liste"]) .hero{display:none}
   .app:not([data-view="liste"]) .layout{grid-template-columns:minmax(0,1fr)}
@@ -446,7 +467,8 @@ html{overscroll-behavior-y:contain}
   .kanal .pc-berre{display:none}
   .vw{display:none}
   .app[data-view="liste"] #v-liste,.app[data-view="liste"] .hero,
-  .app[data-view="kart"] #v-kart,.app[data-view="stat"] #v-stat,.app[data-view="info"] #v-info,.app[data-view="innst"] #v-innst{display:block}
+  .app[data-view="kart"] #v-kart,.app[data-view="stat"] #v-stat,.app[data-view="info"] #v-info,.app[data-view="innst"] #v-innst,
+  .app[data-view="personvern"] #v-personvern,.app[data-view="cookies"] #v-cookies,.app[data-view="vilkar"] #v-vilkar{display:block}
   .app[data-view="info"] #v-info{display:grid}
   .app:not([data-view="liste"]) .hero{display:none}
 }
@@ -743,13 +765,187 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
       </div>
     </div>
   </section>
+  <section class="vw juridisk" id="v-personvern" aria-label="Personvern">
+    <div class="panel">
+      <button type="button" class="btn jur-tilbake" data-tilbake="1">← Tilbake</button>
+      <h2 class="h2">Personvern</h2>
+      <div class="jur-tekst" data-sprak="nn"><p class="sub">Sist oppdatert 4. oktober 2026</p>
+<p><b>Kort sagt:</b> Brannlogg Stord har ingen konto, ingen informasjonskapslar (cookies), ingen sporing eller statistikk over brukarar og ingen reklame.</p>
+<h3>Kven står bak</h3>
+<p>Brannlogg Stord er ei gratis, privat nettside laga av Leander Wågen Lillerud. Ho er ikkje ein offisiell teneste frå Politiet, brannvesenet eller Stord kommune. Kontakt: <a href="mailto:lillerudleander@gmail.com">lillerudleander@gmail.com</a>.</p>
+<h3>Kva som blir lagra på eininga di</h3>
+<p>Innstillingane dine, tidspunktet for den nyaste hendinga du har sett (for «NY»-merket), om du har lukka personvernmeldinga, og ein kopi av sida så ho kan opnast utan nett. Dette ligg berre i nettlesaren din og blir aldri sendt til meg. Sjå <a href="#informasjonskapslar" data-go="cookies">Informasjonskapslar</a>.</p>
+<h3>Teknisk informasjon til andre</h3>
+<ul><li><b>GitHub</b> (GitHub Pages) driv nettstaden. Som for alle nettstader får dei IP-adressa di og informasjon om nettlesaren når sida blir lasta, til drift og tryggleik.</li>
+<li><b>Google Fonts</b>: Skrifttypane blir henta frå Google, som då får IP-adressa di.</li></ul>
+<p>Eg får ikkje tilgang til desse opplysningane. Sjå personvernerklæringane til GitHub og Google.</p>
+<h3>Opplysningar om hendingar</h3>
+<p>Sida viser offentlege opplysningar frå Politiloggen (Politiet, NLOD 2.0) og brannstatistikk.no (DSB), vêrdata frå MET Norway og Open-Meteo, og lenker til nyheitssaker. Tekstane frå politiet og overskriftene på nyheitssaker kan nemne stader og hendingar. Meiner du at noko på sida gjeld deg og bør rettast eller fjernast, ta kontakt.</p>
+<h3>Varsel på mobilen</h3>
+<p>Varsla blir sende gjennom appen ntfy (ntfy.sh). Eg får ikkje vite kven som abonnerer. Sjå personvernerklæringa til ntfy.</p>
+<h3>E-post</h3>
+<p>Sender du e-post med feil eller forslag, blir han berre brukt til å svare deg og forbetre sida. E-posten blir lagra i Gmail (Google) og sletta når saka er ferdig.</p>
+<h3>Rettane dine</h3>
+<p>Du kan be om innsyn i, retting av eller sletting av opplysningar om deg. Du kan også klage til Datatilsynet (datatilsynet.no).</p>
+<h3>Endringar</h3>
+<p>Denne erklæringa kan bli endra. Datoen øvst viser siste endring.</p>
+      </div>
+      <div class="jur-tekst" data-sprak="nb" hidden><p class="sub">Sist oppdatert 4. oktober 2026</p>
+<p><b>Kort sagt:</b> Brannlogg Stord har ingen konto, ingen informasjonskapsler (cookies), ingen sporing eller statistikk over brukere og ingen reklame.</p>
+<h3>Hvem står bak</h3>
+<p>Brannlogg Stord er en gratis, privat nettside laget av Leander Wågen Lillerud. Den er ikke en offisiell tjeneste fra Politiet, brannvesenet eller Stord kommune. Kontakt: <a href="mailto:lillerudleander@gmail.com">lillerudleander@gmail.com</a>.</p>
+<h3>Hva som lagres på enheten din</h3>
+<p>Innstillingene dine, tidspunktet for den nyeste hendelsen du har sett (for «NY»-merket), om du har lukket personvernmeldingen, og en kopi av siden slik at den kan åpnes uten nett. Dette ligger bare i nettleseren din og blir aldri sendt til meg. Se <a href="#informasjonskapslar" data-go="cookies">Informasjonskapsler</a>.</p>
+<h3>Teknisk informasjon til andre</h3>
+<ul><li><b>GitHub</b> (GitHub Pages) drifter nettstedet. Som for alle nettsteder får de IP-adressen din og informasjon om nettleseren når siden lastes, for drift og sikkerhet.</li>
+<li><b>Google Fonts</b>: Skrifttypene hentes fra Google, som da får IP-adressen din.</li></ul>
+<p>Jeg får ikke tilgang til disse opplysningene. Se personvernerklæringene til GitHub og Google.</p>
+<h3>Opplysninger om hendelser</h3>
+<p>Siden viser offentlige opplysninger fra Politiloggen (Politiet, NLOD 2.0) og brannstatistikk.no (DSB), værdata fra MET Norway og Open-Meteo, og lenker til nyhetssaker. Tekstene fra politiet og overskriftene på nyhetssaker kan nevne steder og hendelser. Mener du at noe på siden gjelder deg og bør rettes eller fjernes, ta kontakt.</p>
+<h3>Varsel på mobilen</h3>
+<p>Varslene sendes gjennom appen ntfy (ntfy.sh). Jeg får ikke vite hvem som abonnerer. Se personvernerklæringen til ntfy.</p>
+<h3>E-post</h3>
+<p>Sender du e-post med feil eller forslag, brukes den bare til å svare deg og forbedre siden. E-posten lagres i Gmail (Google) og slettes når saken er ferdig.</p>
+<h3>Rettighetene dine</h3>
+<p>Du kan be om innsyn i, retting av eller sletting av opplysninger om deg. Du kan også klage til Datatilsynet (datatilsynet.no).</p>
+<h3>Endringer</h3>
+<p>Denne erklæringen kan bli endret. Datoen øverst viser siste endring.</p>
+      </div>
+      <div class="jur-tekst" data-sprak="en" hidden><p class="sub">Last updated 4 October 2026</p>
+<p><b>In short:</b> Brannlogg Stord has no accounts, no cookies, no tracking or user statistics, and no ads.</p>
+<h3>Who runs it</h3>
+<p>Brannlogg Stord is a free, private website made by Leander Wågen Lillerud. It is not an official service of the police, the fire service or Stord municipality. Contact: <a href="mailto:lillerudleander@gmail.com">lillerudleander@gmail.com</a>.</p>
+<h3>What is stored on your device</h3>
+<p>Your settings, the time of the newest incident you have seen (for the “NEW” label), whether you have closed the privacy notice, and a copy of the site so it can open offline. This stays in your browser and is never sent to me. See <a href="#informasjonskapslar" data-go="cookies">Cookies</a>.</p>
+<h3>Technical information shared with others</h3>
+<ul><li><b>GitHub</b> (GitHub Pages) hosts the website. As with any website, they receive your IP address and browser information when the page loads, for operation and security.</li>
+<li><b>Google Fonts</b>: The fonts are loaded from Google, which then receives your IP address.</li></ul>
+<p>I do not have access to this information. See the privacy policies of GitHub and Google.</p>
+<h3>Information about incidents</h3>
+<p>The site shows public information from Politiloggen (Norwegian Police, NLOD 2.0) and brannstatistikk.no (DSB), weather data from MET Norway and Open-Meteo, and links to news stories. Police texts and news headlines may mention places and incidents. If you think something on the site concerns you and should be corrected or removed, please get in touch.</p>
+<h3>Phone notifications</h3>
+<p>Notifications are sent through the ntfy app (ntfy.sh). I do not know who subscribes. See ntfy's privacy policy.</p>
+<h3>Email</h3>
+<p>If you email a bug report or idea, it is only used to reply to you and improve the site. Emails are stored in Gmail (Google) and deleted when the matter is closed.</p>
+<h3>Your rights</h3>
+<p>You can ask for access to, correction of or deletion of information about you. You can also complain to the Norwegian Data Protection Authority (datatilsynet.no).</p>
+<h3>Changes</h3>
+<p>This policy may change. The date at the top shows the latest change.</p>
+      </div>
+    </div>
+  </section>
+  <section class="vw juridisk" id="v-cookies" aria-label="Informasjonskapslar">
+    <div class="panel">
+      <button type="button" class="btn jur-tilbake" data-tilbake="1">← Tilbake</button>
+      <h2 class="h2">Informasjonskapslar</h2>
+      <div class="jur-tekst" data-sprak="nn"><p class="sub">Sist oppdatert 4. oktober 2026</p>
+<p><b>Brannlogg Stord brukar ikkje informasjonskapslar (cookies)</b>, og heller ingen sporings- eller analyseverktøy.</p>
+<h3>Lokal lagring i nettlesaren</h3>
+<p>For at funksjonane du sjølv vel skal fungere, lagrar sida litt informasjon i nettlesaren din. Det blir aldri sendt nokon stad.</p>
+<ul><li><code>brannlogg_innst</code>: innstillingane dine (språk, fargar, utsjånad, tekststorleik, rørsle og kva appen opnar med).</li>
+<li><code>brannlogg_sist_sett</code>: tidspunktet for den nyaste hendinga du har sett, så nye hendingar kan få «NY»-merket.</li>
+<li><code>brannlogg_personvern_ok</code>: at du har lukka meldinga om personvern.</li>
+<li><b>Lagra kopi (service worker)</b>: ein kopi av sida, så ho kan opnast utan nett.</li></ul>
+<h3>Andre tenester</h3>
+<p>Sida hentar skrifttypar frå Google Fonts og blir driven av GitHub Pages. Dei kan få teknisk informasjon som IP-adressa di. Sjå <a href="#personvern" data-go="personvern">Personvern</a>.</p>
+<h3>Slik slettar du det</h3>
+<p>Innstillingane kan du setje tilbake under Innstillingar → Tilbakestill. Alt anna slettar du ved å slette nettstaddata for lillerud-land1.github.io i innstillingane til nettlesaren.</p>
+      </div>
+      <div class="jur-tekst" data-sprak="nb" hidden><p class="sub">Sist oppdatert 4. oktober 2026</p>
+<p><b>Brannlogg Stord bruker ikke informasjonskapsler (cookies)</b>, og heller ingen sporings- eller analyseverktøy.</p>
+<h3>Lokal lagring i nettleseren</h3>
+<p>For at funksjonene du selv velger skal virke, lagrer siden litt informasjon i nettleseren din. Det blir aldri sendt noe sted.</p>
+<ul><li><code>brannlogg_innst</code>: innstillingene dine (språk, farger, utseende, tekststørrelse, bevegelse og hva appen åpner med).</li>
+<li><code>brannlogg_sist_sett</code>: tidspunktet for den nyeste hendelsen du har sett, slik at nye hendelser kan få «NY»-merket.</li>
+<li><code>brannlogg_personvern_ok</code>: at du har lukket meldingen om personvern.</li>
+<li><b>Lagret kopi (service worker)</b>: en kopi av siden, slik at den kan åpnes uten nett.</li></ul>
+<h3>Andre tjenester</h3>
+<p>Siden henter skrifttyper fra Google Fonts og driftes av GitHub Pages. De kan få teknisk informasjon som IP-adressen din. Se <a href="#personvern" data-go="personvern">Personvern</a>.</p>
+<h3>Slik sletter du det</h3>
+<p>Innstillingene kan du tilbakestille under Innstillinger → Tilbakestill. Alt annet sletter du ved å slette nettstedsdata for lillerud-land1.github.io i innstillingene til nettleseren.</p>
+      </div>
+      <div class="jur-tekst" data-sprak="en" hidden><p class="sub">Last updated 4 October 2026</p>
+<p><b>Brannlogg Stord does not use cookies</b>, and no tracking or analytics tools either.</p>
+<h3>Local storage in your browser</h3>
+<p>So that the features you choose can work, the site stores a little information in your browser. It is never sent anywhere.</p>
+<ul><li><code>brannlogg_innst</code>: your settings (language, colours, appearance, text size, motion and what the app opens with).</li>
+<li><code>brannlogg_sist_sett</code>: the time of the newest incident you have seen, so new incidents can get the “NEW” label.</li>
+<li><code>brannlogg_personvern_ok</code>: that you have closed the privacy notice.</li>
+<li><b>Saved copy (service worker)</b>: a copy of the site so it can open offline.</li></ul>
+<h3>Other services</h3>
+<p>The site loads fonts from Google Fonts and is hosted on GitHub Pages. They may receive technical information such as your IP address. See <a href="#personvern" data-go="personvern">Privacy</a>.</p>
+<h3>How to delete it</h3>
+<p>You can reset your settings under Settings → Reset. Everything else is deleted by clearing site data for lillerud-land1.github.io in your browser settings.</p>
+      </div>
+    </div>
+  </section>
+  <section class="vw juridisk" id="v-vilkar" aria-label="Vilkår for bruk">
+    <div class="panel">
+      <button type="button" class="btn jur-tilbake" data-tilbake="1">← Tilbake</button>
+      <h2 class="h2">Vilkår for bruk</h2>
+      <div class="jur-tekst" data-sprak="nn"><p class="sub">Sist oppdatert 4. oktober 2026</p>
+<h3>1. Om tenesta</h3>
+<p>Brannlogg Stord er ei gratis, privat nettside som samlar offentlege opplysningar om brannar og utrykkingar i Stord kommune. Ho er ikkje ein offisiell teneste frå Politiet, brannvesenet eller Stord kommune.</p>
+<h3>2. I ein naudsituasjon</h3>
+<p><b>Ring 110 (brann), 112 (politi) eller 113 (ambulanse).</b> Bruk aldri Brannlogg til å varsle om ei hending eller til å finne ut om du er i fare.</p>
+<h3>3. Ingen garanti</h3>
+<p>Opplysningane blir henta automatisk frå andre kjelder og kan vere forseinka, ufullstendige eller feil. Alvorsgrad, skogbrannfare og fakta er rekna ut automatisk og er ikkje offisielle vurderingar. Sida kan vere nede eller endrast utan varsel.</p>
+<h3>4. Ansvar</h3>
+<p>Du brukar sida på eige ansvar. Så langt lova tillèt, har eg ikkje ansvar for tap eller skade som følgjer av bruk av sida.</p>
+<h3>5. Innhald frå andre</h3>
+<p>Data kjem frå Politiloggen (Politiet, NLOD 2.0), brannstatistikk.no (DSB), MET Norway og Open-Meteo (CC BY 4.0). Kartet byggjer på data frå © OpenStreetMap-bidragsytarar (ODbL) og Kartverket. Lenker til nyheitssaker går til andre nettstader, og innhaldet der høyrer til dei. Namn og logoar høyrer til eigarane sine.</p>
+<h3>6. Bruk av sida</h3>
+<p>Ikkje bruk sida på ein måte som kan skade henne eller andre, til dømes automatisk nedlasting i stor skala.</p>
+<h3>7. Endringar og lovval</h3>
+<p>Vilkåra kan bli endra, og datoen øvst viser siste endring. Norsk rett gjeld. Spørsmål: <a href="mailto:lillerudleander@gmail.com">lillerudleander@gmail.com</a>.</p>
+      </div>
+      <div class="jur-tekst" data-sprak="nb" hidden><p class="sub">Sist oppdatert 4. oktober 2026</p>
+<h3>1. Om tjenesten</h3>
+<p>Brannlogg Stord er en gratis, privat nettside som samler offentlige opplysninger om branner og utrykninger i Stord kommune. Den er ikke en offisiell tjeneste fra Politiet, brannvesenet eller Stord kommune.</p>
+<h3>2. I en nødsituasjon</h3>
+<p><b>Ring 110 (brann), 112 (politi) eller 113 (ambulanse).</b> Bruk aldri Brannlogg til å varsle om en hendelse eller til å finne ut om du er i fare.</p>
+<h3>3. Ingen garanti</h3>
+<p>Opplysningene hentes automatisk fra andre kilder og kan være forsinket, ufullstendige eller feil. Alvorlighetsgrad, skogbrannfare og fakta beregnes automatisk og er ikke offisielle vurderinger. Siden kan være nede eller endres uten varsel.</p>
+<h3>4. Ansvar</h3>
+<p>Du bruker siden på eget ansvar. Så langt loven tillater, har jeg ikke ansvar for tap eller skade som følge av bruk av siden.</p>
+<h3>5. Innhold fra andre</h3>
+<p>Data kommer fra Politiloggen (Politiet, NLOD 2.0), brannstatistikk.no (DSB), MET Norway og Open-Meteo (CC BY 4.0). Kartet bygger på data fra © OpenStreetMap-bidragsytere (ODbL) og Kartverket. Lenker til nyhetssaker går til andre nettsteder, og innholdet der tilhører dem. Navn og logoer tilhører sine eiere.</p>
+<h3>6. Bruk av siden</h3>
+<p>Ikke bruk siden på en måte som kan skade den eller andre, for eksempel automatisk nedlasting i stor skala.</p>
+<h3>7. Endringer og lovvalg</h3>
+<p>Vilkårene kan bli endret, og datoen øverst viser siste endring. Norsk rett gjelder. Spørsmål: <a href="mailto:lillerudleander@gmail.com">lillerudleander@gmail.com</a>.</p>
+      </div>
+      <div class="jur-tekst" data-sprak="en" hidden><p class="sub">Last updated 4 October 2026</p>
+<h3>1. About the service</h3>
+<p>Brannlogg Stord is a free, private website that collects public information about fires and call-outs in Stord municipality. It is not an official service of the police, the fire service or Stord municipality.</p>
+<h3>2. In an emergency</h3>
+<p><b>Call 110 (fire), 112 (police) or 113 (ambulance).</b> Never use Brannlogg to report an incident or to find out whether you are in danger.</p>
+<h3>3. No guarantee</h3>
+<p>The information is collected automatically from other sources and may be delayed, incomplete or wrong. Severity, forest fire danger and facts are calculated automatically and are not official assessments. The site may be down or change without notice.</p>
+<h3>4. Liability</h3>
+<p>You use the site at your own risk. To the extent permitted by law, I am not liable for any loss or damage arising from use of the site.</p>
+<h3>5. Content from others</h3>
+<p>Data comes from Politiloggen (Norwegian Police, NLOD 2.0), brannstatistikk.no (DSB), MET Norway and Open-Meteo (CC BY 4.0). The map is based on data © OpenStreetMap contributors (ODbL) and Kartverket. Links to news stories lead to other websites, and their content belongs to them. Names and logos belong to their owners.</p>
+<h3>6. Use of the site</h3>
+<p>Do not use the site in a way that could harm it or others, for example large-scale automated downloading.</p>
+<h3>7. Changes and governing law</h3>
+<p>These terms may change, and the date at the top shows the latest change. Norwegian law applies. Questions: <a href="mailto:lillerudleander@gmail.com">lillerudleander@gmail.com</a>.</p>
+      </div>
+    </div>
+  </section>
   <footer class="kreditt">
+    <p class="jur-lenker"><a href="#personvern" data-go="personvern">Personvern</a> · <a href="#informasjonskapslar" data-go="cookies">Informasjonskapslar</a> · <a href="#vilkar" data-go="vilkar">Vilkår for bruk</a></p>
     <p>Laga av <b>Leander Wågen Lillerud</b></p>
     <p>Ikkje ein offisiell teneste frå Politiet, brannvesenet eller Stord kommune · Data frå brannstatistikk.no (DSB), Politiloggen og media</p>
   </footer>
 </main>
 
 <button type="button" class="nytt" id="nytt" hidden title="Nye hendingar – trykk for å oppdatere" aria-label="Nye hendingar – trykk for å oppdatere"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v5h-5"/></svg>Nytt</button>
+
+<div class="personvern-melding" id="personvern-melding" role="dialog" aria-label="Personvern" hidden>
+  <p>Brannlogg brukar ingen informasjonskapslar og ingen sporing. Innstillingane dine blir berre lagra på eininga di.</p>
+  <div class="rad"><a href="#personvern" data-go="personvern">Personvern</a><a href="#vilkar" data-go="vilkar">Vilkår</a><button type="button" class="btn-lagre" id="personvern-ok">OK</button></div>
+</div>
 
 <div class="dra" id="dra" aria-hidden="true"><svg><use href="#i-oppdater"/></svg></div>
 
@@ -1124,6 +1320,12 @@ const OMSETJING = [
   ["Innstillingane blir berre lagra i nettlesaren din, ikkje sende nokon stad.", "Innstillingene lagres bare i nettleseren din og sendes ikke noe sted.", "Settings are only stored in your browser and are never sent anywhere."],
   ["Tilbakestill", "Tilbakestill", "Reset"],
   ["Lagre", "Lagre", "Save"],
+  ["Personvern", "Personvern", "Privacy"],
+  ["Informasjonskapslar", "Informasjonskapsler", "Cookies"],
+  ["Vilkår for bruk", "Vilkår for bruk", "Terms of use"],
+  ["Vilkår", "Vilkår", "Terms"],
+  ["← Tilbake", "← Tilbake", "← Back"],
+  ["Brannlogg brukar ingen informasjonskapslar og ingen sporing. Innstillingane dine blir berre lagra på eininga di.", "Brannlogg bruker ingen informasjonskapsler og ingen sporing. Innstillingene dine lagres bare på enheten din.", "Brannlogg uses no cookies and no tracking. Your settings are only stored on your device."],
   ["Infoskjerm og TV", "Infoskjerm og TV", "Info screen and TV"],
   ["Det finst ein eigen storskjerm-versjon for infoskjermen på brannstasjonen. Lenka får du med admin-kode under", "Det finnes en egen storskjermversjon for infoskjermen på brannstasjonen. Lenken får du med admin-kode under", "There is a separate big-screen version for the info screen at the fire station. You get the link with an admin code under"],
   ["Innstillingar → Admin-tilgang", "Innstillinger → Admin-tilgang", "Settings → Admin access"],
@@ -1284,7 +1486,9 @@ function renderStatus(){
   const timar = (NO - new Date(D.oppdatert)) / 36e5;
   const el = $("#status");
   el.classList.toggle("gammal", timar > 3);
-  $("#status-txt").innerHTML = `<span class="full">${T("Oppdatert")} </span>${naar(o)}`;
+  // Kort tekst øvst (utan vekedag), så han ikkje dekkjer namnet på smale skjermar når dataa er gamle
+  const kort = I_DAG.dn - o.dn > 1 ? `${datoKort(o)} ${T("kl.")} ${kl(o)}` : naar(o);
+  $("#status-txt").innerHTML = `<span class="full">${T("Oppdatert")} </span>${kort}`;
   const neste = D.neste ? " " + T("Neste oppdatering: {t}.", {t:naar(oslo(D.neste))}) : "";
   el.title = T("Data henta frå Politiloggen {t}.", {t:naar(o)}) + neste + " " + T("Trykk for å laste sida på nytt.");
   $("#info-oppd").innerHTML = T("Appen hentar nye data frå Politiloggen kvart kvarter. Sist oppdatert: <b>{t}</b>.", {t:naar(o)}) + neste +
@@ -1607,9 +1811,12 @@ const TIPS = [
 function renderTip(){ $("#tip").innerHTML = `<div class="eyebrow">${T("Brannvern i {m}", {m:MND[I_DAG.m-1]})}</div><p>${T(TIPS[I_DAG.m-1])}</p>`; }
 
 /* ---- Visningar og hendingar ---- */
-const HASH = {liste:"liste", kart:"kart", stat:"statistikk", info:"info", innst:"innstillingar"};
+const HASH = {liste:"liste", kart:"kart", stat:"statistikk", info:"info", innst:"innstillingar", personvern:"personvern", cookies:"informasjonskapslar", vilkar:"vilkar"};
+const JURIDISK = ["personvern", "cookies", "vilkar"];
+let forrigeVising = "info";
 const erMobil = () => matchMedia("(max-width: 999px)").matches;
 function setView(v, rull = true){
+  if (JURIDISK.includes(v) && !JURIDISK.includes(state.view)) forrigeVising = state.view;
   state.view = v;
   $("#app").dataset.view = v;
   document.querySelectorAll(".tabbar button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.go === v)));
@@ -1644,6 +1851,7 @@ function renderAll(){ renderControls(); renderList(); renderMap(); }
 document.addEventListener("click", e => {
   const t = e.target.closest("[data-go],[data-gruppe],[data-periode],[data-type],[data-fordel],[data-stype],[data-vis],[data-kart],[data-mk],[data-meir]");
   if (!t) return;
+  if (t.dataset.go && t.closest(".personvern-melding")) $("#personvern-melding").hidden = true;
   if (t.dataset.go) { e.preventDefault(); setView(t.dataset.go); if (t.dataset.hoppTil) setTimeout(() => visInfo(t.dataset.hoppTil), 30); }
   else if (t.dataset.meir) { state.antal += SIDE; renderList(); }
   else if (t.dataset.gruppe) { state.gruppe = t.dataset.gruppe; state.antal = SIDE; renderHero(); renderAll(); renderStats(); }
@@ -1790,7 +1998,7 @@ renderInnst();
 
 /* ---- Omset faste tekstar i HTML-en (dei dynamiske blir omsette med T) ---- */
 function omsetDOM(rot){
-  const hopp = el => el.closest("script,style,code,.adr,[data-innst=sprak]");
+  const hopp = el => el.closest("script,style,code,.adr,[data-innst=sprak],[data-sprak]");
   const w = document.createTreeWalker(rot, NodeFilter.SHOW_TEXT);
   for (let n; (n = w.nextNode());) {
     const t = n.data.trim();
@@ -1819,6 +2027,15 @@ $("#installer-knapp").addEventListener("click", async () => {
   installerHending = null;
 });
 if (matchMedia("(display-mode: standalone)").matches || navigator.standalone) $("#installert").hidden = false;
+
+/* ---- Personvern, informasjonskapslar og vilkår ---- */
+document.querySelectorAll("[data-sprak]").forEach(el => el.hidden = el.dataset.sprak !== SPRAK);
+document.querySelectorAll("[data-tilbake]").forEach(b => b.addEventListener("click", () => setView(forrigeVising)));
+try { $("#personvern-melding").hidden = !!localStorage.getItem("brannlogg_personvern_ok"); } catch (e) {}
+$("#personvern-ok").addEventListener("click", () => {
+  $("#personvern-melding").hidden = true;
+  try { localStorage.setItem("brannlogg_personvern_ok", "1"); } catch (e) {}
+});
 
 /* ---- Admin-tilgang: lenka til infoskjermen. Koden ligg berre som SHA-256-hash i sida. ---- */
 const ADMIN_HASH = "a0ed825223812b4e35b289f41b286b077314674f0b349d16f2cfc202c02f02cc";
