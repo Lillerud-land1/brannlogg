@@ -9,7 +9,7 @@ on:
     - cron: "7,22,37,52 * * * *"
   push:
     branches: [main]
-    paths: ["ekstra.json", "mal.html", "mal-tv.html", "oppdater.py", ".github/workflows/oppdater.yml"]
+    paths: ["ekstra.json", "mal.html", "mal-tv.html", "mal-tv.webmanifest", "oppdater.py", ".github/workflows/oppdater.yml"]
   workflow_dispatch:
 
 # Tryggleik: ingen løyve som standard – kvar jobb får berre det han treng.
@@ -42,6 +42,7 @@ jobs:
         run: python oppdater.py --nyheiter --varsle
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          TV_ADRESSE: ${{ secrets.TV_ADRESSE }}   # hemmeleg adresse til infoskjermen
 
       - name: Lagre nye brannar i arkivet
         run: |

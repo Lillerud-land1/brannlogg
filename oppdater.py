@@ -11,6 +11,7 @@ import base64
 import hashlib
 import json
 import math
+import os
 import re
 import subprocess
 import sys
@@ -544,6 +545,54 @@ def skriv_nettside(side):
     (mappe / ".nojekyll").touch()
 
 
+# Infoskjermen ligg på ei hemmeleg adresse som berre står i GitHub-hemmelegheita TV_ADRESSE – ikkje i koden.
+# Adressa er rekna ut frå admin-koden, på same måte som adminpanelet i appen gjer det:
+#   python -c "import hashlib; print('tv-' + hashlib.pbkdf2_hmac('sha256', b'KODE', b'brannlogg-tv-v1', 600000, 8).hex())"
+TV_GAMAL = """<!doctype html>
+<html lang="nn">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Infoskjermen har ny adresse</title>
+<style>body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;box-sizing:border-box;background:#0A0D11;color:#E9EDF1;font:20px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;text-align:center}h1{font-size:1.6em;margin:0 0 .4em}p{margin:0 auto;max-width:34em;color:#A9B4BF}</style>
+</head>
+<body>
+<main><h1>Infoskjermen har fått ny adresse</h1>
+<p>Denne lenka er ikkje i bruk lenger. Den nye lenka får du i Brannlogg-appen under Innstillingar → Admin-tilgang.</p></main>
+</body>
+</html>
+"""
+
+
+def tv_namn():
+    """Den hemmelege adressa til infoskjermen utan .html, t.d. «tv-0123456789abcdef»."""
+    namn = os.environ.get("TV_ADRESSE", "").strip()
+    if re.fullmatch(r"tv-[0-9a-f]{16}", namn):
+        return namn
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        sys.exit("TV_ADRESSE manglar eller er ugyldig – infoskjermen kan ikkje byggjast")
+    return "tv-lokal"
+
+
+def skriv_tv(json_tekst):
+    """Byggjer infoskjermen på den hemmelege adressa. Den gamle adressa (tv.html) seier berre at ho er flytta."""
+    tv_mal = MAPPE / "mal-tv.html"
+    if not tv_mal.exists():
+        return
+    namn, mappe = tv_namn(), MAPPE / "nettside"
+    side = tv_mal.read_text(encoding="utf-8").replace("/*__DATA__*/null", json_tekst)
+    if side.count('href="tv.webmanifest"') != 1:
+        sys.exit('Fann ikkje href="tv.webmanifest" i mal-tv.html')
+    side = side.replace('href="tv.webmanifest"', f'href="{namn}.webmanifest"')
+    (mappe / f"{namn}.html").write_text(med_csp(side), encoding="utf-8")
+    manifest = json.loads((MAPPE / "mal-tv.webmanifest").read_text(encoding="utf-8"))
+    manifest.update(id=f"{namn}.html", start_url=f"{namn}.html", scope=f"{namn}.html")
+    (mappe / f"{namn}.webmanifest").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+    (mappe / "tv.html").write_text(TV_GAMAL, encoding="utf-8")
+
+
 # ---------- Tryggleik ----------
 # Alt som kjem utanfrå (Politiloggen, brannstatistikken, nyheitsfeedar, MET og ekstra.json, som Claude skriv etter
 # nettsøk) blir kontrollert her før det kjem inn i sida, så ingen kan smugle inn skript eller farlege lenker.
@@ -885,10 +934,7 @@ def main():
     (MAPPE / "nettside" / "status.json").write_text(
         json.dumps({"oppdatert": data["oppdatert"], "neste": data["neste"], "sum": kontrollsum,
                     "brannfare": data["brannfare"]}, ensure_ascii=False), encoding="utf-8")
-    tv_mal = MAPPE / "mal-tv.html"
-    if tv_mal.exists():
-        (MAPPE / "nettside" / "tv.html").write_text(
-            med_csp(tv_mal.read_text(encoding="utf-8").replace("/*__DATA__*/null", json_tekst)), encoding="utf-8")
+    skriv_tv(json_tekst)
 
     grense = no - timedelta(days=VINDAUGE_DAGAR)
     siste = [b for b in brannar if datetime.fromisoformat(b["start"]) >= grense]

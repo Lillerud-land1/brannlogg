@@ -4,6 +4,8 @@ __pycache__/
 *.pyc
 nettside/index.html
 nettside/tv.html
+nettside/tv-*.html
+nettside/tv-*.webmanifest
 varsel_kanal.txt
 nettside/status.json
 # Hemmelegheiter skal aldri i repoet (bruk GitHub-hemmelegheiter)

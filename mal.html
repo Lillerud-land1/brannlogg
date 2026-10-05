@@ -1339,6 +1339,7 @@ const OMSETJING = [
   ["Kode", "Kode", "Code"],
   ["Opne", "Åpne", "Open"],
   ["Feil kode.", "Feil kode.", "Wrong code."],
+  ["Fekk ikkje kontakt. Prøv igjen.", "Fikk ikke kontakt. Prøv igjen.", "Could not connect. Try again."],
   ["Kopier lenka", "Kopier lenken", "Copy link"],
   ["Opne infoskjermen", "Åpne infoskjermen", "Open info screen"],
   ["Lenka er kopiert. Lim henne inn i adresselinja i nettlesaren.", "Lenken er kopiert. Lim den inn i adressefeltet i nettleseren.", "The link is copied. Paste it into the browser's address bar."],
@@ -2041,25 +2042,39 @@ $("#personvern-ok").addEventListener("click", () => {
   try { localStorage.setItem("brannlogg_personvern_ok", "1"); } catch (e) {}
 });
 
-/* ---- Admin-tilgang: lenka til infoskjermen. Koden ligg berre som SHA-256-hash i sida. ---- */
-const ADMIN_HASH = "a0ed825223812b4e35b289f41b286b077314674f0b349d16f2cfc202c02f02cc";
-const tvUrl = () => new URL("tv.html", location.href).href;
+/* ---- Admin-tilgang: lenka til infoskjermen. Adressa står ingen stad i sida: ho blir rekna ut frå koden
+   (PBKDF2, med vilje tregt), og sida sjekkar at ho finst. Feil kode gir ei adresse som ikkje finst.
+   Same utrekning som i oppdater.py (TV_ADRESSE). ---- */
+let tvAdr = "";
+async function tvAdresse(kode){
+  const enc = new TextEncoder();
+  const nokkel = await crypto.subtle.importKey("raw", enc.encode(kode), "PBKDF2", false, ["deriveBits"]);
+  const bitar = await crypto.subtle.deriveBits({name:"PBKDF2", hash:"SHA-256", salt:enc.encode("brannlogg-tv-v1"), iterations:600000}, nokkel, 64);
+  return new URL("tv-" + [...new Uint8Array(bitar)].map(x => x.toString(16).padStart(2, "0")).join("") + ".html", location.href).href;
+}
 async function kopierAdmin(){
-  try { await navigator.clipboard.writeText(tvUrl()); $("#admin-status").textContent = T("Lenka er kopiert. Lim henne inn i adresselinja i nettlesaren."); }
+  try { await navigator.clipboard.writeText(tvAdr); $("#admin-status").textContent = T("Lenka er kopiert. Lim henne inn i adresselinja i nettlesaren."); }
   catch (e) { const r = document.createRange(); r.selectNodeContents($("#admin-url")); getSelection().removeAllRanges(); getSelection().addRange(r);
     $("#admin-status").textContent = T("Lenka er merkt. Kopier henne med Ctrl+C."); }
 }
 $("#admin-skjema").addEventListener("submit", async e => {
   e.preventDefault();
-  const kode = $("#admin-kode").value.trim();
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("brannlogg:" + kode));
-  const hash = [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2, "0")).join("");
-  const ok = hash === ADMIN_HASH;
+  const kode = $("#admin-kode").value.trim(), knapp = $("#admin-skjema button");
+  if (!kode || knapp.disabled) return;
+  knapp.disabled = true;
+  let ok = false, nettfeil = false;
+  try {
+    const adr = await tvAdresse(kode);
+    ok = (await fetch(adr, {method:"HEAD", cache:"no-store"})).ok;
+    if (ok) tvAdr = adr;
+  } catch (feil) { nettfeil = true; }
+  knapp.disabled = false;
+  $("#admin-feil").textContent = T(nettfeil ? "Fekk ikkje kontakt. Prøv igjen." : "Feil kode.");
   $("#admin-feil").hidden = ok;
   $("#admin-lenke").hidden = !ok;
   if (!ok) { $("#admin-kode").select(); return; }
-  $("#admin-url").textContent = tvUrl();
-  $("#admin-opne").href = tvUrl();
+  $("#admin-url").textContent = tvAdr;
+  $("#admin-opne").href = tvAdr;
   $("#admin-kode").value = "";
   kopierAdmin();
 });

@@ -7,7 +7,7 @@ Laga av **Leander Wågen Lillerud**. Ikkje ein offisiell teneste frå Politiet, 
 | | Adresse |
 |---|---|
 | App (mobil og PC) | https://lillerud-land1.github.io/brannlogg/ |
-| Infoskjerm / TV | https://lillerud-land1.github.io/brannlogg/tv.html |
+| Infoskjerm / TV | Hemmeleg adresse – lenka får du i appen under Innstillingar → Admin-tilgang |
 | Kjeldekode og køyringar | https://github.com/Lillerud-land1/brannlogg |
 
 ---
@@ -68,7 +68,7 @@ flowchart LR
   POL[Politiloggen] --> GH
   RSS[Nyheiter RSS] --> GH
   KV[Kartverket] --> GH
-  GH["GitHub Actions<br/>kvart kvarter<br/>python oppdater.py --nyheiter --varsle"] --> PAGES[GitHub Pages<br/>app + tv.html]
+  GH["GitHub Actions<br/>kvart kvarter<br/>python oppdater.py --nyheiter --varsle"] --> PAGES[GitHub Pages<br/>app + infoskjerm]
   GH --> NTFY[ntfy.sh<br/>push-varsel]
   GH --> REPO[(data i repoet<br/>arkiv, bris, …)]
   PC["Claude på PC-en<br/>kvar time når PC-en er på"] -->|ekstra.json| REPO
@@ -89,6 +89,7 @@ flowchart LR
 | `oppdater.py` | Hovudskriptet: hentar alle kjelder, koplar, klassifiserer, byggjer sidene og sender varsel. Berre standardbiblioteket i Python. |
 | `mal.html` | Mal for appen. Data blir sett inn der det står `/*__DATA__*/null`. |
 | `mal-tv.html` | Mal for TV-/infoskjermversjonen. |
+| `mal-tv.webmanifest` | Mal for app-manifestet til infoskjermen (adressa blir fylt inn ved bygging). |
 | `.github/workflows/oppdater.yml` | GitHub Actions: køyrer skriptet kvart kvarter og legg ut sida. |
 | `ekstra.json` | Manuelle tillegg og rettingar per hending (sjå under). Skrive av Claude eller for hand. |
 | `arkiv.json` | Alle tråder frå Politiloggen som er tekne vare på (Politiloggen gir berre eitt år bakover). |
@@ -99,7 +100,7 @@ flowchart LR
 | `geokode.json` | Mellomlager for stadfesting frå Kartverket. |
 | `kart.json` | SVG-kart over Stord (laga av `lag_kart.py`). |
 | `lag_kart.py`, `lag_ikon.py` | Køyrde éin gong for å lage kart og app-ikon. |
-| `nettside/` | Det som blir lagt ut: `index.html` og `tv.html` (blir bygde, ikkje i git), manifest, ikon, `sw.js` (fungerer utan nett), `qr.svg`, `status.json`. |
+| `nettside/` | Det som blir lagt ut: `index.html`, infoskjermen og `tv.html` (blir bygde, ikkje i git), manifest, ikon, `sw.js` (fungerer utan nett), `qr.svg`, `status.json`. |
 
 ### `ekstra.json`
 
@@ -151,7 +152,9 @@ Stega står òg i appen under **Om appen** (bjølla øvst). Kanalnamnet er lagra
 
 ## 7. Infoskjerm (TV)
 
-- Adresse: `https://lillerud-land1.github.io/brannlogg/tv.html`
+- **Adressa er hemmeleg.** Lenka får du i appen under **Innstillingar → Admin-tilgang** (skriv inn admin-koden). Ho er ikkje lagra nokon stad i koden: appen reknar henne ut frå admin-koden, og byggjeskriptet hentar henne frå GitHub-hemmelegheita `TV_ADRESSE`.
+- Den gamle adressa `…/brannlogg/tv.html` viser berre at infoskjermen har fått ny adresse.
+- **Byte adresse** (om lenka er delt med for mange): vel ein ny admin-kode, rekn ut den nye adressa med kommandoen ved `TV_GAMAL` i `oppdater.py`, og lagre henne med `gh secret set TV_ADRESSE`. Neste bygging flyttar skjermen, og den gamle lenka sluttar å verke. Hugs å oppdatere adressa på Infoskjermen.no.
 - Viser alle hendingar (også brannalarmar), klokke, «dagar sidan siste hending», stripe, tal for **i år** (frå 1. januar), kart, månadens brannverntips og QR-kode til appen.
 - Sjekkar etter nye data kvart 2. minutt, lastar heile sida på nytt kvar time og ved midnatt, og held skjermen vaken.
 - **Infoskjermen.no**: «Nytt oppslag» → «Nettside» → lim inn adressa → vel **Fullskjerm** → lagre. Sida kan visast i iframe (https, inga innlogging).
@@ -214,9 +217,9 @@ Appen er ei statisk nettside på GitHub Pages: det finst ingen server, database,
 | **Claude-oppgåva** (planlagd på PC-en) har berre løyve til to faste kommandoar + nettsøk, og har fått beskjed om at innhald frå nettet aldri er instruksjonar | Ei nettside med skjulte instruksjonar («prompt injection») kan ikkje styre agenten. Sjølv om ho skulle klare det, stoppar kontrollen over farlege lenker og skript. |
 | `.gitignore` | `.env`, nøklar og originalfilene til logoen kan ikkje kome med i repoet ved eit uhell. |
 
-**Hemmelegheiter:** Den einaste er `NTFY_TOPIC` (GitHub-hemmelegheit). Kanalnamnet står òg i appen og her, sidan brukarane treng det for å abonnere – så det er ikkje eigentleg hemmeleg. Legg aldri nøklar, passord eller token i filene i repoet; bruk GitHub-hemmelegheiter.
+**Hemmelegheiter:** `TV_ADRESSE` (adressa til infoskjermen) og `NTFY_TOPIC` (GitHub-hemmelegheiter). Kanalnamnet til ntfy står òg i appen og her, sidan brukarane treng det for å abonnere – så det er ikkje eigentleg hemmeleg. Legg aldri nøklar, passord eller token i filene i repoet; bruk GitHub-hemmelegheiter.
 
-**Admin-koden** er berre ein «gardin», ikkje ein lås: på ei statisk nettside kan alt lesast i kjeldekoden, og ein firesifra kode kan prøvast ut på eit augeblink. Han skjuler berre lenka til TV-sida, som ikkje er hemmeleg. Legg aldri noko som må vere hemmeleg bak admin-koden.
+**Admin-koden** står ingen stad. Adressa til infoskjermen blir rekna ut frå koden med PBKDF2 (med vilje tregt) og finst berre i `TV_ADRESSE`, så ho kan ikkje lesast i kjeldekoden. Ein vanleg person finn henne ikkje, men med berre fire siffer kan ein dyktig person prøve alle kodane – ein lengre kode gir betre vern. Den publiserte nettsida (byggjeartefakten i Actions) kan i éin dag lastast ned av innlogga GitHub-brukarar, så adressa er ikkje 100 % hemmeleg. Legg aldri noko som må vere skikkeleg hemmeleg bak admin-koden.
 
 **Kjende avgrensingar:** Alle som kjenner ntfy-kanalnamnet, kan sende falske varsel til kanalen (gratisversjonen av ntfy har ingen tilgangsstyring). Det kan berre løysast med betalt ntfy-konto med reservert kanal eller eigen ntfy-server.
 
