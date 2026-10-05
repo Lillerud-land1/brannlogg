@@ -546,8 +546,7 @@ def skriv_nettside(side):
 
 
 # Infoskjermen ligg på ei hemmeleg adresse som berre står i GitHub-hemmelegheita TV_ADRESSE – ikkje i koden.
-# Adressa er rekna ut frå admin-koden, på same måte som adminpanelet i appen gjer det:
-#   python -c "import hashlib; print('tv-' + hashlib.pbkdf2_hmac('sha256', b'KODE', b'brannlogg-tv-v1', 600000, 8).hex())"
+# Adminpanelet i appen har adressa kryptert med admin-passordet (TV_KRYPTERT i mal.html, sjå README, bolk 7).
 TV_GAMAL = """<!doctype html>
 <html lang="nn">
 <head>

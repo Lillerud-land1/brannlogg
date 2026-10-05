@@ -152,9 +152,12 @@ Stega står òg i appen under **Om appen** (bjølla øvst). Kanalnamnet er lagra
 
 ## 7. Infoskjerm (TV)
 
-- **Adressa er hemmeleg.** Lenka får du i appen under **Innstillingar → Admin-tilgang** (skriv inn admin-koden). Ho er ikkje lagra nokon stad i koden: appen reknar henne ut frå admin-koden, og byggjeskriptet hentar henne frå GitHub-hemmelegheita `TV_ADRESSE`.
+- **Adressa er hemmeleg.** Lenka får du i appen under **Innstillingar → Admin-tilgang** (skriv inn admin-koden). Ho står ikkje i klartekst nokon stad i koden: byggjeskriptet hentar henne frå GitHub-hemmelegheita `TV_ADRESSE`, og adminpanelet har henne kryptert med admin-passordet (`TV_KRYPTERT` i `mal.html`). Passordet sjølv er ikkje lagra nokon stad.
 - Den gamle adressa `…/brannlogg/tv.html` viser berre at infoskjermen har fått ny adresse.
-- **Byte adresse** (om lenka er delt med for mange): vel ein ny admin-kode, rekn ut den nye adressa med kommandoen ved `TV_GAMAL` i `oppdater.py`, og lagre henne med `gh secret set TV_ADRESSE`. Neste bygging flyttar skjermen, og den gamle lenka sluttar å verke. Hugs å oppdatere adressa på Infoskjermen.no.
+- **Byte passord** (same adresse): rekn ut ny `TV_KRYPTERT` med kommandoen under og legg verdien inn i `mal.html`.
+- **Byte adresse** (om lenka er delt med for mange): lag ei ny adresse, til dømes med `python -c "import secrets; print('tv-' + secrets.token_hex(8))"`, lagre henne med `gh secret set TV_ADRESSE`, og rekn ut ny `TV_KRYPTERT`. Neste bygging flyttar skjermen, og den gamle lenka sluttar å verke. Hugs å oppdatere adressa på Infoskjermen.no.
+- Ny `TV_KRYPTERT` (set `TV_ADRESSE` og `ADMIN_KODE` som miljøvariablar først):
+  `python -c "import hashlib,os; n=os.environ['TV_ADRESSE'].encode(); k=hashlib.pbkdf2_hmac('sha256', os.environ['ADMIN_KODE'].encode(), b'brannlogg-admin-v2', 600000, len(n)); print(bytes(a^b for a,b in zip(n,k)).hex())"`
 - Viser alle hendingar (også brannalarmar), klokke, «dagar sidan siste hending», stripe, tal for **i år** (frå 1. januar), kart, månadens brannverntips og QR-kode til appen.
 - Sjekkar etter nye data kvart 2. minutt, lastar heile sida på nytt kvar time og ved midnatt, og held skjermen vaken.
 - **Infoskjermen.no**: «Nytt oppslag» → «Nettside» → lim inn adressa → vel **Fullskjerm** → lagre. Sida kan visast i iframe (https, inga innlogging).
@@ -219,7 +222,7 @@ Appen er ei statisk nettside på GitHub Pages: det finst ingen server, database,
 
 **Hemmelegheiter:** `TV_ADRESSE` (adressa til infoskjermen) og `NTFY_TOPIC` (GitHub-hemmelegheiter). Kanalnamnet til ntfy står òg i appen og her, sidan brukarane treng det for å abonnere – så det er ikkje eigentleg hemmeleg. Legg aldri nøklar, passord eller token i filene i repoet; bruk GitHub-hemmelegheiter.
 
-**Admin-koden** står ingen stad. Adressa til infoskjermen blir rekna ut frå koden med PBKDF2 (med vilje tregt) og finst berre i `TV_ADRESSE`, så ho kan ikkje lesast i kjeldekoden. Ein vanleg person finn henne ikkje, men med berre fire siffer kan ein dyktig person prøve alle kodane – ein lengre kode gir betre vern. Den publiserte nettsida (byggjeartefakten i Actions) kan i éin dag lastast ned av innlogga GitHub-brukarar, så adressa er ikkje 100 % hemmeleg. Legg aldri noko som må vere skikkeleg hemmeleg bak admin-koden.
+**Admin-passordet** står ingen stad. Adressa til infoskjermen ligg kryptert i appen med ein nøkkel som blir rekna ut frå passordet med PBKDF2 (med vilje tregt), og i klartekst berre i `TV_ADRESSE`. Ho kan ikkje lesast i kjeldekoden, og med eit langt passord er det svært tungvint å prøve seg fram. Passord som er lette å gjette (namn, gamle kodar), gjer vernet svakare. Den publiserte nettsida (byggjeartefakten i Actions) kan i éin dag lastast ned av innlogga GitHub-brukarar, så adressa er ikkje 100 % hemmeleg. Legg aldri noko som må vere skikkeleg hemmeleg bak admin-koden.
 
 **Kjende avgrensingar:** Alle som kjenner ntfy-kanalnamnet, kan sende falske varsel til kanalen (gratisversjonen av ntfy har ingen tilgangsstyring). Det kan berre løysast med betalt ntfy-konto med reservert kanal eller eigen ntfy-server.
 

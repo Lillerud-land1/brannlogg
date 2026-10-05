@@ -383,7 +383,7 @@ button.hbar[aria-pressed="true"] .fill{background:var(--ember)}
 #installert{margin:0 0 12px}
 .admin{margin-top:18px;scroll-margin-top:84px}
 .admin-kode{display:flex;gap:8px}
-.admin-kode input{width:110px;font:inherit;font-size:16px;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);letter-spacing:.2em}
+.admin-kode input{width:170px;max-width:100%;min-width:0;font:inherit;font-size:16px;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);letter-spacing:.08em}
 .admin-feil{margin:0;font-size:13.5px;font-weight:600;color:var(--fire)}
 .admin-lenke{display:grid;gap:8px;padding-top:12px;border-top:1px solid var(--line-2)}
 .admin-tittel{font-size:12px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
@@ -750,7 +750,7 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
       <div class="innst-rad">
         <div><b>Admin-tilgang</b><span class="sub">Skriv inn admin-koden for å opne adminpanelet.</span></div>
         <form class="admin-kode" id="admin-skjema" autocomplete="off">
-          <input id="admin-kode" type="password" inputmode="numeric" maxlength="8" aria-label="Kode" placeholder="Kode">
+          <input id="admin-kode" type="password" maxlength="64" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Kode" placeholder="Kode">
           <button type="submit" class="btn">Opne</button>
         </form>
       </div>
@@ -2042,15 +2042,17 @@ $("#personvern-ok").addEventListener("click", () => {
   try { localStorage.setItem("brannlogg_personvern_ok", "1"); } catch (e) {}
 });
 
-/* ---- Admin-tilgang: lenka til infoskjermen. Adressa står ingen stad i sida: ho blir rekna ut frå koden
-   (PBKDF2, med vilje tregt), og sida sjekkar at ho finst. Feil kode gir ei adresse som ikkje finst.
-   Same utrekning som i oppdater.py (TV_ADRESSE). ---- */
+/* ---- Admin-tilgang: lenka til infoskjermen. Verken passordet eller adressa står i sida: adressa ligg kryptert
+   med ein nøkkel som blir rekna ut frå passordet (PBKDF2, med vilje tregt). Feil passord gir berre rot.
+   Nytt passord eller ny adresse: sjå README, bolk 7. ---- */
+const TV_KRYPTERT = "a16cfa537c792fb2d56a77a0f4467259c9bc78";
 let tvAdr = "";
 async function tvAdresse(kode){
-  const enc = new TextEncoder();
+  const enc = new TextEncoder(), krypt = TV_KRYPTERT.match(/../g).map(h => parseInt(h, 16));
   const nokkel = await crypto.subtle.importKey("raw", enc.encode(kode), "PBKDF2", false, ["deriveBits"]);
-  const bitar = await crypto.subtle.deriveBits({name:"PBKDF2", hash:"SHA-256", salt:enc.encode("brannlogg-tv-v1"), iterations:600000}, nokkel, 64);
-  return new URL("tv-" + [...new Uint8Array(bitar)].map(x => x.toString(16).padStart(2, "0")).join("") + ".html", location.href).href;
+  const bitar = new Uint8Array(await crypto.subtle.deriveBits({name:"PBKDF2", hash:"SHA-256", salt:enc.encode("brannlogg-admin-v2"), iterations:600000}, nokkel, krypt.length * 8));
+  const namn = String.fromCharCode(...krypt.map((b, i) => b ^ bitar[i]));
+  return /^tv-[0-9a-f]{16}$/.test(namn) ? new URL(namn + ".html", location.href).href : null;
 }
 async function kopierAdmin(){
   try { await navigator.clipboard.writeText(tvAdr); $("#admin-status").textContent = T("Lenka er kopiert. Lim henne inn i adresselinja i nettlesaren."); }
@@ -2065,7 +2067,7 @@ $("#admin-skjema").addEventListener("submit", async e => {
   let ok = false, nettfeil = false;
   try {
     const adr = await tvAdresse(kode);
-    ok = (await fetch(adr, {method:"HEAD", cache:"no-store"})).ok;
+    ok = !!adr && (await fetch(adr, {method:"HEAD", cache:"no-store"})).ok;
     if (ok) tvAdr = adr;
   } catch (feil) { nettfeil = true; }
   knapp.disabled = false;
