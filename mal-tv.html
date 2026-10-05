@@ -119,13 +119,13 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font
 .m-dot{fill:var(--label)}
 .mk circle.c{stroke:#0A0D11;stroke-width:4}
 .mk.gl circle.c{opacity:.5}
+.mk circle.c.al{fill:none;stroke:var(--alarm);stroke-width:6}
 .mk .ring{fill:none;stroke-width:3;transform-box:fill-box;transform-origin:center;animation:ring 2.4s ease-out infinite}
 @keyframes ring{from{transform:scale(.6);opacity:.9}to{transform:scale(2.2);opacity:0}}
 .forklaring{display:flex;flex-wrap:wrap;gap:.4rem 1.1rem;margin-top:.8rem;font-size:1.05rem;color:var(--muted)}
 .forklaring span{display:inline-flex;align-items:center;gap:.5rem}
 .forklaring i{width:1rem;height:1rem;border-radius:50%;background:var(--sev)}
-.forklaring i.u{background:var(--utr)}
-.forklaring i.a{background:var(--alarm)}
+.forklaring i.a{background:none;border:.22rem solid var(--alarm);box-sizing:border-box}
 .ruter{font-weight:600;letter-spacing:0;text-transform:none}
 
 /* Alarmmodus: ei hending pågår */
@@ -213,7 +213,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font
     <section class="panel">
       <div class="etikett">Kart · <b>siste 12 månader</b></div>
       <div class="kart" id="kart"></div>
-      <div class="forklaring"><span class="s3"><i></i>Alvorleg</span><span class="s2"><i></i>Middels</span><span class="s1"><i></i>Mindre</span><span><i class="u"></i>Utrykking</span><span><i class="a"></i>Alarm</span><span id="blink-tekst">Blinkar: siste 100 dagar</span></div>
+      <div class="forklaring"><span class="s3"><i></i>Alvorleg</span><span class="s2"><i></i>Middels</span><span class="s1"><i></i>Mindre</span><span><i class="a"></i>Alarm</span><span id="blink-tekst">Store prikkar = siste 100 dagar</span></div>
     </section>
   </main>
 
@@ -293,7 +293,7 @@ t += `<div class="stripe-boks"><div class="etikett">Siste ${VINDU} dagar · <spa
       <div class="akse"><span>${s0.getUTCDate()}. ${MND_K[s0.getUTCMonth()]}</span><span>i dag</span></div>
       <div class="tal"><div><b>${n50}</b><span>hendingar siste ${VINDU} dagar</span></div><div><b>${aar}</b><span>i år (sidan 1. jan.)</span></div><div><b>${snittAar.toLocaleString("nb-NO", {maximumFractionDigits:1})}</b><span>snitt per månad i år</span></div></div></div>`;
 $("#teljar").innerHTML = t;
-$("#blink-tekst").textContent = `Blinkar: siste ${VINDU} dagar`;
+$("#blink-tekst").textContent = `Store prikkar = siste ${VINDU} dagar`;
 
 /* Liste – dei siste hendingane */
 const erNy = b => Date.now() - new Date(b.start) < 48 * 36e5;   // nyare enn to døgn
@@ -310,13 +310,13 @@ if (K) {
   const P = K.proj;
   const xy = p => [(p[1] - P.lon0) * P.cos * P.k, (P.lat1 - p[0]) * P.k];
   const col = {1:"var(--sev1)", 2:"var(--sev2)", 3:"var(--sev3)"};
-  const farge = b => b.gruppe === "utrykking" ? "var(--utr)" : b.gruppe === "alarm" ? "var(--alarm)" : col[b.alvor];
+  const farge = b => b.gruppe === "alarm" ? "var(--alarm)" : col[b.alvor];   // fargen viser kor alvorleg det var
   const mk = B.filter(b => b.pos && IDAG.dn - b._o.dn < 365).map(b => ({b, p:xy(b.pos)}))
     .filter(({p}) => p[0] > 0 && p[0] < K.w && p[1] > 0 && p[1] < K.h)
     .sort((a, c) => a.b._o.dn - c.b._o.dn)
     .map(({b, p}) => {
       const ny = b._o.dn >= START, x = p[0].toFixed(1), y = p[1].toFixed(1);
-      return `<g class="mk${ny ? "" : " gl"}">${ny ? `<circle class="ring" cx="${x}" cy="${y}" r="26" stroke="${farge(b)}"/>` : ""}<circle class="c" cx="${x}" cy="${y}" r="${ny ? 26 : 18}" fill="${farge(b)}"/></g>`;
+      return `<g class="mk${ny ? "" : " gl"}">${ny ? `<circle class="ring" cx="${x}" cy="${y}" r="26" stroke="${farge(b)}"/>` : ""}<circle class="c${b.gruppe === "alarm" ? " al" : ""}" cx="${x}" cy="${y}" r="${ny ? 26 : 18}" fill="${farge(b)}"/></g>`;
     }).join("");
   const lbl = K.stader.map(s => `<circle class="m-dot" cx="${s.x}" cy="${s.y}" r="7"/><text class="m-lbl" x="${s.x + 14}" y="${s.y + 11}">${esc(s.namn)}</text>`).join("");
   $("#kart").innerHTML = `<svg viewBox="0 0 ${K.w} ${K.h}" preserveAspectRatio="xMidYMid meet"><path class="m-ctx" d="${K.kontekst}" fill-rule="evenodd"/><path class="m-land" d="${K.land}" fill-rule="evenodd"/>${lbl}${mk}</svg>`;
