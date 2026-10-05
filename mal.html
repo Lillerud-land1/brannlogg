@@ -1014,9 +1014,9 @@ const OMSETJING = [
   ["hending", "hendelse", "incident"],
   ["hendingar", "hendelser", "incidents"],
   ["/mnd", "/mnd", "/mo"],
-  ["siste 12 månader", "siste 12 måneder", "last 12 months"],
+  ["i år (sidan 1. jan.)", "i år (siden 1. jan.)", "this year (since 1 Jan)"],
   ["Siste 12 månader", "Siste 12 måneder", "Last 12 months"],
-  ["snitt siste år", "snitt siste år", "avg. last year"],
+  ["snitt per månad i år", "snitt per måned i år", "avg. per month this year"],
   ["Brannar", "Branner", "Fires"],
   ["Utrykkingar", "Utrykninger", "Call-outs"],
   ["Alt", "Alt", "All"],
@@ -1553,12 +1553,13 @@ function renderHero(){
   $("#strip-sum").textContent = T(state.gruppe === "brann" ? "{d} med brann" : "{d} med utrykking", {d:fl(dagarMed, "dag", "dagar")});
   $("#strip-legend").innerHTML = state.gruppe === "brann" ? "" : `<span><i style="background:var(--sev2)"></i>${T("Brann")}</span><span><i style="background:var(--utr)"></i>${T("Anna utrykking")}</span>` + (state.gruppe === "alt" ? `<span><i style="background:var(--alarm)"></i>${T("Alarm")}</span>` : "");
 
-  const aar = utval().filter(b => I_DAG.dn - b._dn < 365);
-  const snitt = (aar.length / 12).toLocaleString(LOCALE, {maximumFractionDigits:1});
+  // I år: frå 1. januar, som på TV-sida. Snittet deler på månadene som er gått (denne medrekna).
+  const aar = utval().filter(b => b._o.y === I_DAG.y);
+  const snitt = (aar.length / I_DAG.m).toLocaleString(LOCALE, {maximumFractionDigits:1});
   $("#kpis").innerHTML = `
     <div class="kpi"><div class="v">${n50}</div><div class="l">${T(n50 === 1 ? ORD()[0] : ORD()[1])} ${T("siste {n} dagar", {n:VINDU})}</div></div>
-    <div class="kpi"><div class="v">${aar.length}</div><div class="l">${T("siste 12 månader")}</div></div>
-    <div class="kpi"><div class="v">${snitt}<span>${T("/mnd")}</span></div><div class="l">${T("snitt siste år")}</div></div>`;
+    <div class="kpi"><div class="v">${aar.length}</div><div class="l">${T("i år (sidan 1. jan.)").replace(/(\d\.?) /, "$1\u00a0")}</div></div>
+    <div class="kpi"><div class="v">${snitt}<span>${T("/mnd")}</span></div><div class="l">${T("snitt per månad i år")}</div></div>`;
 }
 
 /* ---- Skogbrannfare ---- */
