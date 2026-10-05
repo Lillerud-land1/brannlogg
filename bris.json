@@ -1492,5 +1492,11 @@
   "type": "Naturhendelse annen",
   "tid": "2026-10-05T13:03:17+00:00",
   "brannvesen": "Stord brann og redning"
+ },
+ "4948922": {
+  "id": "4948922",
+  "type": "",
+  "tid": "2026-10-05T21:33:25+00:00",
+  "brannvesen": "Stord brann og redning"
  }
 }
