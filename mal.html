@@ -1025,10 +1025,10 @@ const OMSETJING = [
   ["Søk etter stad eller ord", "Søk etter sted eller ord", "Search for a place or word"],
   ["Type brann", "Type brann", "Fire type"],
   ["Også automatiske brannalarmar og avbrotne utrykkingar", "Også automatiske brannalarmer og avbrutte utrykninger", "Also automatic fire alarms and cancelled call-outs"],
-  ["Siste år", "Siste år", "Last year"],
+  ["I år", "I år", "This year"],
   ["Alle", "Alle", "All time"],
   ["alle", "alle", "all time"],
-  ["siste år", "siste år", "last year"],
+  ["i år", "i år", "this year"],
   ["Alle typar", "Alle typer", "All types"],
   ["Alvorleg", "Alvorlig", "Serious"],
   ["Middels", "Middels", "Moderate"],
@@ -1062,8 +1062,8 @@ const OMSETJING = [
   ["eldre brannar", "eldre branner", "older fires"],
   ["eldre hending", "eldre hendelse", "older incident"],
   ["eldre hendingar", "eldre hendelser", "older incidents"],
-  ["{d} frå siste år.", "{d} fra siste år.", "{d} from the last year."],
-  ["Vis siste år", "Vis siste år", "Show last year"],
+  ["{d} frå tidlegare i år.", "{d} fra tidligere i år.", "{d} from earlier this year."],
+  ["Vis heile året", "Vis hele året", "Show the whole year"],
   ["Alarm", "Alarm", "Alarm"],
   ["Kartet manglar.", "Kartet mangler.", "The map is missing."],
   ["Kart over Stord kommune med brannar og utrykkingar", "Kart over Stord kommune med branner og utrykninger", "Map of Stord municipality with fires and call-outs"],
@@ -1481,9 +1481,9 @@ const erBrann = b => (b.gruppe || "brann") === "brann";
 const erAlarm = b => b.gruppe === "alarm";
 const utval = () => state.gruppe === "brann" ? B.filter(erBrann) : state.gruppe === "alt" ? B : B.filter(b => !erAlarm(b));
 const ORD = () => state.gruppe === "brann" ? ["brann", "brannar"] : ["hending", "hendingar"];
-const iAar = b => I_DAG.dn - b._dn < 365;
+const iAar = b => b._o.y === I_DAG.y;   // «I år»: frå 1. januar
 const iPeriode = b => state.periode === "alle" ? true : state.periode === "aar" ? iAar(b) : b._nyleg;
-const periodeNamn = () => state.periode === "alle" ? T("alle") : state.periode === "aar" ? T("siste år") : T("siste {n} dagar", {n:VINDU});
+const periodeNamn = () => state.periode === "alle" ? T("alle") : state.periode === "aar" ? T("i år") : T("siste {n} dagar", {n:VINDU});
 
 /* ---- Status ---- */
 function renderStatus(){
@@ -1598,7 +1598,7 @@ function renderControls(){
     `<button type="button" data-gruppe="alt" aria-pressed="${state.gruppe === "alt"}" title="${T("Også automatiske brannalarmar og avbrotne utrykkingar")}">${T("Alt")}<span class="n">${B.filter(iPeriode).length}</span></button>`;
   $("#seg-periode").innerHTML =
     `<button type="button" data-periode="50" aria-pressed="${state.periode === "50"}">${T("Siste {n} dagar", {n:VINDU})}<span class="n">${n50}</span></button>` +
-    `<button type="button" data-periode="aar" aria-pressed="${state.periode === "aar"}">${T("Siste år")}<span class="n">${utval().filter(iAar).length}</span></button>` +
+    `<button type="button" data-periode="aar" aria-pressed="${state.periode === "aar"}">${T("I år")}<span class="n">${utval().filter(iAar).length}</span></button>` +
     (utval().length > utval().filter(iAar).length ? `<button type="button" data-periode="alle" aria-pressed="${state.periode === "alle"}">${T("Alle")}<span class="n">${utval().length}</span></button>` : "");
   const typar = [...new Set(utval().filter(iPeriode).map(b => b.type))];
   if (state.type !== "alle" && !typar.includes(state.type)) state.type = "alle";
@@ -1675,8 +1675,8 @@ function renderList(){
   }
   if (state.periode === "50" && !state.sok && state.type === "alle") {
     const U = utval();
-    const eldre = U.filter(iAar).length - U.filter(b => b._nyleg).length;
-    if (eldre) html += `<div class="hint"><span>${T("{d} frå siste år.", {d:fl(eldre, "eldre " + ORD()[0], "eldre " + ORD()[1])})}</span><button type="button" class="btn" data-periode="aar">${T("Vis siste år")} ${ikon("i-pil")}</button></div>`;
+    const eldre = U.filter(b => iAar(b) && !b._nyleg).length;
+    if (eldre > 0) html += `<div class="hint"><span>${T("{d} frå tidlegare i år.", {d:fl(eldre, "eldre " + ORD()[0], "eldre " + ORD()[1])})}</span><button type="button" class="btn" data-periode="aar">${T("Vis heile året")} ${ikon("i-pil")}</button></div>`;
   }
   $("#list").innerHTML = html;
 }

@@ -17,7 +17,7 @@ Laga av **Leander Wågen Lillerud**. Ikkje ein offisiell teneste frå Politiet, 
 - **Teljar**: «Dagar sidan siste hending» (alle oppdrag, også brannalarmar), med siste brann under.
 - **Brannstripe**: éi rute per dag for dei siste 100 dagane (oransje/raud = brann, blå = anna utrykking, grå = alarm).
 - **Liste** over hendingar med stad, tid, alvorsgrad, heile politiloggen, nyheitslenker og lenke til kart. Viser 20 om gongen («Vis 20 til»).
-- **Filter**: Utrykkingar / Brannar / Alt (standard) (med automatiske brannalarmar), Siste 100 dagar / Siste år / Alle, type og fritekstsøk.
+- **Filter**: Utrykkingar / Brannar / Alt (standard) (med automatiske brannalarmar), Siste 100 dagar / I år (frå 1. januar) / Alle, type og fritekstsøk.
 - **Kart** over Stord med alle hendingar som har kjend stad.
 - **Statistikk** for siste 12 månader: knappar for å sjå fordelinga per månad, årstid, vekedag eller klokketime, og for å filtrere på gruppe og type. I tillegg type, tid på døgnet og konsekvensar.
 - **Innstillingar** (eiga fane): språk (nynorsk, bokmål, engelsk), fargeblind-vennlege fargar, lys/mørk/automatisk utsjånad, stor tekst, rørsle av/på og kva appen opnar med. Blir lagra i nettlesaren (`localStorage`, nøkkel `brannlogg_innst`).
