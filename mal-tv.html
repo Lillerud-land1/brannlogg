@@ -126,7 +126,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font
 .forklaring span{display:inline-flex;align-items:center;gap:.5rem}
 .forklaring i{width:1rem;height:1rem;border-radius:50%;background:var(--sev)}
 .forklaring i.a{background:none;border:.22rem solid var(--alarm);box-sizing:border-box}
-.ruter{font-weight:600;letter-spacing:0;text-transform:none}
+.ruter{display:block;margin-top:.25rem;font-weight:600;letter-spacing:0;text-transform:none}
 
 /* Alarmmodus: ei hending pågår */
 .alarmvising{display:grid;grid-template-columns:56fr 44fr;gap:1.4rem;min-height:0}
@@ -213,7 +213,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font
     <section class="panel">
       <div class="etikett">Kart · <b>siste 12 månader</b></div>
       <div class="kart" id="kart"></div>
-      <div class="forklaring"><span class="s3"><i></i>Alvorleg</span><span class="s2"><i></i>Middels</span><span class="s1"><i></i>Mindre</span><span><i class="a"></i>Alarm</span><span id="blink-tekst">Store prikkar = siste 100 dagar</span></div>
+      <div class="forklaring"><span class="s3"><i></i>Alvorleg</span><span class="s2"><i></i>Middels</span><span class="s1"><i></i>Mindre</span><span><i class="a"></i>Alarm utan brann</span><span id="blink-tekst">Store prikkar = siste 100 dagar</span></div>
     </section>
   </main>
 
@@ -289,7 +289,7 @@ const n50 = B.filter(b => b._o.dn >= START).length;
 // I år: frå 1. januar – byrjar på null att etter nyttår. Snittet deler på månadene som er gått (denne medrekna).
 const aar = B.filter(b => b._o.y === IDAG.y).length;
 const snittAar = aar / IDAG.m;
-t += `<div class="stripe-boks"><div class="etikett">Siste ${VINDU} dagar · <span class="ruter"><span style="color:var(--sev2)">■</span> brann <span style="color:var(--utr)">■</span> utrykking <span style="color:var(--alarm)">■</span> alarm</span></div><div class="stripe" style="--kol:${VINDU}">${celler}</div>
+t += `<div class="stripe-boks"><div class="etikett">Siste ${VINDU} dagar<span class="ruter"><span style="color:var(--sev2)">■</span> brann <span style="color:var(--utr)">■</span> anna oppdrag <span style="color:var(--alarm)">■</span> alarm utan brann</span></div><div class="stripe" style="--kol:${VINDU}">${celler}</div>
       <div class="akse"><span>${s0.getUTCDate()}. ${MND_K[s0.getUTCMonth()]}</span><span>i dag</span></div>
       <div class="tal"><div><b>${n50}</b><span>hendingar siste ${VINDU} dagar</span></div><div><b>${aar}</b><span>i år (sidan 1. jan.)</span></div><div><b>${snittAar.toLocaleString("nb-NO", {maximumFractionDigits:1})}</b><span>snitt per månad i år</span></div></div></div>`;
 $("#teljar").innerHTML = t;

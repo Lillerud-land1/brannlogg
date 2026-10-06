@@ -604,7 +604,7 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
         </div>
         <div class="map" id="map"></div>
         <div class="legend">
-          <span class="s3"><i></i>Alvorleg</span><span class="s2"><i></i>Middels</span><span class="s1"><i></i>Mindre</span><span><i class="u"></i>Anna utrykking</span><span><i class="a"></i>Alarm</span><span><i class="r"></i><span id="legend-nyleg">Siste 100 dagar</span></span>
+          <span class="s3"><i></i>Alvorleg</span><span class="s2"><i></i>Middels</span><span class="s1"><i></i>Mindre</span><span><i class="u"></i>Anna oppdrag</span><span><i class="a"></i>Alarm utan brann</span><span><i class="r"></i><span id="legend-nyleg">Siste 100 dagar</span></span>
         </div>
         <div id="pop"></div>
         <div class="utan" id="utan"></div>
@@ -687,7 +687,7 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
       </ol>
       <div class="kanalar">
         <div class="kanal">
-          <div><b>Alle utrykkingar</b><span class="sub">Brannar, trafikkulykker, sjø, dyreoppdrag og liknande. Ikkje automatiske brannalarmar.</span></div>
+          <div><b>Alle oppdrag utan alarmar</b><span class="sub">Brannar, trafikkulykker, sjø, dyreoppdrag og liknande. Ikkje automatiske brannalarmar.</span></div>
           <div class="rad"><code class="adr">brannlogg-stord-fa9d8bb7</code><button type="button" class="btn" data-kopier="brannlogg-stord-fa9d8bb7">Kopier</button></div>
           <div class="rad">
             <a class="btn mob-berre" href="ntfy://ntfy.sh/brannlogg-stord-fa9d8bb7">Opne i ntfy (Android)</a>
@@ -735,7 +735,7 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
       </div>
       <div class="innst-rad">
         <div><b>Opne appen med</b><span class="sub">Kva lista og statistikken viser når du opnar appen.</span></div>
-        <div class="seg" role="group" aria-label="Opne appen med" data-innst="gruppe"><button type="button" data-verdi="alle">Utrykkingar</button><button type="button" data-verdi="brann">Brannar</button><button type="button" data-verdi="alt">Alt</button></div>
+        <div class="seg" role="group" aria-label="Opne appen med" data-innst="gruppe"><button type="button" data-verdi="brann">Brannar</button><button type="button" data-verdi="alle">Utan alarmar</button><button type="button" data-verdi="alt">Alt</button></div>
       </div>
       <div class="innst-lagre">
         <span class="innst-endra" id="innst-endra" hidden>Du har endringar som ikkje er lagra.</span>
@@ -1007,7 +1007,7 @@ const OMSETJING = [
   ["Siste {n} dagar", "Siste {n} dager", "Last {n} days"],
   ["Øvst: {a} · Nedst: {b}", "Øverst: {a} · Nederst: {b}", "Top: {a} · Bottom: {b}"],
   ["{d} med brann", "{d} med brann", "{d} with fires"],
-  ["{d} med utrykking", "{d} med utrykning", "{d} with call-outs"],
+  ["{d} med oppdrag", "{d} med oppdrag", "{d} with call-outs"],
   ["Brann", "Brann", "Fire"],
   ["brann", "brann", "fire"],
   ["brannar", "branner", "fires"],
@@ -1018,7 +1018,7 @@ const OMSETJING = [
   ["Siste 12 månader", "Siste 12 måneder", "Last 12 months"],
   ["snitt per månad i år", "snitt per måned i år", "avg. per month this year"],
   ["Brannar", "Branner", "Fires"],
-  ["Utrykkingar", "Utrykninger", "Call-outs"],
+  ["Utan alarmar", "Uten alarmer", "Without alarms"],
   ["Alt", "Alt", "All"],
   ["Kva hendingar", "Hvilke hendelser", "Which incidents"],
   ["Periode", "Periode", "Period"],
@@ -1065,6 +1065,7 @@ const OMSETJING = [
   ["{d} frå tidlegare i år.", "{d} fra tidligere i år.", "{d} from earlier this year."],
   ["Vis heile året", "Vis hele året", "Show the whole year"],
   ["Alarm", "Alarm", "Alarm"],
+  ["Alarm utan brann", "Alarm uten brann", "Alarm, no fire"],
   ["Kartet manglar.", "Kartet mangler.", "The map is missing."],
   ["Kart over Stord kommune med brannar og utrykkingar", "Kart over Stord kommune med branner og utrykninger", "Map of Stord municipality with fires and call-outs"],
   ["{d} utan kjend kartplassering er ikkje med på kartet.", "{d} uten kjent kartplassering er ikke med på kartet.", "{d} without a known location are not on the map."],
@@ -1127,7 +1128,7 @@ const OMSETJING = [
   ["Redning", "Redning", "Rescue"],
   ["Dyr", "Dyr", "Animals"],
   ["Utslepp", "Utslipp", "Spill"],
-  ["Anna utrykking", "Annen utrykning", "Other call-out"],
+  ["Anna oppdrag", "Annet oppdrag", "Other call-out"],
   ["Helseoppdrag", "Helseoppdrag", "Medical assist"],
   ["Brannvern", "Brannvern", "Fire prevention"],
   ["Avbroten utrykking (alarm)", "Avbrutt utrykning (alarm)", "Cancelled call-out (alarm)"],
@@ -1146,7 +1147,6 @@ const OMSETJING = [
   ["Brannalarm: røyking", "Brannalarm: røyking", "Fire alarm: smoking"],
   ["Brannalarm: test av anlegget", "Brannalarm: test av anlegget", "Fire alarm: system test"],
   ["Brannalarm: anna", "Brannalarm: annet", "Fire alarm: other"],
-  ["Anna oppdrag", "Annet oppdrag", "Other job"],
   ["Brann (anna)", "Brann (annet)", "Fire (other)"],
   ["Dyreoppdrag", "Dyreoppdrag", "Animal rescue"],
   ["Brannhindrande tiltak – komfyr", "Brannforebyggende tiltak – komfyr", "Fire prevention – cooker"],
@@ -1225,7 +1225,7 @@ const OMSETJING = [
   ["ABA annet", null, "Automatic alarm: other"],
   ["Helseoppdrag annet", null, "Medical assist, other"],
   ["Helseoppdrag bære/løfte", null, "Medical assist, lifting/carrying"],
-  ["Andre oppdrag", null, "Other jobs"],
+  ["Andre oppdrag", null, "Other call-outs"],
   ["Brann i skorstein", null, "Chimney fire"],
   ["Brann annet", null, "Fire, other"],
   ["Brann i personbil", null, "Car fire"],
@@ -1249,7 +1249,7 @@ const OMSETJING = [
   ["Opne ntfy, trykk", "Åpne ntfy, trykk", "Open ntfy, tap"],
   [", lim inn kanalnamnet og trykk", ", lim inn kanalnavnet og trykk", ", paste the channel name and tap"],
   [". Tillat varsel når telefonen spør.", ". Tillat varsler når telefonen spør.", ". Allow notifications when your phone asks."],
-  ["Alle utrykkingar", "Alle utrykninger", "All call-outs"],
+  ["Alle oppdrag utan alarmar", "Alle oppdrag uten alarmer", "All call-outs except alarms"],
   ["Brannar, trafikkulykker, sjø, dyreoppdrag og liknande. Ikkje automatiske brannalarmar.", "Branner, trafikkulykker, sjø, dyreoppdrag og lignende. Ikke automatiske brannalarmer.", "Fires, traffic accidents, sea incidents, animal rescues and similar. Not automatic fire alarms."],
   ["Opne i ntfy (Android)", "Åpne i ntfy (Android)", "Open in ntfy (Android)"],
   ["Opne på PC", "Åpne på PC", "Open on PC"],
@@ -1444,7 +1444,7 @@ const TYPE = {
   pipe:{n:"Pipebrann", i:"i-pipe"}, alarm:{n:"Brannalarm", i:"i-alarm"}, industri:{n:"Industri/avfall", i:"i-industri"},
   baat:{n:"Båt", i:"i-baat"}, anna:{n:"Anna brann", i:"i-anna"},
   trafikk:{n:"Trafikkulykke", i:"i-trafikk"}, sjo:{n:"Sjø", i:"i-sjo"}, ulykke:{n:"Ulykke", i:"i-ulykke"},
-  redning:{n:"Redning", i:"i-redning"}, dyr:{n:"Dyr", i:"i-dyr"}, utslepp:{n:"Utslepp", i:"i-utslepp"}, utrykking:{n:"Anna utrykking", i:"i-utrykking"}, helse:{n:"Helseoppdrag", i:"i-helse"}, brannvern:{n:"Brannvern", i:"i-brannvern"}
+  redning:{n:"Redning", i:"i-redning"}, dyr:{n:"Dyr", i:"i-dyr"}, utslepp:{n:"Utslepp", i:"i-utslepp"}, utrykking:{n:"Anna oppdrag", i:"i-utrykking"}, helse:{n:"Helseoppdrag", i:"i-helse"}, brannvern:{n:"Brannvern", i:"i-brannvern"}
 };
 Object.values(TYPE).forEach(t => t.n = T(t.n));
 const ALVOR = {1:T("Mindre"), 2:T("Middels"), 3:T("Alvorleg")};
@@ -1550,8 +1550,8 @@ function renderHero(){
     `<span class="mob">${T("Øvst: {a} · Nedst: {b}", {a:`${dt(s0)}–${dt(m1)}`, b:`${dt(m2)}–${T("i dag")}`})}</span>`;
   const n50 = utval().filter(b => b._nyleg).length;
   const dagarMed = Object.keys(perDag).length;
-  $("#strip-sum").textContent = T(state.gruppe === "brann" ? "{d} med brann" : "{d} med utrykking", {d:fl(dagarMed, "dag", "dagar")});
-  $("#strip-legend").innerHTML = state.gruppe === "brann" ? "" : `<span><i style="background:var(--sev2)"></i>${T("Brann")}</span><span><i style="background:var(--utr)"></i>${T("Anna utrykking")}</span>` + (state.gruppe === "alt" ? `<span><i style="background:var(--alarm)"></i>${T("Alarm")}</span>` : "");
+  $("#strip-sum").textContent = T(state.gruppe === "brann" ? "{d} med brann" : "{d} med oppdrag", {d:fl(dagarMed, "dag", "dagar")});
+  $("#strip-legend").innerHTML = state.gruppe === "brann" ? "" : `<span><i style="background:var(--sev2)"></i>${T("Brann")}</span><span><i style="background:var(--utr)"></i>${T("Anna oppdrag")}</span>` + (state.gruppe === "alt" ? `<span><i style="background:var(--alarm)"></i>${T("Alarm utan brann")}</span>` : "");
 
   // I år: frå 1. januar, som på TV-sida. Snittet deler på månadene som er gått (denne medrekna).
   const aar = utval().filter(b => b._o.y === I_DAG.y);
@@ -1593,8 +1593,8 @@ function filtrert(){
 function renderControls(){
   const n50 = utval().filter(b => b._nyleg).length;
   $("#seg-gruppe").innerHTML =
-    `<button type="button" data-gruppe="alle" aria-pressed="${state.gruppe === "alle"}">${T("Utrykkingar")}<span class="n">${B.filter(b => !erAlarm(b) && iPeriode(b)).length}</span></button>` +
-    `<button type="button" data-gruppe="brann" aria-pressed="${state.gruppe === "brann"}">${T("Brannar")}<span class="n">${B.filter(b => erBrann(b) && iPeriode(b)).length}</span></button>` +
+        `<button type="button" data-gruppe="brann" aria-pressed="${state.gruppe === "brann"}">${T("Brannar")}<span class="n">${B.filter(b => erBrann(b) && iPeriode(b)).length}</span></button>` +
+`<button type="button" data-gruppe="alle" aria-pressed="${state.gruppe === "alle"}">${T("Utan alarmar")}<span class="n">${B.filter(b => !erAlarm(b) && iPeriode(b)).length}</span></button>` +
     `<button type="button" data-gruppe="alt" aria-pressed="${state.gruppe === "alt"}" title="${T("Også automatiske brannalarmar og avbrotne utrykkingar")}">${T("Alt")}<span class="n">${B.filter(iPeriode).length}</span></button>`;
   $("#seg-periode").innerHTML =
     `<button type="button" data-periode="50" aria-pressed="${state.periode === "50"}">${T("Siste {n} dagar", {n:VINDU})}<span class="n">${n50}</span></button>` +
@@ -1764,8 +1764,8 @@ function renderStats(){
   // Knappar
   const B12 = B.filter(b => I_DAG.dn - b._dn < 365);
   $("#stat-gruppe").innerHTML =
-    `<button type="button" data-gruppe="alle" aria-pressed="${state.gruppe === "alle"}">${T("Utrykkingar")}<span class="n">${B12.filter(b => !erAlarm(b)).length}</span></button>` +
-    `<button type="button" data-gruppe="brann" aria-pressed="${state.gruppe === "brann"}">${T("Brannar")}<span class="n">${B12.filter(erBrann).length}</span></button>` +
+        `<button type="button" data-gruppe="brann" aria-pressed="${state.gruppe === "brann"}">${T("Brannar")}<span class="n">${B12.filter(erBrann).length}</span></button>` +
+`<button type="button" data-gruppe="alle" aria-pressed="${state.gruppe === "alle"}">${T("Utan alarmar")}<span class="n">${B12.filter(b => !erAlarm(b)).length}</span></button>` +
     `<button type="button" data-gruppe="alt" aria-pressed="${state.gruppe === "alt"}" title="${T("Også automatiske brannalarmar og avbrotne utrykkingar")}">${T("Alt")}<span class="n">${B12.length}</span></button>`;
   $("#stat-fordel").innerHTML = Object.entries(FORDEL).map(([k, n]) => `<button type="button" data-fordel="${k}" aria-pressed="${state.fordel === k}">${n}</button>`).join("");
   $("#stat-typar").innerHTML = `<button type="button" class="chip" data-stype="alle" aria-pressed="${state.stype === "alle"}">${T("Alle typar")}</button>` +

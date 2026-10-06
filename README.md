@@ -17,7 +17,7 @@ Laga av **Leander Wågen Lillerud**. Ikkje ein offisiell teneste frå Politiet, 
 - **Teljar**: «Dagar sidan siste hending» (alle oppdrag, også brannalarmar), med siste brann under.
 - **Brannstripe**: éi rute per dag for dei siste 100 dagane (oransje/raud = brann, blå = anna utrykking, grå = alarm).
 - **Liste** over hendingar med stad, tid, alvorsgrad, heile politiloggen, nyheitslenker og lenke til kart. Viser 20 om gongen («Vis 20 til»).
-- **Filter**: Utrykkingar / Brannar / Alt (standard) (med automatiske brannalarmar), Siste 100 dagar / I år (frå 1. januar) / Alle, type og fritekstsøk.
+- **Filter**: Brannar / Utan alarmar / Alt (standard) (med automatiske brannalarmar), Siste 100 dagar / I år (frå 1. januar) / Alle, type og fritekstsøk.
 - **Kart** over Stord med alle hendingar som har kjend stad.
 - **Statistikk** for siste 12 månader: knappar for å sjå fordelinga per månad, årstid, vekedag eller klokketime, og for å filtrere på gruppe og type. I tillegg type, tid på døgnet og konsekvensar.
 - **Innstillingar** (eiga fane): språk (nynorsk, bokmål, engelsk), fargeblind-vennlege fargar, lys/mørk/automatisk utsjånad, stor tekst, rørsle av/på og kva appen opnar med. Blir lagra i nettlesaren (`localStorage`, nøkkel `brannlogg_innst`).
@@ -142,7 +142,7 @@ Før eigne endringar lokalt: `git pull --rebase --autostash` (GitHub legg inn ny
 
 1. Last ned **ntfy** ([App Store](https://apps.apple.com/app/ntfy/id1625396347) / [Google Play](https://play.google.com/store/apps/details?id=io.heckel.ntfy)).
 2. Trykk **+** og abonner på ein av kanalane:
-   - `brannlogg-stord-fa9d8bb7`: alle utrykkingar (ikkje automatiske brannalarmar)
+   - `brannlogg-stord-fa9d8bb7`: alle oppdrag utan alarmar (ikkje automatiske brannalarmar)
    - `brannlogg-stord-fa9d8bb7-brann`: berre brannar
 3. Trykk på eit varsel for å opne hendinga i appen.
 
