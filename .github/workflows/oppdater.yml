@@ -17,6 +17,29 @@ on:
 permissions: {}
 
 jobs:
+  rydd:
+    # Ei køyring som heng (GitHub har latt ei stå på «waiting» i dagevis) blokkerer alle andre, sidan berre
+    # éin oppdater-jobb får gå om gongen. Denne jobben går utan kø og avbryt køyringar som er over 60 minutt
+    # gamle og ikkje ferdige. Ei vanleg køyring tek om lag 15 minutt (inkludert ventinga i «neste»).
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: write    # avbryte køyringar som heng
+      contents: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Avbryt køyringar som heng
+        run: |
+          grense=$(date -u -d '60 minutes ago' +%Y-%m-%dT%H:%M:%SZ)
+          heng=$(gh run list --workflow oppdater.yml --limit 50 --json databaseId,status,createdAt             -q ".[] | select(.status != \"completed\" and .databaseId != ${{ github.run_id }} and .createdAt < \"$grense\") | .databaseId")
+          for id in $heng; do
+            echo "Avbryt køyring $id – ho har ikkje vorte ferdig på over 60 minutt"
+            gh api -X POST "repos/$GH_REPO/actions/runs/$id/force-cancel" || echo "Klarte ikkje å avbryte $id"
+          done
+          [ -n "$heng" ] || echo "Ingen køyringar heng"
+
   oppdater:
     runs-on: ubuntu-latest
     permissions:

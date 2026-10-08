@@ -760,10 +760,19 @@ def vakt():
         print(f"VAKT: OK, nettsida vart oppdatert for {minutt} min sidan")
         return
     try:
-        går = subprocess.run(["gh", "run", "list", "-R", REPO, "--workflow", "oppdater.yml", "--json", "status",
-                              "-q", '[.[] | select(.status != "completed")] | length'],
-                             capture_output=True, text=True, timeout=60)
-        if går.returncode == 0 and går.stdout.strip() not in ("", "0"):
+        svar = subprocess.run(["gh", "run", "list", "-R", REPO, "--workflow", "oppdater.yml", "--limit", "50",
+                               "--json", "databaseId,status,createdAt"], capture_output=True, text=True, timeout=60)
+        køyringar = json.loads(svar.stdout) if svar.returncode == 0 and svar.stdout.strip() else []
+        ikkje_ferdige = [k for k in køyringar if k["status"] != "completed"]
+        # Ei køyring som har hengt i over 60 minutt, blokkerer alle andre – avbryt henne (same som jobben «rydd»)
+        heng = [k for k in ikkje_ferdige
+                if datetime.now(timezone.utc) - datetime.fromisoformat(k["createdAt"].replace("Z", "+00:00")) > timedelta(minutes=60)]
+        for k in heng:
+            stopp = subprocess.run(["gh", "api", "-X", "POST", f"repos/{REPO}/actions/runs/{k['databaseId']}/force-cancel"],
+                                   capture_output=True, text=True, timeout=60)
+            print(f"VAKT: avbraut køyring {k['databaseId']} som hadde hengt i over 60 min" if stopp.returncode == 0
+                  else f"VAKT_FEIL: kunne ikkje avbryte køyring {k['databaseId']}: {stopp.stderr.strip()}")
+        if len(ikkje_ferdige) > len(heng):
             print(f"VAKT: nettsida er {minutt} min gammal, men ei oppdatering går alt")
             return
         start = subprocess.run(["gh", "workflow", "run", "oppdater.yml", "-R", REPO, "--ref", "main"],

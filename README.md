@@ -186,6 +186,7 @@ Endringar i `oppdater.py`, `mal.html`, `mal-tv.html`, `ekstra.json` eller arbeid
 | Problem | Løysing |
 |---|---|
 | Sida er ikkje oppdatert | Sjå **Actions** på GitHub: grøn hake = ok. Last sida på nytt (F5). Statusprikken øvst blir oransje om dataa er over 3 timar gamle. |
+| Mange køyringar blir «cancelled» | Ei køyring heng (t.d. «waiting» hos GitHub) og blokkerer dei andre. Jobben `rydd` avbryt automatisk køyringar som er over 60 minutt gamle, og vakta på PC-en gjer det same. For hand: `gh api -X POST repos/Lillerud-land1/brannlogg/actions/runs/<id>/force-cancel`. |
 | «Nytt oppdrag (type ikkje registrert enno)» | Brannvesenet har ikkje fylt ut typen i brannstatistikken enno. Blir retta av seg sjølv. |
 | Ei nyheitslenke eller mediehending er feil | Legg url-en i `avvis` eller set `avvis_hending: true` i `ekstra.json`, og køyr `--send-ekstra`. |
 | Feil stad på kartet | Set `pos: [lat, lon]` eller `stad` for hendinga i `ekstra.json`. |
