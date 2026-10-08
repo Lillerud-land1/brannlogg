@@ -196,7 +196,7 @@ def klassifiser(tekst):
     flammar = har_positiv(tekst, r"har vært åpne flammer|inhalert|flammer i|slukket|slukking|brannen")
     alvor = 3 if alvorleg else (1 if mild and not flammar else 2)
     if alvor == 1 and tittel.startswith("Brann i "):
-        tittel = "Røykutvikling i " + tittel[len("Brann i "):]
+        tittel = "Røyk i " + tittel[len("Brann i "):]   # kort, så tittelen ikkje blir kutta på TV-lista
 
     flagg = {
         "personskade": har_positiv(tekst, r"inhalert|brannskade|til sykehus|til sjukehus|sykehuset|personskade|skadet|fått i seg røyk"),
@@ -356,19 +356,19 @@ def hent_alle_saker():
 
 BRIS_API = "https://brannstatistikk.no/api/v1/missionreports/search"
 ABA_ÅRSAK = {"matlaging": "matlaging", "vanndamp": "vassdamp", "ukjent": "ukjend årsak", "teknisk feil": "teknisk feil",
-             "manuell melder": "manuell melder", "annen røyk": "anna røyk", "arbeid på/i bygg": "arbeid i bygget",
-             "trykkfall sprinkler": "trykkfall i sprinklar", "fysisk skade på anlegget": "skade på anlegget",
-             "eksos": "eksos", "røyking": "røyking", "øvelse/service/test av anlegg": "test av anlegget", "annet": "anna"}
+             "manuell melder": "meldeknapp", "annen røyk": "anna røyk", "arbeid på/i bygg": "byggearbeid",
+             "trykkfall sprinkler": "sprinklar", "fysisk skade på anlegget": "øydelagd",
+             "eksos": "eksos", "røyking": "røyking", "øvelse/service/test av anlegg": "test", "annet": "anna"}
 BRIS_TITTEL = {
     "Brann i bygning": "Brann i bygning", "Brann annet": "Brann (anna)", "Brann i skorstein": "Pipebrann",
     "Brann i personbil": "Bilbrann", "Brann i gress- eller innmark": "Brann i gras eller innmark",
     "Trafikkulykke": "Trafikkulykke", "Person i vann": "Person i vatnet", "Ulykke båt eller skip": "Båtulykke",
     "Dyreoppdrag": "Dyreoppdrag", "Akutt forurensning": "Akutt forureining", "Ubetydelig forurensning": "Mindre forureining",
-    "Helseoppdrag annet": "Helseoppdrag", "Helseoppdrag bære/løfte": "Helseoppdrag (bering/løft)",
+    "Helseoppdrag annet": "Helseoppdrag", "Helseoppdrag bære/løfte": "Helse: bering og løft",
     "Bistand politi": "Bistand til politiet", "Andre oppdrag": "Anna oppdrag", "Naturhendelse vind": "Vind og uvêr",
     "Berging av verdier": "Berging av verdiar", "Beredskapsoppdrag": "Beredskapsoppdrag",
-    "Brannhindrende tiltak komfyr": "Brannhindrande tiltak – komfyr", "Brannhindrende annet utenfor bygg": "Brannhindrande tiltak",
-    "RVR uten foregående innsats": "Restverdiredning", "Avbrutt utrykning alarm": "Avbroten utrykking (alarm)",
+    "Brannhindrende tiltak komfyr": "Brannhindrande: komfyr", "Brannhindrende annet utenfor bygg": "Brannhindrande tiltak",
+    "RVR uten foregående innsats": "Restverdiredning", "Avbrutt utrykning alarm": "Avbroten utrykking",
     "Avbrutt utrykning samtale": "Avbroten utrykking", "Unødig kontroll av melding": "Kontroll av melding",
     "Unødig andre alarmer": "Unødig alarm", "Unødig alarm privatmarked": "Unødig alarm", "Oppdrag fra andre alarmer": "Oppdrag frå annan alarm",
 }
