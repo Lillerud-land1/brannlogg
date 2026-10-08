@@ -92,6 +92,7 @@ flowchart LR
 | `mal-tv.html` | Mal for TV-/infoskjermversjonen. |
 | `mal-tv.webmanifest` | Mal for app-manifestet til infoskjermen (adressa blir fylt inn ved bygging). |
 | `.github/workflows/oppdater.yml` | GitHub Actions: køyrer skriptet kvart kvarter og legg ut sida. |
+| `.github/workflows/vakt.yml` | Vakt kvart kvarter: varsel til eigaren (privat ntfy-kanal) om nettsida ikkje er oppdatert på over ein time. |
 | `ekstra.json` | Manuelle tillegg og rettingar per hending (sjå under). Skrive av Claude eller for hand. |
 | `arkiv.json` | Alle tråder frå Politiloggen som er tekne vare på (Politiloggen gir berre eitt år bakover). |
 | `bris.json` | Arkiv over oppdrag frå brannstatistikken. |
@@ -148,6 +149,12 @@ Før eigne endringar lokalt: `git pull --rebase --autostash` (GitHub legg inn ny
 3. Trykk på eit varsel for å opne hendinga i appen.
 
 Stega står òg i appen under **Om appen** (bjølla øvst). Kanalnamnet er lagra som GitHub-hemmelegheit `NTFY_TOPIC`. Gratisversjonen av ntfy har ingen tilgangsstyring, så alle som kjenner kanalnamnet, kan i teorien sende meldingar til han.
+
+### Vakt-varsel til eigaren
+
+Ein eigen arbeidsflyt (`vakt.yml`) sjekkar kvart kvarter at nettsida er oppdatert siste timen. Er ho ikkje det, avbryt han køyringar som heng, startar oppdateringa på nytt og sender varsel til ein **privat** ntfy-kanal. Påminning kjem kvar 3. time, og éi melding når alt verkar igjen. Vakta på PC-en (`--sjekk`) gjer det same når PC-en er på.
+
+Kanalnamnet står **ikkje** i appen eller her. Det ligg i GitHub-hemmelegheita `NTFY_VAKT` og i `vakt_kanal.txt` på PC-en (ikkje i git). Test: `python oppdater.py --vakt-test`.
 
 ---
 

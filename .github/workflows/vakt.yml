@@ -1,0 +1,28 @@
+name: Vakt – varsel om Brannlogg ikkje blir oppdatert
+
+# Sjekkar kvart kvarter at nettsida er oppdatert siste timen. Er ho ikkje det: avbryt køyringar som heng,
+# startar oppdateringa på nytt og sender varsel til ein privat ntfy-kanal (GitHub-hemmelegheita NTFY_VAKT).
+# Når nettsida verkar igjen, kjem det éi melding om det. Går heilt åtskilt frå «Oppdater Brannlogg Stord».
+on:
+  schedule:
+    - cron: "11,26,41,56 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  vakt:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: write    # avbryte køyringar som heng og starte oppdateringa
+      contents: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      NTFY_VAKT: ${{ secrets.NTFY_VAKT }}
+      TZ: Europe/Oslo
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+
+      - name: Sjekk at nettsida blir oppdatert
+        run: python3 oppdater.py --vakt

@@ -3,6 +3,8 @@
 Køyr:  python oppdater.py                (byggjer stordbrann.html og nettside/index.html)
        python oppdater.py --sjekk        (listar nye brannar utan nyheitskjelder, skriv ingen filer)
        python oppdater.py --send-ekstra  (sender ekstra.json til GitHub, som byggjer sida på nytt)
+       python oppdater.py --vakt         (varsel til privat kanal om nettsida er over ein time gammal)
+       python oppdater.py --vakt-test    (testmelding til den private kanalen)
        python oppdater.py --nyheiter     (byggjer og leitar i tillegg etter nyheitssaker i RSS-feedar)
 Bygginga kvart kvarter skjer i GitHub Actions (.github/workflows/oppdater.yml).
 Kjelder: Politiloggen API (Politiet, NLOD 2.0), Kartverket (adresser/stadnamn).
@@ -770,20 +772,86 @@ def les_tid(tekst):
 REPO = "Lillerud-land1/brannlogg"
 
 
+VAKT_GRENSE = timedelta(hours=1)        # varsel når nettsida er eldre enn dette
+VAKT_PAMINNING = timedelta(hours=3)     # ny påminning om problemet varer
+
+
+def vakt_kanal():
+    """Den private varselkanalen i ntfy: GitHub-hemmelegheita NTFY_VAKT, eller vakt_kanal.txt på PC-en.
+    Står ikkje i appen eller i README – berre eigaren abonnerer på han."""
+    kanal = os.environ.get("NTFY_VAKT", "").strip()
+    fil = MAPPE / "vakt_kanal.txt"
+    if not kanal and fil.exists():
+        kanal = fil.read_text(encoding="utf-8").strip()
+    return kanal if re.fullmatch(r"[A-Za-z0-9_-]{16,64}", kanal) else ""
+
+
+def vakt_send(kanal, melding):
+    req = urllib.request.Request("https://ntfy.sh/", data=json.dumps({**melding, "topic": kanal}).encode("utf-8"),
+                                 headers={"Content-Type": "application/json", **UA}, method="POST")
+    urllib.request.urlopen(req, timeout=30).read()
+
+
+def vakt_varsle(feil, tekst):
+    """Varsel til den private kanalen når nettsida ikkje blir oppdatert (påminning kvar 3. time),
+    og éi melding når ho verkar igjen. Kva som alt er sendt, blir lese frå kanalen (ntfy tek vare på meldingar i 12 timar)."""
+    kanal = vakt_kanal()
+    if not kanal:
+        print("VAKT_VARSEL: ingen privat kanal sett opp")
+        return
+    siste = None
+    try:
+        with urllib.request.urlopen(urllib.request.Request(f"https://ntfy.sh/{kanal}/json?poll=1&since=12h", headers=UA),
+                                    timeout=30) as r:
+            meldingar = [json.loads(l) for l in r.read().decode("utf-8").splitlines() if l.strip()]
+        siste = max((m for m in meldingar if m.get("event") == "message"), key=lambda m: m["time"], default=None)
+    except Exception as e:
+        print(f"VAKT_VARSEL: kunne ikkje lese kanalen ({e})")
+    alarm = bool(siste) and "warning" in (siste.get("tags") or [])
+    if feil:
+        if alarm and datetime.now(timezone.utc).timestamp() - siste["time"] < VAKT_PAMINNING.total_seconds():
+            print("VAKT_VARSEL: alt varsla")
+            return
+        melding = {"title": "⚠️ Brannlogg blir ikkje oppdatert", "message": tekst, "tags": ["warning"],
+                   "priority": 4, "click": f"https://github.com/{REPO}/actions"}
+    elif alarm:
+        melding = {"title": "✅ Brannlogg oppdaterer seg igjen", "message": tekst, "tags": ["white_check_mark"],
+                   "priority": 3, "click": NETTSIDE}
+    else:
+        return
+    try:
+        vakt_send(kanal, melding)
+        print(f"VAKT_VARSEL: sendt – {melding['title']}")
+    except Exception as e:
+        print(f"VAKT_VARSEL_FEIL: {e}")
+
+
 def vakt():
-    """Startar oppdateringa på GitHub om nettsida er meir enn ein time gammal.
-    Køyrer som ein del av --sjekk, altså berre når PC-en er på."""
+    """Sjekkar at nettsida blir oppdatert. Er ho meir enn ein time gammal: avbryt køyringar som heng,
+    startar oppdateringa på GitHub og sender varsel til den private kanalen.
+    Køyrer på GitHub kvart kvarter (vakt.yml, --vakt) og på PC-en som ein del av --sjekk."""
+    from urllib.error import HTTPError
     try:
         url = f"https://lillerud-land1.github.io/brannlogg/status.json?t={int(datetime.now().timestamp())}"
         with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=30) as r:
-            alder = datetime.now(timezone.utc) - datetime.fromisoformat(json.loads(r.read())["oppdatert"])
+            oppdatert = datetime.fromisoformat(json.loads(r.read())["oppdatert"])
+    except HTTPError as feil:
+        print(f"VAKT: nettsida svarar med feil ({feil.code})")
+        vakt_varsle(True, f"Nettsida svarar ikkje som ho skal (HTTP {feil.code}).")
+        return
     except Exception as feil:
         print(f"VAKT: kunne ikkje lese status.json ({feil})")
         return
+    alder = datetime.now(timezone.utc) - oppdatert
     minutt = int(alder.total_seconds() // 60)
-    if alder < timedelta(hours=1):
+    if alder < VAKT_GRENSE:
         print(f"VAKT: OK, nettsida vart oppdatert for {minutt} min sidan")
+        vakt_varsle(False, f"Nettsida vart oppdatert for {minutt} min sidan.")
         return
+    o = oppdatert.astimezone(ZoneInfo("Europe/Oslo"))
+    tekst = ((f"Nettsida vart sist oppdatert for {minutt} min sidan" if minutt < 120 else
+              f"Nettsida vart sist oppdatert for {minutt // 60} timar sidan")
+             + f" (kl. {o:%H:%M}, {o.day}.{o.month}.). Normalt skjer det kvart kvarter.")
     try:
         svar = subprocess.run(["gh", "run", "list", "-R", REPO, "--workflow", "oppdater.yml", "--limit", "50",
                                "--json", "databaseId,status,createdAt"], capture_output=True, text=True, timeout=60)
@@ -797,17 +865,35 @@ def vakt():
                                    capture_output=True, text=True, timeout=60)
             print(f"VAKT: avbraut køyring {k['databaseId']} som hadde hengt i over 60 min" if stopp.returncode == 0
                   else f"VAKT_FEIL: kunne ikkje avbryte køyring {k['databaseId']}: {stopp.stderr.strip()}")
+        if heng:
+            tekst += f" Vakta avbraut {len(heng)} køyring(ar) som hang."
         if len(ikkje_ferdige) > len(heng):
             print(f"VAKT: nettsida er {minutt} min gammal, men ei oppdatering går alt")
-            return
-        start = subprocess.run(["gh", "workflow", "run", "oppdater.yml", "-R", REPO, "--ref", "main"],
-                               capture_output=True, text=True, timeout=60)
-        if start.returncode == 0:
-            print(f"VAKT: nettsida var {minutt} min gammal – starta oppdateringa på GitHub")
+            tekst += " Ei oppdatering går no."
         else:
-            print(f"VAKT_FEIL: kunne ikkje starte oppdateringa: {start.stderr.strip()}")
+            start = subprocess.run(["gh", "workflow", "run", "oppdater.yml", "-R", REPO, "--ref", "main"],
+                                   capture_output=True, text=True, timeout=60)
+            if start.returncode == 0:
+                print(f"VAKT: nettsida var {minutt} min gammal – starta oppdateringa på GitHub")
+                tekst += " Vakta har starta oppdateringa på nytt."
+            else:
+                print(f"VAKT_FEIL: kunne ikkje starte oppdateringa: {start.stderr.strip()}")
+                tekst += " Vakta klarte ikkje å starte oppdateringa."
     except Exception as feil:
         print(f"VAKT_FEIL: {feil}")
+    vakt_varsle(True, tekst)
+
+
+def vakt_test():
+    """Sender ei testmelding til den private kanalen."""
+    kanal = vakt_kanal()
+    if not kanal:
+        sys.exit("Ingen privat kanal (NTFY_VAKT / vakt_kanal.txt)")
+    vakt_send(kanal, {"title": "🔔 Test frå Brannlogg-vakta",
+                      "message": "Varsel er sett opp. Du får melding her om nettsida ikkje blir oppdatert på meir enn "
+                                 "ein time, og når ho verkar igjen.",
+                      "tags": ["bell"], "priority": 3, "click": NETTSIDE})
+    print("VAKT_TEST: sendt")
 
 
 def sjekk():
@@ -1258,5 +1344,9 @@ if __name__ == "__main__":
         sjekk()
     elif "--send-ekstra" in sys.argv:
         send_ekstra()
+    elif "--vakt" in sys.argv:
+        vakt()
+    elif "--vakt-test" in sys.argv:
+        vakt_test()
     else:
         main()
