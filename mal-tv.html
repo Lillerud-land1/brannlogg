@@ -426,7 +426,9 @@ function lagFakta(){
   if (D.brannfare && D.brannfare.klasse >= 3) f.push("Skogbrannfaren er høg no. Ikkje gjer opp eld ute, og ver forsiktig med grill og sigarettar.");
   return f.map(t => ({lbl:"Visste du?", t}));
 }
-const TIPS_NO = {lbl:`Brannvern i ${MND[IDAG.m-1]}`, t:TIPS[IDAG.m-1]};
+// På spesielle dagar (røykvarslardagen, julaftan, nyttårsaftan …) kjem dagens bodskap i staden for månadens tips
+const TEMADAG = (D.temadagar || []).find(x => x.dato === `${IDAG.y}-${pad(IDAG.m)}-${pad(IDAG.d)}`);
+const TIPS_NO = TEMADAG ? {lbl:TEMADAG.nn.tittel, t:TEMADAG.nn.tekst} : {lbl:`Brannvern i ${MND[IDAG.m-1]}`, t:TIPS[IDAG.m-1]};
 // Brannverntipset kjem annakvar gong: tips, fakta, tips, fakta … Faktaa kjem i tilfeldig rekkjefølgje.
 let tipsKo = [], tipsForrige = null, sisteFakta = null;
 function nesteTips(){

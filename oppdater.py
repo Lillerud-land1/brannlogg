@@ -592,6 +592,43 @@ TV_GAMAL = """<!doctype html>
 """
 
 
+# Brannvern-bodskap som berre blir viste på sjølve dagen (TV-en og appen), på nynorsk, bokmål og engelsk.
+# Kjelder: Røykvarslardagen 1. desember og brannvernuka i veke 38 (Norsk brannvernforening/DSB),
+# bålforbod 15. april–15. september (forskrift om brannforebygging § 3), fyrverkeri kl. 18–02 nyttårsaftan (DSB).
+TEMA = {
+    "balforbod": {"nn": ("Bålforbodet startar", "Frå i dag til 15. september er det forbode å gjere opp eld i og nær skog og utmark."),
+                  "nb": ("Bålforbudet starter", "Fra i dag til 15. september er det forbudt å gjøre opp ild i og nær skog og utmark."),
+                  "en": ("Fire ban begins", "From today until 15 September, lighting fires in or near forests and open land is prohibited.")},
+    "sankthans": {"nn": ("Sankthansaftan", "Sjekk om det er lov å brenne bål der du er. Ha vatn klart, og sløkk bålet heilt."),
+                  "nb": ("Sankthansaften", "Sjekk om det er lov å brenne bål der du er. Ha vann klart, og slukk bålet helt."),
+                  "en": ("Midsummer Eve", "Check whether bonfires are allowed where you are. Have water ready and put the fire out completely.")},
+    "brannvernuka": {"nn": ("Brannvernuka", "Test røykvarslarane, sjekk sløkkjeutstyret og øv på kva de gjer om det brenn heime."),
+                     "nb": ("Brannvernuka", "Test røykvarslerne, sjekk slokkeutstyret og øv på hva dere gjør hvis det brenner hjemme."),
+                     "en": ("Fire Safety Week", "Test your smoke alarms, check your extinguisher and practise what to do if there is a fire at home.")},
+    "royk": {"nn": ("Røykvarslardagen", "Test røykvarslarane og byt batteri om det trengst. Desember er månaden med flest brannar."),
+             "nb": ("Røykvarslerdagen", "Test røykvarslerne og bytt batteri om det trengs. Desember er måneden med flest branner."),
+             "en": ("Smoke Alarm Day", "Test your smoke alarms and change the batteries if needed. December is the month with the most fires.")},
+    "jul": {"nn": ("God jul!", "Sløkk stearinlysa før du går frå rommet, og hald levande lys unna gardiner og pynt."),
+            "nb": ("God jul!", "Slukk stearinlysene før du går fra rommet, og hold levende lys unna gardiner og pynt."),
+            "en": ("Merry Christmas!", "Put out candles before you leave the room, and keep them away from curtains and decorations.")},
+    "nyttar": {"nn": ("Nyttårsaftan", "Fyrverkeri er berre lov kl. 18–02, og ikkje for dei under 18 år. Bruk vernebriller og hald avstand."),
+               "nb": ("Nyttårsaften", "Fyrverkeri er bare lov kl. 18–02, og ikke for dem under 18 år. Bruk vernebriller og hold avstand."),
+               "en": ("New Year's Eve", "Fireworks are only allowed from 6 pm to 2 am, and not for anyone under 18. Wear safety glasses and keep your distance.")},
+}
+TEMA_DATO = {(4, 15): "balforbod", (6, 23): "sankthans", (12, 1): "royk", (12, 24): "jul", (12, 31): "nyttar"}
+
+
+def temadagar(idag=None):
+    """Temadagane i dag og i morgon (norsk tid). Sida vel sjølv rett dag, så ho stemmer òg like over midnatt."""
+    idag = idag or datetime.now(ZoneInfo("Europe/Oslo")).date()
+    ut = []
+    for dag in (idag, idag + timedelta(days=1)):
+        namn = "brannvernuka" if dag.month == 9 and dag.isocalendar()[1] == 38 else TEMA_DATO.get((dag.month, dag.day))
+        if namn:
+            ut.append({"dato": dag.isoformat(), **{sprak: {"tittel": t, "tekst": x} for sprak, (t, x) in TEMA[namn].items()}})
+    return ut
+
+
 def tv_namn():
     """Den hemmelege adressa til infoskjermen utan .html, t.d. «tv-0123456789abcdef»."""
     namn = os.environ.get("TV_ADRESSE", "").strip()
@@ -1019,7 +1056,8 @@ def main():
         auto = les_json("auto_kjelder.json", {})
     # Hendingar kjem berre frå Politiloggen og brannstatistikken. Nyheiter blir aldri eigne hendingar
     # (ei sak kan nemne Stord utan at noko skjedde her), berre lenker og tilleggsinfo.
-    brannar = kombiner_med_bris(brannar, hent_bris(), ekstra, geocache)
+    bris = hent_bris()
+    brannar = kombiner_med_bris(brannar, bris, ekstra, geocache)
     skriv_json("geokode.json", geocache)
     brannar.sort(key=lambda b: b["start"], reverse=True)
     for b in brannar:
@@ -1042,6 +1080,7 @@ def main():
         "kart": les_json("kart.json", None),
         "brannfare": rens_brannfare(hent_brannfare()),
         "fjor": hent_fjor(),
+        "temadagar": temadagar(),
     }
     json_tekst = json_til_skript(data)
     mal = (MAPPE / "mal.html").read_text(encoding="utf-8")
@@ -1071,6 +1110,7 @@ def main():
     if "--varsle" in sys.argv:
         send_varsel(brannar)
         send_brannfare_varsel(data["brannfare"])
+        send_manadssamandrag(bris)
 
 
 # ---------- Skogbrannfare (Fire Weather Index frå vêrdata) ----------
@@ -1278,13 +1318,12 @@ BF_NAMN = ["svært låg", "låg", "moderat", "høg", "svært høg", "ekstrem"]
 MET_FARGE = {"yellow": ("gult", "🟡"), "orange": ("oransje", "🟠"), "red": ("raudt", "🔴")}
 
 
-def send_ntfy(melding):
-    """Sender same melding til hovudkanalen og «-brann»-kanalen."""
-    import os
+def send_ntfy(melding, kanalar=("", "-brann")):
+    """Sender same melding til hovudkanalen og «-brann»-kanalen (eller berre dei som er nemnde i kanalar)."""
     kanal = os.environ.get("NTFY_TOPIC", "").strip()
     if not kanal:
         return False
-    for emne in (kanal, kanal + "-brann"):
+    for emne in (kanal + k for k in kanalar):
         req = urllib.request.Request("https://ntfy.sh/", data=json.dumps({**melding, "topic": emne}).encode("utf-8"),
                                      headers={"Content-Type": "application/json", **UA}, method="POST")
         urllib.request.urlopen(req, timeout=30).read()
@@ -1337,6 +1376,59 @@ def send_brannfare_varsel(bf):
             print(f"VARSEL_FEIL: farevarsel skogbrann: {feil}")
     if varsla != før:
         skriv_json("varsla.json", sorted(varsla))
+
+
+MND_NAMN = ["januar", "februar", "mars", "april", "mai", "juni", "juli", "august", "september", "oktober", "november", "desember"]
+
+
+def manadssamandrag(bris, idag):
+    """(tittel, tekst) for førre månad: oppdrag i brannstatistikken etter gruppe, og same månad i fjor."""
+    oslo = ZoneInfo("Europe/Oslo")
+    slutt = idag.replace(day=1) - timedelta(days=1)                 # siste dag i førre månad
+    start = slutt.replace(day=1)
+    dato = lambda tid: datetime.fromisoformat(tid.replace("Z", "+00:00")).astimezone(oslo).date()
+    mnd = [m for m in bris if start <= dato(m["tid"]) <= slutt]
+    grupper = {"brann": 0, "utrykking": 0, "alarm": 0}
+    for m in mnd:
+        if m["type"]:
+            grupper[bris_kategori(m["type"])[0]] += 1
+    utan_type = sum(1 for m in mnd if not m["type"])
+    fl = lambda n, ein, fleire: f"{n} {ein if n == 1 else fleire}"
+    tekst = (f"{fl(grupper['brann'], 'brann', 'brannar')}, {fl(grupper['utrykking'], 'anna oppdrag', 'andre oppdrag')} "
+             f"og {fl(grupper['alarm'], 'alarm', 'alarmar')} utan brann.")
+    if utan_type:
+        tekst += f" {fl(utan_type, 'oppdrag har', 'oppdrag har')} ikkje fått type enno."
+    try:
+        start_f = start.replace(year=start.year - 1)
+        slutt_f = (start_f.replace(day=28) + timedelta(days=4)).replace(day=1) - timedelta(days=1)
+        fjor = sum(1 for m in bris_sok(str(start_f - timedelta(days=1)), str(slutt_f + timedelta(days=2)))
+                   if start_f <= dato(m["callTimeUtc"]) <= slutt_f)
+        tekst += f" Same månad i fjor: {fjor} oppdrag."
+    except Exception as feil:
+        print(f"SAMANDRAG: fekk ikkje tal for i fjor ({feil})")
+    tittel = f"📊 {MND_NAMN[start.month - 1].capitalize()} {start.year}: {fl(len(mnd), 'oppdrag', 'oppdrag')}"
+    return tittel, tekst + " (Tal frå brannstatistikken.)"
+
+
+def send_manadssamandrag(bris, no=None):
+    """Samandrag av førre månad til hovudkanalen, éin gong: første køyring etter kl. 9 den 1. i månaden
+    (eller seinast den 3., om GitHub skulle ha stoppa)."""
+    no = no or datetime.now(ZoneInfo("Europe/Oslo"))
+    if no.day > 3 or (no.day == 1 and no.hour < 9):
+        return
+    nokkel = f"manad-{(no.date().replace(day=1) - timedelta(days=1)):%Y-%m}"
+    varsla = set(les_json("varsla.json", []))
+    if nokkel in varsla:
+        return
+    tittel, tekst = manadssamandrag(bris, no.date())
+    melding = {"title": tittel, "message": tekst, "tags": ["bar_chart"], "priority": 3, "click": NETTSIDE + "#statistikk"}
+    try:
+        if send_ntfy(melding, kanalar=("",)):
+            varsla.add(nokkel)
+            skriv_json("varsla.json", sorted(varsla))
+            print(f"VARSEL: månadssamandrag sendt – {tittel}")
+    except Exception as feil:
+        print(f"VARSEL_FEIL: månadssamandrag: {feil}")
 
 
 if __name__ == "__main__":

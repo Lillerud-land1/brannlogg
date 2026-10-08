@@ -335,6 +335,8 @@ button.hbar[aria-pressed="true"] .fill{background:var(--ember)}
 .n110 b{font-family:var(--f-display);font-weight:800;font-size:46px;line-height:.9}
 .n110 span{font-size:14px;font-weight:600;line-height:1.3}
 .tip{margin-top:14px;padding:12px 14px;border-radius:8px;border:1px solid var(--line-2);background:var(--surface-2)}
+.tip.tema{border-color:color-mix(in srgb,var(--ember) 55%,transparent);background:color-mix(in srgb,var(--ember) 10%,var(--surface))}
+.tip.tema .eyebrow{color:var(--ember)}
 .tip .eyebrow{margin-bottom:4px;color:var(--ember)}
 .tip p{margin:0}
 .fot{font-size:12.5px;color:var(--muted);text-align:center;padding-top:6px}
@@ -545,6 +547,7 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
   <symbol id="i-oppdater" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v5h-5"/></symbol>
   <symbol id="i-sok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
   <symbol id="i-pil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></symbol>
+  <symbol id="i-del" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="m8.3 10.7 7.4-4.4M8.3 13.3l7.4 4.4"/></symbol>
   <symbol id="i-ut" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/><path d="M18 14v5.5H4.5V6H10"/></symbol>
   <symbol id="i-merk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5"/><circle cx="12" cy="16.3" r=".7" fill="currentColor"/></symbol>
 </svg>
@@ -1255,6 +1258,8 @@ const OMSETJING = [
   ["Kopier kanalnamnet", "Kopier kanalnavnet", "Copy channel name"],
   ["Kopier", "Kopier", "Copy"],
   ["Kopiert!", "Kopiert!", "Copied!"],
+  ["Del", "Del", "Share"],
+  ["Kopier lenka:", "Kopier lenken:", "Copy the link:"],
   ["Opne ntfy, trykk", "Åpne ntfy, trykk", "Open ntfy, tap"],
   [", lim inn kanalnamnet og trykk", ", lim inn kanalnavnet og trykk", ", paste the channel name and tap"],
   [". Tillat varsel når telefonen spør.", ". Tillat varsler når telefonen spør.", ". Allow notifications when your phone asks."],
@@ -1673,6 +1678,7 @@ function kort(b){
       ${b.kjelde_type === "bris" ? `<a class="btn" href="https://brannstatistikk.no/search" target="_blank" rel="noopener">${ikon("i-ut")}${T("Brannstatistikk")}</a>` : ""}
       ${b.kjelde_type === "media" || b.kjelde_type === "bris" ? "" : `<a class="btn" href="https://www.politiet.no/politiloggen/hendelse/${encodeURIComponent(b.id)}" target="_blank" rel="noopener">${ikon("i-ut")}Politiloggen</a>`}
       <a class="btn" href="${kartUrl}" target="_blank" rel="noopener">${ikon("i-ut")}Google Maps</a>
+      <button type="button" class="btn" data-del="${esc(b.id)}">${ikon("i-del")}${T("Del")}</button>
     </div>
   </article>`;
 }
@@ -1835,7 +1841,14 @@ const TIPS = [
   "Ha brannslokkingsapparat eller brannslange lett tilgjengeleg, og sjekk at alle i huset veit kvar det er.",
   "Aldri gå frå levande lys, og set dei på eit underlag som ikkje brenn. 1. desember er røykvarslardagen."
 ];
-function renderTip(){ $("#tip").innerHTML = `<div class="eyebrow">${T("Brannvern i {m}", {m:MND[I_DAG.m-1]})}</div><p>${T(TIPS[I_DAG.m-1])}</p>`; }
+// På spesielle dagar (røykvarslardagen, julaftan, nyttårsaftan …) kjem dagens bodskap i staden for månadens tips
+const TEMADAG = (D.temadagar || []).find(x => x.dato === `${I_DAG.y}-${pad(I_DAG.m)}-${pad(I_DAG.d)}`);
+function renderTip(){
+  const el = $("#tip"), d = TEMADAG && TEMADAG[SPRAK];
+  el.classList.toggle("tema", !!d);
+  el.innerHTML = d ? `<div class="eyebrow">${esc(d.tittel)}</div><p>${esc(d.tekst)}</p>`
+    : `<div class="eyebrow">${T("Brannvern i {m}", {m:MND[I_DAG.m-1]})}</div><p>${T(TIPS[I_DAG.m-1])}</p>`;
+}
 
 /* ---- Visningar og hendingar ---- */
 const HASH = {liste:"liste", kart:"kart", stat:"statistikk", info:"info", innst:"innstillingar", personvern:"personvern", cookies:"informasjonskapslar", vilkar:"vilkar"};
@@ -1876,7 +1889,7 @@ function visKart(id){
 function renderAll(){ renderControls(); renderList(); renderMap(); }
 
 document.addEventListener("click", e => {
-  const t = e.target.closest("[data-go],[data-gruppe],[data-periode],[data-type],[data-fordel],[data-stype],[data-vis],[data-kart],[data-mk],[data-meir]");
+  const t = e.target.closest("[data-go],[data-gruppe],[data-periode],[data-type],[data-fordel],[data-stype],[data-vis],[data-kart],[data-mk],[data-meir],[data-del]");
   if (!t) return;
   if (t.dataset.go && t.closest(".personvern-melding")) $("#personvern-melding").hidden = true;
   if (t.dataset.go) { e.preventDefault(); setView(t.dataset.go); if (t.dataset.hoppTil) setTimeout(() => visInfo(t.dataset.hoppTil), 30); }
@@ -1889,7 +1902,26 @@ document.addEventListener("click", e => {
   else if (t.dataset.vis) visKort(t.dataset.vis);
   else if (t.dataset.kart) visKart(t.dataset.kart);
   else if (t.dataset.mk) { state.valt = t.dataset.mk; renderMap(); renderList(); }
+  else if (t.dataset.del) delHending(t.dataset.del, t);
 });
+
+/* ---- Del ei hending: delingsmenyen på mobilen, elles blir lenka kopiert ---- */
+async function delHending(id, knapp){
+  const b = B.find(x => x.id === id);
+  if (!b) return;
+  const url = new URL("#b-" + id, location.origin + location.pathname).href;   // utan ?… frå adresselinja
+  const tekst = `${b.tittel} – ${b.stad}, ${naar(b._o)}`;
+  if (navigator.share) {
+    try { await navigator.share({title:"Brannlogg Stord", text:tekst, url}); return; }
+    catch (e) { if (e.name === "AbortError") return; }
+  }
+  try {
+    await navigator.clipboard.writeText(`${tekst}\n${url}`);
+    const gammal = knapp.innerHTML;
+    knapp.textContent = T("Kopiert!");
+    setTimeout(() => { knapp.innerHTML = gammal; }, 2000);
+  } catch (e) { prompt(T("Kopier lenka:"), url); }
+}
 document.addEventListener("keydown", e => {
   const mk = e.target.closest?.("[data-mk]");
   if (mk && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); state.valt = mk.dataset.mk; renderMap(); renderList(); document.querySelector(`[data-mk="${CSS.escape(state.valt)}"]`)?.focus(); }
