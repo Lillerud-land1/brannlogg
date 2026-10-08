@@ -1504,5 +1504,23 @@
   "type": "",
   "tid": "2026-10-06T08:35:47+00:00",
   "brannvesen": "Stord brann og redning"
+ },
+ "4952934": {
+  "id": "4952934",
+  "type": "Andre oppdrag",
+  "tid": "2026-10-07T20:29:58+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4951072": {
+  "id": "4951072",
+  "type": "ABA annen røyk",
+  "tid": "2026-10-07T01:32:18+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4951040": {
+  "id": "4951040",
+  "type": "Avbrutt utrykning alarm",
+  "tid": "2026-10-06T23:18:17+00:00",
+  "brannvesen": "Stord brann og redning"
  }
 }
