@@ -86,6 +86,17 @@ jobs:
 
       - id: publiser
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346  # v5.0.1
+        continue-on-error: true
+
+      # GitHub Pages kan avvise publiseringa om den førre ikkje er heilt ferdig («in progress deployment»).
+      # Då ventar vi litt og prøver éin gong til.
+      - name: Vent før nytt forsøk
+        if: steps.publiser.outcome == 'failure'
+        run: sleep 60
+
+      - id: publiser2
+        if: steps.publiser.outcome == 'failure'
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346  # v5.0.1
 
   neste:
     # Startar neste køyring sjølv. Berre éi kjede om gongen: går det alt ei anna køyring, blir det ikkje starta fleire.
