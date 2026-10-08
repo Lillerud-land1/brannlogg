@@ -18,7 +18,8 @@ Laga av **Leander Wågen Lillerud**. Ikkje ein offisiell teneste frå Politiet, 
 - **Brannstripe**: éi rute per dag for dei siste 100 dagane (oransje/raud = brann, blå = anna utrykking, grå = alarm).
 - **Liste** over hendingar med stad, tid, alvorsgrad, heile politiloggen, nyheitslenker og lenke til kart. Viser 20 om gongen («Vis 20 til»).
 - **Filter**: Brannar / Utan alarmar / Alt (standard) (med automatiske brannalarmar), Siste 100 dagar / I år (frå 1. januar) / Alle, type og fritekstsøk.
-- **Kart** over Stord med alle hendingar som har kjend stad.
+- **Kart** over Stord med alle hendingar dei siste 12 månadene som har kjend stad. Fargen viser kor alvorleg det var (som på TV-en), alarmar er tomme ringar, og dei siste 100 dagane er større og blinkar.
+- **«Pågår no»**: raudt banner øvst på alle faner når politiet har ei aktiv hending med ny melding siste 3 timar (same regel som alarmmodus på TV-en).
 - **Statistikk** for siste 12 månader: knappar for å sjå fordelinga per månad, årstid, vekedag eller klokketime, og for å filtrere på gruppe og type. I tillegg type, tid på døgnet og konsekvensar.
 - **Innstillingar** (eiga fane): språk (nynorsk, bokmål, engelsk), fargeblind-vennlege fargar, lys/mørk/automatisk utsjånad, stor tekst, rørsle av/på og kva appen opnar med. Blir lagra i nettlesaren (`localStorage`, nøkkel `brannlogg_innst`).
 - **Språk**: nynorsk er grunnspråket. Bokmål og engelsk er omsett med KI (Claude) i tabellen `OMSETJING` i `mal.html` (rader med `[nynorsk, bokmål, engelsk]`). Nye tekstar i appen må pakkast inn i `T("…")` og leggjast inn i tabellen. Tekst frå politiet og media blir ikkje omsett.
@@ -158,7 +159,7 @@ Stega står òg i appen under **Om appen** (bjølla øvst). Kanalnamnet er lagra
 - **Byte adresse** (om lenka er delt med for mange): lag ei ny adresse, til dømes med `python -c "import secrets; print('tv-' + secrets.token_hex(8))"`, lagre henne med `gh secret set TV_ADRESSE`, og rekn ut ny `TV_KRYPTERT`. Neste bygging flyttar skjermen, og den gamle lenka sluttar å verke. Hugs å oppdatere adressa på Infoskjermen.no.
 - Ny `TV_KRYPTERT` (set `TV_ADRESSE` og `ADMIN_KODE` som miljøvariablar først):
   `python -c "import hashlib,os; n=os.environ['TV_ADRESSE'].encode(); k=hashlib.pbkdf2_hmac('sha256', os.environ['ADMIN_KODE'].encode(), b'brannlogg-admin-v2', 600000, len(n)); print(bytes(a^b for a,b in zip(n,k)).hex())"`
-- Viser alle hendingar (også brannalarmar), klokke, «dagar sidan siste hending», stripe, tal for **i år** (frå 1. januar), kart, månadens brannverntips og QR-kode til appen.
+- Viser alle hendingar (også brannalarmar), klokke, «dagar sidan siste hending», stripe, tal for **i år** (frå 1. januar) og **same tid i fjor** (oppdrag i brannstatistikken, `hent_fjor()`), kart, månadens brannverntips og QR-kode til appen.
 - Sjekkar etter nye data kvart 2. minutt, lastar heile sida på nytt kvar time og ved midnatt, og held skjermen vaken.
 - **Infoskjermen.no**: «Nytt oppslag» → «Nettside» → lim inn adressa → vel **Fullskjerm** → lagre. Sida kan visast i iframe (https, inga innlogging).
 - PC/TV: opne adressa i Edge/Chrome og trykk F11.
@@ -187,7 +188,7 @@ Endringar i `oppdater.py`, `mal.html`, `mal-tv.html`, `ekstra.json` eller arbeid
 |---|---|
 | Sida er ikkje oppdatert | Sjå **Actions** på GitHub: grøn hake = ok. Last sida på nytt (F5). Statusprikken øvst blir oransje om dataa er over 3 timar gamle. |
 | Mange køyringar blir «cancelled» | Ei køyring heng (t.d. «waiting» hos GitHub) og blokkerer dei andre. Jobben `rydd` avbryt automatisk køyringar som er over 60 minutt gamle, og vakta på PC-en gjer det same. For hand: `gh api -X POST repos/Lillerud-land1/brannlogg/actions/runs/<id>/force-cancel`. |
-| «Nytt oppdrag (type ikkje registrert enno)» | Brannvesenet har ikkje fylt ut typen i brannstatistikken enno. Blir retta av seg sjølv. |
+| «Oppdrag – detaljar kjem» | Brannvesenet har ikkje fylt ut typen i brannstatistikken enno. Blir retta av seg sjølv. |
 | Ei nyheitslenke eller mediehending er feil | Legg url-en i `avvis` eller set `avvis_hending: true` i `ekstra.json`, og køyr `--send-ekstra`. |
 | Feil stad på kartet | Set `pos: [lat, lon]` eller `stad` for hendinga i `ekstra.json`. |
 | Ingen varsel | Sjekk at du abonnerer på rett kanal i ntfy og har tillate varsel. Brannalarmar gir aldri varsel. |

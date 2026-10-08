@@ -80,6 +80,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font
 .tal div{background:var(--panel-2);border-radius:.5rem;padding:.8rem 1rem}
 .tal b{display:block;font-family:var(--f-display);font-weight:800;font-size:2.8rem;line-height:1;font-variant-numeric:tabular-nums}
 .tal span{font-size:1rem;color:var(--muted)}
+.tal .fjor{display:block;margin-top:.2rem;font-family:var(--f-display);font-weight:600;font-size:.95em;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* Aktiv brann */
 .alarm{margin-top:1rem;padding:1.2rem;border-radius:.6rem;background:rgba(255,90,61,.14);border:.15rem solid var(--fire)}
@@ -101,6 +102,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font
 .rad h3{font-size:1.65rem;font-weight:700;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rad p{font-size:1.2rem;color:var(--ink-2);margin-top:.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rad p b{color:var(--ink);font-weight:600}
+.rad p .ny-merke{vertical-align:.1em;margin-right:.5rem}
 .rad .kor{text-align:right;font-family:var(--f-mono);font-size:1.15rem;color:var(--muted);line-height:1.35;white-space:nowrap}
 .rad .kor b{display:block;font-family:var(--f-display);font-size:2rem;color:var(--ink);font-weight:800}
 .rad.ny{outline:.15rem solid var(--ember)}
@@ -291,7 +293,7 @@ const aar = B.filter(b => b._o.y === IDAG.y).length;
 const snittAar = aar / IDAG.m;
 t += `<div class="stripe-boks"><div class="etikett">Siste ${VINDU} dagar<span class="ruter"><span style="color:var(--sev2)">■</span> brann <span style="color:var(--utr)">■</span> anna oppdrag <span style="color:var(--alarm)">■</span> alarm utan brann</span></div><div class="stripe" style="--kol:${VINDU}">${celler}</div>
       <div class="akse"><span>${s0.getUTCDate()}. ${MND_K[s0.getUTCMonth()]}</span><span>i dag</span></div>
-      <div class="tal"><div><b>${n50}</b><span>hendingar siste ${VINDU} dagar</span></div><div><b>${aar}</b><span>i år (sidan 1. jan.)</span></div><div><b>${snittAar.toLocaleString("nb-NO", {maximumFractionDigits:1})}</b><span>snitt per månad i år</span></div></div></div>`;
+      <div class="tal"><div><b>${n50}</b><span>hendingar siste ${VINDU} dagar</span></div><div><b>${aar}</b><span>i år (sidan 1.&nbsp;jan.)${D.fjor ? `<span class="fjor">${Number(D.fjor.tal)} same tid i fjor</span>` : ""}</span></div><div><b>${snittAar.toLocaleString("nb-NO", {maximumFractionDigits:1})}</b><span>snitt per månad i år</span></div></div></div>`;
 $("#teljar").innerHTML = t;
 $("#blink-tekst").textContent = `Store prikkar = siste ${VINDU} dagar`;
 
@@ -300,7 +302,7 @@ const erNy = b => Date.now() - new Date(b.start) < 48 * 36e5;   // nyare enn to 
 const rader = B.slice(0, 6).map(b => `<li class="rad s${b.alvor}${erNy(b) ? " ny" : ""}">
     <span class="strek"></span>
     ${b.bris ? `<span class="nr nr110" title="Brannstatistikken (DSB)">110</span>` : `<span class="nr nr112" title="Politiloggen">112</span>`}
-    <div><h3>${erNy(b) ? `<span class="ny-merke">NY</span>` : ""}${esc(b.tittel)}</h3><p><b>${esc(b.stad)}</b> · ${b.aktiv ? `<span class="pagar"><i></i>Pågår</span>` : "Avslutta"}</p></div>
+    <div><h3>${esc(b.tittel)}</h3><p>${erNy(b) ? `<span class="ny-merke">NY</span>` : ""}<b>${esc(b.stad)}</b> · ${b.aktiv ? `<span class="pagar"><i></i>Pågår</span>` : "Avslutta"}</p></div>
     <div class="kor"><b>${relDag(b._o)}</b>kl. ${kl(b._o)}</div></li>`).join("");
 $("#liste").innerHTML = rader || `<li class="tomt">Ingen hendingar registrerte.</li>`;
 

@@ -94,6 +94,13 @@ main.app{padding-block:18px 110px;display:grid;gap:18px}
 .last-link{display:block;margin-top:12px;font-size:14px;color:var(--ink-2);background:none;border:0;padding:0;cursor:pointer;text-align:left}
 .last-link b{color:var(--ink);font-weight:600}
 .last-link:hover b{text-decoration:underline}
+.pagar{display:flex;align-items:center;gap:10px;box-sizing:border-box;width:100%;min-width:0;max-width:100%;overflow:hidden;margin:0;padding:10px 14px;border:0;border-radius:8px;
+  background:var(--fire);color:#fff;font:inherit;font-size:15px;text-align:left;cursor:pointer}
+.pagar[hidden],.app[data-view="liste"] .pagar{display:none}
+.pagar b{flex:none;text-transform:uppercase;letter-spacing:.04em}
+.pagar .pulse{background:#fff}
+.pagar .pulse::after{border-color:#fff}
+.pagar .t{min-width:0;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .alert{display:flex;gap:12px;align-items:flex-start;margin-top:6px;padding:14px;border-radius:8px;
   background:color-mix(in srgb,var(--fire) 12%,var(--surface));border:1px solid color-mix(in srgb,var(--fire) 45%,transparent)}
 .alert .pulse{margin-top:6px}
@@ -230,6 +237,7 @@ figure.foto figcaption{font-size:12px;color:var(--muted);margin-top:4px}
 .mk.gl circle.c{opacity:.55}
 .mk .ring{fill:none;stroke-width:3;transform-box:fill-box;transform-origin:center;animation:ring 2.2s ease-out infinite}
 @keyframes ring{from{transform:scale(.6);opacity:.9}to{transform:scale(2.1);opacity:0}}
+.mk circle.c.al{fill:none;stroke:var(--alarm);stroke-width:4}
 .mk.valt circle.c{stroke:var(--ink);stroke-width:5}
 .mk .kjerne{display:none;fill:var(--surface)}
 :root[data-fargar="cb"] .mk .kjerne{display:inline}
@@ -243,9 +251,7 @@ figure.foto figcaption{font-size:12px;color:var(--muted);margin-top:4px}
 .legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font-size:12.5px;color:var(--muted)}
 .legend span{display:inline-flex;align-items:center;gap:6px}
 .legend i{width:10px;height:10px;border-radius:50%;background:var(--sev)}
-.legend i.u{background:var(--utr)}
-.legend i.a{background:var(--alarm)}
-.legend i.r{background:none;border:2px solid var(--ink-2)}
+.legend i.a{background:none;border:2px solid var(--alarm)}
 .pop{margin-top:12px;border:1px solid var(--line);border-radius:8px;padding:12px 14px;background:var(--surface-2)}
 .pop h3{font-size:15.5px}
 .pop .meta{font-size:13px}
@@ -562,6 +568,7 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
 </header>
 
 <main class="app wrap" id="app" data-view="liste">
+  <button type="button" class="pagar" id="pagar" hidden></button>
   <div class="omsett" id="omsett" hidden><svg aria-hidden="true"><use href="#i-omset"/></svg><span id="omsett-txt"></span></div>
   <section class="hero" aria-label="Samandrag">
     <div class="batt" aria-hidden="true"></div>
@@ -604,7 +611,7 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
         </div>
         <div class="map" id="map"></div>
         <div class="legend">
-          <span class="s3"><i></i>Alvorleg</span><span class="s2"><i></i>Middels</span><span class="s1"><i></i>Mindre</span><span><i class="u"></i>Anna oppdrag</span><span><i class="a"></i>Alarm utan brann</span><span><i class="r"></i><span id="legend-nyleg">Store og blinkande: siste 100 dagar</span></span>
+          <span class="s3"><i></i>Alvorleg</span><span class="s2"><i></i>Middels</span><span class="s1"><i></i>Mindre</span><span><i class="a"></i>Alarm utan brann</span><span id="legend-nyleg">Store og blinkande: siste 100 dagar</span>
         </div>
         <div id="pop"></div>
         <div class="utan" id="utan"></div>
@@ -990,6 +997,7 @@ const OMSETJING = [
   ["Akkurat no", "Akkurat nå", "Right now"],
   ["Pågår no", "Pågår nå", "Ongoing"],
   ["starta kl. {k}", "startet kl. {k}", "started at {k}"],
+  ["og {n} til", "og {n} til", "and {n} more"],
   ["Følg loggen", "Følg loggen", "Follow the log"],
   ["Dagar sidan siste hending", "Dager siden siste hendelse", "Days since last incident"],
   ["{n} dagar sidan siste hending", "{n} dager siden siste hendelse", "{n} days since last incident"],
@@ -1181,7 +1189,7 @@ const OMSETJING = [
   ["Varmgang i sikringsskap", "Varmgang i sikringsskap", "Overheating in a fuse box"],
   ["Utløyst brannalarm", "Utløst brannalarm", "Fire alarm activated"],
   ["Helseoppdrag (bering/løft)", "Helseoppdrag (bæring/løft)", "Medical assist (lifting/carrying)"],
-  ["Nytt oppdrag (type ikkje registrert enno)", "Nytt oppdrag (type ikke registrert ennå)", "New call-out (type not yet registered)"],
+  ["Oppdrag – detaljar kjem", "Oppdrag – detaljer kommer", "Call-out – details to follow"],
   ["Oppdrag frå annan alarm", "Oppdrag fra annen alarm", "Call-out from another alarm"],
   ["Person i vatnet", "Person i vannet", "Person in the water"],
   ["Person i sjøen", "Person i sjøen", "Person in the sea"],
@@ -1501,9 +1509,20 @@ function renderStatus(){
     (timar > 3 ? ` <b style="color:var(--ember)">${T("Dataa er meir enn tre timar gamle. Prøv å laste sida på nytt.")}</b>` : "");
 }
 
+/* ---- Pågår no: aktiv i Politiloggen og ny melding siste 3 timar (same regel som alarmmodus på TV-en) ---- */
+const aktiveNo = () => B.filter(b => b.aktiv && Date.now() - new Date(b.sist) < 3 * 36e5);
+function renderPagar(){
+  const aktive = aktiveNo(), el = $("#pagar");
+  el.hidden = !aktive.length;
+  if (!aktive.length) return;
+  const a = aktive[0];
+  el.dataset.vis = a.id;
+  el.innerHTML = `<span class="pulse"></span><b>${T("Pågår no")}</b><span class="t">${esc(a.tittel)} · ${esc(a.stad)} · ${T("starta kl. {k}", {k:kl(a._o)})}${aktive.length > 1 ? " · " + T("og {n} til", {n:aktive.length - 1}) : ""}</span>`;
+}
+
 /* ---- Hero ---- */
 function renderHero(){
-  const aktive = B.filter(b => b.aktiv);
+  const aktive = aktiveNo();
   const siste = B[0];                      // siste hending av alle slag, også brannalarmar
   const sisteBrann = B.filter(erBrann)[0];
   let html = "";
@@ -1512,7 +1531,7 @@ function renderHero(){
     html += `<div class="eyebrow">${T("Akkurat no")}</div>
       <div class="alert" role="status"><span class="pulse"></span><div><h2>${T("Pågår no")}</h2>
       <p><b>${esc(a.tittel)}</b> · ${esc(a.stad)} · ${T("starta kl. {k}", {k:kl(a._o)})}</p>
-      <button class="last-link" data-vis="${a.id}"><b>${T("Følg loggen")}</b> ${ikon("i-pil")}</button></div></div>`;
+      <button class="last-link" data-vis="${esc(a.id)}"><b>${T("Følg loggen")}</b> ${ikon("i-pil")}</button></div></div>`;
   } else if (siste) {
     const dagar = I_DAG.dn - siste._dn;
     html += `<div class="eyebrow">${T("Dagar sidan siste hending")}</div>
@@ -1694,13 +1713,13 @@ function renderMap(){
   const synlege = liste.filter(b => b.pos).map(b => ({b, p:xy(b.pos)})).filter(({p}) => p[0] > 0 && p[0] < K.w && p[1] > 0 && p[1] < K.h);
   synlege.sort((a, c) => (a.b.id === state.valt) - (c.b.id === state.valt) || a.b._dn - c.b._dn);
   const col = {1:"var(--sev1)", 2:"var(--sev2)", 3:"var(--sev3)"};
-  const farge = b => erBrann(b) ? col[b.alvor] : erAlarm(b) ? "var(--alarm)" : "var(--utr)";
+  const farge = b => erAlarm(b) ? "var(--alarm)" : col[b.alvor];   // fargen viser kor alvorleg det var, som på TV-en
   const km = K.kmPx, sx = 40, sy = K.h - 44;
   const lbl = K.stader.map(s => `<circle class="m-dot" cx="${s.x}" cy="${s.y}" r="5"/><text class="m-lbl" x="${s.x + 11}" y="${s.y + 7}">${esc(s.namn)}</text>`).join("");
   const nabo = (K.naboar || []).filter(s => s.y > 40 && s.y < K.h - 40).map(s => `<text class="m-nabo" x="${s.x}" y="${s.y}">${esc(s.namn)}</text>`).join("");
   const mk = synlege.map(({b, p}) => `<g class="mk${b._nyleg ? "" : " gl"}${b.id === state.valt ? " valt" : ""}" data-mk="${esc(b.id)}" tabindex="0" role="button" aria-label="${esc(b.tittel + ", " + b.stad + ", " + datoKort(b._o))}">
       ${b._nyleg ? `<circle class="ring" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="16" stroke="${farge(b)}"/>` : ""}
-      <circle class="c" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${b.id === state.valt ? 20 : (b._nyleg ? 16 : 12)}" fill="${farge(b)}"/>${erBrann(b) && b.alvor === 3 ? `<circle class="kjerne" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${b.id === state.valt ? 7 : (b._nyleg ? 6 : 4.5)}"/>` : ""}
+      <circle class="c${erAlarm(b) ? " al" : ""}" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${b.id === state.valt ? 20 : (b._nyleg ? 16 : 12)}" fill="${farge(b)}"/>${!erAlarm(b) && b.alvor === 3 ? `<circle class="kjerne" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${b.id === state.valt ? 7 : (b._nyleg ? 6 : 4.5)}"/>` : ""}
       <title>${esc(b.tittel + " – " + b.stad + ", " + datoKort(b._o))}</title></g>`).join("");
   $("#map").innerHTML = `<svg viewBox="0 0 ${K.w} ${K.h}" role="img" aria-label="${T("Kart over Stord kommune med brannar og utrykkingar")}">
     <path class="m-ctx" d="${K.kontekst}" fill-rule="evenodd"/>
@@ -2105,7 +2124,10 @@ if ("IntersectionObserver" in window) {
 }
 
 /* ---- Start ---- */
-renderStatus(); renderHero(); renderBrannfare(); renderAll(); renderStats(); renderTip();
+renderStatus(); renderHero(); renderPagar(); renderBrannfare(); renderAll(); renderStats(); renderTip();
+// «Pågår no» skal forsvinne av seg sjølv når det har gått 3 timar utan ny melding frå politiet
+let pagarNokkel = aktiveNo().map(b => b.id).join();
+setInterval(() => { const n = aktiveNo().map(b => b.id).join(); if (n !== pagarNokkel) { pagarNokkel = n; renderPagar(); renderHero(); } }, 60 * 1000);
 const h = (location.hash || "").slice(1);
 const start = Object.keys(HASH).find(k => HASH[k] === h);
 if (h.startsWith("b-") && B.some(b => b.id === h.slice(2))) visKort(h.slice(2));

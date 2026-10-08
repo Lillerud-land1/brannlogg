@@ -377,7 +377,7 @@ def bris_kategori(namn):
     n = (namn or "").lower()
     if not n:
         # Brannvesenet har ikkje fylt ut typen enno – blir oppdatert ved neste henting
-        return "utrykking", "utrykking", "Nytt oppdrag (type ikkje registrert enno)", 1, False
+        return "utrykking", "utrykking", "Oppdrag – detaljar kjem", 1, False
     tittel = BRIS_TITTEL.get(namn, namn)
     if n.startswith("aba "):
         return "alarm", "alarm", "Brannalarm: " + ABA_ÅRSAK.get(n[4:], n[4:]), 1, False
@@ -409,39 +409,64 @@ def bris_kategori(namn):
     return "utrykking", "utrykking", tittel, 1, False
 
 
+def bris_sok(start, slutt):
+    """Alle oppdrag i Stord kommune i perioden (datoar som tekst, «ÅÅÅÅ-MM-DD») frå brannstatistikk.no."""
+    ut, skip = [], 0
+    while True:
+        kropp = {"hitsToReturn": 200, "skipped": skip,
+                 "municipalities": {"ids": [KOMMUNENR], "isMissingValue": False},
+                 "periodStart": start, "periodEnd": slutt,
+                 "includeAssistanceMissions": True, "includeExercises": False,
+                 "includeMissionsHandledByHundredAndTen": True, "includePoliceCauseWithNoMission": False,
+                 "includeRVRMissionsFromBris": False, "includeApprovedMissions": True, "onlyApprovedMissions": False}
+        req = urllib.request.Request(BRIS_API, data=json.dumps(kropp).encode(), method="POST",
+                                     headers={"Content-Type": "application/json", "Accept": "application/json", **UA})
+        with urllib.request.urlopen(req, timeout=60) as svar:
+            d = json.loads(svar.read().decode("utf-8"))
+        treff = d.get("missionReport") or []
+        ut += [m for m in treff if (m.get("municipality") or "").lower() == KOMMUNE.lower()]
+        skip += len(treff)
+        if not treff or skip >= (d.get("totalHits") or 0):
+            return ut
+
+
 def hent_bris():
     """Alle oppdrag i Stord siste år frå brannstatistikk.no. Lagrar i bris.json (arkiv)."""
     from datetime import date
     lagra = les_json("bris.json", {})
-    skip, nye = 0, 0
+    nye = 0
     try:
-        while True:
-            kropp = {"hitsToReturn": 200, "skipped": skip,
-                     "municipalities": {"ids": [KOMMUNENR], "isMissingValue": False},
-                     "periodStart": str(date.today() - timedelta(days=370)), "periodEnd": str(date.today() + timedelta(days=1)),
-                     "includeAssistanceMissions": True, "includeExercises": False,
-                     "includeMissionsHandledByHundredAndTen": True, "includePoliceCauseWithNoMission": False,
-                     "includeRVRMissionsFromBris": False, "includeApprovedMissions": True, "onlyApprovedMissions": False}
-            req = urllib.request.Request(BRIS_API, data=json.dumps(kropp).encode(), method="POST",
-                                         headers={"Content-Type": "application/json", "Accept": "application/json", **UA})
-            with urllib.request.urlopen(req, timeout=60) as svar:
-                d = json.loads(svar.read().decode("utf-8"))
-            treff = d.get("missionReport") or []
-            for m in treff:
-                if (m.get("municipality") or "").lower() != KOMMUNE.lower():
-                    continue
-                if m["id"] not in lagra:
-                    nye += 1
-                lagra[m["id"]] = {"id": m["id"], "type": m.get("revisedMissionType") or "", "tid": m["callTimeUtc"].replace("Z", "+00:00"),
-                                  "brannvesen": m.get("responsibleFireDepartmentName") or ""}
-            skip += len(treff)
-            if not treff or skip >= (d.get("totalHits") or 0):
-                break
+        for m in bris_sok(str(date.today() - timedelta(days=370)), str(date.today() + timedelta(days=1))):
+            if m["id"] not in lagra:
+                nye += 1
+            lagra[m["id"]] = {"id": m["id"], "type": m.get("revisedMissionType") or "", "tid": m["callTimeUtc"].replace("Z", "+00:00"),
+                              "brannvesen": m.get("responsibleFireDepartmentName") or ""}
         skriv_json("bris.json", lagra)
         print(f"BRIS: {len(lagra)} oppdrag i arkivet, {nye} nye")
     except Exception as feil:
         print(f"BRIS_FEIL: kunne ikkje hente brannstatistikk ({feil}) – brukar lagra data")
     return list(lagra.values())
+
+
+def hent_fjor():
+    """Talet på oppdrag i brannstatistikken frå 1. januar i fjor til same dato i fjor (til TV-sida).
+    Gir None om det ikkje går – det skal aldri stoppe bygginga."""
+    oslo = ZoneInfo("Europe/Oslo")
+    idag = datetime.now(oslo).date()
+    try:
+        same_dag = idag.replace(year=idag.year - 1)
+    except ValueError:                      # 29. februar
+        same_dag = idag.replace(year=idag.year - 1, day=28)
+    start = same_dag.replace(month=1, day=1)
+    try:
+        oppdrag = bris_sok(str(start - timedelta(days=1)), str(same_dag + timedelta(days=2)))   # ein dag ekstra på kvar side (tidssone)
+    except Exception as feil:
+        print(f"FJOR_FEIL: {feil}")
+        return None
+    tal = sum(1 for m in oppdrag
+              if start <= datetime.fromisoformat(m["callTimeUtc"].replace("Z", "+00:00")).astimezone(oslo).date() <= same_dag)
+    print(f"FJOR: {tal} oppdrag frå {start} til {same_dag}")
+    return {"aar": same_dag.year, "tal": tal}
 
 
 def kombiner_med_bris(hendingar, bris, ekstra, geocache):
@@ -930,6 +955,7 @@ def main():
         "brannar": brannar,
         "kart": les_json("kart.json", None),
         "brannfare": rens_brannfare(hent_brannfare()),
+        "fjor": hent_fjor(),
     }
     json_tekst = json_til_skript(data)
     mal = (MAPPE / "mal.html").read_text(encoding="utf-8")
