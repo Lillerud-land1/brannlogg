@@ -194,7 +194,7 @@ Endringar i `oppdater.py`, `mal.html`, `mal-tv.html`, `ekstra.json` eller arbeid
 | Ingen varsel | Sjekk at du abonnerer på rett kanal i ntfy og har tillate varsel. Brannalarmar gir aldri varsel. |
 | Innlogging til GitHub er borte på PC-en | `gh auth login` (koden blir skriven inn på https://github.com/login/device). |
 
-Brukarar kan rapportere feil med knappen **«Rapporter eit problem»** under Om appen (e-post til lillerudleander@gmail.com).
+Brukarar kan rapportere feil med knappen **«Rapporter eit problem»** under Om appen (e-post til brannloggstord@gmail.com).
 
 ---
 
