@@ -1522,5 +1522,11 @@
   "type": "Avbrutt utrykning alarm",
   "tid": "2026-10-06T23:18:17+00:00",
   "brannvesen": "Stord brann og redning"
+ },
+ "4955075": {
+  "id": "4955075",
+  "type": "",
+  "tid": "2026-10-08T21:53:07+00:00",
+  "brannvesen": "Stord brann og redning"
  }
 }
