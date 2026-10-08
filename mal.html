@@ -604,7 +604,7 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
         </div>
         <div class="map" id="map"></div>
         <div class="legend">
-          <span class="s3"><i></i>Alvorleg</span><span class="s2"><i></i>Middels</span><span class="s1"><i></i>Mindre</span><span><i class="u"></i>Anna oppdrag</span><span><i class="a"></i>Alarm utan brann</span><span><i class="r"></i><span id="legend-nyleg">Siste 100 dagar</span></span>
+          <span class="s3"><i></i>Alvorleg</span><span class="s2"><i></i>Middels</span><span class="s1"><i></i>Mindre</span><span><i class="u"></i>Anna oppdrag</span><span><i class="a"></i>Alarm utan brann</span><span><i class="r"></i><span id="legend-nyleg">Store og blinkande: siste 100 dagar</span></span>
         </div>
         <div id="pop"></div>
         <div class="utan" id="utan"></div>
@@ -1015,6 +1015,8 @@ const OMSETJING = [
   ["hendingar", "hendelser", "incidents"],
   ["/mnd", "/mnd", "/mo"],
   ["i år (sidan 1. jan.)", "i år (siden 1. jan.)", "this year (since 1 Jan)"],
+  ["siste 12 månader", "siste 12 måneder", "last 12 months"],
+  ["Store og blinkande: siste {n} dagar", "Store og blinkende: siste {n} dager", "Large and blinking: last {n} days"],
   ["Siste 12 månader", "Siste 12 måneder", "Last 12 months"],
   ["snitt per månad i år", "snitt per måned i år", "avg. per month this year"],
   ["Brannar", "Branner", "Fires"],
@@ -1483,7 +1485,6 @@ const utval = () => state.gruppe === "brann" ? B.filter(erBrann) : state.gruppe 
 const ORD = () => state.gruppe === "brann" ? ["brann", "brannar"] : ["hending", "hendingar"];
 const iAar = b => b._o.y === I_DAG.y;   // «I år»: frå 1. januar
 const iPeriode = b => state.periode === "alle" ? true : state.periode === "aar" ? iAar(b) : b._nyleg;
-const periodeNamn = () => state.periode === "alle" ? T("alle") : state.periode === "aar" ? T("i år") : T("siste {n} dagar", {n:VINDU});
 
 /* ---- Status ---- */
 function renderStatus(){
@@ -1542,7 +1543,7 @@ function renderHero(){
   strip.style.setProperty("--kol2", Math.ceil(VINDU / 2));
   strip.setAttribute("aria-label", T("Hendingar per dag, siste {n} dagar", {n:VINDU}));
   $("#strip-tittel").textContent = T("siste {n} dagar", {n:VINDU});
-  $("#legend-nyleg").textContent = T("Siste {n} dagar", {n:VINDU});
+  $("#legend-nyleg").textContent = T("Store og blinkande: siste {n} dagar", {n:VINDU});
   const s0 = new Date(START_DN * 864e5), mid = new Date((START_DN + Math.floor(VINDU / 2)) * 864e5);
   const m2 = new Date((START_DN + Math.ceil(VINDU / 2)) * 864e5), m1 = new Date((START_DN + Math.ceil(VINDU / 2) - 1) * 864e5);
   const dt = d => dagMnd(d.getUTCDate(), d.getUTCMonth() + 1);
@@ -1584,9 +1585,11 @@ function renderBrannfare(){
 }
 
 /* ---- Filter ---- */
-function filtrert(){
+// Kartet viser alltid siste 12 månader (dei siste 100 dagane er større og blinkar), same kva periode lista viser
+const iKartPeriode = b => I_DAG.dn - b._dn < 365 || b.id === state.valt;
+function filtrert(periode = iPeriode){
   const q = state.sok.trim().toLowerCase();
-  return utval().filter(b => iPeriode(b)
+  return utval().filter(b => periode(b)
     && (state.type === "alle" || b.type === state.type)
     && (!q || q.split(/\s+/).every(w => b._tekst.includes(w))));
 }
@@ -1687,7 +1690,7 @@ function renderMap(){
   if (!K) { $("#map").innerHTML = `<div class="empty">${T("Kartet manglar.")}</div>`; return; }
   const P = K.proj;
   const xy = p => [(p[1] - P.lon0) * P.cos * P.k, (P.lat1 - p[0]) * P.k];
-  const liste = filtrert();
+  const liste = filtrert(iKartPeriode);
   const synlege = liste.filter(b => b.pos).map(b => ({b, p:xy(b.pos)})).filter(({p}) => p[0] > 0 && p[0] < K.w && p[1] > 0 && p[1] < K.h);
   synlege.sort((a, c) => (a.b.id === state.valt) - (c.b.id === state.valt) || a.b._dn - c.b._dn);
   const col = {1:"var(--sev1)", 2:"var(--sev2)", 3:"var(--sev3)"};
@@ -1706,7 +1709,7 @@ function renderMap(){
     <g class="m-scale"><line x1="${sx}" y1="${sy}" x2="${sx + 2*km}" y2="${sy}"/><line x1="${sx}" y1="${sy-9}" x2="${sx}" y2="${sy+9}"/><line x1="${sx + 2*km}" y1="${sy-9}" x2="${sx + 2*km}" y2="${sy+9}"/><text x="${sx}" y="${sy - 16}">2 km</text></g>
     <g class="m-n" transform="translate(${K.w - 56} 60)"><path d="M0 -30 L13 12 L0 4 L-13 12 Z"/><text x="0" y="40" text-anchor="middle">N</text></g>
   </svg>`;
-  $("#kart-sub").textContent = `${fl(synlege.length, ...ORD())} · ${periodeNamn()}`;
+  $("#kart-sub").textContent = `${fl(synlege.length, ...ORD())} · ${T("siste 12 månader")}`;
   const utan = liste.filter(b => !b.pos).length;
   $("#utan").textContent = utan ? T("{d} utan kjend kartplassering er ikkje med på kartet.", {d:fl(utan, "hending", "hendingar")}) : "";
   renderPop();
