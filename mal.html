@@ -8,7 +8,7 @@
 <meta name="description" content="Oversikt over brannar i Stord kommune frå Politiloggen, oppdatert kvart kvarter.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=IBM+Plex+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap">
 <style>
 :root{
   --bg:#EEF0F2; --surface:#FFFFFF; --surface-2:#F4F6F8; --ink:#14171B; --ink-2:#39414A; --muted:#5F6974;
@@ -500,6 +500,35 @@ html{overscroll-behavior-y:contain}
   *,*::before,*::after{animation:none!important;transition:none!important}
 }
 :root[data-rorsle="av"] *,:root[data-rorsle="av"] *::before,:root[data-rorsle="av"] *::after{animation:none!important;transition:none!important}
+
+/* ---------- Roleg utsjånad: éi skrift, mindre pynt (lagt over stilane over) ---------- */
+:root{--f-display:var(--f-body);--f-mono:var(--f-body)}
+.adr,.kbd,.jur-tekst code{font-family:ui-monospace,"SF Mono",Consolas,monospace}
+ol.tl time,ol.tl .dag,.seg .n,.hbar .n,.c-val,.mono{font-variant-numeric:tabular-nums}
+.big,.kpi .v,.clock b,.facts b,.n110 b{font-variant-numeric:normal}
+.eyebrow,.admin-tittel{font-size:13px;letter-spacing:0;text-transform:none;color:var(--ink-2)}
+.brand-name{font-size:19px;font-weight:800;letter-spacing:-.01em;text-transform:none}
+.brand-sub{font-size:12px;letter-spacing:0;text-transform:none}
+.h2{font-size:21px;font-weight:700;letter-spacing:-.01em;text-transform:none}
+.month h2{font-size:17px;font-weight:700;letter-spacing:-.005em;text-transform:capitalize}
+.alert h2{font-size:22px;font-weight:800;letter-spacing:-.01em;text-transform:none}
+.pagar b{text-transform:none;letter-spacing:0}
+.hero{background-image:none}
+.batt{display:none}
+.big{font-weight:800;font-size:clamp(68px,9vw,112px);letter-spacing:-.05em;line-height:.9;
+  background:none;-webkit-background-clip:border-box;background-clip:border-box;color:var(--ink);-webkit-text-fill-color:var(--ink)}
+.big small{font-size:20px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--muted);-webkit-text-fill-color:var(--muted)}
+.kpis{background:none;border:0;border-top:1px solid var(--line);border-radius:0;gap:0;padding-top:14px}
+.kpi{background:none;padding:0 14px}
+.kpi:first-child{padding-left:0}
+.kpi+.kpi{border-left:1px solid var(--line-2)}
+.kpi .v{font-size:28px;font-weight:700;letter-spacing:-.02em}
+.kpi .v span{font-size:14px;font-weight:500}
+.clock b,.facts b,.n110 b{font-weight:800;letter-spacing:-.02em}
+.ic{background:none;width:28px;height:28px;border-radius:0}
+.ic svg{width:24px;height:24px}
+.btn-lagre{box-shadow:none}
+.hbar{grid-template-columns:136px minmax(0,1fr) 28px}
 </style>
 <script>
 // Brukarinnstillingar (lagra på eininga). Blir sette før sida blir teikna, så ho ikkje blinkar i feil tema.
