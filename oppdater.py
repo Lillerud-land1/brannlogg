@@ -869,7 +869,7 @@ def vakt():
     Køyrer på GitHub kvart kvarter (vakt.yml, --vakt) og på PC-en som ein del av --sjekk."""
     from urllib.error import HTTPError
     try:
-        url = f"https://lillerud-land1.github.io/brannlogg/status.json?t={int(datetime.now().timestamp())}"
+        url = f"{NETTSIDE}status.json?t={int(datetime.now().timestamp())}"
         with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=30) as r:
             oppdatert = datetime.fromisoformat(json.loads(r.read())["oppdatert"])
     except HTTPError as feil:
@@ -1256,7 +1256,7 @@ def hent_brannfare():
 
 # ---------- Varsel på mobilen (ntfy.sh) ----------
 
-NETTSIDE = "https://lillerud-land1.github.io/brannlogg/"
+NETTSIDE = "https://bls.lillerud.com/"
 VARSEL_IKON = {"trafikk": "rotating_light", "sjo": "ocean", "ulykke": "warning", "utslepp": "droplet",
                "redning": "sos", "dyr": "paw_prints", "utrykking": "rotating_light"}
 

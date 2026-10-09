@@ -6,7 +6,7 @@ Laga av **Leander Wågen Lillerud**. Ikkje ein offisiell teneste frå Politiet, 
 
 | | Adresse |
 |---|---|
-| App (mobil og PC) | https://lillerud-land1.github.io/brannlogg/ |
+| App (mobil og PC) | https://bls.lillerud.com/ (den gamle adressa lillerud-land1.github.io/brannlogg/ sender vidare) |
 | Infoskjerm / TV | Hemmeleg adresse – lenka får du i appen under Innstillingar → Admin-tilgang |
 | Kjeldekode og køyringar | https://github.com/Lillerud-land1/brannlogg |
 
@@ -165,7 +165,7 @@ Kanalnamnet står **ikkje** i appen eller her. Det ligg i GitHub-hemmelegheita `
 ## 7. Infoskjerm (TV)
 
 - **Adressa er hemmeleg.** Lenka får du i appen under **Innstillingar → Admin-tilgang** (skriv inn admin-koden). Ho står ikkje i klartekst nokon stad i koden: byggjeskriptet hentar henne frå GitHub-hemmelegheita `TV_ADRESSE`, og adminpanelet har henne kryptert med admin-passordet (`TV_KRYPTERT` i `mal.html`). Passordet sjølv er ikkje lagra nokon stad.
-- Den gamle adressa `…/brannlogg/tv.html` viser berre at infoskjermen har fått ny adresse.
+- Den gamle adressa `bls.lillerud.com/tv.html` viser berre at infoskjermen har fått ny adresse.
 - **Byte passord** (same adresse): rekn ut ny `TV_KRYPTERT` med kommandoen under og legg verdien inn i `mal.html`.
 - **Byte adresse** (om lenka er delt med for mange): lag ei ny adresse, til dømes med `python -c "import secrets; print('tv-' + secrets.token_hex(8))"`, lagre henne med `gh secret set TV_ADRESSE`, og rekn ut ny `TV_KRYPTERT`. Neste bygging flyttar skjermen, og den gamle lenka sluttar å verke. Hugs å oppdatere adressa på Infoskjermen.no.
 - Ny `TV_KRYPTERT` (set `TV_ADRESSE` og `ADMIN_KODE` som miljøvariablar først):
