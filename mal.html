@@ -116,7 +116,7 @@ main.app{padding-block:8px 110px;display:grid;gap:8px}
 .pulse::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--fire);animation:puls 1.6s ease-out infinite}
 @keyframes puls{from{transform:scale(.5);opacity:1}to{transform:scale(1.5);opacity:0}}
 
-/* Brannstripa: éin strek per dag. Høgda seier kva slags dag det var (brann høgast), så ho kan lesast utan fargar. */
+/* Hendingar siste 100 dagar (stripa): éin strek per dag. Høgda seier kva slags dag det var (brann høgast), så ho kan lesast utan fargar. */
 .strip-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:2px 12px;margin-bottom:10px;font-size:15px}
 .strip-head > *{flex:none}
 .strip-head .eyebrow{font-weight:700}
@@ -652,7 +652,7 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
       <div><div class="counter" id="counter"></div><details class="brannfare" id="brannfare" hidden></details></div>
       <div>
         <div class="strip-head">
-          <div class="eyebrow">Brannstripa <b id="strip-tittel">siste 100 dagar</b></div>
+          <div class="eyebrow">Hendingar <span id="strip-tittel">siste 100 dagar</span></div>
           <div class="sub" id="strip-sum"></div>
         </div>
         <div class="strip" id="strip" role="group" aria-label="Brannar per dag"></div>
@@ -1085,7 +1085,6 @@ const OMSETJING = [
   ["Siste brann:", "Siste brann:", "Latest fire:"],
   ["{d} sidan", "{d} siden", "{d} ago"],
   ["Ingen hendingar i dataa.", "Ingen hendelser i dataene.", "No incidents in the data."],
-  ["Brannstripa ·", "Brannstripen ·", "Daily strip ·"],
   ["Brannar per dag", "Branner per dag", "Fires per day"],
   ["ingen hending", "ingen hendelse", "no incidents"],
   ["Hendingar per dag, siste {n} dagar", "Hendelser per dag, siste {n} dager", "Incidents per day, last {n} days"],
@@ -1641,7 +1640,7 @@ function renderHero(){
   }
   $("#counter").innerHTML = html;
 
-  // Brannstripa
+  // Hendingar siste 100 dagar (stripa)
   const perDag = {};
   utval().filter(b => b._nyleg).forEach(b => { (perDag[b._dn] ||= []).push(b); });
   let cells = "";

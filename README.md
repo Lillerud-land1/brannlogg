@@ -16,7 +16,7 @@ Laga av **Leander Wågen Lillerud**. Ikkje ein offisiell teneste frå Politiet, 
 
 - **Teljar**: «N dagar sidan siste hending» som overskrift (alle oppdrag, også brannalarmar), med siste hending og siste brann i ei setning under.
 - **Utsjånad** (sidan 10. oktober 2026): éi skrift (Atkinson Hyperlegible Next, laga for å vere lett å lese), kvit grunn, raudt berre for brann. Lista er gruppert per dag, og kvar hending blir opna med eit trykk. Klokkeslett blir skrivne «kl. 23.53».
-- **Brannstripe**: éi rute per dag for dei siste 100 dagane (oransje/raud = brann, blå = anna utrykking, grå = alarm).
+- **Hendingar siste 100 dagar** (stripa): éin strek per dag for dei siste 100 dagane. Høgda og fargen viser kva slags dag det var (brann høgast, så anna oppdrag, så alarm utan brann). Ordet «brannstripa» skal ikkje brukast i appen eller på TV-en.
 - **Liste** over hendingar med stad, tid, alvorsgrad, heile politiloggen, nyheitslenker og lenke til kart. Viser 20 om gongen («Vis 20 til»).
 - **Filter**: Brannar / Utan alarmar / Alt (standard) (med automatiske brannalarmar), Siste 100 dagar / I år (frå 1. januar) / Alle, type og fritekstsøk.
 - **Kart** over Stord med alle hendingar dei siste 12 månadene som har kjend stad. Fargen viser kor alvorleg det var (som på TV-en), alarmar er tomme ringar, og dei siste 100 dagane er større og blinkar.
