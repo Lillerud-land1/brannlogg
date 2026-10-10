@@ -630,9 +630,9 @@ def temadagar(idag=None):
 
 
 def tv_namn():
-    """Den hemmelege adressa til infoskjermen utan .html, t.d. «tv-0123456789abcdef»."""
+    """Den hemmelege adressa til infoskjermen utan .html, t.d. «tv-k7m2qx» (6–16 små bokstavar/tal etter «tv-»)."""
     namn = os.environ.get("TV_ADRESSE", "").strip()
-    if re.fullmatch(r"tv-[0-9a-f]{16}", namn):
+    if re.fullmatch(r"tv-[0-9a-z]{6,16}", namn):
         return namn
     if os.environ.get("GITHUB_ACTIONS") == "true":
         sys.exit("TV_ADRESSE manglar eller er ugyldig – infoskjermen kan ikkje byggjast")

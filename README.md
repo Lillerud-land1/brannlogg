@@ -166,10 +166,10 @@ Kanalnamnet står **ikkje** i appen eller her. Det ligg i GitHub-hemmelegheita `
 
 ## 7. Infoskjerm (TV)
 
-- **Adressa er hemmeleg.** Lenka får du i appen under **Innstillingar → Admin-tilgang** (skriv inn admin-koden). Ho står ikkje i klartekst nokon stad i koden: byggjeskriptet hentar henne frå GitHub-hemmelegheita `TV_ADRESSE`, og adminpanelet har henne kryptert med admin-passordet (`TV_KRYPTERT` i `mal.html`). Passordet sjølv er ikkje lagra nokon stad.
+- **Adressa er kort, men hemmeleg** (til dømes `bls.lillerud.com/tv-k7m2qx`, utan `.html`). Feil adresse gir 404-sida. Lenka får du i appen under **Innstillingar → Admin-tilgang** (skriv inn admin-koden). Ho står ikkje i klartekst nokon stad i koden: byggjeskriptet hentar henne frå GitHub-hemmelegheita `TV_ADRESSE`, og adminpanelet har henne kryptert med admin-passordet (`TV_KRYPTERT` i `mal.html`). Passordet sjølv er ikkje lagra nokon stad.
 - Den gamle adressa `bls.lillerud.com/tv.html` viser berre at infoskjermen har fått ny adresse.
 - **Byte passord** (same adresse): rekn ut ny `TV_KRYPTERT` med kommandoen under og legg verdien inn i `mal.html`.
-- **Byte adresse** (om lenka er delt med for mange): lag ei ny adresse, til dømes med `python -c "import secrets; print('tv-' + secrets.token_hex(8))"`, lagre henne med `gh secret set TV_ADRESSE`, og rekn ut ny `TV_KRYPTERT`. Neste bygging flyttar skjermen, og den gamle lenka sluttar å verke. Hugs å oppdatere adressa på Infoskjermen.no.
+- **Byte adresse** (om lenka er delt med for mange): lag ei ny kort adresse (sidan 10. oktober 2026 på forma `tv-` + 6 teikn, t.d. `tv-k7m2qx`, så ho er lett å skrive inn på Infoskjermen), til dømes med `python -c "import secrets; a='abcdefghjkmnpqrstuvwxyz23456789'; print('tv-' + ''.join(secrets.choice(a) for _ in range(6)))"`, lagre henne med `gh secret set TV_ADRESSE`, og rekn ut ny `TV_KRYPTERT`. Neste bygging flyttar skjermen, og den gamle lenka sluttar å verke. Hugs å oppdatere adressa på Infoskjermen.no.
 - Ny `TV_KRYPTERT` (set `TV_ADRESSE` og `ADMIN_KODE` som miljøvariablar først):
   `python -c "import hashlib,os; n=os.environ['TV_ADRESSE'].encode(); k=hashlib.pbkdf2_hmac('sha256', os.environ['ADMIN_KODE'].encode(), b'brannlogg-admin-v2', 600000, len(n)); print(bytes(a^b for a,b in zip(n,k)).hex())"`
 - Viser alle hendingar (også brannalarmar), klokke, «dagar sidan siste hending», stripe, tal for **i år** (frå 1. januar) og **same tid i fjor** (oppdrag i brannstatistikken, `hent_fjor()`), kart, månadens brannverntips og QR-kode til appen.
