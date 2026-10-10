@@ -14,7 +14,8 @@ Laga av **Leander Wågen Lillerud**. Ikkje ein offisiell teneste frå Politiet, 
 
 ## 1. Kva appen gjer
 
-- **Teljar**: «Dagar sidan siste hending» (alle oppdrag, også brannalarmar), med siste brann under.
+- **Teljar**: «N dagar sidan siste hending» som overskrift (alle oppdrag, også brannalarmar), med siste hending og siste brann i ei setning under.
+- **Utsjånad** (sidan 10. oktober 2026): éi skrift (Atkinson Hyperlegible Next, laga for å vere lett å lese), kvit grunn, raudt berre for brann. Lista er gruppert per dag, og kvar hending blir opna med eit trykk. Klokkeslett blir skrivne «kl. 23.53».
 - **Brannstripe**: éi rute per dag for dei siste 100 dagane (oransje/raud = brann, blå = anna utrykking, grå = alarm).
 - **Liste** over hendingar med stad, tid, alvorsgrad, heile politiloggen, nyheitslenker og lenke til kart. Viser 20 om gongen («Vis 20 til»).
 - **Filter**: Brannar / Utan alarmar / Alt (standard) (med automatiske brannalarmar), Siste 100 dagar / I år (frå 1. januar) / Alle, type og fritekstsøk.
@@ -22,6 +23,7 @@ Laga av **Leander Wågen Lillerud**. Ikkje ein offisiell teneste frå Politiet, 
 - **Del-knapp** på kvar hending: opnar delingsmenyen på mobilen (SMS, Messenger …), elles blir lenka kopiert.
 - **Temadagar** (berre på sjølve dagen, i appen og på TV-en i staden for månadens tips): bålforbodet startar 15. april, sankthansaftan, brannvernuka (veke 38), røykvarslardagen 1. desember, julaftan og nyttårsaftan. Tekstane står i `TEMA` i `oppdater.py`.
 - **«Pågår no»**: raudt banner øvst på alle faner når politiet har ei aktiv hending med ny melding siste 3 timar (same regel som alarmmodus på TV-en).
+- **Året i ruter** øvst under Statistikk: éi rute per dag sidan 1. januar (kolonne = månad), farga etter kva slags dag det var, og talet på brannar per månad under (`aaret()` i `mal.html`).
 - **Statistikk** for siste 12 månader: knappar for å sjå fordelinga per månad, årstid, vekedag eller klokketime, og for å filtrere på gruppe og type. I tillegg type, tid på døgnet og konsekvensar.
 - **Innstillingar** (eiga fane): språk (nynorsk, bokmål, engelsk), fargeblind-vennlege fargar, lys/mørk/automatisk utsjånad, stor tekst, rørsle av/på og kva appen opnar med. Blir lagra i nettlesaren (`localStorage`, nøkkel `brannlogg_innst`).
 - **Språk**: nynorsk er grunnspråket. Bokmål og engelsk er omsett med KI (Claude) i tabellen `OMSETJING` i `mal.html` (rader med `[nynorsk, bokmål, engelsk]`). Nye tekstar i appen må pakkast inn i `T("…")` og leggjast inn i tabellen. Tekst frå politiet og media blir ikkje omsett.
