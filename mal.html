@@ -24,6 +24,7 @@
   --f-body:"Atkinson Hyperlegible Next","Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
   --f-display:var(--f-body); --f-mono:var(--f-body);
   --f-kart:"Source Serif 4",Georgia,serif;
+  --f-tal:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;   /* store tal: utan strek gjennom null */
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
@@ -85,13 +86,15 @@ h1,h2,h3{margin:0;text-wrap:balance}
 
 /* ---------- Hero ---------- */
 main.app{padding-block:8px 110px;display:grid;gap:8px}
-.hero{position:relative;background:var(--surface)}
+.hero{position:relative;background:var(--surface-2);border-radius:18px;margin-top:12px}
 .batt{display:none}
-.hero-inner{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:20px 56px;padding:22px 0 18px;align-items:end}
-.counter h1{font-size:clamp(40px,5vw,56px);line-height:1.04;font-weight:700;letter-spacing:-.02em;max-width:12ch}
-.counter .eyebrow{margin-bottom:6px}
-.siste{margin:14px 0 0;font-size:17px;color:var(--ink-2);max-width:40ch}
-.big{font-weight:700;font-size:56px;line-height:1}
+.hero-inner{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:24px 56px;padding:28px 32px 26px}
+.counter .eyebrow{font-size:17px;font-weight:600;color:var(--ink-2)}
+.big{display:flex;align-items:baseline;gap:14px;margin:4px 0 6px;font-family:var(--f-tal);font-weight:800;font-size:clamp(104px,11vw,148px);line-height:.92;
+  letter-spacing:-.035em;color:var(--fire)}
+.big small{font-family:var(--f-body);font-size:34px;font-weight:700;letter-spacing:-.01em;color:var(--ink)}
+.siste{margin:8px 0 0;font-size:17px;color:var(--ink-2);max-width:44ch}
+.siste + .siste{margin-top:4px}
 .last-link{display:inline;font-size:inherit;color:var(--ink);font-weight:600;background:none;border:0;padding:0;cursor:pointer;text-align:left;
   text-decoration:underline;text-decoration-color:var(--line-3);text-underline-offset:3px}
 .last-link:hover{text-decoration-color:currentColor}
@@ -134,8 +137,11 @@ main.app{padding-block:8px 110px;display:grid;gap:8px}
 .strip button.ny-mnd{margin-left:3px}
 .strip-axis{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-top:6px}
 .strip-axis .mob{display:none}
-.kpis{margin:16px 0 0;font-size:16px;color:var(--ink-2);max-width:52ch}
-.kpis b{color:var(--ink)}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:18px;padding-top:16px;border-top:1px solid var(--line-3)}
+.kpis > div + div{padding-left:18px;border-left:1px solid var(--line-3)}
+.kpis b{display:block;font-family:var(--f-tal);font-size:36px;font-weight:800;line-height:1;letter-spacing:-.02em;color:var(--ink)}
+.kpis span{display:block;margin-top:5px;font-size:14px;line-height:1.35;color:var(--muted)}
+.kpis .fjor b{color:var(--ink-2)}
 /* Merke for gruppa: brann = fylt sirkel (farge etter alvor), anna oppdrag = firkant, alarm = tom ring */
 .mk-b,.mk-u,.mk-a{display:inline-block;flex:none;width:10px;height:10px;box-sizing:border-box;border-radius:50%;background:var(--sev,var(--sev2))}
 .mk-u{border-radius:2px;background:var(--utr)}
@@ -150,7 +156,8 @@ main.app{padding-block:8px 110px;display:grid;gap:8px}
 .sub{font-size:14px;color:var(--muted)}
 
 /* ---------- Kontrollar ---------- */
-#v-liste{border-top:1px solid var(--line);padding-top:24px}
+#v-liste{padding-top:28px}
+.app[data-view="liste"] .side .panel{border-top:0;padding-top:28px}
 .liste-tittel{font-size:24px;font-weight:700;line-height:1.15;margin-bottom:14px}
 .controls{display:grid;gap:10px;margin-bottom:6px}
 .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
@@ -464,9 +471,9 @@ button.hbar[aria-pressed="true"] .fill{background:var(--ink)}
 /* Skogbrannfare */
 .brannfare{--bf0:#2E9E62; --bf1:#7DBA3C; --bf2:#E3BC00; --bf3:#F08A12; --bf4:#E0301E; --bf5:#A3123A;margin-top:18px}
 .brannfare summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px 12px;
-  padding:12px 14px;border-radius:10px;background:var(--surface-2);font-size:16px;color:var(--ink)}
+  padding:12px 14px;border-radius:10px;background:var(--surface);font-size:16px;color:var(--ink)}
 .brannfare summary::-webkit-details-marker{display:none}
-.brannfare summary:hover{background:var(--chip)}
+.brannfare summary:hover{background:var(--surface);box-shadow:inset 0 0 0 1px var(--line-3)}
 .bf-tekst{min-width:0}
 .bf-pst{color:var(--muted)}
 .bf-klasse{font-weight:700}
@@ -476,7 +483,7 @@ button.hbar[aria-pressed="true"] .fill{background:var(--ink)}
 .bf-steg i{width:30px;height:5px;border-radius:3px;background:var(--line-3)}
 .bf-pil{grid-row:1/3;grid-column:2;width:18px;height:18px;flex:none;color:var(--muted);transition:transform .15s}
 .brannfare[open] .bf-pil{transform:rotate(90deg)}
-.bf-detaljar{margin-top:6px;padding:12px 14px;border-radius:10px;background:var(--surface-2);display:grid;gap:6px}
+.bf-detaljar{margin-top:6px;padding:12px 14px;border-radius:10px;background:var(--surface);display:grid;gap:6px}
 .bf-fakta{display:flex;flex-wrap:wrap;gap:2px 16px;font-size:15px;color:var(--ink-2)}
 .bf-fakta b{color:var(--ink)}
 .bf-note{margin:0;font-size:13px;color:var(--muted)}
@@ -544,8 +551,12 @@ html{overscroll-behavior-y:contain}
   .app:not([data-view="liste"]) .hero{display:none}
 }
 @media (max-width:720px){
-  .hero-inner{grid-template-columns:minmax(0,1fr);gap:22px;padding:22px 0 14px}
-  .counter h1{font-size:42px}
+  .hero{margin-inline:-8px;border-radius:16px}
+  .hero-inner{grid-template-columns:minmax(0,1fr);gap:24px;padding:22px 20px 20px}
+  .big{font-size:112px}
+  .big small{font-size:30px}
+  .kpis b{font-size:30px}
+  .kpis > div + div{padding-left:12px}
   .status .full{display:none}
   .strip{grid-template-columns:repeat(var(--kol2,25),minmax(0,1fr));height:auto;grid-auto-rows:26px;gap:5px 2px}
   .strip-axis .desk{display:none}
@@ -638,7 +649,7 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
   <section class="hero" aria-label="Samandrag">
     <div class="batt" aria-hidden="true"></div>
     <div class="hero-inner">
-      <div class="counter" id="counter"></div>
+      <div><div class="counter" id="counter"></div><details class="brannfare" id="brannfare" hidden></details></div>
       <div>
         <div class="strip-head">
           <div class="eyebrow">Brannstripa <b id="strip-tittel">siste 100 dagar</b></div>
@@ -647,8 +658,7 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
         <div class="strip" id="strip" role="group" aria-label="Brannar per dag"></div>
         <div class="strip-axis" id="strip-axis"></div>
         <div class="strip-legend" id="strip-legend"></div>
-        <p class="kpis" id="kpis"></p>
-        <details class="brannfare" id="brannfare" hidden></details>
+        <div class="kpis" id="kpis"></div>
       </div>
     </div>
   </section>
@@ -1208,8 +1218,7 @@ const OMSETJING = [
   ["Utslepp", "Utslipp", "Spill"],
   ["Anna oppdrag", "Annet oppdrag", "Other call-out"],
   ["Hendingar", "Hendelser", "Incidents"],
-  ["Siste hending var i dag", "Siste hendelse var i dag", "The latest incident was today"],
-  ["sidan siste hending", "siden siste hendelse", "since the latest incident"],
+  ["same tid i fjor", "samme tid i fjor", "same time last year"],
   ["Fargen viser kor alvorleg brannen var.", "Fargen viser hvor alvorlig brannen var.", "The colour shows how serious the fire was."],
   ["dei siste {n} dagane", "de siste {n} dagene", "in the last {n} days"],
   ["hittil i år", "hittil i år", "so far this year"],
@@ -1623,12 +1632,12 @@ function renderHero(){
       <button class="last-link" data-vis="${esc(a.id)}">${T("Følg loggen")}</button></div></div>`;
   } else if (siste) {
     const dagar = I_DAG.dn - siste._dn;
-    html += `<h1>${dagar === 0 ? T("Siste hending var i dag") : `${dagar} ${T(dagar === 1 ? "dag" : "dagar")} ${T("sidan siste hending")}`}</h1>
-      <p class="siste"><button class="last-link" data-vis="${siste.id}">${esc(siste.tittel)}</button>, ${esc(siste.stad)}, ${naar(siste._o)}.`;
-    if (sisteBrann && sisteBrann !== siste) html += ` ${T("Siste brann:")} <button class="last-link" data-vis="${sisteBrann.id}">${esc(sisteBrann.tittel)}</button>, ${datoKort(sisteBrann._o)} (${T("{d} sidan", {d:fl(I_DAG.dn - sisteBrann._dn, "dag", "dagar")})}).`;
-    html += `</p>`;
+    html += `<h1 class="eyebrow">${T("Dagar sidan siste hending")}</h1>
+      <div class="big" aria-label="${T("{n} dagar sidan siste hending", {n:dagar})}">${dagar}<small>${T(dagar === 1 ? "dag" : "dagar")}</small></div>
+      <p class="siste">${T("Siste:")} <button class="last-link" data-vis="${siste.id}">${esc(siste.tittel)}</button>, ${esc(siste.stad)}, ${naar(siste._o)}.</p>`;
+    if (sisteBrann && sisteBrann !== siste) html += `<p class="siste">${T("Siste brann:")} <button class="last-link" data-vis="${sisteBrann.id}">${esc(sisteBrann.tittel)}</button>, ${datoKort(sisteBrann._o)} (${T("{d} sidan", {d:fl(I_DAG.dn - sisteBrann._dn, "dag", "dagar")})}).</p>`;
   } else {
-    html += `<h1>–</h1><p class="siste">${T("Ingen hendingar i dataa.")}</p>`;
+    html += `<h1 class="eyebrow">${T("Dagar sidan siste hending")}</h1><div class="big">–</div><p class="siste">${T("Ingen hendingar i dataa.")}</p>`;
   }
   $("#counter").innerHTML = html;
 
@@ -1665,8 +1674,10 @@ function renderHero(){
   // I år: frå 1. januar, som på TV-sida. «Same tid i fjor» er tal frå brannstatistikken, så det står berre ved «Alt».
   const aar = utval().filter(b => b._o.y === I_DAG.y);
   const fjor = state.gruppe === "alt" && D.fjor && D.fjor.aar === I_DAG.y - 1 ? D.fjor.tal : null;
-  $("#kpis").innerHTML = `<b>${n50}</b> ${T(n50 === 1 ? ORD()[0] : ORD()[1])} ${T("dei siste {n} dagane", {n:VINDU})}. ` +
-    `<b>${aar.length}</b> ${T("hittil i år")}${fjor != null ? ", " + T("mot {n} same tid i fjor", {n:fjor}) : ""}.`;
+  const snitt = (aar.length / I_DAG.m).toLocaleString(LOCALE, {maximumFractionDigits:1});
+  $("#kpis").innerHTML = `<div><b>${n50}</b><span>${T(n50 === 1 ? ORD()[0] : ORD()[1])} ${T("siste {n} dagar", {n:VINDU})}</span></div>` +
+    `<div><b>${aar.length}</b><span>${T("i år (sidan 1. jan.)").replace(/(\d\.?) /, "$1\u00a0")}</span></div>` +
+    (fjor != null ? `<div class="fjor"><b>${fjor}</b><span>${T("same tid i fjor")}</span></div>` : `<div><b>${snitt}</b><span>${T("snitt per månad i år")}</span></div>`);
 }
 // Kva slags dag: brann (farge etter alvor) > anna oppdrag > alarm > ingenting
 function dagKlasse(liste){
