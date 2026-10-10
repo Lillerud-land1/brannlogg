@@ -10,168 +10,172 @@
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="manifest" href="tv.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="theme-color" content="#0A0D11">
+<meta name="theme-color" content="#0F161D">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Brannlogg TV">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=IBM+Plex+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;600;700&family=Source+Serif+4:ital,wght@1,400&display=swap">
 <style>
-/* Infoskjerm: alltid mørk, skalerer etter skjermstorleiken (16:9), ingen rulling */
+/* Infoskjerm: alltid mørk, skalerer etter skjermstorleiken (16:9), ingen rulling.
+   Same uttrykk som appen: éi lettlesen skrift, roleg flate, raudt berre der det gjeld brann. */
 :root{
   color-scheme:dark;
-  --bg:#0A0D11; --panel:#12171E; --panel-2:#181E26; --ink:#EEF1F4; --ink-2:#C2C9D1; --muted:#87919C;
-  --line:#252D37; --fire:#FF5A3D; --ember:#FFA03A; --hivis:#F5CB2A;
-  --sev1:#8FA4BB; --sev2:#FFA03A; --sev3:#FF5A3D; --utr:#5C9DFF; --alarm:#7A8591;
-  --sea:#0E1620; --ctx:#19202A; --land:#232B36; --land-edge:#3A4552; --label:#9AA4AF;
-  --f-display:"Big Shoulders Display","Arial Narrow",sans-serif;
-  --f-body:"Schibsted Grotesk",system-ui,"Segoe UI",sans-serif;
-  --f-mono:"IBM Plex Mono",Consolas,monospace;
+  --bg:#0F161D; --panel:#16212B; --ink:#EEF2F5; --ink-2:#C3CCD5; --muted:#8F9BA7;
+  --line:#26323D; --fire:#FF6B4E; --raud:#C8321D; --ember:#FFA03A; --hivis:#F5CB2A;
+  --sev1:#93A8BE; --sev2:#FFA03A; --sev3:#FF5A3D; --utr:#6AA3FF; --alarm:#76828E; --tom:#25313C;
+  --sea:#0F1B26; --ctx:#1C2630; --land:#26323E; --land-edge:#3D4D5B; --label:#B4BEC8; --vatn:#7FA8C4;
+  --f-body:"Atkinson Hyperlegible Next","Atkinson Hyperlegible",system-ui,"Segoe UI",sans-serif;
+  --f-display:var(--f-body); --f-mono:var(--f-body); --f-kart:"Source Serif 4",Georgia,serif;
+  --f-tal:system-ui,"Segoe UI",sans-serif;
   font-size:min(calc(100vh / 60), calc(100vw / 106));
 }
 *{box-sizing:border-box;margin:0}
-html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--f-body);cursor:none}
-.skjerm{height:100vh;display:grid;grid-template-rows:auto 1fr auto auto;gap:1.2rem;padding:1.6rem 2rem 1rem}
-.kreditt{text-align:center;font-size:.95rem;color:var(--muted);margin-top:-.4rem;letter-spacing:.02em}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--f-body);cursor:none;font-variant-numeric:tabular-nums}
+.skjerm{height:100vh;display:grid;grid-template-rows:auto 1fr auto auto;gap:1.5rem;padding:1.4rem 2.2rem .9rem}
+.kreditt{text-align:center;font-size:.95rem;color:var(--muted);margin-top:-.6rem}
 .kreditt b{color:var(--ink-2);font-weight:600}
+[hidden]{display:none!important}
 
 /* Topp */
-.topp{display:flex;align-items:center;gap:1.4rem}
-.logo{width:3.6rem;height:3.6rem;flex:none}
-.logo-stasjon{height:5rem;width:auto;flex:none}
-.namn{white-space:nowrap;font-family:var(--f-display);font-weight:800;font-size:3.2rem;letter-spacing:.03em;text-transform:uppercase;line-height:.9}
-.namn small{display:block;font-family:var(--f-body);font-weight:600;font-size:1.05rem;letter-spacing:.14em;color:var(--muted);margin-top:.35rem}
-.batt{flex:1;height:1rem;border-radius:.2rem;background:conic-gradient(var(--hivis) 25%,var(--fire) 0 50%,var(--hivis) 0 75%,var(--fire) 0) 0 0/2.4rem 1rem;opacity:.9}
-.klokke{text-align:right;line-height:1}
-[hidden]{display:none!important}
-.bf{--bf0:#2E9E62; --bf1:#7DBA3C; --bf2:#E3BC00; --bf3:#F08A12; --bf4:#E0301E; --bf5:#A3123A;flex:1;display:grid;grid-template-columns:auto 1fr auto;column-gap:1.2rem;row-gap:.45rem;align-items:center;padding:0 1.6rem;border-left:1px solid var(--line);border-right:1px solid var(--line)}
-.bf-lbl{font-size:1.05rem;font-weight:700;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
-.bf-bar{grid-column:1 / -1;position:relative;height:1.3rem;border-radius:.65rem;background:linear-gradient(90deg,var(--bf0) 0 16.67%,var(--bf1) 0 33.33%,var(--bf2) 0 50%,var(--bf3) 0 66.67%,var(--bf4) 0 83.33%,var(--bf5) 0);overflow:hidden}
-.bf-bar .dim{position:absolute;top:0;bottom:0;right:0;background:var(--bg);opacity:.75}
-.bf-bar .merke{position:absolute;top:-.2rem;bottom:-.2rem;width:.4rem;margin-left:-.2rem;border-radius:.2rem;background:var(--ink);box-shadow:0 0 0 .2rem var(--bg)}
-.bf-verdi{font-family:var(--f-display);font-weight:800;font-size:2.6rem;line-height:.9;white-space:nowrap}
-.bf-verdi small{font-size:1.5rem;margin-left:.5rem;letter-spacing:.04em;text-transform:uppercase}
-.bf-fakta{grid-column:1 / -1;font-size:1.05rem;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.bf-fakta b{color:var(--ink)}
-.bf-varsel{justify-self:start;padding:.1rem .6rem;border-radius:.3rem;background:var(--hivis);color:#1A1600;font-weight:800}
+.topp{display:flex;align-items:center;gap:1.8rem;padding-bottom:1.3rem;border-bottom:1px solid var(--line)}
+.logo-stasjon{height:4.8rem;width:auto;flex:none}
+.namn{white-space:nowrap;font-weight:700;font-size:2.7rem;line-height:1.05;letter-spacing:-.01em}
+.namn small{display:block;font-weight:400;font-size:1.2rem;color:var(--muted);margin-top:.35rem;letter-spacing:0}
+.batt{flex:1}
+.bf{--bf0:#2E9E62; --bf1:#7DBA3C; --bf2:#E3BC00; --bf3:#F08A12; --bf4:#E0301E; --bf5:#A3123A;
+  flex:1;display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:1.4rem;row-gap:.55rem;align-items:center;margin:0 .6rem;padding:.9rem 1.5rem;border-radius:.9rem;background:var(--panel)}
+.bf-lbl{font-size:1.3rem;color:var(--ink-2);white-space:nowrap}
+.bf-lbl b{color:var(--ink);font-weight:700;margin-left:.4rem}
+.bf-verdi{font-size:1.3rem;color:var(--muted);white-space:nowrap}
+.bf-steg{grid-column:1 / -1;display:flex;gap:.35rem}
+.bf-steg i{flex:1;height:.6rem;border-radius:.3rem;background:var(--line)}
+.bf-fakta{grid-column:1 / -1;font-size:1.15rem;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bf-fakta b{color:var(--ink);font-weight:600}
+.bf-varsel{margin-left:.8rem;padding:.1rem .6rem;border-radius:.3rem;background:var(--hivis);color:#1A1600;font-weight:700}
 .bf-varsel.orange{background:#EE7A10} .bf-varsel.red{background:#E0301E;color:#fff}
-.klokke b{font-family:var(--f-display);font-weight:800;font-size:4rem;font-variant-numeric:tabular-nums;letter-spacing:.02em}
-.klokke span{display:block;font-size:1.15rem;color:var(--ink-2);margin-top:.3rem}
+.klokke{text-align:right;line-height:1}
+.klokke b{font-family:var(--f-tal);font-weight:700;font-size:4.6rem;letter-spacing:-.01em}
+.klokke span{display:block;font-size:1.25rem;color:var(--ink-2);margin-top:.45rem}
 
-/* Hovuddel */
-.hovud{display:grid;grid-template-columns:30fr 40fr 30fr;gap:1.4rem;min-height:0}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:.8rem;padding:1.4rem 1.6rem;min-height:0;display:flex;flex-direction:column}
-.etikett{font-size:1.05rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-.etikett b{color:var(--ink)}
+/* Hovuddel: tre kolonnar utan boksar, skilde med luft og tynne liner */
+.hovud{display:grid;grid-template-columns:33fr 37fr 30fr;gap:2.6rem;min-height:0}
+.panel{min-height:0;display:flex;flex-direction:column}
+.etikett{font-size:1.4rem;font-weight:700;color:var(--ink)}
+.etikett b{font-weight:400;color:var(--muted)}
 
-.teljar{position:relative;overflow:hidden;background-image:radial-gradient(120% 80% at 0% 100%,rgba(255,120,40,.16),transparent 60%),linear-gradient(var(--panel),var(--panel))}
-.stort{font-family:var(--f-display);font-weight:800;font-size:12rem;line-height:.8;padding:.08em 0 .04em;margin:calc(.8rem - .08em) 0 -.04em;font-variant-numeric:tabular-nums;
-  background:linear-gradient(175deg,var(--hivis),var(--ember) 40%,var(--fire) 90%);-webkit-background-clip:text;background-clip:text;color:transparent}
-.stort-tekst{font-family:var(--f-display);font-weight:600;font-size:2.6rem;text-transform:uppercase;letter-spacing:.03em;margin-top:.4rem}
-.siste{margin-top:.6rem;font-size:1.25rem;color:var(--ink-2);line-height:1.35}
-.siste b{color:var(--ink)}
-.stripe-boks{margin-top:auto}
-.stripe{display:grid;grid-template-columns:repeat(var(--kol,50),minmax(0,1fr));gap:.1rem;height:3.4rem;margin-top:.7rem}
-.stripe i{border-radius:.12rem;background:#1F2630}
-.stripe i.f1{background:var(--sev1)} .stripe i.f2{background:var(--sev2)} .stripe i.f3{background:var(--sev3)} .stripe i.fu{background:var(--utr)} .stripe i.fa{background:var(--alarm)}
-.stripe i.idag{box-shadow:inset 0 0 0 .2rem var(--ink)}
-.akse{display:flex;justify-content:space-between;font-size:1rem;color:var(--muted);margin-top:.4rem}
-.tal{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-top:1rem}
-.tal div{background:var(--panel-2);border-radius:.5rem;padding:.8rem 1rem}
-.tal b{display:block;font-family:var(--f-display);font-weight:800;font-size:2.8rem;line-height:1;font-variant-numeric:tabular-nums}
-.tal span{font-size:1rem;color:var(--muted)}
-.tal .fjor{display:block;margin-top:.2rem;font-family:var(--f-display);font-weight:600;font-size:.95em;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.teljar{position:relative;background:var(--panel);border-radius:1.3rem;padding:1.5rem 1.9rem 1.4rem;margin:-.2rem 0 0;overflow:hidden}
+.teljar > .etikett{font-size:1.5rem;font-weight:600;color:var(--ink-2)}
+.teljar > *{flex:none}
+.teljar > .stripe-boks{flex:0 1 auto}
+.stort{display:flex;align-items:baseline;gap:1.1rem;margin:.3rem 0 .4rem;font-family:var(--f-tal);font-weight:800;font-size:10rem;line-height:.9;letter-spacing:-.04em;color:var(--fire)}
+.stort small{font-family:var(--f-body);font-size:3.4rem;font-weight:700;letter-spacing:-.01em;color:var(--ink)}
+.siste{margin-top:.3rem;font-size:1.35rem;color:var(--ink-2);line-height:1.35}
+.siste b{color:var(--ink);font-weight:600}
+.stripe-boks{margin-top:auto;padding-top:.9rem}
+.stripe{display:grid;grid-template-columns:repeat(var(--kol,50),minmax(0,1fr));gap:.14rem;height:3rem;margin-top:.7rem;align-items:end}
+.stripe i{border-radius:.1rem;background:var(--tom);height:.3rem}
+.stripe i.f1,.stripe i.f2,.stripe i.f3{height:100%}
+.stripe i.f1{background:var(--sev1)} .stripe i.f2{background:var(--sev2)} .stripe i.f3{background:var(--sev3)}
+.stripe i.fu{background:var(--utr);height:64%} .stripe i.fa{background:var(--alarm);height:38%}
+.stripe i.idag{outline:.12rem solid var(--ink);outline-offset:.12rem}
+.akse{display:flex;justify-content:space-between;font-size:1.05rem;color:var(--muted);margin-top:.45rem}
+.ruter{display:flex;flex-wrap:wrap;gap:.3rem 1.2rem;margin-top:.5rem;font-size:1.1rem;color:var(--ink-2)}
+.ruter span{display:inline-flex;align-items:center;gap:.45rem}
+.mk-b,.mk-u,.mk-a{display:inline-block;flex:none;width:1rem;height:1rem;border-radius:50%;background:var(--sev,var(--sev2))}
+.mk-u{border-radius:.15rem;background:var(--utr)}
+.mk-a{background:none;border:.2rem solid var(--alarm)}
+.tal{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:1rem;padding-top:.9rem;border-top:1px solid var(--line-2,#33414E)}
+.tal div+div{padding-left:1.3rem;border-left:1px solid #33414E}
+.tal b{display:block;font-family:var(--f-tal);font-size:2.9rem;font-weight:700;line-height:1;letter-spacing:-.01em}
+.tal span{display:block;font-size:1.05rem;color:var(--muted);margin-top:.3rem;line-height:1.25}
+.tal .fjor b{color:var(--ink-2)}
 
-/* Aktiv brann */
-.alarm{margin-top:1rem;padding:1.2rem;border-radius:.6rem;background:rgba(255,90,61,.14);border:.15rem solid var(--fire)}
-.alarm h2{font-family:var(--f-display);font-size:4.4rem;line-height:.9;color:var(--fire);text-transform:uppercase}
-.alarm p{font-size:1.5rem;margin-top:.5rem}
+/* Aktiv hending i teljarkolonna */
+.alarm{margin-top:1rem;padding:1.4rem 1.5rem;border-radius:.9rem;background:color-mix(in srgb,var(--fire) 12%,var(--bg));border:.18rem solid var(--fire)}
+.alarm h2{display:flex;align-items:center;gap:.8rem;font-size:3.4rem;line-height:1.05;color:var(--fire);font-weight:700}
+.alarm h2 i{width:1.2rem;height:1.2rem;border-radius:50%;background:var(--fire);animation:blink 1s steps(2) infinite}
+.alarm p{font-size:1.6rem;margin-top:.6rem;line-height:1.35}
 
 /* Liste */
-.liste{list-style:none;padding:0;display:flex;flex-direction:column;gap:.8rem;margin-top:1rem;min-height:0;overflow:hidden}
-.rad{display:grid;grid-template-columns:.5rem 3.6rem minmax(0,1fr) auto;gap:1rem;align-items:center;background:var(--panel-2);border-radius:.6rem;padding:.9rem 1.2rem .9rem 0;overflow:hidden}
-.rad .strek{align-self:stretch;background:var(--sev)}
+.liste{list-style:none;padding:0;display:flex;flex-direction:column;margin-top:.6rem;min-height:0;overflow:hidden}
+.rad{display:grid;grid-template-columns:3.4rem minmax(0,1fr) auto;gap:1.3rem;align-items:center;padding:.8rem 0;border-bottom:1px solid var(--line)}
 .s1{--sev:var(--sev1)} .s2{--sev:var(--sev2)} .s3{--sev:var(--sev3)}
-.rad .ic{width:3.6rem;height:3.6rem;border-radius:.5rem;display:grid;place-items:center;color:var(--sev);background:color-mix(in srgb,var(--sev) 15%,transparent)}
-.rad .ic svg{width:2.1rem;height:2.1rem}
 /* Kjeldemerke: 110 = registrert av brannvesenet i brannstatistikken (DSB), 112 = berre i Politiloggen */
-.rad .nr{width:3.6rem;height:3.6rem;border-radius:.5rem;display:grid;place-items:center;color:#fff;
-  font-family:var(--f-display);font-weight:800;font-size:1.75rem;letter-spacing:.02em;line-height:1}
-.rad .nr110{background:#D4321D}
-.rad .nr112{background:#1E5BC6}
-.rad h3{font-size:1.65rem;font-weight:700;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rad p{font-size:1.2rem;color:var(--ink-2);margin-top:.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rad p b{color:var(--ink);font-weight:600}
-.rad p .ny-merke{vertical-align:.1em;margin-right:.5rem}
-.rad .kor{text-align:right;font-family:var(--f-mono);font-size:1.15rem;color:var(--muted);line-height:1.35;white-space:nowrap}
-.rad .kor b{display:block;font-family:var(--f-display);font-size:2rem;color:var(--ink);font-weight:800}
-.rad.ny{outline:.15rem solid var(--ember)}
-.ny-merke{display:inline-block;vertical-align:.2em;margin-right:.6rem;padding:.15rem .5rem;border-radius:.3rem;background:var(--hivis);color:#1A1600;
-  font-family:var(--f-body);font-size:.85rem;font-weight:800;letter-spacing:.08em;line-height:1.2}
-.pagar{display:inline-flex;align-items:center;gap:.5rem;color:var(--fire);font-weight:700;font-family:var(--f-body)}
+.rad .nr{width:3.4rem;height:3.4rem;border-radius:.55rem;display:grid;place-items:center;color:#fff;font-family:var(--f-tal);font-weight:700;font-size:1.45rem;line-height:1}
+.rad .nr110{background:var(--raud)}
+.rad .nr112{background:#2457B8}
+.rad h3{display:flex;align-items:center;gap:.75rem;font-size:1.7rem;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden}
+.rad h3 span{overflow:hidden;text-overflow:ellipsis}
+.rad p{font-size:1.3rem;color:var(--ink-2);margin-top:.3rem;padding-left:1.75rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rad .kor{text-align:right;font-size:1.3rem;color:var(--muted);line-height:1.3;white-space:nowrap}
+.rad .kor b{display:block;font-size:1.7rem;color:var(--ink);font-weight:600}
+.ny-merke{display:inline-block;margin-right:.6rem;padding:.08rem .5rem;border-radius:.3rem;background:var(--ink);color:var(--bg);font-size:1rem;font-weight:700;vertical-align:.1em}
+.pagar{display:inline-flex;align-items:center;gap:.5rem;color:var(--fire);font-weight:700}
 .pagar i{width:.8rem;height:.8rem;border-radius:50%;background:var(--fire);animation:blink 1s steps(2) infinite}
 @keyframes blink{50%{opacity:.2}}
 .tomt{font-size:1.4rem;color:var(--muted);margin-top:1rem}
 
 /* Kart */
-.kart{flex:1;min-height:0;margin-top:1rem;border-radius:.6rem;overflow:hidden;background:var(--sea);display:flex;align-items:center;justify-content:center}
+.kart{flex:1;min-height:0;margin-top:.9rem;border-radius:1rem;overflow:hidden;background:var(--sea);display:flex;align-items:center;justify-content:center}
 .kart svg{height:100%;width:auto;max-width:100%;display:block}
-.m-ctx{fill:var(--ctx)} .m-land{fill:var(--land);stroke:var(--land-edge);stroke-width:1.6}
-.m-lbl{font:600 34px var(--f-body);fill:var(--label);letter-spacing:.06em;text-transform:uppercase}
+.m-ctx{fill:var(--ctx);stroke:var(--land-edge);stroke-width:1.2} .m-land{fill:var(--land);stroke:var(--land-edge);stroke-width:1.6}
+.m-lbl{font:600 34px var(--f-body);fill:var(--label);stroke:var(--land);stroke-width:8px;stroke-linejoin:round;paint-order:stroke}
+.m-vatn{font:italic 400 40px var(--f-kart);fill:var(--vatn)}
 .m-dot{fill:var(--label)}
-.mk circle.c{stroke:#0A0D11;stroke-width:4}
+.mk circle.c{stroke:var(--bg);stroke-width:4}
 .mk.gl circle.c{opacity:.5}
 .mk circle.c.al{fill:none;stroke:var(--alarm);stroke-width:6}
 .mk .ring{fill:none;stroke-width:3;transform-box:fill-box;transform-origin:center;animation:ring 2.4s ease-out infinite}
 @keyframes ring{from{transform:scale(.6);opacity:.9}to{transform:scale(2.2);opacity:0}}
-.forklaring{display:flex;flex-wrap:wrap;gap:.4rem 1.1rem;margin-top:.8rem;font-size:1.05rem;color:var(--muted)}
+.forklaring{display:flex;flex-wrap:wrap;gap:.4rem 1.2rem;margin-top:.8rem;font-size:1.1rem;color:var(--ink-2)}
 .forklaring span{display:inline-flex;align-items:center;gap:.5rem}
 .forklaring i{width:1rem;height:1rem;border-radius:50%;background:var(--sev)}
 .forklaring i.a{background:none;border:.22rem solid var(--alarm);box-sizing:border-box}
-.ruter{display:block;margin-top:.25rem;font-weight:600;letter-spacing:0;text-transform:none}
+.forklaring #blink-tekst{color:var(--muted)}
 
 /* Alarmmodus: ei hending pågår */
-.alarmvising{display:grid;grid-template-columns:56fr 44fr;gap:1.4rem;min-height:0}
-.av-info{border:.25rem solid var(--fire);border-radius:.8rem;padding:1.8rem 2rem;display:flex;flex-direction:column;min-height:0;overflow:hidden;
-  background:linear-gradient(160deg,rgba(255,90,61,.24),rgba(255,90,61,.05) 60%),var(--panel);animation:alarmglo 2s ease-in-out infinite}
-@keyframes alarmglo{50%{box-shadow:0 0 0 .6rem rgba(255,90,61,.22)}}
-.av-topp{display:flex;align-items:center;gap:1rem;font-family:var(--f-display);font-weight:800;font-size:3.4rem;line-height:1;color:var(--fire);letter-spacing:.04em;text-transform:uppercase}
-.av-topp i{width:1.6rem;height:1.6rem;border-radius:50%;background:var(--fire);animation:blink 1s steps(2) infinite}
+.alarmvising{display:grid;grid-template-columns:56fr 44fr;gap:2rem;min-height:0}
+.av-info{border:.25rem solid var(--fire);border-radius:1rem;padding:2rem 2.2rem;display:flex;flex-direction:column;min-height:0;overflow:hidden;
+  background:color-mix(in srgb,var(--fire) 10%,var(--bg));animation:alarmglo 2s ease-in-out infinite}
+@keyframes alarmglo{50%{box-shadow:0 0 0 .5rem color-mix(in srgb,var(--fire) 22%,transparent)}}
+.av-topp{display:flex;align-items:center;gap:1rem;font-weight:700;font-size:3rem;line-height:1;color:var(--fire)}
+.av-topp i{width:1.4rem;height:1.4rem;border-radius:50%;background:var(--fire);animation:blink 1s steps(2) infinite}
 .av-tittel{display:flex;align-items:center;gap:1.4rem;margin-top:1.6rem}
-.av-tittel .ic{width:6.4rem;height:6.4rem;flex:none;border-radius:.8rem;display:grid;place-items:center;color:var(--fire);background:rgba(255,90,61,.16)}
-.av-tittel .ic svg{width:4rem;height:4rem}
-.av-tittel h2{font-family:var(--f-display);font-weight:800;font-size:6rem;line-height:.9;text-transform:uppercase}
-.av-stad{font-size:2.6rem;font-weight:700;margin-top:1.2rem}
+.av-tittel .ic{width:6rem;height:6rem;flex:none;border-radius:.9rem;display:grid;place-items:center;color:var(--fire);background:color-mix(in srgb,var(--fire) 16%,transparent)}
+.av-tittel .ic svg{width:3.8rem;height:3.8rem}
+.av-tittel h2{font-weight:700;font-size:5.4rem;line-height:1.02;letter-spacing:-.02em}
+.av-stad{font-size:2.6rem;font-weight:600;margin-top:1.2rem}
 .av-tid{font-size:1.7rem;color:var(--ink-2);margin-top:.4rem}
 .av-tid b{color:var(--ink)}
 .av-logg{list-style:none;padding:0;margin-top:1.6rem;display:grid;gap:.9rem;align-content:start;min-height:0;overflow:hidden}
-.av-logg li{display:grid;grid-template-columns:5.2rem 1fr;gap:1rem;font-size:1.45rem;line-height:1.35;color:var(--ink-2)}
+.av-logg li{display:grid;grid-template-columns:5.2rem 1fr;gap:1rem;font-size:1.5rem;line-height:1.35;color:var(--ink-2)}
 .av-logg li:first-child{color:var(--ink)}
-.av-logg time{font-family:var(--f-mono);color:var(--muted)}
+.av-logg time{color:var(--muted)}
 .av-logg p{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .av-fleire{margin-top:auto;padding-top:1rem;font-size:1.4rem;font-weight:700;color:var(--ember)}
 .av-kart{padding:0;overflow:hidden}
-.av-kart .kart{margin:0;border-radius:.8rem;height:100%}
-.av-kart .m-lbl{font-size:13px}
+.av-kart .kart{margin:0;border-radius:1rem;height:100%}
+.av-kart .m-lbl{font-size:13px;stroke-width:4px}
 .av-kart .mk circle.c{stroke-width:2.5}
 .av-kart .mk .ring{stroke-width:2.5}
-.av-utan{position:absolute;left:1.4rem;bottom:1.2rem;font-size:1.3rem;color:var(--ink-2);background:rgba(10,13,17,.8);padding:.4rem .8rem;border-radius:.4rem}
+.av-utan{position:absolute;left:1.4rem;bottom:1.2rem;font-size:1.3rem;color:var(--ink-2);background:rgba(15,22,29,.85);padding:.4rem .8rem;border-radius:.4rem}
 
 /* «Visste du?» – byter tekst av og til */
 .tips{transition:opacity .6s}
 .tips.skjul{opacity:0}
 
 /* Botn */
-.botn{display:grid;grid-template-columns:auto 1fr auto;gap:1.4rem;align-items:center}
-.n110{display:flex;align-items:center;gap:1rem;background:var(--fire);color:#fff;border-radius:.6rem;padding:.6rem 1.3rem}
-.n110 b{font-family:var(--f-display);font-weight:800;font-size:3.2rem;line-height:.9}
-.n110 span{font-size:1.1rem;font-weight:600;line-height:1.25}
-.tips{font-size:1.35rem;color:var(--ink-2);line-height:1.35}
-.tips b{color:var(--ember);font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:1.05rem;display:block;margin-bottom:.2rem}
+.botn{display:grid;grid-template-columns:auto 1fr auto;gap:2rem;align-items:center;padding-top:1.2rem;border-top:1px solid var(--line)}
+.n110{display:flex;align-items:center;gap:1rem;background:var(--raud);color:#fff;border-radius:.8rem;padding:.6rem 1.4rem}
+.n110 b{font-family:var(--f-tal);font-weight:700;font-size:3.1rem;line-height:1}
+.n110 span{font-size:1.15rem;font-weight:600;line-height:1.3}
+.tips{font-size:1.5rem;color:var(--ink-2);line-height:1.4}
+.tips b{display:block;color:var(--ink);font-weight:700;font-size:1.2rem;margin-bottom:.2rem}
 .qr{display:flex;align-items:center;gap:1rem}
-.qr img{width:6.2rem;height:6.2rem;background:#fff;border-radius:.4rem;padding:.3rem}
-.qr span{font-size:1.1rem;color:var(--ink-2);line-height:1.3;max-width:13rem}
-.qr small{display:block;color:var(--muted);font-size:.95rem;margin-top:.3rem}
+.qr img{width:6.2rem;height:6.2rem;background:#fff;border-radius:.5rem;padding:.3rem}
+.qr span{font-size:1.15rem;color:var(--ink-2);line-height:1.3;max-width:16rem}
+.qr small{display:block;color:var(--muted);font-size:1rem;margin-top:.3rem}
 @media (prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
 </head>
@@ -198,7 +202,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font
 <div class="skjerm">
   <header class="topp">
     <img class="logo-stasjon" src="logo-stord-brann.png" alt="Stord brann og redning">
-    <div class="namn">Stord brann og redning<small>BRANNLOGG · HENDINGAR I STORD KOMMUNE</small></div>
+    <div class="namn">Stord brann og redning<small>Brannlogg – hendingar i Stord kommune</small></div>
     <div class="batt" id="batt" aria-hidden="true"></div>
     <div class="bf" id="bf" hidden></div>
     <div class="klokke"><b id="kl">--:--</b><span id="dato"></span></div>
@@ -213,9 +217,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font
       <ul class="liste" id="liste"></ul>
     </section>
     <section class="panel">
-      <div class="etikett">Kart · <b>siste 12 månader</b></div>
+      <div class="etikett">Kart <b>siste 12 månader</b></div>
       <div class="kart" id="kart"></div>
-      <div class="forklaring"><span class="s3"><i></i>Alvorleg</span><span class="s2"><i></i>Middels</span><span class="s1"><i></i>Mindre</span><span><i class="a"></i>Alarm utan brann</span><span id="blink-tekst">Store prikkar = siste 100 dagar</span></div>
+      <div class="forklaring"><span class="s3"><i></i>Alvorleg</span><span class="s2"><i></i>Middels</span><span class="s1"><i></i>Mindre</span><span><i class="a"></i>Alarm utan brann</span><span id="blink-tekst">Store prikkar: siste 100 dagar</span></div>
     </section>
   </main>
 
@@ -245,7 +249,7 @@ function oslo(v){
   return {y, m, d, h:+p.hour % 24, min:+p.minute, s:+p.second, dn:Date.UTC(y, m-1, d)/864e5, wd:new Date(Date.UTC(y, m-1, d)).getUTCDay()};
 }
 const pad = n => String(n).padStart(2, "0");
-const kl = o => `${pad(o.h)}:${pad(o.min)}`;
+const kl = o => `${pad(o.h)}.${pad(o.min)}`;
 const IDAG = oslo(new Date());
 function relDag(o){
   const diff = IDAG.dn - o.dn;
@@ -261,7 +265,7 @@ const START = IDAG.dn - (VINDU - 1);
 /* Klokke */
 function klokke(){
   const o = oslo(new Date());
-  $("#kl").textContent = kl(o);
+  $("#kl").textContent = `${pad(o.h)}:${pad(o.min)}`;
   const dag = DAG[o.wd]; $("#dato").textContent = `${dag[0].toUpperCase() + dag.slice(1)} ${o.d}. ${MND[o.m-1]} ${o.y}`;
   if (o.dn !== IDAG.dn) location.reload();
 }
@@ -275,12 +279,12 @@ const sisteBrann = ALLE.filter(b => (b.gruppe || "brann") === "brann")[0];
 let t = "";
 if (aktive.length) {
   const a = aktive[0];
-  t += `<div class="etikett">Akkurat no</div><div class="alarm"><h2>Pågår no</h2><p><b>${esc(a.tittel)}</b><br>${esc(a.stad)} · starta kl. ${kl(a._o)}</p></div>`;
+  t += `<div class="alarm"><h2><i></i>Pågår no</h2><p><b>${esc(a.tittel)}</b><br>${esc(a.stad)}, starta kl. ${kl(a._o)}</p></div>`;
 } else if (siste) {
   const dagar = IDAG.dn - siste._o.dn;
-  t += `<div class="etikett">Dagar sidan siste hending</div><div class="stort">${dagar}</div><div class="stort-tekst">${dagar === 1 ? "dag" : "dagar"}</div>
-        <p class="siste">Siste: <b>${esc(siste.tittel)}</b><br>${esc(siste.stad)} · ${relDag(siste._o).toLowerCase()} kl. ${kl(siste._o)}` +
-        (sisteBrann && sisteBrann !== siste ? `<br>Siste brann: <b>${esc(sisteBrann.tittel)}</b> · ${sisteBrann._o.d}. ${MND[sisteBrann._o.m-1]}` : "") + `</p>`;
+  t += `<div class="etikett">Dagar sidan siste hending</div><div class="stort">${dagar}<small>${dagar === 1 ? "dag" : "dagar"}</small></div>
+        <p class="siste">Siste: <b>${esc(siste.tittel)}</b>, ${esc(siste.stad)}, ${relDag(siste._o).toLowerCase()} kl. ${kl(siste._o)}.</p>` +
+        (sisteBrann && sisteBrann !== siste ? `<p class="siste">Siste brann: <b>${esc(sisteBrann.tittel)}</b>, ${sisteBrann._o.d}. ${MND[sisteBrann._o.m-1]}.</p>` : "");
 }
 const perDag = {};
 B.filter(b => b._o.dn >= START).forEach(b => { const d = perDag[b._o.dn] ||= {a:0}; if (b.gruppe === "utrykking") d.u = true; else if (b.gruppe === "alarm") d.al = true; else d.a = Math.max(d.a, b.alvor); });
@@ -291,18 +295,20 @@ const n50 = B.filter(b => b._o.dn >= START).length;
 // I år: frå 1. januar – byrjar på null att etter nyttår. Snittet deler på månadene som er gått (denne medrekna).
 const aar = B.filter(b => b._o.y === IDAG.y).length;
 const snittAar = aar / IDAG.m;
-t += `<div class="stripe-boks"><div class="etikett">Siste ${VINDU} dagar<span class="ruter"><span style="color:var(--sev2)">■</span> brann <span style="color:var(--utr)">■</span> anna oppdrag <span style="color:var(--alarm)">■</span> alarm utan brann</span></div><div class="stripe" style="--kol:${VINDU}">${celler}</div>
+t += `<div class="stripe-boks"><div class="etikett">Hendingar siste ${VINDU} dagar</div><div class="stripe" style="--kol:${VINDU}">${celler}</div>
       <div class="akse"><span>${s0.getUTCDate()}. ${MND_K[s0.getUTCMonth()]}</span><span>i dag</span></div>
-      <div class="tal"><div><b>${n50}</b><span>hendingar siste ${VINDU} dagar</span></div><div><b>${aar}</b><span>i år (sidan 1.&nbsp;jan.)${D.fjor ? `<span class="fjor">${Number(D.fjor.tal)} same tid i fjor</span>` : ""}</span></div><div><b>${snittAar.toLocaleString("nb-NO", {maximumFractionDigits:1})}</b><span>snitt per månad i år</span></div></div></div>`;
+      <div class="ruter"><span><i class="mk-b s2"></i>Brann</span><span><i class="mk-u"></i>Anna oppdrag</span><span><i class="mk-a"></i>Alarm utan brann</span></div>
+      <div class="tal"><div><b>${n50}</b><span>siste ${VINDU} dagar</span></div><div><b>${aar}</b><span>i år, frå 1.&nbsp;januar</span></div>` +
+      (D.fjor ? `<div class="fjor"><b>${Number(D.fjor.tal)}</b><span>same tid i fjor</span></div>` : `<div><b>${snittAar.toLocaleString("nb-NO", {maximumFractionDigits:1})}</b><span>snitt per månad i år</span></div>`) + `</div></div>`;
 $("#teljar").innerHTML = t;
-$("#blink-tekst").textContent = `Store prikkar = siste ${VINDU} dagar`;
+$("#blink-tekst").textContent = `Store prikkar: siste ${VINDU} dagar`;
 
 /* Liste – dei siste hendingane */
 const erNy = b => Date.now() - new Date(b.start) < 48 * 36e5;   // nyare enn to døgn
+const merke = b => b.gruppe === "alarm" ? `<i class="mk-a"></i>` : (b.gruppe || "brann") === "brann" ? `<i class="mk-b s${b.alvor}"></i>` : `<i class="mk-u"></i>`;
 const rader = B.slice(0, 6).map(b => `<li class="rad s${b.alvor}${erNy(b) ? " ny" : ""}">
-    <span class="strek"></span>
     ${b.bris ? `<span class="nr nr110" title="Brannstatistikken (DSB)">110</span>` : `<span class="nr nr112" title="Politiloggen">112</span>`}
-    <div><h3>${esc(b.tittel)}</h3><p>${erNy(b) ? `<span class="ny-merke">NY</span>` : ""}<b>${esc(b.stad)}</b> · ${b.aktiv ? `<span class="pagar"><i></i>Pågår</span>` : "Avslutta"}</p></div>
+    <div><h3>${merke(b)}<span>${esc(b.tittel)}</span></h3><p>${erNy(b) ? `<span class="ny-merke">Ny</span>` : ""}${esc(b.stad)}${b.aktiv ? `, <span class="pagar"><i></i>pågår</span>` : ""}</p></div>
     <div class="kor"><b>${relDag(b._o)}</b>kl. ${kl(b._o)}</div></li>`).join("");
 $("#liste").innerHTML = rader || `<li class="tomt">Ingen hendingar registrerte.</li>`;
 
@@ -321,7 +327,7 @@ if (K) {
       return `<g class="mk${ny ? "" : " gl"}">${ny ? `<circle class="ring" cx="${x}" cy="${y}" r="26" stroke="${farge(b)}"/>` : ""}<circle class="c${b.gruppe === "alarm" ? " al" : ""}" cx="${x}" cy="${y}" r="${ny ? 26 : 18}" fill="${farge(b)}"/></g>`;
     }).join("");
   const lbl = K.stader.map(s => `<circle class="m-dot" cx="${s.x}" cy="${s.y}" r="7"/><text class="m-lbl" x="${s.x + 14}" y="${s.y + 11}">${esc(s.namn)}</text>`).join("");
-  $("#kart").innerHTML = `<svg viewBox="0 0 ${K.w} ${K.h}" preserveAspectRatio="xMidYMid meet"><path class="m-ctx" d="${K.kontekst}" fill-rule="evenodd"/><path class="m-land" d="${K.land}" fill-rule="evenodd"/>${lbl}${mk}</svg>`;
+  $("#kart").innerHTML = `<svg viewBox="0 0 ${K.w} ${K.h}" preserveAspectRatio="xMidYMid meet"><path class="m-ctx" d="${K.kontekst}" fill-rule="evenodd"/><path class="m-land" d="${K.land}" fill-rule="evenodd"/><text class="m-vatn" x="745" y="1000" text-anchor="middle">Stordfjorden</text>${lbl}${mk}</svg>`;
 }
 
 /* Alarmmodus: når ei hending pågår, tek ho over heile skjermen.
@@ -353,7 +359,7 @@ if (ALARM.length) {
       <div class="av-topp"><i></i>Pågår no</div>
       <div class="av-tittel"><span class="ic"><svg><use href="#${TYPE[a.type] || "i-anna"}"/></svg></span><h2>${esc(a.tittel)}</h2></div>
       <div class="av-stad">${esc(a.stad)}</div>
-      <div class="av-tid">Starta kl. <b>${kl(a._o)}</b> · <b id="av-sidan">${sidanTekst(a.start)}</b> sidan</div>
+      <div class="av-tid">Starta kl. <b>${kl(a._o)}</b>, for <b id="av-sidan">${sidanTekst(a.start)}</b> sidan</div>
       <ul class="av-logg">${logg}</ul>
       ${fleire ? `<div class="av-fleire">Pågår òg: ${fleire}</div>` : ""}
     </div>
@@ -465,10 +471,9 @@ function renderBrannfare(){
   const niva = {yellow:"gult", orange:"oransje", red:"raudt"}[f.varsel?.farge];
   const varsel = f.varsel && new Date(f.varsel.til) > Date.now() ? `<span class="bf-varsel ${esc(f.varsel.farge)}">Farevarsel frå MET: ${niva} nivå</span>` : "";
   const tal = n => n.toLocaleString("nb-NO", {maximumFractionDigits:1});
-  el.innerHTML = `<span class="bf-lbl">Fare for utmarksbrann</span>${varsel || "<span></span>"}
-    <span class="bf-verdi" style="color:var(--bf${f.klasse})">${f.prosent} %<small>${BF_KLASSE[f.klasse]}</small></span>
-    <div class="bf-bar"><span class="dim" style="width:${100 - f.prosent}%"></span><span class="merke" style="left:${f.prosent}%"></span></div>
-    <span class="bf-fakta">Sist regn <b>${sidan}</b> · <b>${tal(f.regn_7d)} mm</b> siste veke · <b>${Math.round(f.temp)}°</b> · <b>${Math.round(f.fukt)} %</b> luftfukt · vind <b>${Math.round(f.vind)} m/s</b></span>`;
+  el.innerHTML = `<span class="bf-lbl">Fare for utmarksbrann:<b>${BF_KLASSE[f.klasse].toLowerCase()}</b>${varsel}</span><span class="bf-verdi">${f.prosent} %</span>
+    <span class="bf-steg">${BF_KLASSE.map((_, i) => `<i${i <= f.klasse ? ` style="background:var(--bf${f.klasse})"` : ""}></i>`).join("")}</span>
+    <span class="bf-fakta">Sist regn <b>${sidan}</b>, <b>${tal(f.regn_7d)} mm</b> siste veke. <b>${Math.round(f.temp)}°</b>, luftfukt <b>${Math.round(f.fukt)} %</b>, vind <b>${Math.round(f.vind)} m/s</b>.</span>`;
 }
 renderBrannfare();
 
