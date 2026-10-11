@@ -1534,5 +1534,11 @@
   "type": "ABA manuell melder",
   "tid": "2026-10-11T10:48:27+00:00",
   "brannvesen": "Stord brann og redning"
+ },
+ "4958966": {
+  "id": "4958966",
+  "type": "",
+  "tid": "2026-10-11T18:11:27+00:00",
+  "brannvesen": "Stord brann og redning"
  }
 }
