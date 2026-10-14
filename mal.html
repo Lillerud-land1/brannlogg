@@ -2307,6 +2307,7 @@ $("#admin-skjema").addEventListener("submit", async e => {
   if (ok) lagreSperre({feil:0, til:0});
   else if (!nettfeil) {
     sperre.feil++;
+    if (sperre.feil < 3) $("#admin-feil").textContent = `Feil kode. ${3 - sperre.feil} forsøk igjen.`;
     if (sperre.feil >= 3) { sperre.til = Date.now() + TIME; $("#admin-feil").hidden = true; $("#admin-kode").value = ""; visBoble(sperre.til); }
     lagreSperre(sperre);
   }
