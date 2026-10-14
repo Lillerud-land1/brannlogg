@@ -465,6 +465,17 @@ button.hbar[aria-pressed="true"] .fill{background:var(--ink)}
 .admin-tittel{font-size:15px;font-weight:700;color:var(--ink)}
 .admin-lenke .adr{font-size:15px;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:8px 10px;user-select:all;word-break:break-all}
 .admin-lenke .rad{display:flex;flex-wrap:wrap;gap:8px}
+/* MIDLERTIDIG: boble etter tre feil admin-kodar */
+dialog.boble{border:0;padding:30px 26px 24px;width:min(92vw,420px);overflow:visible;text-align:center;border-radius:28px;
+  background:var(--surface);color:var(--ink);box-shadow:0 24px 70px rgba(0,0,0,.4);animation:boble-inn .45s cubic-bezier(.2,1.6,.4,1)}
+dialog.boble::backdrop{background:rgba(10,15,20,.6)}
+dialog.boble::after{content:"";position:absolute;left:50%;bottom:-18px;margin-left:-20px;border:20px solid transparent;border-bottom:0;border-top-color:var(--surface)}
+.boble-emoji{font-size:64px;line-height:1.1;letter-spacing:4px}
+dialog.boble h2{font-size:32px;font-weight:700;margin-top:10px}
+dialog.boble p{margin:8px 0 0;font-size:19px;color:var(--ink-2)}
+dialog.boble .sub{font-size:15px;color:var(--muted)}
+dialog.boble .btn-lagre{width:100%;margin-top:20px}
+@keyframes boble-inn{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
 .innst-endra{font-size:14px;font-weight:600;color:var(--std2)}
 @media (min-width:1000px){ .innst-lagre{bottom:16px} .btn-lagre{flex:0 1 280px} }
 
@@ -851,6 +862,14 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
         <span class="sub" id="admin-status"></span>
       </div>
     </div>
+    <!-- MIDLERTIDIG: blir vist etter tre feil admin-kodar (sjå «Admin-sperre» i skriptet) -->
+    <dialog class="boble" id="admin-boble" aria-labelledby="boble-tittel">
+      <div class="boble-emoji" aria-hidden="true">😂🤣😆</div>
+      <h2 id="boble-tittel">Haha Simen!</h2>
+      <p>Eg er eit steg framfor deg 😎</p>
+      <p class="sub" id="boble-tid"></p>
+      <button type="button" class="btn-lagre" id="boble-lukk">OK</button>
+    </dialog>
   </section>
   <section class="vw juridisk" id="v-personvern" aria-label="Personvern">
     <div class="panel">
@@ -2254,10 +2273,26 @@ async function kopierAdmin(){
   catch (e) { const r = document.createRange(); r.selectNodeContents($("#admin-url")); getSelection().removeAllRanges(); getSelection().addRange(r);
     $("#admin-status").textContent = T("Lenka er merkt. Kopier henne med Ctrl+C."); }
 }
+/* ---- MIDLERTIDIG Admin-sperre: tre feil kodar gir ein time pause, og etter det ein ny time for kvar feil,
+   til rett kode blir skriven. Berre på denne eininga (localStorage), så det stoppar ikkje nokon som verkeleg vil prøve. ---- */
+const SPERRE = "brannlogg_admin_sperre", TIME = 36e5;
+const lesSperre = () => { try { return {feil:0, til:0, ...JSON.parse(localStorage.getItem(SPERRE) || "{}")}; } catch (e) { return {feil:0, til:0}; } };
+const lagreSperre = s => { try { localStorage.setItem(SPERRE, JSON.stringify(s)); } catch (e) {} };
+function visBoble(til){
+  const min = Math.max(1, Math.ceil((til - Date.now()) / 6e4));
+  $("#boble-tid").textContent = min >= 60 ? "Du kan prøve igjen om 1 time." : `Du kan prøve igjen om ${min} min.`;
+  const d = $("#admin-boble");
+  if (d.open) return;
+  if (d.showModal) d.showModal(); else d.setAttribute("open", "");
+}
+$("#boble-lukk").addEventListener("click", () => { const d = $("#admin-boble"); d.close ? d.close() : d.removeAttribute("open"); });
+
 $("#admin-skjema").addEventListener("submit", async e => {
   e.preventDefault();
   const kode = $("#admin-kode").value.trim(), knapp = $("#admin-skjema button");
   if (!kode || knapp.disabled) return;
+  const sperre = lesSperre();
+  if (sperre.til > Date.now()) { $("#admin-kode").value = ""; visBoble(sperre.til); return; }
   knapp.disabled = true;
   let ok = false, nettfeil = false;
   try {
@@ -2269,6 +2304,12 @@ $("#admin-skjema").addEventListener("submit", async e => {
   $("#admin-feil").textContent = T(nettfeil ? "Fekk ikkje kontakt. Prøv igjen." : "Feil kode.");
   $("#admin-feil").hidden = ok;
   $("#admin-lenke").hidden = !ok;
+  if (ok) lagreSperre({feil:0, til:0});
+  else if (!nettfeil) {
+    sperre.feil++;
+    if (sperre.feil >= 3) { sperre.til = Date.now() + TIME; $("#admin-feil").hidden = true; $("#admin-kode").value = ""; visBoble(sperre.til); }
+    lagreSperre(sperre);
+  }
   if (!ok) { $("#admin-kode").select(); return; }
   $("#admin-url").textContent = tvAdr;
   $("#admin-opne").href = tvAdr;
