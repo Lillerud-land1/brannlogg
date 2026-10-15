@@ -1573,8 +1573,14 @@
  },
  "4965776": {
   "id": "4965776",
-  "type": "",
+  "type": "Naturhendelse flom",
   "tid": "2026-10-15T11:20:10+00:00",
+  "brannvesen": "Stord brann og redning"
+ },
+ "4966138": {
+  "id": "4966138",
+  "type": "",
+  "tid": "2026-10-15T14:23:00+00:00",
   "brannvesen": "Stord brann og redning"
  }
 }
