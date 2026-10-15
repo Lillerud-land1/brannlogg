@@ -512,14 +512,17 @@ def kombiner_med_bris(hendingar, bris, ekstra, geocache):
             continue
         stad = ex.get("stad", KOMMUNE)
         pos = ex.get("pos") or (geokod(stad, geocache) if stad != KOMMUNE else None)
+        # Har brannvesenet ikkje fylt ut typen etter tre døgn, kjem han truleg ikkje – då skal det ikkje stå «detaljar kjem»
+        utan_type = not m["type"] and no - datetime.fromisoformat(m["tid"]) > timedelta(days=3)
         hendingar.append({
             "id": bid, "gruppe": kat[0], "kjelde_type": "bris",
-            "tittel": ex.get("tittel", kat[2]), "type": ex.get("type", kat[1]), "alvor": ex.get("alvor", kat[3]),
+            "tittel": ex.get("tittel", "Oppdrag – type ikkje oppgitt" if utan_type else kat[2]), "type": ex.get("type", kat[1]), "alvor": ex.get("alvor", kat[3]),
             "stad": stad, "start": m["tid"], "sist": m["tid"], "aktiv": False, "pos": pos,
             "flagg": {"personskade": False, "evakuert": False, "sak": False, "brannvesen": True,
                       "omkomne": bool(ex.get("omkomne")), "bris": True},
             "meldingar": [{"t": m["tid"], "tekst": ex.get("tekst") or (
                 f"{m['brannvesen'] or 'Brannvesenet'} registrerte oppdraget som «{m['type']}»." if m["type"] else
+                f"{m['brannvesen'] or 'Brannvesenet'} har registrert eit oppdrag, men ikkje oppgitt kva slags oppdrag det var." if utan_type else
                 f"{m['brannvesen'] or 'Brannvesenet'} har registrert eit oppdrag. Kva slags oppdrag det var, er ikkje fylt ut enno."), "endra": False}],
             "kjelder": ex.get("kjelder", []),
             "merknad": ex.get("merknad", "Frå brannstatistikken (DSB). Staden og detaljar er ikkje oppgitt der."),

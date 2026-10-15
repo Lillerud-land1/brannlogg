@@ -1301,6 +1301,9 @@ const OMSETJING = [
   ["Utløyst brannalarm", "Utløst brannalarm", "Fire alarm activated"],
   ["Helse: bering og løft", "Helse: bæring og løft", "Medical assist (lifting/carrying)"],
   ["Oppdrag – detaljar kjem", "Oppdrag – detaljer kommer", "Call-out – details to follow"],
+  ["Oppdrag – type ikkje oppgitt", "Oppdrag – type ikke oppgitt", "Call-out – type not given"],
+  ["{v} har registrert eit oppdrag, men ikkje oppgitt kva slags oppdrag det var.", "{v} har registrert et oppdrag, men ikke oppgitt hva slags oppdrag det var.", "{v} has registered a call-out, but has not said what kind it was."],
+  ["type ikkje oppgitt", "type ikke oppgitt", "type not given"],
   ["Oppdrag frå annan alarm", "Oppdrag fra annen alarm", "Call-out from another alarm"],
   ["Person i vatnet", "Person i vannet", "Person in the water"],
   ["Person i sjøen", "Person i sjøen", "Person in the sea"],
@@ -1580,6 +1583,8 @@ function omsetHending(b){
   const melding = t => {
     let m = /^(.+) registrerte oppdraget som «(.+)»\.$/.exec(t);
     if (m) return T("{v} registrerte oppdraget som «{t}».", {v:m[1], t:T(m[2])});
+    m = /^(.+) har registrert eit oppdrag, men ikkje oppgitt kva slags oppdrag det var\.$/.exec(t);
+    if (m) return T("{v} har registrert eit oppdrag, men ikkje oppgitt kva slags oppdrag det var.", {v:m[1]});
     m = /^(.+) har registrert eit oppdrag\. Kva slags oppdrag det var, er ikkje fylt ut enno\.$/.exec(t);
     return m ? T("{v} har registrert eit oppdrag. Kva slags oppdrag det var, er ikkje fylt ut enno.", {v:m[1]}) : t;
   };
@@ -1762,7 +1767,7 @@ function kort(b){
     f.evakuert ? `<span class="tag">${T("Evakuering")}</span>` : "",
     f.sak ? `<span class="tag">${T("Politisak oppretta")}</span>` : "",
     b.kjelde_type === "media" ? `<span class="tag">${T("Frå media")}</span>` : "",
-    b.bris ? `<span class="tag bris" title="${T("Registrert av brannvesenet i brannstatistikken (DSB)")}">${T("Brannstatistikk")}: ${esc(b.bris.type ? T(b.bris.type) : T("type kjem seinare"))}</span>` :
+    b.bris ? `<span class="tag bris" title="${T("Registrert av brannvesenet i brannstatistikken (DSB)")}">${T("Brannstatistikk")}: ${esc(b.bris.type ? T(b.bris.type) : T(Date.now() - new Date(b.start) > 3 * 864e5 ? "type ikkje oppgitt" : "type kjem seinare"))}</span>` :
       (erBrann(b) ? "" : `<span class="tag utr">${T(f.brannvesen ? "Brannvesenet" : "Nødetatane")}</span>`),
     `<span class="tag">${esc(t.n)}</span>`
   ].join("");
