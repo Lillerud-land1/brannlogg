@@ -1246,6 +1246,7 @@ const OMSETJING = [
   ["Kvar dag i år", "Hver dag i år", "Every day this year"],
   ["Brannar per månad", "Branner per måned", "Fires per month"],
   ["Tala under er brannar per månad.", "Tallene under er branner per måned.", "The numbers below are fires per month."],
+  ["Ei delt rute betyr at det var fleire slags hendingar den dagen.", "En delt rute betyr at det var flere slags hendelser den dagen.", "A split square means there were several kinds of incidents that day."],
   ["Flest i {m}.", "Flest i {m}.", "Most in {m}."],
   ["anna oppdrag", "annet oppdrag", "other call-out"],
   ["andre oppdrag", "andre oppdrag", "other call-outs"],
@@ -1674,7 +1675,7 @@ function renderHero(){
     const liste = perDag[dn] || [];
     const lbl = `${dagMnd(dd, mm + 1)}: ${liste.length ? liste.map(b => b.tittel + ", " + b.stad).join("; ") : T("ingen hending")}`;
     const cls = [dagKlasse(liste), dn === I_DAG.dn ? "idag" : "", (dd === 1 && i > 0) ? "ny-mnd" : ""].join(" ").trim();
-    cells += `<button type="button" class="${cls}" title="${esc(lbl)}" aria-label="${esc(lbl)}"${liste.length ? ` data-vis="${esc(liste[0].id)}"` : ` tabindex="-1"`}></button>`;
+    cells += `<button type="button" class="${cls}"${lagFargar(liste, "to bottom")} title="${esc(lbl)}" aria-label="${esc(lbl)}"${liste.length ? ` data-vis="${esc(liste[0].id)}"` : ` tabindex="-1"`}></button>`;
   }
   const strip = $("#strip");
   strip.innerHTML = cells;
@@ -1706,6 +1707,17 @@ function renderHero(){
 function dagKlasse(liste){
   const maks = liste.filter(erBrann).reduce((m, b) => Math.max(m, b.alvor), 0);
   return maks ? "f" + maks : liste.some(b => b.gruppe === "utrykking") ? "fu" : (liste.length ? "fa" : "");
+}
+// Hadde dagen fleire slags hendingar (t.d. ein brann og ein brannalarm), blir streken/ruta delt i ein bit per gruppe:
+// brann først (øvst i stripa, til venstre i kalenderen), så anna oppdrag, så alarm utan brann.
+function lagFargar(liste, retning){
+  const f = [], maks = liste.filter(erBrann).reduce((m, b) => Math.max(m, b.alvor), 0);
+  if (maks) f.push(`var(--sev${maks})`);
+  if (liste.some(b => b.gruppe === "utrykking")) f.push("var(--utr)");
+  if (liste.some(erAlarm)) f.push("var(--alarm)");
+  if (f.length < 2) return "";
+  const p = i => (100 * i / f.length).toFixed(1) + "%";
+  return ` style="background:linear-gradient(${retning},${f.map((c, i) => `${c} ${p(i)} ${p(i + 1)}`).join(",")})"`;
 }
 
 /* ---- Skogbrannfare ---- */
@@ -1923,7 +1935,7 @@ function aaret(){
       const liste = perDag[dn] || [];
       const lbl = `${dagMnd(d, m)}: ${liste.length ? liste.map(b => b.tittel).join("; ") : T("ingen hending")}`;
       const cls = [dagKlasse(liste), dn === I_DAG.dn ? "idag" : ""].join(" ").trim();
-      ruter += liste.length ? `<button type="button" class="${cls}" title="${esc(lbl)}" aria-label="${esc(lbl)}" data-vis="${esc(liste[0].id)}"></button>`
+      ruter += liste.length ? `<button type="button" class="${cls}"${lagFargar(liste, "to right")} title="${esc(lbl)}" aria-label="${esc(lbl)}" data-vis="${esc(liste[0].id)}"></button>`
         : `<span${cls ? ` class="${cls}"` : ""} title="${esc(lbl)}"></span>`;
     }
   }
@@ -1942,7 +1954,7 @@ function aaret(){
       <div class="kal-rute" role="group" aria-label="${T("Kvar dag i år")}">${ruter}</div>
       <span></span><div class="kal-tal" aria-label="${T("Brannar per månad")}">${brannar.map(n => `<b${n ? "" : ` class="null"`}>${n}</b>`).join("")}</div>
     </div>
-    <p class="kal-note">${T("Tala under er brannar per månad.")}${flest.length ? " " + T("Flest i {m}.", {m:ogListe(flest)}) : ""}</p></div>`;
+    <p class="kal-note">${T("Ei delt rute betyr at det var fleire slags hendingar den dagen.")} ${T("Tala under er brannar per månad.")}${flest.length ? " " + T("Flest i {m}.", {m:ogListe(flest)}) : ""}</p></div>`;
 }
 function renderStats(){
   $("#aaret").innerHTML = aaret();

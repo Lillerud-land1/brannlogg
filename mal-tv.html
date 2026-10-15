@@ -290,7 +290,9 @@ const perDag = {};
 // Brannstasjonen vil ha to grupper på TV-en: brann og andre hendingar (oppdrag og alarmar utan brann saman)
 B.filter(b => b._o.dn >= START).forEach(b => { const d = perDag[b._o.dn] ||= {a:0}; if ((b.gruppe || "brann") === "brann") d.a = Math.max(d.a, b.alvor); else d.u = true; });
 let celler = "";
-for (let i = 0; i < VINDU; i++) { const dn = START + i; celler += `<i class="${perDag[dn] ? (perDag[dn].a ? "f" + perDag[dn].a : "fu") : ""}${dn === IDAG.dn ? " idag" : ""}"></i>`; }
+// Var det både brann og andre hendingar same dag, blir streken delt: brann øvst, andre hendingar nedst
+const delt = d => d && d.a && d.u ? ` style="background:linear-gradient(to bottom,var(--sev${d.a}) 0 50%,var(--utr) 50% 100%)"` : "";
+for (let i = 0; i < VINDU; i++) { const dn = START + i; celler += `<i class="${perDag[dn] ? (perDag[dn].a ? "f" + perDag[dn].a : "fu") : ""}${dn === IDAG.dn ? " idag" : ""}"${delt(perDag[dn])}></i>`; }
 const s0 = new Date(START * 864e5);
 const n50 = B.filter(b => b._o.dn >= START).length;
 // I år: frå 1. januar – byrjar på null att etter nyttår. Snittet deler på månadene som er gått (denne medrekna).
