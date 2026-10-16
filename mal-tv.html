@@ -262,14 +262,29 @@ const TYPE = {bygning:"i-bygning", kjoretoy:"i-kjoretoy", vegetasjon:"i-vegetasj
 const B = D.brannar.map(b => ({...b, _o:oslo(b.start)}));   // alle hendingar, frå brannalarmar til husbrannar
 const START = IDAG.dn - (VINDU - 1);
 
-/* Klokke */
+/* Klokke. Går klokka i skjermen feil (til dømes eitt minutt for seint), blir ho retta etter tida til nettstaden:
+   svaret frå GitHub har eit «Date»-felt med rett tid. Rettar berre når avviket er over 2 sekund. */
+let klokkeAvvik = 0;   // millisekund: rett tid minus tida i skjermen
+const tenarTid = () => new Date(Date.now() + klokkeAvvik);
+async function synkKlokke(){
+  try {
+    const t0 = Date.now();
+    const svar = await fetch("status.json?klokke=" + t0, {method:"HEAD", cache:"no-store"});
+    const t1 = Date.now(), rett = Date.parse(svar.headers.get("Date"));
+    if (isNaN(rett) || t1 - t0 > 3000) return;            // for treg kopling til å stole på
+    const avvik = rett + 500 - (t0 + t1) / 2;               // Date-feltet har heile sekund, så +0,5 s i snitt
+    klokkeAvvik = Math.abs(avvik) > 2000 ? avvik : 0;
+    klokke();
+  } catch (e) {}
+}
 function klokke(){
-  const o = oslo(new Date());
+  const o = oslo(tenarTid());
   $("#kl").textContent = `${pad(o.h)}:${pad(o.min)}`;
   const dag = DAG[o.wd]; $("#dato").textContent = `${dag[0].toUpperCase() + dag.slice(1)} ${o.d}. ${MND[o.m-1]} ${o.y}`;
   if (o.dn !== IDAG.dn) location.reload();
 }
 klokke(); setInterval(klokke, 1000);
+synkKlokke(); setInterval(synkKlokke, 10 * 60 * 1000);
 
 /* Teljar */
 const aktive = B.filter(b => b.aktiv);
