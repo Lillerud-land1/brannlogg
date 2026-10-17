@@ -465,6 +465,25 @@ button.hbar[aria-pressed="true"] .fill{background:var(--ink)}
 .admin-tittel{font-size:15px;font-weight:700;color:var(--ink)}
 .admin-lenke .adr{font-size:15px;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:8px 10px;user-select:all;word-break:break-all}
 .admin-lenke .rad{display:flex;flex-wrap:wrap;gap:8px}
+/* Påskeegg: snurrande logo, brannbil, vassprut og små meldingar */
+.logo.snurr{animation:logo-snurr 1s cubic-bezier(.3,1.3,.5,1)}
+@keyframes logo-snurr{to{transform:rotate(720deg)}}
+.brannbil{position:fixed;left:0;bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:60;pointer-events:none;display:flex;align-items:flex-start;gap:6px;
+  animation:bil-koyr 5s linear forwards}
+.brannbil svg{width:170px;height:auto;display:block}
+.brannbil b{margin-top:-6px;padding:3px 10px;border-radius:999px;background:var(--surface);color:var(--fire);font-size:18px;box-shadow:0 4px 14px rgba(0,0,0,.18);white-space:nowrap}
+.brannbil .blaalys{animation:blaalys .35s steps(2) infinite}
+@keyframes bil-koyr{from{transform:translateX(-260px)}to{transform:translateX(calc(100vw + 20px))}}
+@keyframes blaalys{50%{fill:#CFE2FF}}
+.egg-melding{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom,0px));z-index:61;transform:translateX(-50%);max-width:calc(100vw - 32px);
+  padding:10px 18px;border:0;border-radius:999px;background:var(--ink);color:var(--surface);font:600 16px/1.3 var(--f-body);text-align:center;
+  box-shadow:0 8px 26px rgba(0,0,0,.25);cursor:pointer;animation:egg-inn .35s ease-out}
+@keyframes egg-inn{from{opacity:0;transform:translate(-50%,12px)}}
+.vatn{position:fixed;inset:0;z-index:60;pointer-events:none;overflow:hidden}
+.vatn i{position:absolute;top:-24px;width:9px;height:15px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:#4D9BFF;opacity:.8;animation:drope linear forwards}
+@keyframes drope{to{transform:translate(var(--dx),calc(100vh + 40px))}}
+@media (min-width:1000px){ .brannbil{bottom:24px} .egg-melding{bottom:28px} }
+
 /* MIDLERTIDIG: boble etter tre feil admin-kodar */
 dialog.boble{border:0;padding:30px 26px 24px;width:min(92vw,420px);overflow:visible;text-align:center;border-radius:28px;
   background:var(--surface);color:var(--ink);box-shadow:0 24px 70px rgba(0,0,0,.4);animation:boble-inn .45s cubic-bezier(.2,1.6,.4,1)}
@@ -1237,6 +1256,10 @@ const OMSETJING = [
   ["Anna oppdrag", "Annet oppdrag", "Other call-out"],
   ["Hendingar", "Hendelser", "Incidents"],
   ["same tid i fjor", "samme tid i fjor", "same time last year"],
+  ["Rett nummer, men feil passord! 🚒", "Riktig nummer, men feil passord! 🚒", "Right number, wrong password! 🚒"],
+  ["Ba-bu! Brannbilen køyrde forbi.", "Ba-bu! Brannbilen kjørte forbi.", "Nee-naw! The fire engine drove past."],
+  ["Brannslanga er på! 💦", "Brannslangen er på! 💦", "The fire hose is on! 💦"],
+  ["Bør ikkje du sove no? 🌙", "Burde ikke du sove nå? 🌙", "Shouldn't you be asleep? 🌙"],
   ["Fargen viser kor alvorleg brannen var.", "Fargen viser hvor alvorlig brannen var.", "The colour shows how serious the fire was."],
   ["dei siste {n} dagane", "de siste {n} dagene", "in the last {n} days"],
   ["hittil i år", "hittil i år", "so far this year"],
@@ -2308,6 +2331,10 @@ $("#admin-skjema").addEventListener("submit", async e => {
   e.preventDefault();
   const kode = $("#admin-kode").value.trim(), knapp = $("#admin-skjema button");
   if (!kode || knapp.disabled) return;
+  if (kode === "110") {   // påskeegg – tel ikkje som eit feil forsøk
+    $("#admin-feil").textContent = T("Rett nummer, men feil passord! 🚒");
+    $("#admin-feil").hidden = false; $("#admin-lenke").hidden = true; $("#admin-kode").select(); return;
+  }
   const sperre = lesSperre();
   if (sperre.til > Date.now()) { $("#admin-kode").value = ""; visBoble(sperre.til); return; }
   knapp.disabled = true;
@@ -2353,6 +2380,72 @@ if ("IntersectionObserver" in window) {
     {rootMargin:"-130px 0px -60% 0px"});
   document.querySelectorAll(".info-innhald > .panel").forEach(p => obs.observe(p));
 }
+
+/* ---- Påskeegg ----
+   Logoen fem gonger raskt: han snurrar og ein brannbil køyrer forbi. Konami-koden på tastaturet: vassprut.
+   Mellom kl. 03 og 05: ei lita helsing. Ingenting av dette skjer når noko pågår, og med «rørsle av» kjem berre teksten. */
+const utanRorsle = () => document.documentElement.dataset.rorsle === "av" || matchMedia("(prefers-reduced-motion: reduce)").matches;
+let eggMeldingT = 0;
+function eggMelding(tekst, ms = 4500){
+  document.querySelector(".egg-melding")?.remove(); clearTimeout(eggMeldingT);
+  const el = document.createElement("button");
+  el.type = "button"; el.className = "egg-melding"; el.textContent = tekst;
+  el.addEventListener("click", () => el.remove());
+  document.body.appendChild(el);
+  eggMeldingT = setTimeout(() => el.remove(), ms);
+}
+const BRANNBIL = `<svg viewBox="0 0 180 80" aria-hidden="true">
+  <rect x="8" y="30" width="112" height="34" rx="4" fill="#C8321D"/><path d="M120 36h26l20 16v12h-46z" fill="#C8321D"/>
+  <path d="M126 41h18l13 11h-31z" fill="#CFE6FF"/><rect x="8" y="51" width="158" height="4" fill="#F2C200"/>
+  <rect x="14" y="21" width="98" height="5" rx="2" fill="#B9C1C9"/>
+  <path d="M22 21v5M34 21v5M46 21v5M58 21v5M70 21v5M82 21v5M94 21v5M106 21v5" stroke="#7E8892" stroke-width="2"/>
+  <rect class="blaalys" x="128" y="29" width="12" height="7" rx="2" fill="#2F6BFF"/>
+  <circle cx="38" cy="66" r="10" fill="#1F2933"/><circle cx="38" cy="66" r="4" fill="#C9D0D6"/>
+  <circle cx="140" cy="66" r="10" fill="#1F2933"/><circle cx="140" cy="66" r="4" fill="#C9D0D6"/></svg>`;
+let logoTrykk = [];
+$(".brand").addEventListener("click", () => {
+  const no = Date.now();
+  logoTrykk = logoTrykk.filter(t => no - t < 2000).concat(no);
+  if (logoTrykk.length < 5 || aktiveNo().length) return;
+  logoTrykk = [];
+  if (utanRorsle()) { eggMelding("🚒 " + T("Ba-bu! Brannbilen køyrde forbi.")); return; }
+  const logo = $(".logo");
+  logo.classList.remove("snurr"); void logo.offsetWidth; logo.classList.add("snurr");
+  if (document.querySelector(".brannbil")) return;
+  const bil = document.createElement("div");
+  bil.className = "brannbil"; bil.setAttribute("aria-hidden", "true");
+  bil.innerHTML = BRANNBIL + "<b>Ba-bu!</b>";
+  bil.addEventListener("animationend", e => { if (e.target === bil) bil.remove(); });
+  document.body.appendChild(bil);
+});
+$(".logo").addEventListener("animationend", e => e.currentTarget.classList.remove("snurr"));
+
+const KONAMI = ["arrowup", "arrowup", "arrowdown", "arrowdown", "arrowleft", "arrowright", "arrowleft", "arrowright", "b", "a"];
+let konamiSteg = 0;
+document.addEventListener("keydown", e => {
+  if (e.target.closest?.("input, textarea, select")) return;
+  const k = (e.key || "").toLowerCase();
+  konamiSteg = k === KONAMI[konamiSteg] ? konamiSteg + 1 : (k === KONAMI[0] ? 1 : 0);
+  if (konamiSteg < KONAMI.length) return;
+  konamiSteg = 0;
+  if (aktiveNo().length) return;
+  eggMelding(T("Brannslanga er på! 💦"));
+  if (utanRorsle() || document.querySelector(".vatn")) return;
+  const vatn = document.createElement("div");
+  vatn.className = "vatn"; vatn.setAttribute("aria-hidden", "true");
+  for (let i = 0; i < 90; i++) {
+    const d = document.createElement("i");
+    d.style.left = (Math.random() * 105 - 2).toFixed(1) + "%";
+    d.style.setProperty("--dx", (Math.random() * 120 - 40).toFixed(0) + "px");
+    d.style.animationDuration = (0.8 + Math.random() * 0.9).toFixed(2) + "s";
+    d.style.animationDelay = (Math.random() * 1.6).toFixed(2) + "s";
+    vatn.appendChild(d);
+  }
+  document.body.appendChild(vatn);
+  setTimeout(() => vatn.remove(), 4000);
+});
+
+if ([3, 4].includes(oslo(new Date()).h) && !aktiveNo().length) setTimeout(() => eggMelding(T("Bør ikkje du sove no? 🌙"), 9000), 1500);
 
 /* ---- Start ---- */
 renderStatus(); renderHero(); renderPagar(); renderBrannfare(); renderAll(); renderStats(); renderTip();
