@@ -25,6 +25,7 @@
   --f-display:var(--f-body); --f-mono:var(--f-body);
   --f-kart:"Source Serif 4",Georgia,serif;
   --f-tal:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;   /* store tal: utan strek gjennom null */
+  --graskar:#D9620A; --nett:rgba(23,34,45,.22); --flagg:#56606B;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
@@ -35,6 +36,7 @@
     --sev1:#93A8BE; --std2:#FFA03A; --std3:#FF5A3D; --cb2:#F5CB2A; --cb3:#FF5A3D; --utr:#6AA3FF; --alarm:#76828E;
     --sea:#0F1B26; --ctx:#1C2630; --land:#24303B; --land-edge:#3A4A58; --label:#AEB9C3; --vatn:#7FA8C4;
     --topbar:rgba(18,26,34,.92); --chip:#1F2A35; --tom:#26323D;
+    --graskar:#FF8A1F; --nett:rgba(214,224,233,.3); --flagg:#7C8C9C;
   }
 }
 :root[data-theme="dark"]{
@@ -45,6 +47,7 @@
   --sev1:#93A8BE; --std2:#FFA03A; --std3:#FF5A3D; --cb2:#F5CB2A; --cb3:#FF5A3D; --utr:#6AA3FF; --alarm:#76828E;
   --sea:#0F1B26; --ctx:#1C2630; --land:#24303B; --land-edge:#3A4A58; --label:#AEB9C3; --vatn:#7FA8C4;
   --topbar:rgba(18,26,34,.92); --chip:#1F2A35; --tom:#26323D;
+    --graskar:#FF8A1F; --nett:rgba(214,224,233,.3); --flagg:#7C8C9C;
 }
 
 /* Fargeblind-vennlege fargar: middels og alvorleg brann skil seg på lysstyrke, ikkje berre raudt mot oransje */
@@ -483,6 +486,27 @@ button.hbar[aria-pressed="true"] .fill{background:var(--ink)}
 .vatn i{position:absolute;top:-24px;width:9px;height:15px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:#4D9BFF;opacity:.8;animation:drope linear forwards}
 @keyframes drope{to{transform:translate(var(--dx),calc(100vh + 40px))}}
 @media (min-width:1000px){ .brannbil{bottom:24px} .egg-melding{bottom:28px} }
+
+/* Halloween (1.–31. oktober): litt pynt på toppflata, resten er som vanleg */
+.halloween .hero{overflow:hidden;background:linear-gradient(160deg,color-mix(in srgb,var(--graskar) 9%,var(--surface-2)),var(--surface-2) 60%)}
+.halloween .big{color:var(--graskar)}
+.hero .nett{position:absolute;top:0;right:0;width:104px;height:104px;pointer-events:none}
+.hero .nett path{fill:none;stroke:var(--nett);stroke-width:.8}
+.hero .edderkopp{position:absolute;top:0;right:46px;width:20px;display:flex;flex-direction:column;align-items:center;pointer-events:none;animation:dingle 7s ease-in-out infinite}
+.hero .edderkopp i{display:block;width:1px;height:34px;background:var(--nett)}
+.hero .edderkopp svg{width:20px;height:20px;margin-top:-2px;stroke:var(--flagg);fill:var(--surface-2)}
+@keyframes dingle{50%{transform:translateY(12px)}}
+.big .hpynt{position:relative;margin-left:auto;align-self:center;display:flex}
+.big .graskar{width:58px;height:58px}
+/* PC: ei flaggermus heng opp ned frå kanten, rett over graskaret. På mobil er hjørnet teke av spindelvevet. */
+.hero-inner > div:first-child{position:relative}
+.henge{position:absolute;top:-28px;right:13px;width:34px;transform-origin:50% 0;animation:sving 6s ease-in-out infinite;pointer-events:none}
+.henge svg{display:block;width:100%;fill:var(--flagg)}
+.henge svg path.trad{fill:none;stroke:var(--nett);stroke-width:1}
+@keyframes sving{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+@media (max-width:720px){ .henge{display:none} }
+/* På PC ligg stripa øvst til høgre, så der heng berre edderkoppen. Spindelvevet går i hjørnet nede til høgre. */
+@media (min-width:721px){ .halloween .strip-head{padding-right:64px} .hero .nett{top:auto;bottom:0;width:120px;height:120px;transform:scaleY(-1)} .hero .edderkopp{right:22px} .hero .edderkopp i{height:22px} }
 
 /* MIDLERTIDIG: boble etter tre feil admin-kodar */
 dialog.boble{border:0;padding:30px 26px 24px;width:min(92vw,420px);overflow:visible;text-align:center;border-radius:28px;
@@ -1256,6 +1280,9 @@ const OMSETJING = [
   ["Anna oppdrag", "Annet oppdrag", "Other call-out"],
   ["Hendingar", "Hendelser", "Incidents"],
   ["same tid i fjor", "samme tid i fjor", "same time last year"],
+  ["God halloween! 🎃", "God halloween! 🎃", "Happy Halloween! 🎃"],
+  ["Bruk batterilys i graskaret, og hald kostymet unna levande lys. Ha ein trygg og skummel kveld!", "Bruk batterilys i gresskaret, og hold kostymet unna levende lys. Ha en trygg og skummel kveld!", "Use battery lights in your pumpkin and keep costumes away from open flames. Have a safe and spooky night!"],
+  ["Halloween: bruk batterilys i graskaret. Levande lys kan lett setje fyr på kostyme og pynt.", "Halloween: bruk batterilys i gresskaret. Levende lys kan lett sette fyr på kostymer og pynt.", "Halloween: use battery lights in your pumpkin. Open flames can easily set costumes and decorations alight."],
   ["Rett nummer, men feil passord! 🚒", "Riktig nummer, men feil passord! 🚒", "Right number, wrong password! 🚒"],
   ["Ba-bu! Brannbilen køyrde forbi.", "Ba-bu! Brannbilen kjørte forbi.", "Nee-naw! The fire engine drove past."],
   ["Brannslanga er på! 💦", "Brannslangen er på! 💦", "The fire hose is on! 💦"],
@@ -1572,6 +1599,7 @@ function oslo(iso){
 const pad = n => String(n).padStart(2,"0");
 const kl = o => `${pad(o.h)}${SPRAK === "en" ? ":" : "."}${pad(o.min)}`;   // norsk skrivemåte: kl. 23.53
 const NO = new Date(), I_DAG = oslo(NO);
+const HALLOWEEN = I_DAG.m === 10;   // pynt og tips frå 1. til 31. oktober kvart år
 function relDag(o){
   const diff = I_DAG.dn - o.dn;
   if (diff === 0) return T("i dag");
@@ -1680,13 +1708,20 @@ function renderHero(){
   } else if (siste) {
     const dagar = I_DAG.dn - siste._dn;
     html += `<h1 class="eyebrow">${T("Dagar sidan siste hending")}</h1>
-      <div class="big" aria-label="${T("{n} dagar sidan siste hending", {n:dagar})}">${dagar}<small>${T(dagar === 1 ? "dag" : "dagar")}</small></div>
+      <div class="big" aria-label="${T("{n} dagar sidan siste hending", {n:dagar})}">${dagar}<small>${T(dagar === 1 ? "dag" : "dagar")}</small>${HALLOWEEN ? `<span class="hpynt" aria-hidden="true"><svg class="graskar" viewBox="0 0 64 64"><path d="M30 14c0-5 3-9 8-10l1 3c-3 1-5 4-5 7z" fill="#5E8E43"/><ellipse cx="32" cy="39" rx="28" ry="22" fill="#E8700E"/><ellipse cx="32" cy="39" rx="14" ry="22" fill="#F7861F"/><ellipse cx="32" cy="39" rx="28" ry="22" fill="none" stroke="#C85A06" stroke-width="1.5"/><path d="M17 33l8-7 5 8z M47 33l-8-7-5 8z" fill="#FFD35C"/><path d="M15 43c6 9 28 9 34 0l-4 2-3-3-4 4-4-4-4 4-4-4-4 4-3-3z" fill="#FFD35C"/></svg></span>` : ""}</div>
       <p class="siste">${T("Siste:")} <button class="last-link" data-vis="${siste.id}">${esc(siste.tittel)}</button>, ${esc(siste.stad)}, ${naar(siste._o)}.</p>`;
     if (sisteBrann && sisteBrann !== siste) html += `<p class="siste">${T("Siste brann:")} <button class="last-link" data-vis="${sisteBrann.id}">${esc(sisteBrann.tittel)}</button>, ${datoKort(sisteBrann._o)} (${T("{d} sidan", {d:fl(I_DAG.dn - sisteBrann._dn, "dag", "dagar")})}).</p>`;
   } else {
     html += `<h1 class="eyebrow">${T("Dagar sidan siste hending")}</h1><div class="big">–</div><p class="siste">${T("Ingen hendingar i dataa.")}</p>`;
   }
   $("#counter").innerHTML = html;
+  // Halloween-pynt berre når ingenting pågår
+  const pynt = HALLOWEEN && !aktive.length;
+  document.body.classList.toggle("halloween", pynt);
+  document.querySelector(".hero .nett")?.remove(); document.querySelector(".hero .edderkopp")?.remove();
+  document.querySelector(".henge")?.remove();
+  if (pynt) $("#counter").insertAdjacentHTML("beforebegin", `<div class="henge" aria-hidden="true"><svg viewBox="0 0 40 70"><path class="trad" d="M20 0V17"/><path d="M20 17Q11 18 9 27Q7 32 10 35Q7 39 9 43Q8 48 12 51L15 55Q20 57 25 55L28 51Q32 48 31 43Q33 39 30 35Q33 32 31 27Q29 18 20 17Z"/><circle cx="20" cy="58" r="5"/><path d="M16 60l-2.5 6.5 4.5-3.5zM24 60l2.5 6.5-4.5-3.5z"/><circle cx="18" cy="58.5" r="1" fill="#FFD35C"/><circle cx="22" cy="58.5" r="1" fill="#FFD35C"/></svg></div>`);
+  if (pynt) document.querySelector(".hero").insertAdjacentHTML("afterbegin", `<svg class="nett" viewBox="0 0 100 100" aria-hidden="true"><path d="M100 0L0 0 M100 0L6 34 M100 0L24 66 M100 0L56 92 M100 0L100 100 M82.0 0.0Q84.6 2.7 83.1 6.1Q86.6 7.9 86.4 11.8Q90.6 12.3 92.2 16.2Q96.6 15.1 100.0 18.0 M66.0 0.0Q71.0 5.1 68.0 11.6Q74.6 14.9 74.3 22.3Q82.3 23.3 85.3 30.7Q93.5 28.5 100.0 34.0 M48.0 0.0Q55.6 7.8 51.1 17.7Q61.2 22.8 60.7 34.1Q72.9 35.6 77.6 46.9Q90.1 43.5 100.0 52.0 M28.0 0.0Q38.5 10.8 32.3 24.5Q46.3 31.5 45.6 47.2Q62.4 49.4 68.9 65.0Q86.3 60.3 100.0 72.0"/></svg><div class="edderkopp" aria-hidden="true"><i></i><svg viewBox="0 0 40 40"><path d="M20 20L6 10M20 20L4 20M20 20L6 30M20 20L34 10M20 20L36 20M20 20L34 30" fill="none" stroke-width="2" stroke-linecap="round"/><circle cx="20" cy="20" r="7" stroke-width="1.5"/></svg></div>`);
 
   // Hendingar siste 100 dagar (stripa)
   const perDag = {};
@@ -2047,7 +2082,9 @@ function renderTip(){
   const el = $("#tip"), d = TEMADAG && TEMADAG[SPRAK];
   el.classList.toggle("tema", !!d);
   el.innerHTML = d ? `<div class="eyebrow">${esc(d.tittel)}</div><p>${esc(d.tekst)}</p>`
-    : `<div class="eyebrow">${T("Brannvern i {m}", {m:MND[I_DAG.m-1]})}</div><p>${T(TIPS[I_DAG.m-1])}</p>`;
+    : HALLOWEEN && I_DAG.d === 31 ? `<div class="eyebrow">${T("God halloween! 🎃")}</div><p>${T("Bruk batterilys i graskaret, og hald kostymet unna levande lys. Ha ein trygg og skummel kveld!")}</p>`
+    : `<div class="eyebrow">${T("Brannvern i {m}", {m:MND[I_DAG.m-1]})}</div><p>${T(TIPS[I_DAG.m-1])}</p>` +
+      (HALLOWEEN ? `<p style="margin-top:8px">🎃 ${T("Halloween: bruk batterilys i graskaret. Levande lys kan lett setje fyr på kostyme og pynt.")}</p>` : "");
 }
 
 /* ---- Visningar og hendingar ---- */
