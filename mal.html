@@ -395,6 +395,8 @@ button.hbar[aria-pressed="true"] .fill{background:var(--ink)}
 .info p,.info li{font-size:16px;color:var(--ink-2)}
 .info p{margin:0 0 10px}
 .info ul,.info ol{margin:0;padding-left:18px;display:grid;gap:6px}
+.info ul.kjelder{list-style:none;padding:0;gap:4px}
+.kjelder-lisens{margin:12px 0 0!important;font-size:13px!important;line-height:1.5}
 .plat{display:grid;gap:12px}
 .plat div{border-top:1px solid var(--line-2);padding-top:10px}
 .plat div:first-child{border-top:0;padding-top:0}
@@ -771,7 +773,7 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
       <button type="button" data-hopp="info-brann" aria-current="true">Ved brann</button>
       <button type="button" data-hopp="info-feil">Feil og forslag</button>
       <button type="button" data-hopp="info-heim">Legg appen på heimeskjermen</button>
-      <button type="button" data-hopp="info-kjelder">Oppdatering og kjelder</button>
+      <button type="button" data-hopp="info-kjelder">Kjelder</button>
       <button type="button" data-hopp="varsel">Få varsel på mobilen</button>
     </nav>
     <div class="info-innhald">
@@ -804,16 +806,15 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
       </div>
     </div>
     <div class="panel" id="info-kjelder">
-      <h3>Oppdatering og kjelder</h3>
+      <h3>Kjelder</h3>
       <p id="info-oppd"></p>
-      <ul>
-        <li><b>Brannstatistikk</b> (<a href="https://brannstatistikk.no/search" target="_blank" rel="noopener">brannstatistikk.no</a>, DSB): hovudkjelda. Her registrerer Stord brann og redning alle oppdraga sine, også små, men utan stad og detaljar. Automatiske brannalarmar og avbrotne utrykkingar er berre med under «Alt».</li>
-        <li><b>Politiloggen</b> (Politiet, NLOD 2.0) gir stad og kva som skjedde, og kjem ofte først: alle brannar i Stord kommune, og andre hendingar der politiet nemner brannvesenet eller nødetatane, som trafikkulykker, ulykker på sjøen og utslepp.</li>
-        <li><b>Nyheitssaker</b> frå mellom anna Radio Haugaland, Sunnhordland, Stord24, NRK og Haugesunds Avis blir funne automatisk og lenka til hendingar frå Politiloggen og brannstatistikken. Nyheiter blir aldri eigne hendingar. Ein sjeldan gong kan ei lenke vere feil.</li>
-        <li><b>Skogbrannfare</b>: rekna ut med Fire Weather Index-metoden frå vêrmodellen til Meteorologisk institutt (MET Nordic), henta via Open-Meteo.com (CC BY 4.0). Offisielle farevarsel frå Meteorologisk institutt (CC BY 4.0).</li>
-        <li><b>Kart</b>: kystlinje © OpenStreetMap-bidragsytarar (ODbL), kommunegrense og stadnamn frå Kartverket.</li>
+      <ul class="kjelder">
+        <li><b>Brannstatistikk.no</b> (DSB): alle oppdraga til brannvesenet.</li>
+        <li><b>Politiloggen</b>: stad og kva som skjedde.</li>
+        <li><b>Vêr</b>: Meteorologisk institutt (MET). Skogbrannfaren er rekna ut i appen.</li>
+        <li><b>Nyheiter</b>: berre lenker til lokale nyheitssaker.</li>
       </ul>
-      <p style="margin-top:10px">Appen viser berre det politiet har loggført. Oppdrag som berre brannvesenet handterer, som katt i tre, vasslekkasjar og automatiske brannalarmar, kjem sjeldan med. Står det «Nødetatane», har politiet ikkje nemnt brannvesenet direkte. Alvorsgraden er rekna ut frå teksten i loggen og er ikkje ei offisiell vurdering.</p>
+      <p class="sub kjelder-lisens">Ikkje ei offisiell teneste frå brannvesenet eller politiet. Alvorsgraden er rekna ut automatisk. Lisensar: Politiloggen NLOD 2.0, MET og Open-Meteo CC BY 4.0, kart © OpenStreetMap-bidragsytarar (ODbL) og Kartverket.</p>
     </div>
     <div class="panel varsel" id="varsel">
       <h3>Få varsel på mobilen</h3>
@@ -1457,6 +1458,15 @@ const OMSETJING = [
   ["Installer denne nettstaden som app", "Installer dette nettstedet som en app", "Install this site as an app"],
   [". Du finn han då i Start-menyen.", ". Du finner den da i Start-menyen.", ". You'll then find it in the Start menu."],
   ["Oppdatering og kjelder", "Oppdatering og kilder", "Updates and sources"],
+  ["Kjelder", "Kilder", "Sources"],
+  ["Nye data blir henta kvart kvarter. Sist oppdatert: <b>{t}</b>.", "Nye data hentes hvert kvarter. Sist oppdatert: <b>{t}</b>.", "New data is fetched every 15 minutes. Last updated: <b>{t}</b>."],
+  ["(DSB): alle oppdraga til brannvesenet.", "(DSB): alle oppdragene til brannvesenet.", "(DSB): all call-outs by the fire service."],
+  [": stad og kva som skjedde.", ": sted og hva som skjedde.", ": place and what happened."],
+  ["Vêr", "Vær", "Weather"],
+  [": Meteorologisk institutt (MET). Skogbrannfaren er rekna ut i appen.", ": Meteorologisk institutt (MET). Skogbrannfaren er beregnet i appen.", ": Norwegian Meteorological Institute (MET). The wildfire risk is calculated in the app."],
+  ["Nyheiter", "Nyheter", "News"],
+  [": berre lenker til lokale nyheitssaker.", ": bare lenker til lokale nyhetssaker.", ": only links to local news stories."],
+  ["Ikkje ei offisiell teneste frå brannvesenet eller politiet. Alvorsgraden er rekna ut automatisk. Lisensar: Politiloggen NLOD 2.0, MET og Open-Meteo CC BY 4.0, kart © OpenStreetMap-bidragsytarar (ODbL) og Kartverket.", "Ikke en offisiell tjeneste fra brannvesenet eller politiet. Alvorlighetsgraden er beregnet automatisk. Lisenser: Politiloggen NLOD 2.0, MET og Open-Meteo CC BY 4.0, kart © OpenStreetMap-bidragsytere (ODbL) og Kartverket.", "Not an official service from the fire service or the police. Severity is estimated automatically. Licences: Politiloggen NLOD 2.0, MET and Open-Meteo CC BY 4.0, map © OpenStreetMap contributors (ODbL) and Kartverket."],
   [", DSB): hovudkjelda. Her registrerer Stord brann og redning alle oppdraga sine, også små, men utan stad og detaljar. Automatiske brannalarmar og avbrotne utrykkingar er berre med under «Alt».", ", DSB): hovedkilden. Her registrerer Stord brann og redning alle oppdragene sine, også små, men uten sted og detaljer. Automatiske brannalarmer og avbrutte utrykninger er bare med under «Alt».", ", DSB): the main source. Stord fire and rescue logs all its call-outs here, including small ones, but without location or details. Automatic fire alarms and cancelled call-outs are only included under “All”."],
   ["(Politiet, NLOD 2.0) gir stad og kva som skjedde, og kjem ofte først: alle brannar i Stord kommune, og andre hendingar der politiet nemner brannvesenet eller nødetatane, som trafikkulykker, ulykker på sjøen og utslepp.", "(Politiet, NLOD 2.0) gir sted og hva som skjedde, og kommer ofte først: alle branner i Stord kommune, og andre hendelser der politiet nevner brannvesenet eller nødetatene, som trafikkulykker, ulykker på sjøen og utslipp.", "(the Norwegian police incident log, NLOD 2.0) gives the location and what happened, and is often first: all fires in Stord municipality, plus other incidents where the police mention the fire service or emergency services, such as traffic accidents, accidents at sea and spills."],
   ["Nyheitssaker", "Nyhetssaker", "News stories"],
@@ -1676,7 +1686,7 @@ function renderStatus(){
   $("#status-txt").innerHTML = `<span class="full">${T("Oppdatert")} </span><span${I_DAG.dn === o.dn ? ` class="full"` : ""}>${dag} </span>${T("kl.")} ${kl(o)}`;
   const neste = D.neste ? " " + T("Neste oppdatering: {t}.", {t:naar(oslo(D.neste))}) : "";
   el.title = T("Data henta frå Politiloggen {t}.", {t:naar(o)}) + neste + " " + T("Trykk for å laste sida på nytt.");
-  $("#info-oppd").innerHTML = T("Appen hentar nye data frå Politiloggen kvart kvarter. Sist oppdatert: <b>{t}</b>.", {t:naar(o)}) + neste +
+  $("#info-oppd").innerHTML = T("Nye data blir henta kvart kvarter. Sist oppdatert: <b>{t}</b>.", {t:naar(o)}) +
     (timar > 3 ? ` <b style="color:var(--fire)">${T("Dataa er meir enn tre timar gamle. Prøv å laste sida på nytt.")}</b>` : "");
 }
 
