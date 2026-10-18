@@ -763,7 +763,7 @@ def rens_hending(b):
 
 
 def rens_brannfare(bf):
-    """Kontrollerer skogbrannfaren (vêrdata frå Open-Meteo og farevarsel frå MET) før han kjem inn i sida."""
+    """Kontrollerer skogbrannfaren (vêrdata frå MET Nordic via Open-Meteo og farevarsel frå MET) før han kjem inn i sida."""
     if not isinstance(bf, dict):
         return None
     sist_regn = bf.get("sist_regn")
@@ -1117,7 +1117,7 @@ def main():
 
 
 # ---------- Skogbrannfare (Fire Weather Index frå vêrdata) ----------
-# Vêrdata frå Open-Meteo.com (CC BY 4.0), farevarsel frå MET Norway (api.met.no, CC BY 4.0).
+# Vêrdata: MET Norway sin vêrmodell MET Nordic (1 km), henta via Open-Meteo.com som har historikk (CC BY 4.0). Farevarsel frå MET Norway (api.met.no, CC BY 4.0).
 # Fire Weather Index (FWI) er det kanadiske systemet som også EU (EFFIS) brukar. Det blir rekna dag for dag
 # frå vêret kl. 12: temperatur, luftfukt, vind og nedbør siste døgn. Grensene for fareklassane er EFFIS sine.
 
@@ -1205,7 +1205,7 @@ def hent_brannfare():
         req = urllib.request.Request(
             f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}"
             "&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation"
-            "&past_days=92&forecast_days=2&timezone=Europe%2FOslo", headers=MET_UA)
+            "&past_days=92&forecast_days=2&timezone=Europe%2FOslo&models=metno_seamless", headers=MET_UA)   # berre MET sin vêrmodell (MET Nordic)
         with urllib.request.urlopen(req, timeout=30) as r:
             h = json.loads(r.read().decode("utf-8"))["hourly"]
     except Exception as feil:
