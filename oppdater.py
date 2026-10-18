@@ -1229,12 +1229,12 @@ def hent_brannfare():
         *koder_ny, fwi = fwi_dag(koder, *vals, regn, int(dag[5:7]))
         koder = tuple(koder_ny)
     klasse, prosent = fwi_prosent(fwi)
-    # Sist det regna minst 1 mm på eit døgn, og regn siste 7 dagar
+    # Sist det regna (minst 0,2 mm på eit døgn, så litt yr òg tel – 1 mm gav «2 dagar sidan» etter ein regnskur), og regn siste 7 dagar
     per_dag = {}
     for t, mm in zip(tider, h["precipitation"]):
         if t <= no_tekst and mm is not None:
             per_dag[t[:10]] = per_dag.get(t[:10], 0) + mm
-    regndagar = [d for d, mm in per_dag.items() if mm >= 1.0]
+    regndagar = [d for d, mm in per_dag.items() if mm >= 0.2]
     sist_regn = max(regndagar) if regndagar else None
     j = rad.get(no_tekst, len(tider) - 1)
     regn_7d = sum(x or 0 for x in h["precipitation"][max(0, j - 167):j + 1])
