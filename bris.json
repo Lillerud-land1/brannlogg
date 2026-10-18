@@ -1606,5 +1606,11 @@
   "type": "Unødig alarm privatmarked",
   "tid": "2026-10-18T07:32:46+00:00",
   "brannvesen": "Stord brann og redning"
+ },
+ "4970337": {
+  "id": "4970337",
+  "type": "",
+  "tid": "2026-10-18T17:41:39+00:00",
+  "brannvesen": "Stord brann og redning"
  }
 }
