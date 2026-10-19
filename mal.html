@@ -1763,8 +1763,9 @@ function renderHero(){
   $("#strip-legend").innerHTML = state.gruppe === "brann" ? `<span>${T("Fargen viser kor alvorleg brannen var.")}</span>`
     : `<span><i class="mk-b s2"></i>${T("Brann")}</span><span><i class="mk-u"></i>${T("Anna oppdrag")}</span>` + (state.gruppe === "alt" ? `<span><i class="mk-a"></i>${T("Alarm utan brann")}</span>` : "");
 
-  // I år: frå 1. januar, som på TV-sida. «Same tid i fjor» er tal frå brannstatistikken, så det står berre ved «Alt».
-  const aar = utval().filter(b => b._o.y === I_DAG.y);
+  // I år: frå 1. januar, som på TV-sida. Berre oppdrag i brannstatistikken, så talet kan samanliknast med
+  // «same tid i fjor» (som òg er derifrå). Det står berre ved «Alt».
+  const aar = utval().filter(b => b._o.y === I_DAG.y && b.bris);
   const fjor = state.gruppe === "alt" && D.fjor && D.fjor.aar === I_DAG.y - 1 ? D.fjor.tal : null;
   const snitt = (aar.length / I_DAG.m).toLocaleString(LOCALE, {maximumFractionDigits:1});
   $("#kpis").innerHTML = `<div><b>${n50}</b><span>${T(n50 === 1 ? ORD()[0] : ORD()[1])} ${T("siste {n} dagar", {n:VINDU})}</span></div>` +
