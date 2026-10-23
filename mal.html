@@ -906,7 +906,7 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
         <span class="sub" id="admin-status"></span>
       </div>
     </div>
-    <!-- MIDLERTIDIG: blir vist etter tre feil admin-kodar (sjå «Admin-sperre» i skriptet) -->
+    <!-- Blir vist etter tre feil admin-kodar (sjå «Admin-sperre» i skriptet). Teksten «Haha Simen!» er MIDLERTIDIG. -->
     <dialog class="boble" id="admin-boble" aria-labelledby="boble-tittel">
       <div class="boble-emoji" aria-hidden="true">😂🤣😆</div>
       <h2 id="boble-tittel">Haha Simen!</h2>
@@ -2361,14 +2361,17 @@ async function kopierAdmin(){
   catch (e) { const r = document.createRange(); r.selectNodeContents($("#admin-url")); getSelection().removeAllRanges(); getSelection().addRange(r);
     $("#admin-status").textContent = T("Lenka er merkt. Kopier henne med Ctrl+C."); }
 }
-/* ---- MIDLERTIDIG Admin-sperre: tre feil kodar gir ein time pause, og etter det ein ny time for kvar feil,
-   til rett kode blir skriven. Berre på denne eininga (localStorage), så det stoppar ikkje nokon som verkeleg vil prøve. ---- */
-const SPERRE = "brannlogg_admin_sperre", TIME = 36e5;
+/* ---- Admin-sperre: tre feil kodar sperrar denne eininga i 24 timar, og etter det 24 nye timar for kvar feil,
+   til rett kode blir skriven. Nettsida har ingen server, så sperra ligg i nettlesaren (localStorage): ho stoppar
+   gjetting, men ikkje nokon som tømmer nettlesaren eller les koden. Teksten «Haha Simen!» i bobla er MIDLERTIDIG –
+   når han skal bort, behald sperra og byt berre til ein nøytral tekst. ---- */
+const SPERRE = "brannlogg_admin_sperre", SPERRETID = 24 * 36e5;
 const lesSperre = () => { try { return {feil:0, til:0, ...JSON.parse(localStorage.getItem(SPERRE) || "{}")}; } catch (e) { return {feil:0, til:0}; } };
 const lagreSperre = s => { try { localStorage.setItem(SPERRE, JSON.stringify(s)); } catch (e) {} };
 function visBoble(til){
   const min = Math.max(1, Math.ceil((til - Date.now()) / 6e4));
-  $("#boble-tid").textContent = min >= 60 ? "Du kan prøve igjen om 1 time." : `Du kan prøve igjen om ${min} min.`;
+  const timar = Math.round(min / 60);
+  $("#boble-tid").textContent = min >= 60 ? `Du kan prøve igjen om ${timar} ${timar === 1 ? "time" : "timar"}.` : `Du kan prøve igjen om ${min} min.`;
   const d = $("#admin-boble");
   if (d.open) return;
   if (d.showModal) d.showModal(); else d.setAttribute("open", "");
@@ -2400,7 +2403,7 @@ $("#admin-skjema").addEventListener("submit", async e => {
   else if (!nettfeil) {
     sperre.feil++;
     if (sperre.feil < 3) $("#admin-feil").textContent = `Feil kode. ${3 - sperre.feil} forsøk igjen.`;
-    if (sperre.feil >= 3) { sperre.til = Date.now() + TIME; $("#admin-feil").hidden = true; $("#admin-kode").value = ""; visBoble(sperre.til); }
+    if (sperre.feil >= 3) { sperre.til = Date.now() + SPERRETID; $("#admin-feil").hidden = true; $("#admin-kode").value = ""; visBoble(sperre.til); }
     lagreSperre(sperre);
   }
   if (!ok) { $("#admin-kode").select(); return; }

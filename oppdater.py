@@ -5,6 +5,7 @@ Køyr:  python oppdater.py                (byggjer stordbrann.html og nettside/i
        python oppdater.py --send-ekstra  (sender ekstra.json til GitHub, som byggjer sida på nytt)
        python oppdater.py --vakt         (varsel til privat kanal om nettsida er over ein time gammal)
        python oppdater.py --vakt-test    (testmelding til den private kanalen)
+       python oppdater.py --tryggleik    (tryggleiksvakt: DNS, GitHub Pages, endringar i repoet og domenet)
        python oppdater.py --nyheiter     (byggjer og leitar i tillegg etter nyheitssaker i RSS-feedar)
 Bygginga kvart kvarter skjer i GitHub Actions (.github/workflows/oppdater.yml).
 Kjelder: Politiloggen API (Politiet, NLOD 2.0), Kartverket (adresser/stadnamn).
@@ -832,6 +833,14 @@ def vakt_send(kanal, melding):
     urllib.request.urlopen(req, timeout=30).read()
 
 
+def vakt_meldingar(kanal):
+    """Meldingane i den private kanalen dei siste 12 timane (så lenge tek ntfy vare på dei)."""
+    with urllib.request.urlopen(urllib.request.Request(f"https://ntfy.sh/{kanal}/json?poll=1&since=12h", headers=UA),
+                                timeout=30) as r:
+        meldingar = [json.loads(l) for l in r.read().decode("utf-8").splitlines() if l.strip()]
+    return [m for m in meldingar if m.get("event") == "message"]
+
+
 def vakt_varsle(feil, tekst):
     """Varsel til den private kanalen når nettsida ikkje blir oppdatert (påminning kvar 3. time),
     og éi melding når ho verkar igjen. Kva som alt er sendt, blir lese frå kanalen (ntfy tek vare på meldingar i 12 timar)."""
@@ -841,10 +850,9 @@ def vakt_varsle(feil, tekst):
         return
     siste = None
     try:
-        with urllib.request.urlopen(urllib.request.Request(f"https://ntfy.sh/{kanal}/json?poll=1&since=12h", headers=UA),
-                                    timeout=30) as r:
-            meldingar = [json.loads(l) for l in r.read().decode("utf-8").splitlines() if l.strip()]
-        siste = max((m for m in meldingar if m.get("event") == "message"), key=lambda m: m["time"], default=None)
+        # Berre meldingane om oppdateringa tel her – ikkje testmeldingar eller tryggleiksvarsel
+        siste = max((m for m in vakt_meldingar(kanal) if {"warning", "white_check_mark"} & set(m.get("tags") or [])),
+                    key=lambda m: m["time"], default=None)
     except Exception as e:
         print(f"VAKT_VARSEL: kunne ikkje lese kanalen ({e})")
     alarm = bool(siste) and "warning" in (siste.get("tags") or [])
@@ -931,9 +939,138 @@ def vakt_test():
         sys.exit("Ingen privat kanal (NTFY_VAKT / vakt_kanal.txt)")
     vakt_send(kanal, {"title": "🔔 Test frå Brannlogg-vakta",
                       "message": "Varsel er sett opp. Du får melding her om nettsida ikkje blir oppdatert på meir enn "
-                                 "ein time, og når ho verkar igjen.",
+                                 "ein time, og når ho verkar igjen. Du får òg 🚨-varsel om noko mistenkeleg skjer: "
+                                 "adressa blir flytta, nokon andre endrar koden, eller domenet held på å gå ut.",
                       "tags": ["bell"], "priority": 3, "click": NETTSIDE})
     print("VAKT_TEST: sendt")
+
+
+# ---------- Tryggleiksvakt ----------
+# Nettsida har ingen server, så det finst ingen besøkslogg å sjå i og ingen einingar å blokkere der.
+# Det som faktisk kan gå gale, er at nokon tek over domenet, GitHub Pages-oppsettet eller repoet.
+# Det blir sjekka kvart kvarter (vakt.yml, --tryggleik), og kvart nytt funn gir 🚨-varsel til den private kanalen.
+
+DOMENE = "lillerud.com"
+PAGES_VERT = "lillerud-land1.github.io."
+KJENDE_KONTOAR = {"Lillerud-land1", "github-actions[bot]", "web-flow"}   # web-flow = endringar gjorde på github.com
+BOT_FILER = {"arkiv.json", "geokode.json", "auto_kjelder.json", "varsla.json", "bris.json", "bris_utan_info.json"}
+VERNA_STIAR = (".github/", "CNAME", "nettside/CNAME")
+DOMENE_VARSEL_DAGAR = 45
+
+
+def gh_json(sti):
+    svar = subprocess.run(["gh", "api", sti], capture_output=True, text=True, encoding="utf-8", timeout=60)
+    if svar.returncode != 0:
+        raise RuntimeError(svar.stderr.strip() or f"gh api {sti} feila")
+    return json.loads(svar.stdout)
+
+
+def tryggleik_sjekk():
+    """Gir ei liste med funn (tekstar); tom liste = alt ser normalt ut.
+    Ein sjekk som ikkje kan gjennomførast (nettfeil o.l.), blir berre skriven i loggen og gir ikkje varsel."""
+    funn = []
+    vert = urllib.parse.urlsplit(NETTSIDE).hostname
+
+    # 1. DNS: adressa skal peike til GitHub Pages. Gjer ho ikkje det, kan nokon ha endra DNS hos domeneleverandøren.
+    try:
+        with urllib.request.urlopen(urllib.request.Request(f"https://dns.google/resolve?name={vert}&type=CNAME", headers=UA),
+                                    timeout=30) as r:
+            svar = json.loads(r.read())
+        mal = [a["data"].lower() for a in svar.get("Answer", []) if a.get("type") == 5]
+        if mal != [PAGES_VERT]:
+            funn.append(f"{vert} peikar ikkje lenger til GitHub Pages (DNS: {', '.join(mal) or 'ingen CNAME'}). "
+                        f"Nokon kan ha endra DNS hos domeneleverandøren.")
+    except Exception as e:
+        print(f"TRYGGLEIK: kunne ikkje sjekke DNS ({e})")
+
+    # 2. Nettsida skal kome frå GitHub og ha den strenge CSP-en (berre skript med kjend hash, ingen skriptfiler utanfrå)
+    try:
+        with urllib.request.urlopen(urllib.request.Request(f"{NETTSIDE}?t={int(datetime.now().timestamp())}", headers=UA),
+                                    timeout=30) as r:
+            server = r.headers.get("Server", "")
+            html = r.read().decode("utf-8", "replace")
+        csp = re.search(r'<meta http-equiv="Content-Security-Policy" content="([^"]+)"', html)
+        skript = re.search(r"script-src ([^;]+)", csp.group(1)) if csp else None
+        if server != "GitHub.com":
+            funn.append(f"Nettsida blir ikkje levert av GitHub lenger (Server: {server or 'ukjend'}).")
+        if not skript or any(not re.fullmatch(r"'sha256-[A-Za-z0-9+/=]+'", d) for d in skript.group(1).split()):
+            funn.append("Nettsida manglar den strenge Content-Security-Policy-en, eller han tillèt skript frå andre stader.")
+        if re.search(r"<script[^>]*\ssrc\s*=", html, re.I):
+            funn.append("Nettsida lastar inn ei skriptfil. Det skal ho aldri gjere.")
+    except Exception as e:
+        print(f"TRYGGLEIK: kunne ikkje sjekke nettsida ({e})")
+
+    # 3. GitHub Pages: eige domene og HTTPS skal vere som før. Forsvinn domenet her, kan andre ta over adressa.
+    try:
+        p = gh_json(f"repos/{REPO}/pages")
+        if p.get("cname") != vert:
+            funn.append(f"GitHub Pages har ikkje lenger {vert} som eige domene (no: {p.get('cname') or 'ingen'}).")
+        if not p.get("https_enforced"):
+            funn.append("HTTPS er ikkje lenger påkravd for nettsida i GitHub Pages.")
+    except Exception as e:
+        print(f"TRYGGLEIK: kunne ikkje sjekke GitHub Pages ({e})")
+
+    # 4. Endringar i repoet siste to timar: berre kjende kontoar, den automatiske oppdateringa berre datafiler,
+    #    og melding når arbeidsflytane blir endra (då kan ein sjå etter at det var deg)
+    try:
+        sidan = (datetime.now(timezone.utc) - timedelta(hours=2)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        for c in gh_json(f"repos/{REPO}/commits?sha=main&since={sidan}&per_page=100"):
+            kort, tittel = c["sha"][:7], c["commit"]["message"].splitlines()[0][:80]
+            konto = lambda k: c[k]["login"] if c.get(k) else f"{c['commit'][k]['name']} (utan GitHub-konto)"
+            ukjende = {konto("author"), konto("committer")} - KJENDE_KONTOAR
+            if ukjende:
+                funn.append(f"Ukjend konto ({', '.join(sorted(ukjende))}) har endra repoet: {kort} «{tittel}».")
+                continue
+            filer = {f["filename"] for f in gh_json(f"repos/{REPO}/commits/{c['sha']}").get("files", [])}
+            if konto("author") == "github-actions[bot]" and filer - BOT_FILER:
+                funn.append(f"Den automatiske oppdateringa endra andre filer enn data ({', '.join(sorted(filer - BOT_FILER))[:150]}): {kort}.")
+            elif any(f.startswith(VERNA_STIAR) for f in filer):
+                funn.append(f"Arbeidsflytane på GitHub vart endra: {kort} «{tittel}». "
+                            f"Var det ikkje deg (eller Claude), så byt GitHub-passord og sjå over repoet.")
+    except Exception as e:
+        print(f"TRYGGLEIK: kunne ikkje sjekke endringar i repoet ({e})")
+
+    # 5. Domenet: går lillerud.com ut, kan kven som helst kjøpe det og vise noko anna på adressa – og på TV-en
+    try:
+        with urllib.request.urlopen(urllib.request.Request(f"https://rdap.verisign.com/com/v1/domain/{DOMENE}", headers=UA),
+                                    timeout=30) as r:
+            hendingar = json.loads(r.read()).get("events", [])
+        ut = next((datetime.fromisoformat(h["eventDate"].replace("Z", "+00:00")) for h in hendingar
+                   if h.get("eventAction") == "expiration"), None)
+        if ut and (ut - datetime.now(timezone.utc)).days < DOMENE_VARSEL_DAGAR:
+            funn.append(f"Domenet {DOMENE} går ut {ut:%d.%m.%Y} (om {(ut - datetime.now(timezone.utc)).days} dagar). "
+                        f"Det må fornyast, elles kan andre kjøpe det.")
+        elif ut:
+            print(f"TRYGGLEIK: {DOMENE} går ut {ut:%d.%m.%Y}")
+    except Exception as e:
+        print(f"TRYGGLEIK: kunne ikkje sjekke domenet ({e})")
+    return funn
+
+
+def tryggleik():
+    """Tryggleiksvakta (vakt.yml, --tryggleik): 🚨-varsel til den private kanalen for kvart funn som ikkje alt er sendt."""
+    funn = tryggleik_sjekk()
+    if not funn:
+        print("TRYGGLEIK: OK – ingenting mistenkeleg")
+        return
+    kanal = vakt_kanal()
+    if not kanal:
+        print("TRYGGLEIK: ingen privat kanal sett opp")
+    sendt = set()
+    try:
+        sendt = {m.get("message") for m in vakt_meldingar(kanal)} if kanal else set()
+    except Exception as e:
+        print(f"TRYGGLEIK: kunne ikkje lese kanalen ({e})")
+    for f in funn:
+        print(f"TRYGGLEIK_FUNN: {f}")
+        if not kanal or f in sendt:
+            continue
+        try:
+            vakt_send(kanal, {"title": "🚨 Brannlogg: sjå over dette", "message": f, "tags": ["rotating_light"],
+                              "priority": 4, "click": f"https://github.com/{REPO}/commits/main"})
+            print("TRYGGLEIK: varsel sendt")
+        except Exception as e:
+            print(f"TRYGGLEIK_FEIL: {e}")
 
 
 def sjekk():
@@ -1443,5 +1580,7 @@ if __name__ == "__main__":
         vakt()
     elif "--vakt-test" in sys.argv:
         vakt_test()
+    elif "--tryggleik" in sys.argv:
+        tryggleik()
     else:
         main()
