@@ -100,6 +100,8 @@ jobs:
 
   neste:
     # Startar neste køyring sjølv. Berre éi kjede om gongen: går det alt ei anna køyring, blir det ikkje starta fleire.
+    # Medan jobben ventar, hentar han admin-meldingar (sperre-varsel og opningskodar) frå Cloudflare-workeren
+    # kvart 10. sekund og sender dei til den private ntfy-kanalen (sjå worker/worker.js).
     needs: oppdater
     if: always()
     runs-on: ubuntu-latest
@@ -111,9 +113,17 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
     steps:
-      - name: Vent 13 minutt og start neste køyring
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+
+      - name: Vent 13 minutt (og send admin-meldingar vidare) og start neste køyring
+        env:
+          NTFY_VAKT: ${{ secrets.NTFY_VAKT }}
+          HENT_NOKKEL: ${{ secrets.HENT_NOKKEL }}
         run: |
-          sleep 780
+          slutt=$(( $(date +%s) + 780 ))
+          python3 oppdater.py --admin-meldingar 780 || echo "Admin-meldingane feila – ventar vidare"
+          rest=$(( slutt - $(date +%s) ))
+          if [ "$rest" -gt 0 ]; then sleep "$rest"; fi
           andre=$(gh run list --workflow oppdater.yml --limit 20 --json databaseId,status \
             -q '[.[] | select(.databaseId != ${{ github.run_id }}) | select(.status != "completed")] | length')
           if [ "$andre" = "0" ]; then

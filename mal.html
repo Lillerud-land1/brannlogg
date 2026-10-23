@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <title>Brannlogg Stord</title>
 <!-- Berre skripta i sida får køyre (hashane blir fylte inn av oppdater.py) -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src __SKRIPT_HASHAR__; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; child-src 'self'; base-uri 'none'; form-action 'self'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src __SKRIPT_HASHAR__; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://brannlogg-admin.brannlogg-admin.workers.dev; manifest-src 'self'; worker-src 'self'; child-src 'self'; base-uri 'none'; form-action 'self'; object-src 'none'">
 <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#121A22" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -935,7 +935,7 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
     <div class="panel">
       <button type="button" class="btn jur-tilbake" data-tilbake="1">← Tilbake</button>
       <h2 class="h2">Personvern</h2>
-      <div class="jur-tekst" data-sprak="nn"><p class="sub">Sist oppdatert 8. oktober 2026</p>
+      <div class="jur-tekst" data-sprak="nn"><p class="sub">Sist oppdatert 23. oktober 2026</p>
 <p><b>Kort sagt:</b> Brannlogg Stord har ingen konto, ingen informasjonskapslar (cookies), ingen sporing eller statistikk over brukarar og ingen reklame.</p>
 <h3>Kven står bak</h3>
 <p>Brannlogg Stord er ei gratis, privat nettside laga av Leander Wågen Lillerud. Ho er ikkje ein offisiell teneste frå Politiet, brannvesenet eller Stord kommune. Kontakt: <a href="mailto:brannloggstord@gmail.com">brannloggstord@gmail.com</a>.</p>
@@ -945,6 +945,8 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
 <ul><li><b>GitHub</b> (GitHub Pages) driv nettstaden. Som for alle nettstader får dei IP-adressa di og informasjon om nettlesaren når sida blir lasta, til drift og tryggleik.</li>
 <li><b>Google Fonts</b>: Skrifttypane blir henta frå Google, som då får IP-adressa di.</li></ul>
 <p>Eg får ikkje tilgang til desse opplysningane. Sjå personvernerklæringane til GitHub og Google.</p>
+<h3>Admin-tilgang</h3>
+<p>Skriv nokon feil admin-kode tre gonger, eller ber om kode for å opne sperra, får eg ei melding gjennom Cloudflare (Cloudflare Workers), GitHub og ntfy. Meldinga seier omtrent kvar eininga er (fylke og land) og kva slags eining og nettlesar det er. IP-adressa blir ikkje send til meg og blir ikkje lagra. Dette gjeld berre admin-feltet under Innstillingar.</p>
 <h3>Opplysningar om hendingar</h3>
 <p>Sida viser offentlege opplysningar frå Politiloggen (Politiet, NLOD 2.0) og brannstatistikk.no (DSB), vêrdata frå MET Norway og Open-Meteo, og lenker til nyheitssaker. Tekstane frå politiet og overskriftene på nyheitssaker kan nemne stader og hendingar. Meiner du at noko på sida gjeld deg og bør rettast eller fjernast, ta kontakt.</p>
 <h3>Varsel på mobilen</h3>
@@ -956,7 +958,7 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
 <h3>Endringar</h3>
 <p>Denne erklæringa kan bli endra. Datoen øvst viser siste endring.</p>
       </div>
-      <div class="jur-tekst" data-sprak="nb" hidden><p class="sub">Sist oppdatert 8. oktober 2026</p>
+      <div class="jur-tekst" data-sprak="nb" hidden><p class="sub">Sist oppdatert 23. oktober 2026</p>
 <p><b>Kort sagt:</b> Brannlogg Stord har ingen konto, ingen informasjonskapsler (cookies), ingen sporing eller statistikk over brukere og ingen reklame.</p>
 <h3>Hvem står bak</h3>
 <p>Brannlogg Stord er en gratis, privat nettside laget av Leander Wågen Lillerud. Den er ikke en offisiell tjeneste fra Politiet, brannvesenet eller Stord kommune. Kontakt: <a href="mailto:brannloggstord@gmail.com">brannloggstord@gmail.com</a>.</p>
@@ -966,6 +968,8 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
 <ul><li><b>GitHub</b> (GitHub Pages) drifter nettstedet. Som for alle nettsteder får de IP-adressen din og informasjon om nettleseren når siden lastes, for drift og sikkerhet.</li>
 <li><b>Google Fonts</b>: Skrifttypene hentes fra Google, som da får IP-adressen din.</li></ul>
 <p>Jeg får ikke tilgang til disse opplysningene. Se personvernerklæringene til GitHub og Google.</p>
+<h3>Admin-tilgang</h3>
+<p>Skriver noen feil admin-kode tre ganger, eller ber om kode for å åpne sperren, får jeg en melding gjennom Cloudflare (Cloudflare Workers), GitHub og ntfy. Meldingen sier omtrent hvor enheten er (fylke og land) og hva slags enhet og nettleser det er. IP-adressen sendes ikke til meg og lagres ikke. Dette gjelder bare admin-feltet under Innstillinger.</p>
 <h3>Opplysninger om hendelser</h3>
 <p>Siden viser offentlige opplysninger fra Politiloggen (Politiet, NLOD 2.0) og brannstatistikk.no (DSB), værdata fra MET Norway og Open-Meteo, og lenker til nyhetssaker. Tekstene fra politiet og overskriftene på nyhetssaker kan nevne steder og hendelser. Mener du at noe på siden gjelder deg og bør rettes eller fjernes, ta kontakt.</p>
 <h3>Varsel på mobilen</h3>
@@ -977,7 +981,7 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
 <h3>Endringer</h3>
 <p>Denne erklæringen kan bli endret. Datoen øverst viser siste endring.</p>
       </div>
-      <div class="jur-tekst" data-sprak="en" hidden><p class="sub">Last updated 8 October 2026</p>
+      <div class="jur-tekst" data-sprak="en" hidden><p class="sub">Last updated 23 October 2026</p>
 <p><b>In short:</b> Brannlogg Stord has no accounts, no cookies, no tracking or user statistics, and no ads.</p>
 <h3>Who runs it</h3>
 <p>Brannlogg Stord is a free, private website made by Leander Wågen Lillerud. It is not an official service of the police, the fire service or Stord municipality. Contact: <a href="mailto:brannloggstord@gmail.com">brannloggstord@gmail.com</a>.</p>
@@ -987,6 +991,8 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
 <ul><li><b>GitHub</b> (GitHub Pages) hosts the website. As with any website, they receive your IP address and browser information when the page loads, for operation and security.</li>
 <li><b>Google Fonts</b>: The fonts are loaded from Google, which then receives your IP address.</li></ul>
 <p>I do not have access to this information. See the privacy policies of GitHub and Google.</p>
+<h3>Admin access</h3>
+<p>If someone enters a wrong admin code three times, or asks for a code to unlock it, I get a message through Cloudflare (Cloudflare Workers), GitHub and ntfy. The message says roughly where the device is (county and country) and what kind of device and browser it is. The IP address is not sent to me and is not stored. This only applies to the admin field under Settings.</p>
 <h3>Information about incidents</h3>
 <p>The site shows public information from Politiloggen (Norwegian Police, NLOD 2.0) and brannstatistikk.no (DSB), weather data from MET Norway and Open-Meteo, and links to news stories. Police texts and news headlines may mention places and incidents. If you think something on the site concerns you and should be corrected or removed, please get in touch.</p>
 <h3>Phone notifications</h3>
@@ -1554,7 +1560,7 @@ const OMSETJING = [
   ["Send kode til eigaren", "Send kode til eieren", "Send code to the owner"],
   ["Kode frå eigaren", "Kode fra eieren", "Code from the owner"],
   ["Sender …", "Sender …", "Sending …"],
-  ["Koden er send til eigaren og gjeld i 10 minutt.", "Koden er sendt til eieren og gjelder i 10 minutter.", "The code has been sent to the owner and is valid for 10 minutes."],
+  ["Eigaren får koden på mobilen om litt. Han gjeld i 15 minutt.", "Eieren får koden på mobilen om litt. Den gjelder i 15 minutter.", "The owner will get the code on their phone shortly. It is valid for 15 minutes."],
   ["For mange førespurnader. Vent litt og prøv igjen.", "For mange forespørsler. Vent litt og prøv igjen.", "Too many requests. Wait a little and try again."],
   ["Koden har 6 siffer.", "Koden har 6 siffer.", "The code has 6 digits."],
   ["Opna! Du har tre nye forsøk.", "Åpnet! Du har tre nye forsøk.", "Unlocked! You have three new attempts."],
@@ -2398,9 +2404,10 @@ async function kopierAdmin(){
    til rett kode blir skriven. Nettsida har ingen server, så sperra ligg i nettlesaren (localStorage): ho stoppar
    gjetting, men ikkje nokon som tømmer nettlesaren eller les koden.
    Opning: ein liten Cloudflare-worker (mappa worker/) varslar eigaren i den private ntfy-kanalen når nokon blir sperra,
-   og sender ein eingongskode dit om nokon ber om det. Rett kode gir tre nye forsøk. Tom OPNE_URL = utan varsel og knapp. ---- */
+   og sender ein eingongskode dit om nokon ber om det (via ein kø som GitHub hentar kvart 10. sekund, så det kan ta
+   litt tid). Rett kode gir tre nye forsøk. Tom OPNE_URL = utan varsel og knapp. OPNE_URL må òg stå i connect-src. ---- */
 const SPERRE = "brannlogg_admin_sperre", SPERRETID = 24 * 36e5;
-const OPNE_URL = "";
+const OPNE_URL = "https://brannlogg-admin.brannlogg-admin.workers.dev";
 async function opneKall(sti, data){
   const r = await fetch(OPNE_URL + sti, {method:"POST", headers:{"Content-Type":"text/plain"}, body:JSON.stringify(data || {})});
   const svar = await r.json().catch(() => ({}));
@@ -2428,7 +2435,7 @@ $("#boble-be-kode").addEventListener("click", async () => {
   try {
     opneToken = (await opneKall("/kode")).token;
     $("#boble-skjema").hidden = false; $("#boble-kode").value = ""; $("#boble-kode").focus();
-    bobleMelding(T("Koden er send til eigaren og gjeld i 10 minutt."));
+    bobleMelding(T("Eigaren får koden på mobilen om litt. Han gjeld i 15 minutt."));
   } catch (feil) {
     bobleMelding(T(feil.status === 429 ? "For mange førespurnader. Vent litt og prøv igjen." : "Fekk ikkje kontakt. Prøv igjen."), true);
   }

@@ -6,6 +6,7 @@ Køyr:  python oppdater.py                (byggjer stordbrann.html og nettside/i
        python oppdater.py --vakt         (varsel til privat kanal om nettsida er over ein time gammal)
        python oppdater.py --vakt-test    (testmelding til den private kanalen)
        python oppdater.py --tryggleik    (tryggleiksvakt: DNS, GitHub Pages, endringar i repoet og domenet)
+       python oppdater.py --admin-meldingar 780  (hentar sperre-varsel og opningskodar frå Cloudflare i 780 s)
        python oppdater.py --nyheiter     (byggjer og leitar i tillegg etter nyheitssaker i RSS-feedar)
 Bygginga kvart kvarter skjer i GitHub Actions (.github/workflows/oppdater.yml).
 Kjelder: Politiloggen API (Politiet, NLOD 2.0), Kartverket (adresser/stadnamn).
@@ -18,6 +19,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 import urllib.parse
 import urllib.request
 from datetime import datetime, timedelta, timezone
@@ -1047,6 +1049,49 @@ def tryggleik_sjekk():
     return funn
 
 
+ADMIN_TENESTE = "https://brannlogg-admin.brannlogg-admin.workers.dev"   # Cloudflare-workeren i worker/
+
+
+def admin_meldingar(sekund):
+    """Hentar køen med admin-meldingar (sperre-varsel og opningskodar) frå Cloudflare-workeren kvart 10. sekund
+    i `sekund` sekund og sender dei til den private ntfy-kanalen. ntfy.sh tek ikkje imot meldingar direkte frå
+    Cloudflare (dagskvote per IP-adresse, som Cloudflare deler med mange), men gjer det frå GitHub.
+    Køyrer i jobben «neste» i oppdater.yml, som elles berre ventar. Innhaldet (koden) blir aldri skrive i loggen."""
+    nokkel, kanal = os.environ.get("HENT_NOKKEL", "").strip(), vakt_kanal()
+    slutt = time.monotonic() + sekund
+    if not nokkel or not kanal:
+        print("ADMIN: manglar HENT_NOKKEL eller privat kanal – ventar berre")
+        time.sleep(max(0, sekund))
+        return
+    feil = 0
+    while True:
+        try:
+            req = urllib.request.Request(f"{ADMIN_TENESTE}/hent", method="POST",
+                                         headers={"Authorization": f"Bearer {nokkel}", **UA})
+            with urllib.request.urlopen(req, timeout=20) as r:
+                liste = json.loads(r.read())
+            for m in liste:
+                melding = {k: m[k] for k in ("title", "message", "tags", "priority") if k in m}
+                for forsok in range(3):
+                    try:
+                        vakt_send(kanal, {**melding, "click": NETTSIDE})
+                        break
+                    except Exception as e:
+                        print(f"ADMIN_FEIL: ntfy ({type(e).__name__}), forsøk {forsok + 1}")
+                        time.sleep(3)
+            if liste:
+                print(f"ADMIN: sende {len(liste)} melding(ar) vidare til den private kanalen")
+            feil = 0
+        except Exception as e:
+            feil += 1
+            if feil in (1, 10, 50):
+                print(f"ADMIN_FEIL: kunne ikkje hente køen ({type(e).__name__}: {str(e)[:80]})")
+        rest = slutt - time.monotonic()
+        if rest <= 0:
+            break
+        time.sleep(min(10, rest))
+
+
 def tryggleik():
     """Tryggleiksvakta (vakt.yml, --tryggleik): 🚨-varsel til den private kanalen for kvart funn som ikkje alt er sendt."""
     funn = tryggleik_sjekk()
@@ -1582,5 +1627,7 @@ if __name__ == "__main__":
         vakt_test()
     elif "--tryggleik" in sys.argv:
         tryggleik()
+    elif "--admin-meldingar" in sys.argv:
+        admin_meldingar(int(sys.argv[sys.argv.index("--admin-meldingar") + 1]))
     else:
         main()

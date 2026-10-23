@@ -1,0 +1,38 @@
+# Cloudflare Worker for opning av admin-sperra i Brannlogg Stord (sjå worker.js og README, bolk 11).
+# Hemmelegheitene KODE_NOKKEL og HENT_NOKKEL står ikkje her – dei blir lagde inn med «npx wrangler secret put».
+name = "brannlogg-admin"
+main = "worker.js"
+compatibility_date = "2025-09-01"
+workers_dev = true
+preview_urls = false
+
+# Ingen logging av førespurnader (dei inneheld IP-adresser)
+[observability]
+enabled = false
+
+# Kvar eining (IP): 3 førespurnader i minuttet per type
+[[ratelimits]]
+name = "GRENSE_EINING"
+namespace_id = "4614"
+
+  [ratelimits.simple]
+  limit = 3
+  period = 60
+
+# Alle saman: 6 meldingar til ntfy i minuttet
+[[ratelimits]]
+name = "GRENSE_ALLE"
+namespace_id = "4615"
+
+  [ratelimits.simple]
+  limit = 6
+  period = 60
+
+# Køen med meldingar til eigaren (GitHub hentar han og sender til ntfy – sjå worker.js)
+[[durable_objects.bindings]]
+name = "KO"
+class_name = "Ko"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Ko"]
