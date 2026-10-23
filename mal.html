@@ -510,16 +510,23 @@ button.hbar[aria-pressed="true"] .fill{background:var(--ink)}
 /* På PC ligg stripa øvst til høgre, så der heng berre edderkoppen. Spindelvevet går i hjørnet nede til høgre. */
 @media (min-width:721px){ .halloween .strip-head{padding-right:64px} .hero .nett{top:auto;bottom:0;width:120px;height:120px;transform:scaleY(-1)} .hero .edderkopp{right:22px} .hero .edderkopp i{height:22px} }
 
-/* MIDLERTIDIG: boble etter tre feil admin-kodar */
+/* Boble etter tre feil admin-kodar */
 dialog.boble{border:0;padding:30px 26px 24px;width:min(92vw,420px);overflow:visible;text-align:center;border-radius:28px;
   background:var(--surface);color:var(--ink);box-shadow:0 24px 70px rgba(0,0,0,.4);animation:boble-inn .45s cubic-bezier(.2,1.6,.4,1)}
 dialog.boble::backdrop{background:rgba(10,15,20,.6)}
 dialog.boble::after{content:"";position:absolute;left:50%;bottom:-18px;margin-left:-20px;border:20px solid transparent;border-bottom:0;border-top-color:var(--surface)}
 .boble-emoji{font-size:64px;line-height:1.1;letter-spacing:4px}
-dialog.boble h2{font-size:32px;font-weight:700;margin-top:10px}
+dialog.boble h2{font-size:25px;line-height:1.2;font-weight:700;margin-top:10px}
 dialog.boble p{margin:8px 0 0;font-size:19px;color:var(--ink-2)}
 dialog.boble .sub{font-size:15px;color:var(--muted)}
 dialog.boble .btn-lagre{width:100%;margin-top:20px}
+.boble-opne{display:grid;gap:10px;justify-items:center;margin-top:16px;padding-top:14px;border-top:1px solid var(--line-2)}
+.boble-opne .sub{margin:0}
+.boble-opne .admin-kode{justify-content:center}
+.boble-opne .admin-kode input{width:130px;text-align:center;letter-spacing:.3em}
+.boble-melding{margin:0;font-size:14.5px;font-weight:600;color:var(--ink-2)}
+.boble-melding:empty{display:none}
+.boble-melding.feil{color:var(--fire)}
 @keyframes boble-inn{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
 .innst-endra{font-size:14px;font-weight:600;color:var(--std2)}
 @media (min-width:1000px){ .innst-lagre{bottom:16px} .btn-lagre{flex:0 1 280px} }
@@ -906,12 +913,21 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
         <span class="sub" id="admin-status"></span>
       </div>
     </div>
-    <!-- Blir vist etter tre feil admin-kodar (sjå «Admin-sperre» i skriptet). Teksten «Haha Simen!» er MIDLERTIDIG. -->
+    <!-- Blir vist etter tre feil admin-kodar (sjå «Admin-sperre» i skriptet) -->
     <dialog class="boble" id="admin-boble" aria-labelledby="boble-tittel">
-      <div class="boble-emoji" aria-hidden="true">😂🤣😆</div>
-      <h2 id="boble-tittel">Haha Simen!</h2>
-      <p>Eg er eit steg framfor deg 😎</p>
+      <div class="boble-emoji" aria-hidden="true">🔒</div>
+      <h2 id="boble-tittel">Ver venleg og prøv igjen seinare</h2>
+      <p>Admin-tilgangen er sperra på denne eininga etter tre feil kodar.</p>
       <p class="sub" id="boble-tid"></p>
+      <div class="boble-opne" id="boble-opne" hidden>
+        <p class="sub">Tasta du feil ved eit uhell? Eigaren av sida kan få ein kode som gir tre nye forsøk.</p>
+        <button type="button" class="btn" id="boble-be-kode">Send kode til eigaren</button>
+        <form class="admin-kode" id="boble-skjema" autocomplete="off" hidden>
+          <input id="boble-kode" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" aria-label="Kode frå eigaren" placeholder="Kode">
+          <button type="submit" class="btn">Opne</button>
+        </form>
+        <p class="boble-melding" id="boble-melding" role="status"></p>
+      </div>
       <button type="button" class="btn-lagre" id="boble-lukk">OK</button>
     </dialog>
   </section>
@@ -1527,6 +1543,23 @@ const OMSETJING = [
   ["Opne", "Åpne", "Open"],
   ["Feil kode.", "Feil kode.", "Wrong code."],
   ["Fekk ikkje kontakt. Prøv igjen.", "Fikk ikke kontakt. Prøv igjen.", "Could not connect. Try again."],
+  ["Feil kode. {n} forsøk igjen.", "Feil kode. {n} forsøk igjen.", "Wrong code. {n} attempts left."],
+  ["Feil kode. 1 forsøk igjen.", "Feil kode. 1 forsøk igjen.", "Wrong code. 1 attempt left."],
+  ["Ver venleg og prøv igjen seinare", "Vennligst prøv igjen senere", "Please try again later"],
+  ["Admin-tilgangen er sperra på denne eininga etter tre feil kodar.", "Admin-tilgangen er sperret på denne enheten etter tre feil koder.", "Admin access is locked on this device after three wrong codes."],
+  ["Du kan prøve igjen om 1 time.", "Du kan prøve igjen om 1 time.", "You can try again in 1 hour."],
+  ["Du kan prøve igjen om {n} timar.", "Du kan prøve igjen om {n} timer.", "You can try again in {n} hours."],
+  ["Du kan prøve igjen om {n} min.", "Du kan prøve igjen om {n} min.", "You can try again in {n} min."],
+  ["Tasta du feil ved eit uhell? Eigaren av sida kan få ein kode som gir tre nye forsøk.", "Tastet du feil ved et uhell? Eieren av siden kan få en kode som gir tre nye forsøk.", "Typed it wrong by accident? The owner of the site can get a code that gives three new attempts."],
+  ["Send kode til eigaren", "Send kode til eieren", "Send code to the owner"],
+  ["Kode frå eigaren", "Kode fra eieren", "Code from the owner"],
+  ["Sender …", "Sender …", "Sending …"],
+  ["Koden er send til eigaren og gjeld i 10 minutt.", "Koden er sendt til eieren og gjelder i 10 minutter.", "The code has been sent to the owner and is valid for 10 minutes."],
+  ["For mange førespurnader. Vent litt og prøv igjen.", "For mange forespørsler. Vent litt og prøv igjen.", "Too many requests. Wait a little and try again."],
+  ["Koden har 6 siffer.", "Koden har 6 siffer.", "The code has 6 digits."],
+  ["Opna! Du har tre nye forsøk.", "Åpnet! Du har tre nye forsøk.", "Unlocked! You have three new attempts."],
+  ["For mange forsøk. Vent litt og prøv igjen.", "For mange forsøk. Vent litt og prøv igjen.", "Too many attempts. Wait a little and try again."],
+  ["Feil eller utgått kode.", "Feil eller utgått kode.", "Wrong or expired code."],
   ["Kopier lenka", "Kopier lenken", "Copy link"],
   ["Opne infoskjermen", "Åpne infoskjermen", "Open info screen"],
   ["Lenka er kopiert. Lim henne inn i adresselinja i nettlesaren.", "Lenken er kopiert. Lim den inn i adressefeltet i nettleseren.", "The link is copied. Paste it into the browser's address bar."],
@@ -2363,20 +2396,61 @@ async function kopierAdmin(){
 }
 /* ---- Admin-sperre: tre feil kodar sperrar denne eininga i 24 timar, og etter det 24 nye timar for kvar feil,
    til rett kode blir skriven. Nettsida har ingen server, så sperra ligg i nettlesaren (localStorage): ho stoppar
-   gjetting, men ikkje nokon som tømmer nettlesaren eller les koden. Teksten «Haha Simen!» i bobla er MIDLERTIDIG –
-   når han skal bort, behald sperra og byt berre til ein nøytral tekst. ---- */
+   gjetting, men ikkje nokon som tømmer nettlesaren eller les koden.
+   Opning: ein liten Cloudflare-worker (mappa worker/) varslar eigaren i den private ntfy-kanalen når nokon blir sperra,
+   og sender ein eingongskode dit om nokon ber om det. Rett kode gir tre nye forsøk. Tom OPNE_URL = utan varsel og knapp. ---- */
 const SPERRE = "brannlogg_admin_sperre", SPERRETID = 24 * 36e5;
+const OPNE_URL = "";
+async function opneKall(sti, data){
+  const r = await fetch(OPNE_URL + sti, {method:"POST", headers:{"Content-Type":"text/plain"}, body:JSON.stringify(data || {})});
+  const svar = await r.json().catch(() => ({}));
+  if (!r.ok) throw Object.assign(new Error(svar.feil || r.status), {status:r.status});
+  return svar;
+}
+let opneToken = "";
+const bobleMelding = (t, feil) => { const m = $("#boble-melding"); m.textContent = t; m.classList.toggle("feil", !!feil); };
 const lesSperre = () => { try { return {feil:0, til:0, ...JSON.parse(localStorage.getItem(SPERRE) || "{}")}; } catch (e) { return {feil:0, til:0}; } };
 const lagreSperre = s => { try { localStorage.setItem(SPERRE, JSON.stringify(s)); } catch (e) {} };
 function visBoble(til){
   const min = Math.max(1, Math.ceil((til - Date.now()) / 6e4));
   const timar = Math.round(min / 60);
-  $("#boble-tid").textContent = min >= 60 ? `Du kan prøve igjen om ${timar} ${timar === 1 ? "time" : "timar"}.` : `Du kan prøve igjen om ${min} min.`;
+  $("#boble-tid").textContent = T(min >= 60 ? (timar === 1 ? "Du kan prøve igjen om 1 time." : "Du kan prøve igjen om {n} timar.") : "Du kan prøve igjen om {n} min.", {n:min >= 60 ? timar : min});
+  $("#boble-opne").hidden = !OPNE_URL;
   const d = $("#admin-boble");
   if (d.open) return;
   if (d.showModal) d.showModal(); else d.setAttribute("open", "");
 }
-$("#boble-lukk").addEventListener("click", () => { const d = $("#admin-boble"); d.close ? d.close() : d.removeAttribute("open"); });
+const lukkBoble = () => { const d = $("#admin-boble"); d.close ? d.close() : d.removeAttribute("open"); };
+$("#boble-lukk").addEventListener("click", lukkBoble);
+$("#boble-be-kode").addEventListener("click", async () => {
+  const knapp = $("#boble-be-kode");
+  knapp.disabled = true; bobleMelding(T("Sender …"));
+  try {
+    opneToken = (await opneKall("/kode")).token;
+    $("#boble-skjema").hidden = false; $("#boble-kode").value = ""; $("#boble-kode").focus();
+    bobleMelding(T("Koden er send til eigaren og gjeld i 10 minutt."));
+  } catch (feil) {
+    bobleMelding(T(feil.status === 429 ? "For mange førespurnader. Vent litt og prøv igjen." : "Fekk ikkje kontakt. Prøv igjen."), true);
+  }
+  knapp.disabled = false;
+});
+$("#boble-skjema").addEventListener("submit", async e => {
+  e.preventDefault();
+  const kode = $("#boble-kode").value.replace(/\D/g, ""), knapp = $("#boble-skjema button");
+  if (kode.length !== 6 || knapp.disabled) { bobleMelding(T("Koden har 6 siffer."), true); return; }
+  knapp.disabled = true;
+  try {
+    await opneKall("/sjekk", {token:opneToken, kode});
+    lagreSperre({feil:0, til:0});
+    bobleMelding(T("Opna! Du har tre nye forsøk."));
+    $("#boble-skjema").hidden = true;
+    setTimeout(() => { lukkBoble(); $("#admin-feil").hidden = true; $("#admin-kode").focus(); }, 1400);
+  } catch (feil) {
+    bobleMelding(T(feil.status === 429 ? "For mange forsøk. Vent litt og prøv igjen." : feil.status === 403 ? "Feil eller utgått kode." : "Fekk ikkje kontakt. Prøv igjen."), true);
+    $("#boble-kode").select();
+  }
+  knapp.disabled = false;
+});
 
 $("#admin-skjema").addEventListener("submit", async e => {
   e.preventDefault();
@@ -2402,8 +2476,13 @@ $("#admin-skjema").addEventListener("submit", async e => {
   if (ok) lagreSperre({feil:0, til:0});
   else if (!nettfeil) {
     sperre.feil++;
-    if (sperre.feil < 3) $("#admin-feil").textContent = `Feil kode. ${3 - sperre.feil} forsøk igjen.`;
-    if (sperre.feil >= 3) { sperre.til = Date.now() + SPERRETID; $("#admin-feil").hidden = true; $("#admin-kode").value = ""; visBoble(sperre.til); }
+    if (sperre.feil < 3) $("#admin-feil").textContent = T(sperre.feil === 2 ? "Feil kode. 1 forsøk igjen." : "Feil kode. {n} forsøk igjen.", {n:3 - sperre.feil});
+    if (sperre.feil >= 3) {
+      sperre.til = Date.now() + SPERRETID; $("#admin-feil").hidden = true; $("#admin-kode").value = "";
+      opneToken = ""; $("#boble-skjema").hidden = true; bobleMelding("");
+      if (OPNE_URL) opneKall("/sperra").catch(() => {});   // varsel til eigaren
+      visBoble(sperre.til);
+    }
     lagreSperre(sperre);
   }
   if (!ok) { $("#admin-kode").select(); return; }
