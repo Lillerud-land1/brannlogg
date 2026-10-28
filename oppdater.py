@@ -453,8 +453,15 @@ def hent_bris():
     return list(lagra.values())
 
 
-def hent_fjor():
-    """Talet på oppdrag i brannstatistikken frå 1. januar i fjor til same dato i fjor (til TV-sida).
+def hent_fjor(bris=()):
+    """Talet på oppdrag i brannstatistikken frå 1. januar i fjor til same dato i fjor («same tid i fjor»).
+
+    Brannstatistikken gir av og til ufullstendige svar: 28.10.2026 kom berre 26 av 232 oppdrag i nokre timar,
+    og då stod «26» på TV-en på brannstasjonen. Difor blir talet kontrollert før det blir brukt:
+    - Det kan ikkje falle meir enn 10 % under sist godkjende tal same år (talet veks utover året). Det sist
+      godkjende talet ligg i fjor.json og blir brukt når eit nytt svar blir avvist eller brannstatistikken ikkje svarar.
+    - Finst det ikkje noko godkjent tal for året (første køyring eller nytt år), må talet vere minst halvparten
+      av talet i år så langt (frå arkivet `bris`). Elles blir det ikkje vist (sidene viser då snitt per månad).
     Gir None om det ikkje går – det skal aldri stoppe bygginga."""
     oslo = ZoneInfo("Europe/Oslo")
     idag = datetime.now(oslo).date()
@@ -463,15 +470,29 @@ def hent_fjor():
     except ValueError:                      # 29. februar
         same_dag = idag.replace(year=idag.year - 1, day=28)
     start = same_dag.replace(month=1, day=1)
+    lagra = les_json("fjor.json", {})
+    forrige = lagra if lagra.get("aar") == same_dag.year and isinstance(lagra.get("tal"), int) else None
     try:
         oppdrag = bris_sok(str(start - timedelta(days=1)), str(same_dag + timedelta(days=2)))   # ein dag ekstra på kvar side (tidssone)
+        tal = sum(1 for m in oppdrag
+                  if start <= datetime.fromisoformat(m["callTimeUtc"].replace("Z", "+00:00")).astimezone(oslo).date() <= same_dag)
     except Exception as feil:
         print(f"FJOR_FEIL: {feil}")
-        return None
-    tal = sum(1 for m in oppdrag
-              if start <= datetime.fromisoformat(m["callTimeUtc"].replace("Z", "+00:00")).astimezone(oslo).date() <= same_dag)
-    print(f"FJOR: {tal} oppdrag frå {start} til {same_dag}")
-    return {"aar": same_dag.year, "tal": tal}
+        tal = None
+    if tal is not None:
+        i_aar = sum(1 for m in bris if datetime.fromisoformat(m["tid"]).astimezone(oslo).date() >= idag.replace(month=1, day=1))
+        if forrige and tal < forrige["tal"] * 0.9:
+            print(f"FJOR_AVVIST: {tal} oppdrag er for lite mot sist godkjende tal ({forrige['tal']} til {forrige['dato']}) – brukar det")
+        elif not forrige and tal < i_aar / 2:
+            print(f"FJOR_AVVIST: {tal} oppdrag er under halvparten av talet i år ({i_aar}) – viser ikkje tal for i fjor")
+        else:
+            print(f"FJOR: {tal} oppdrag frå {start} til {same_dag}")
+            skriv_json("fjor.json", {"aar": same_dag.year, "dato": str(same_dag), "tal": tal})
+            return {"aar": same_dag.year, "tal": tal}
+    if forrige:
+        print(f"FJOR: brukar sist godkjende tal, {forrige['tal']} (til {forrige['dato']})")
+        return {"aar": forrige["aar"], "tal": forrige["tal"]}
+    return None
 
 
 def kombiner_med_bris(hendingar, bris, ekstra, geocache):
@@ -955,7 +976,7 @@ def vakt_test():
 DOMENE = "lillerud.com"
 PAGES_VERT = "lillerud-land1.github.io."
 KJENDE_KONTOAR = {"Lillerud-land1", "github-actions[bot]", "web-flow"}   # web-flow = endringar gjorde på github.com
-BOT_FILER = {"arkiv.json", "geokode.json", "auto_kjelder.json", "varsla.json", "bris.json", "bris_utan_info.json"}
+BOT_FILER = {"arkiv.json", "geokode.json", "auto_kjelder.json", "varsla.json", "bris.json", "bris_utan_info.json", "fjor.json"}
 VERNA_STIAR = (".github/", "CNAME", "nettside/CNAME")
 DOMENE_VARSEL_DAGAR = 45
 
@@ -1264,7 +1285,7 @@ def main():
         "brannar": brannar,
         "kart": les_json("kart.json", None),
         "brannfare": rens_brannfare(hent_brannfare()),
-        "fjor": hent_fjor(),
+        "fjor": hent_fjor(bris),
         "temadagar": temadagar(),
     }
     json_tekst = json_til_skript(data)

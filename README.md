@@ -101,6 +101,7 @@ flowchart LR
 | `arkiv.json` | Alle tråder frå Politiloggen som er tekne vare på (Politiloggen gir berre eitt år bakover). |
 | `bris.json` | Arkiv over oppdrag frå brannstatistikken. |
 | `bris_utan_info.json` | Oppdrag berre i brannstatistikken (siste 14 dagar) som Claude kan finne stad for. |
+| `fjor.json` | Sist godkjende tal for «same tid i fjor». Brannstatistikken gir av og til ufullstendige svar (28.10.2026: 26 i staden for 232), så eit nytt tal som er meir enn 10 % lågare, blir avvist og dette brukt i staden (`hent_fjor()`). |
 | `auto_kjelder.json` | Nyheitslenker funne automatisk. |
 | `varsla.json` | Hendingar det alt er sendt varsel om (så ingen får same varsel to gonger). |
 | `geokode.json` | Mellomlager for stadfesting frå Kartverket. |
