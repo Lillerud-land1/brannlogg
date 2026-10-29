@@ -41,7 +41,7 @@ På PC fungerer fanene øvst (Liste, Kart, Statistikk, Om appen, Innstillingar) 
 | Kjelde | Kva ho gir | Merknad |
 |---|---|---|
 | **Brannstatistikk.no** (DSB/BRIS) | **Hovudkjelda.** Alle oppdrag Stord brann og redning har registrert: type og tidspunkt. | Ingen stad eller tekst. Kommunenummer 4614. |
-| **Politiloggen** (Politiet, NLOD 2.0) | Stad, tekst og tidslinje for hendingar. Kjem ofte først. | Kategorien «Brann», og andre hendingar der teksten nemner brannvesenet eller «nødetatene». |
+| **Politiloggen** (Politiet, NLOD 2.0) | Stad, tekst og tidslinje for hendingar. Kjem ofte først. | Kategorien «Brann», og andre hendingar der teksten nemner brannvesenet eller «nødetatene». Trafikk-, sjø- og redningsmeldingar som ikkje nemner brannvesenet, blir tekne med når brannstatistikken har eitt oppdrag av same slag til same tid (`politi_til_bris()`, logglinja `POLITI_BRIS`). |
 | **Nyheiter via RSS** | Berre lenker og tilleggsinfo til hendingar frå Politiloggen og brannstatistikken – aldri eigne hendingar. | Radio Haugaland, Sunnhordland, Stord24, NRK Vestland, Haugesunds Avis, Bømlo-Nytt. |
 | **Kartverket** | Stadfesting (adresse/stadnamn → koordinatar) og kommunegrense. | ws.geonorge.no |
 | **OpenStreetMap** | Kystlinja i kartet (© OpenStreetMap-bidragsytarar, ODbL). | Henta éin gong med `lag_kart.py`. |

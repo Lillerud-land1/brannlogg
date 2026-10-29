@@ -67,9 +67,12 @@ def trådtekst(t):
 
 
 def gruppe_for(t):
-    """«brann», «brannvesen» (brannvesenet nemnt), «nodetatar» (berre «nødetatene») eller None."""
+    """«brann», «brannvesen» (brannvesenet nemnt), «bris» (kopla til eit oppdrag i brannstatistikken),
+    «nodetatar» (berre «nødetatene») eller None."""
     if (t.get("category") or "").lower() == "brann":
         return "brann"
+    if t.get("bris_kopla"):
+        return "bris"
     tekst = trådtekst(t)
     if BRANNVESEN.search(tekst):
         return "brannvesen"
@@ -78,8 +81,8 @@ def gruppe_for(t):
     return None
 
 
-def hent_trådar():
-    """Alle brannar og andre utrykkingar med brannvesenet i Stord siste år."""
+def hent_trådar(alle=False):
+    """Alle brannar og andre utrykkingar med brannvesenet i Stord siste år (med alle=True: alle trådar)."""
     trådar, skip = [], 0
     while True:
         q = urllib.parse.urlencode({"Municipalities": KOMMUNE, "TimeSpanType": "LastYear",
@@ -89,7 +92,7 @@ def hent_trådar():
         if not svar.get("hasMoreResults"):
             break
         skip += 500
-    return [t for t in trådar if gruppe_for(t)]
+    return trådar if alle else [t for t in trådar if gruppe_for(t)]
 
 
 def hent_bilete(melding_id):
@@ -141,6 +144,8 @@ def stad_kandidatar(område, tekst):
         utan_veg = re.sub(r"^(E|Rv\.?|Fv\.?)\s?\d+\s+(ved|i|på)\s+", "", område, flags=re.I)
         if utan_veg != område:
             ut.append(utan_veg.strip().capitalize())
+        if "/" in område:
+            ut += [d.strip() for d in område.split("/") if d.strip()]
         if " " in område:
             ut.append(område.split()[-1])
     ut += re.findall(r"\b([A-ZÆØÅ][a-zæøå]+(?:vegen|veien|gata|gate|vei))\b", tekst)
@@ -261,7 +266,7 @@ def klassifiser_tråd(t):
         btype, tittel, alvor, flagg = klassifiser(tekst)
     else:
         btype, tittel, alvor, flagg = klassifiser_utrykking(tekst)
-    flagg["brannvesen"] = gruppe == "brannvesen"
+    flagg["brannvesen"] = gruppe in ("brannvesen", "bris")
     return ("brann" if gruppe == "brann" else "utrykking"), btype, tittel, alvor, flagg
 
 
@@ -493,6 +498,28 @@ def hent_fjor(bris=()):
         print(f"FJOR: brukar sist godkjende tal, {forrige['tal']} (til {forrige['dato']})")
         return {"aar": forrige["aar"], "tal": forrige["tal"]}
     return None
+
+
+def politi_til_bris(trådar, bris):
+    """Trådar i Politiloggen som ikkje nemner brannvesenet, men høyrer til eit oppdrag av same slag i brannstatistikken.
+
+    Politiet skriv ofte ikkje at brannvesenet er med (t.d. trafikkulykka i Vikabrekko 28.10.2026). Då stod oppdraget
+    berre som «Trafikkulykke – Stord» utan stad. Ein tråd blir kopla når politiet si melding er av same type
+    (trafikk, sjø, redning) og kom frå 15 min før til 90 min etter oppdraget – og berre når det er éin slik tråd."""
+    oppdrag = [(m, bris_kategori(m["type"])[1]) for m in bris]
+    oppdrag = [(m, btype, datetime.fromisoformat(m["tid"])) for m, btype in oppdrag if btype in ("trafikk", "sjo", "redning")]
+    nær = lambda t, t0: -15 <= (datetime.fromisoformat(t["createdOn"]) - t0).total_seconds() / 60 <= 90
+    brukt, ut = set(), []
+    for m, btype, t0 in sorted(oppdrag, key=lambda x: x[2]):
+        if any(gruppe_for(t) in ("brannvesen", "nodetatar") and nær(t, t0) for t in trådar):
+            continue    # Politiloggen har alt ein tråd med brannvesenet – den blir kopla i kombiner_med_bris
+        kand = [t for t in trådar if t["id"] not in brukt and not gruppe_for(t) and nær(t, t0)
+                and klassifiser_utrykking(trådtekst(t))[0] == btype]
+        if len(kand) == 1:
+            brukt.add(kand[0]["id"])
+            ut.append(kand[0])
+            print(f"POLITI_BRIS: {kand[0]['id']} ({(kand[0].get('area') or '').strip()}) kopla til oppdrag {m['id']} «{m['type']}»")
+    return ut
 
 
 def kombiner_med_bris(hendingar, bris, ekstra, geocache):
@@ -1200,7 +1227,9 @@ def main():
     geocache = les_json("geokode.json", {})
 
     print("Hentar frå Politiloggen …")
-    trådar = hent_trådar()
+    alle_trådar = hent_trådar(alle=True)
+    bris = hent_bris()
+    trådar = [t for t in alle_trådar if gruppe_for(t)] + [{**t, "bris_kopla": True} for t in politi_til_bris(alle_trådar, bris)]
     for t in trådar:
         arkiv[t["id"]] = t
     skriv_json("arkiv.json", arkiv)
@@ -1262,7 +1291,6 @@ def main():
         auto = les_json("auto_kjelder.json", {})
     # Hendingar kjem berre frå Politiloggen og brannstatistikken. Nyheiter blir aldri eigne hendingar
     # (ei sak kan nemne Stord utan at noko skjedde her), berre lenker og tilleggsinfo.
-    bris = hent_bris()
     brannar = kombiner_med_bris(brannar, bris, ekstra, geocache)
     skriv_json("geokode.json", geocache)
     brannar.sort(key=lambda b: b["start"], reverse=True)
