@@ -1271,7 +1271,7 @@ const OMSETJING = [
   ["Pågår", "Pågår", "Ongoing"],
   ["Avslutta", "Avsluttet", "Closed"],
   ["Bilete frå hendinga på {s}", "Bilde fra hendelsen på {s}", "Photo from the incident at {s}"],
-  ["Heile politiloggen", "Hele politiloggen", "Full police log"],
+  ["Heile oppdraget", "Hele oppdraget", "Full incident log"],
   ["melding", "melding", "message"],
   ["meldingar", "meldinger", "messages"],
   ["I media", "I media", "In the media"],
@@ -1980,7 +1980,7 @@ function kort(b){
     <div class="tags">${tags}</div>
     ${b.merknad ? `<div class="note">${ikon("i-merk")}<span>${esc(b.merknad)}</span></div>` : ""}
     ${(b.bilete || []).map(p => `<figure class="foto"><img src="${esc(p.src)}" alt="${T("Bilete frå hendinga på {s}", {s:esc(b.stad)})}" loading="lazy"><figcaption>${esc(p.kreditt)}</figcaption></figure>`).join("")}
-    ${b.kjelde_type === "media" || b.kjelde_type === "bris" ? "" : `<details class="log"${b.aktiv ? " open" : ""}><summary>${ikon("i-pil")}${T("Heile politiloggen")} <span class="mono">${fl(b.meldingar.length, "melding", "meldingar")}${var_ ? " · " + var_ : ""}</span></summary><ol class="tl">${logg}</ol></details>`}
+    ${b.kjelde_type === "media" || b.kjelde_type === "bris" ? "" : `<details class="log"${b.aktiv ? " open" : ""}><summary>${ikon("i-pil")}${T("Heile oppdraget")} <span class="mono">${fl(b.meldingar.length, "melding", "meldingar")}${var_ ? " · " + var_ : ""}</span></summary><ol class="tl">${logg}</ol></details>`}
     ${b.kjelder?.length ? `<div class="media"><div class="eyebrow">${T("I media")}</div><ul>${b.kjelder.map(k =>
       `<li><a href="${esc(trygUrl(k.url))}" target="_blank" rel="noopener"><span class="src">${esc(k.kjelde)}</span><span class="t">${esc(k.tittel)}</span>${ikon("i-ut","")}</a></li>`).join("")}</ul></div>` : ""}
     <div class="actions">

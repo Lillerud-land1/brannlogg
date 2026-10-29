@@ -312,8 +312,10 @@ def les_feed(url):
     return saker
 
 
-def finn_nyheiter(brannar, alle_saker=None, lagre=True):
-    """Koplar nyheitssaker til brannar ut frå tid, stad og brannord. Lagrar i auto_kjelder.json."""
+def finn_nyheiter(brannar, alle_saker=None, lagre=True, trådar=()):
+    """Koplar nyheitssaker til brannar ut frå tid, stad og brannord. Lagrar i auto_kjelder.json.
+    `trådar` er alle trådane i Politiloggen: ei sak som nemner staden til ein annan politimelding frå same tid,
+    handlar om den (t.d. MC-uhellet på Heiane, som 28.10.2026 vart kopla til trafikkulykka i Vikabrekko)."""
     auto = les_json("auto_kjelder.json", {}) if lagre else {}
     hent_feedar = alle_saker is None
     alle_saker = alle_saker or []
@@ -328,6 +330,11 @@ def finn_nyheiter(brannar, alle_saker=None, lagre=True):
         i_vindauge = lambda t: start - timedelta(hours=1) <= t <= start + timedelta(hours=48)
         andre = [x for x in brannar if x is not b and abs(datetime.fromisoformat(x["start"]) - start) < timedelta(hours=48)]
         stadord = [w.lower() for w in re.findall(r"[A-Za-zÆØÅæøå]{4,}", b["stad"]) if w.lower() != "stord"]
+        # Stader i andre politimeldingar rundt same tid (heile områdenamnet, så vanlege ord som «skole» ikkje tel)
+        framande = [(datetime.fromisoformat(t["createdOn"]), d.strip().lower()) for t in trådar if t["id"] != b["id"]
+                    and abs(datetime.fromisoformat(t["createdOn"]) - start) < timedelta(hours=50)
+                    for d in (t.get("area") or "").split("/") if len(d.strip()) >= 4]
+        framande = [(t, d) for t, d in framande if d not in ("stord", "leirvik") and not any(w in d for w in stadord)]
         for kjelde, krev_stad, tittel, lenke, tekst, tid in alle_saker:
             heil = f"{tittel} {tekst}".lower()
             nøkkelord = BRANNORD if b.get("gruppe", "brann") == "brann" else UTRORD
@@ -336,6 +343,8 @@ def finn_nyheiter(brannar, alle_saker=None, lagre=True):
             treff_stad = any(w in heil for w in stadord)
             treff_stord = "stord" in heil or "leirvik" in heil
             if not (treff_stad or (treff_stord and not krev_stad and not andre)):
+                continue
+            if not treff_stad and any(d in heil and t - timedelta(hours=1) <= tid <= t + timedelta(hours=48) for t, d in framande):
                 continue
             liste = auto.setdefault(b["id"], [])
             if lenke in {k["url"] for k in liste} or lenke in {k["url"] for k in b["kjelder"]} or len(liste) >= 4:
@@ -1286,7 +1295,7 @@ def main():
 
     if "--nyheiter" in sys.argv:
         saker = hent_alle_saker()
-        auto = finn_nyheiter(brannar, saker)
+        auto = finn_nyheiter(brannar, saker, trådar=alle_trådar)
     else:
         auto = les_json("auto_kjelder.json", {})
     # Hendingar kjem berre frå Politiloggen og brannstatistikken. Nyheiter blir aldri eigne hendingar
