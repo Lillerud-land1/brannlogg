@@ -1928,5 +1928,296 @@
     "type": "Published"
    }
   ]
+ },
+ "25ssg5": {
+  "id": "25ssg5",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Trafikk",
+  "municipality": "Stord",
+  "area": "Rommetveit",
+  "createdOn": "2025-12-16T11:14:22.7245502+00:00",
+  "updatedOn": "2025-12-16T13:02:28.2855885+00:00",
+  "lastMessageOn": "2025-12-16T11:14:22.7234019+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "25ssg5-0",
+    "text": "Kl 12; trafikkuhell. Bil som har kjørt inn i en grushaug. ",
+    "createdOn": "2025-12-16T11:14:22.7234019+00:00",
+    "updatedOn": "2025-12-16T11:14:22.7523811+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ],
+  "bris_kopla": true
+ },
+ "25gjw4": {
+  "id": "25gjw4",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Trafikk",
+  "municipality": "Stord",
+  "area": "",
+  "createdOn": "2025-12-28T18:30:18.8037966+00:00",
+  "updatedOn": "2025-12-28T19:18:23.4959297+00:00",
+  "lastMessageOn": "2025-12-28T19:18:15.5462521+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "25gjw4-0",
+    "text": "Politi og nødetater rykker ut til Kårevikvegen på Stord etter melding om en personbil som har kjørt ut av veien. Bilen skal ligge på siden. En person i bilen, fremstår ikke som alvorlig skadet. ",
+    "createdOn": "2025-12-28T18:30:18.8035698+00:00",
+    "updatedOn": "2025-12-28T18:30:18.8303276+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "25gjw4-1",
+    "text": "Politiet fremme på stedet. Fører kommet seg ut av kjøretøyet og blir tilsett av helse, fremstår uskadd. Skal være glatt på stedet.",
+    "createdOn": "2025-12-28T18:47:04.1679606+00:00",
+    "updatedOn": "2025-12-28T18:47:04.1679606+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "25gjw4-2",
+    "text": "Politiet ferdig på stedet. Politiet har varslet videre kommunen om glatte veger i området.",
+    "createdOn": "2025-12-28T19:18:15.5462521+00:00",
+    "updatedOn": "2025-12-28T19:18:15.5462521+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ],
+  "bris_kopla": true
+ },
+ "26cgx5": {
+  "id": "26cgx5",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Trafikk",
+  "municipality": "Stord",
+  "area": "Fitjarvegen",
+  "createdOn": "2026-04-04T15:23:45.1523197+00:00",
+  "updatedOn": "2026-04-04T15:23:50.59879+00:00",
+  "lastMessageOn": "2026-04-04T15:23:45.1520514+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "26cgx5-0",
+    "text": "Nødetater er på stedet etter melding om trafikkuhell. To personer i bil, uskadde og edru sjåfør. Bilens hjul har kommet utenfor asfaltkanten og inn i en bergnabb. Ingen sak for politiet. ",
+    "createdOn": "2026-04-04T15:23:45.1520514+00:00",
+    "updatedOn": "2026-04-04T15:23:45.1834784+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ],
+  "bris_kopla": true
+ },
+ "26cq2g": {
+  "id": "26cq2g",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Trafikk",
+  "municipality": "Stord",
+  "area": "",
+  "createdOn": "2026-07-15T12:26:49.4872195+00:00",
+  "updatedOn": "2026-07-15T13:05:11.960629+00:00",
+  "lastMessageOn": "2026-07-15T12:54:05.8257091+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "26cq2g-0",
+    "text": "Kl 1353 fikk politiet melding om enslig ulykke med motorsykkel på Fitjarvegen i nærheten av Røytetjørna.\nPolitiet har kommet frem til stedet. MC-fører er tatt med av ambulanse til Stord sykehus. Skadegrad på sjåfør er ukjent.",
+    "createdOn": "2026-07-15T12:26:49.487021+00:00",
+    "updatedOn": "2026-07-15T12:26:49.5426778+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26cq2g-1",
+    "text": "Veien ble åpnet relativt kort tid etter patruljen kom frem.",
+    "createdOn": "2026-07-15T12:44:10.2851242+00:00",
+    "updatedOn": "2026-07-15T12:44:10.2851242+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26cq2g-2",
+    "text": "Politipatruljen er nå ferdig undersøkelser og vil opprette sak. Det blir ingen førerkortbeslag. Bilberger vil bli bestilt til MC. Fører fremstår som moderat skadet.",
+    "createdOn": "2026-07-15T12:54:05.8257091+00:00",
+    "updatedOn": "2026-07-15T12:54:05.8257091+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ],
+  "bris_kopla": true
+ },
+ "26pl2t": {
+  "id": "26pl2t",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Trafikk",
+  "municipality": "Stord",
+  "area": "Sagvåg",
+  "createdOn": "2026-07-30T19:44:57.7397907+00:00",
+  "updatedOn": "2026-07-31T05:32:16.914183+00:00",
+  "lastMessageOn": "2026-07-30T20:13:47.2741906+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "26pl2t-0",
+    "text": "Kl.21:19 fikk politiet melding om trafikkulykke i mellom to kjøretøy på Sagvåg i Stord. Ingen personskade er meldt. Noe trafikale utfordringer. Politiet er på stedet.",
+    "createdOn": "2026-07-30T19:44:57.7396047+00:00",
+    "updatedOn": "2026-07-30T19:44:57.8339731+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26pl2t-1",
+    "text": "Det blir meldt fra politipatruljen at det er glatt på stedet. Bilberger er på vei. Ett kjørefelt åpent for trafikk.",
+    "createdOn": "2026-07-30T20:13:47.2741906+00:00",
+    "updatedOn": "2026-07-30T20:13:47.2741906+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ],
+  "bris_kopla": true
+ },
+ "26mxfs": {
+  "id": "26mxfs",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Trafikk",
+  "municipality": "Stord",
+  "area": "Litlabøvegen",
+  "createdOn": "2026-08-11T06:02:22.9277628+00:00",
+  "updatedOn": "2026-08-11T07:46:23.6192287+00:00",
+  "lastMessageOn": "2026-08-11T07:46:18.4957258+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "26mxfs-0",
+    "text": "Trafikkuhell meldt, frontkollisjon. Alle involverte er ute av bilene og skal være uskadde. Trafikken står, men vil bli flyttet av veibanen om få minutter.",
+    "createdOn": "2026-08-11T06:02:22.9274805+00:00",
+    "updatedOn": "2026-08-11T06:02:22.9880521+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26mxfs-1",
+    "text": "Bilene er ute av veibanen og den ene føreren er tatt med til legevakt for sjekk.",
+    "createdOn": "2026-08-11T06:37:31.9715977+00:00",
+    "updatedOn": "2026-08-11T06:37:31.9715977+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26mxfs-2",
+    "text": "Det viser seg at det ikke var en frontkollisjon, men en påkjørsel bakfra. En bil stod i ro for å svinge av i et veikryss da den ble påkjørt. Ett førerkort er beslaglagt, og det opprettes sak.",
+    "createdOn": "2026-08-11T07:46:18.4957258+00:00",
+    "updatedOn": "2026-08-11T07:46:18.4957258+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ],
+  "bris_kopla": true
+ },
+ "26b2r3": {
+  "id": "26b2r3",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Trafikk",
+  "municipality": "Stord",
+  "area": "",
+  "createdOn": "2026-09-02T18:07:00.8888169+00:00",
+  "updatedOn": "2026-09-02T20:22:20.9141155+00:00",
+  "lastMessageOn": "2026-09-02T19:43:06.0647178+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "26b2r3-0",
+    "text": "Politiet rykker ut til E39 like ved Jektevik fergekai etter melding om en trafikkulykke. Enslig kjøretøy har truffet autovernet. En person i bilen, fremstår uskadd. Trafikale problemer på stedet.",
+    "createdOn": "2026-09-02T18:07:00.8886155+00:00",
+    "updatedOn": "2026-09-02T18:07:00.9644773+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26b2r3-1",
+    "text": "Et felt vil bli åpnet for trafikk. Fører blir tilsett av helse, fremstår lettere skadet.",
+    "createdOn": "2026-09-02T18:16:46.462328+00:00",
+    "updatedOn": "2026-09-02T18:16:46.462328+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26b2r3-2",
+    "text": "Bilberger har hentet bilen og veien er åpen for trafikk. Fører av bilen, en kvinne i 20 er avhørt og fått førerkortet beslaglagt. Politiet oppretter sak.",
+    "createdOn": "2026-09-02T19:43:06.0647178+00:00",
+    "updatedOn": "2026-09-02T19:43:06.0647178+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ],
+  "bris_kopla": true
+ },
+ "26hpvk": {
+  "id": "26hpvk",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Trafikk",
+  "municipality": "Stord",
+  "area": "Vikabrekko/Saghaugen",
+  "createdOn": "2026-10-28T17:59:41.1903592+00:00",
+  "updatedOn": "2026-10-28T19:30:35.6468989+00:00",
+  "lastMessageOn": "2026-10-28T18:52:44.5249823+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "26hpvk-0",
+    "text": "Trafikkuhell i et veikryss. En bil har kjørt i siden på en annen bil. Det er 3 personer involvert. Politiet er på stedet. Ambulanse er på vei. Det er kø på stedet.",
+    "createdOn": "2026-10-28T17:59:41.1899625+00:00",
+    "updatedOn": "2026-10-28T17:59:41.2354683+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26hpvk-1",
+    "text": "Politiet har startet med trafikkdirigering på stedet.",
+    "createdOn": "2026-10-28T18:03:41.2769241+00:00",
+    "updatedOn": "2026-10-28T18:03:41.2769241+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26hpvk-2",
+    "text": "Begge biler er ute av veien. Politiet er på stedet til bilene er tatt vekk av bilberger. Politiet oppretter sak.",
+    "createdOn": "2026-10-28T18:52:44.5249823+00:00",
+    "updatedOn": "2026-10-28T18:52:44.5249823+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ],
+  "bris_kopla": true
  }
 }
