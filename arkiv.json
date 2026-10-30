@@ -2219,5 +2219,47 @@
    }
   ],
   "bris_kopla": true
+ },
+ "26hp5n": {
+  "id": "26hp5n",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Trafikk",
+  "municipality": "Stord",
+  "area": "Heiane",
+  "createdOn": "2026-10-30T11:30:23.1393053+00:00",
+  "updatedOn": "2026-10-30T12:15:36.7406551+00:00",
+  "lastMessageOn": "2026-10-30T12:15:35.1306793+00:00",
+  "isActive": false,
+  "messages": [
+   {
+    "id": "26hp5n-0",
+    "text": "Kl 1223 Politiet og ambulanse er på stedet etter melding om trafikkulykke, en bil har kjørt inn flere biler og deretter kjørt ut av veien.  Det er en person i bilen som forårsaket ulykken , ukjent skadeomfang.",
+    "createdOn": "2026-10-30T11:30:23.1390979+00:00",
+    "updatedOn": "2026-10-30T11:30:23.185185+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26hp5n-2",
+    "text": "Forholdet har funnet sted på en parkeringsplass ved en dagligvarebutikk. Bilen har stått stille i et kryss og \" trillet \" frem. Fører , dame i 60 årene , har krysset veien, dunket i en MC og kjørt i siden på en bil.  Det fremstår helserelatert. Fører ble tatt med i ambulansen til legevakten. Førerkortet blir tatt i forvatningssporet.",
+    "createdOn": "2026-10-30T12:08:35.1562243+00:00",
+    "updatedOn": "2026-10-30T12:08:35.1562243+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "26hp5n-3",
+    "text": "Politiet har avsluttet på stedet. Sak opprettet.",
+    "createdOn": "2026-10-30T12:15:35.1306793+00:00",
+    "updatedOn": "2026-10-30T12:15:35.1306793+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ],
+  "bris_kopla": true
  }
 }
