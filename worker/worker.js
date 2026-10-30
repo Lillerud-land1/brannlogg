@@ -13,7 +13,8 @@
 //
 // Besøkstal: appen sender «/besok» kvar gong ho blir opna (ikkje infoskjermen). Teljaren (Durable Object «Teljar»)
 // tel kvar eining éin gong per dag: IP-adresse og nettlesar blir gjort om til ein hash med eit tilfeldig dagssalt,
-// og både saltet og hashane blir sletta når dagen er over. Att står berre talet på besøkande per dag.
+// og både saltet og hashane blir sletta når dagen er over. Att står berre talet på besøkande per dag (alle dagar,
+// så adminpanelet kan vise totalen).
 // Adminpanelet hentar tala med «/besok-tal» og ein nøkkel som blir rekna ut frå admin-koden (BESOK_NOKKEL).
 //
 // Hemmelegheiter (npx wrangler secret put …): KODE_NOKKEL (signerer tokenet), HENT_NOKKEL (GitHub brukar
@@ -97,7 +98,6 @@ export class Teljar {
         // Ny dag: saltet og hashane frå i går blir sletta, så ingen kan kjennast att frå dag til dag
         salt = {dag, verdi: b64(crypto.getRandomValues(new Uint8Array(16)))};
         this.sql.exec("DELETE FROM sett");
-        this.sql.exec("DELETE FROM dagar WHERE dag < ?", osloDag(new Date(Date.now() - 400 * 864e5)));
         await this.ctx.storage.put("salt", salt);
       }
       const h = b64(await crypto.subtle.digest("SHA-256", enc.encode(`${salt.verdi}|${kjenne}`)));
@@ -106,8 +106,9 @@ export class Teljar {
       return new Response("ok");
     }
     const fra = osloDag(new Date(Date.now() - 29 * 864e5));
+    const alle = this.sql.exec("SELECT MIN(dag) AS fyrste, COALESCE(SUM(besokande), 0) AS totalt FROM dagar").one();
     return Response.json({idag: dag, dagar: this.sql.exec("SELECT dag, besokande FROM dagar WHERE dag >= ? ORDER BY dag", fra).toArray(),
-      fyrste: this.sql.exec("SELECT MIN(dag) AS d FROM dagar").one().d});
+      fyrste: alle.fyrste, totalt: alle.totalt});
   }
 }
 

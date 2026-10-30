@@ -1621,14 +1621,13 @@ const OMSETJING = [
   ["Lenke til storskjerm-versjonen for brannstasjonen.", "Lenke til storskjermversjonen for brannstasjonen.", "Link to the big-screen version for the fire station."],
   ["Besøk", "Besøk", "Visits"],
   ["Kor mange som har opna appen. Kvar eining blir talt éin gong per dag.", "Hvor mange som har åpnet appen. Hver enhet telles én gang per dag.", "How many have opened the app. Each device is counted once per day."],
-  ["I dag", "I dag", "Today"],
-  ["Siste 7 dagar", "Siste 7 dager", "Last 7 days"],
+  ["Totalt", "Totalt", "All time"],
   ["Siste 30 dagar", "Siste 30 dager", "Last 30 days"],
+  ["I dag", "I dag", "Today"],
   ["Hentar besøkstal …", "Henter besøkstall …", "Loading visit numbers …"],
   ["Besøkstala er ikkje sette opp enno.", "Besøkstallene er ikke satt opp ennå.", "Visit numbers are not set up yet."],
   ["Fekk ikkje henta besøkstala.", "Fikk ikke hentet besøkstallene.", "Could not load the visit numbers."],
-  ["Teljinga starta {d}, så tala gjeld berre dagane sidan då.", "Tellingen startet {d}, så tallene gjelder bare dagene siden da.", "Counting started on {d}, so the numbers only cover the days since then."],
-  ["Siste 30 dagar: kvar stolpe er éin dag, raud er i dag.", "Siste 30 dager: hver stolpe er én dag, rød er i dag.", "Last 30 days: each bar is one day, red is today."],
+  ["Totalt sidan {d}. Stolpane viser dei siste 30 dagane, raud er i dag.", "Totalt siden {d}. Stolpene viser de siste 30 dagene, rød er i dag.", "All time since {d}. The bars show the last 30 days, red is today."],
   ["Kode", "Kode", "Code"],
   ["Opne", "Åpne", "Open"],
   ["Feil kode.", "Feil kode.", "Wrong code."],
@@ -2620,14 +2619,12 @@ async function visBesok(){
   const dagar = [];
   for (let i = 29; i >= 0; i--) { const t = new Date(d.idag + "T12:00:00Z"); t.setUTCDate(t.getUTCDate() - i); dagar.push(t.toISOString().slice(0, 10)); }
   const sum = n => dagar.slice(-n).reduce((s, k) => s + (per[k] || 0), 0);
-  $("#besok-tal").innerHTML = [[sum(1), "I dag"], [sum(7), "Siste 7 dagar"], [sum(30), "Siste 30 dagar"]]
+  $("#besok-tal").innerHTML = [[d.totalt || 0, "Totalt"], [sum(30), "Siste 30 dagar"], [sum(1), "I dag"]]
     .map(([n, t]) => `<div><b>${n.toLocaleString(LOCALE)}</b><span>${T(t)}</span></div>`).join("");
   const maks = Math.max(1, ...dagar.map(k => per[k] || 0));
   $("#besok-graf").innerHTML = dagar.map(k => `<i class="${k === d.idag ? "idag" : per[k] ? "" : "tom"}" style="height:${Math.max(3, (per[k] || 0) / maks * 100)}%" title="${k}: ${per[k] || 0}"></i>`).join("");
-  const fyrste = d.fyrste && new Date(d.fyrste + "T12:00:00Z");
-  $("#besok-status").textContent = fyrste && d.fyrste > dagar[0]
-    ? T("Teljinga starta {d}, så tala gjeld berre dagane sidan då.", {d:fyrste.toLocaleDateString(LOCALE, {day:"numeric", month:"long", timeZone:"UTC"})})
-    : T("Siste 30 dagar: kvar stolpe er éin dag, raud er i dag.");
+  const fyrste = new Date((d.fyrste || d.idag) + "T12:00:00Z").toLocaleDateString(LOCALE, {day:"numeric", month:"long", year:"numeric", timeZone:"UTC"});
+  $("#besok-status").textContent = T("Totalt sidan {d}. Stolpane viser dei siste 30 dagane, raud er i dag.", {d:fyrste});
 }
 
 /* ---- Info: innhaldsliste som hoppar til og markerer boksane ---- */
