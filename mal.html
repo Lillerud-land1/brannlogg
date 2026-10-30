@@ -470,6 +470,15 @@ button.hbar[aria-pressed="true"] .fill{background:var(--ink)}
 .admin-tittel{font-size:15px;font-weight:700;color:var(--ink)}
 .admin-lenke .adr{font-size:15px;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:8px 10px;user-select:all;word-break:break-all}
 .admin-lenke .rad{display:flex;flex-wrap:wrap;gap:8px}
+.besok{display:grid;gap:8px;margin-top:8px;padding-top:12px;border-top:1px solid var(--line-2)}
+.besok-tal{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.besok-tal div{background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:8px 10px}
+.besok-tal b{display:block;font-size:24px;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--ink)}
+.besok-tal span{font-size:13px;color:var(--ink-2)}
+.besok-graf{display:flex;align-items:flex-end;gap:2px;height:56px;padding-bottom:1px;border-bottom:1px solid var(--line)}
+.besok-graf i{flex:1;min-height:2px;background:var(--ink-2);border-radius:2px 2px 0 0;opacity:.55}
+.besok-graf i.idag{background:var(--fire);opacity:1}
+.besok-graf i.tom{background:var(--line);opacity:1}
 /* Påskeegg: snurrande logo, brannbil, vassprut og små meldingar */
 .logo.snurr{animation:logo-snurr 1s cubic-bezier(.3,1.3,.5,1)}
 @keyframes logo-snurr{to{transform:rotate(720deg)}}
@@ -961,6 +970,12 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
           <a class="btn" id="admin-opne" target="_blank" rel="noopener">Opne infoskjermen</a>
         </div>
         <span class="sub" id="admin-status"></span>
+        <div class="besok" id="besok" hidden>
+          <div><b>Besøk</b><span class="sub" style="display:block">Kor mange som har opna appen. Kvar eining blir talt éin gong per dag.</span></div>
+          <div class="besok-tal" id="besok-tal"></div>
+          <div class="besok-graf" id="besok-graf" aria-hidden="true"></div>
+          <span class="sub" id="besok-status"></span>
+        </div>
       </div>
     </div>
     <!-- Blir vist etter tre feil admin-kodar (sjå «Admin-sperre» i skriptet) -->
@@ -985,8 +1000,8 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
     <div class="panel">
       <button type="button" class="btn jur-tilbake" data-tilbake="1">← Tilbake</button>
       <h2 class="h2">Personvern</h2>
-      <div class="jur-tekst" data-sprak="nn"><p class="sub">Sist oppdatert 23. oktober 2026</p>
-<p><b>Kort sagt:</b> Brannlogg Stord har ingen konto, ingen informasjonskapslar (cookies), ingen sporing eller statistikk over brukarar og ingen reklame.</p>
+      <div class="jur-tekst" data-sprak="nn"><p class="sub">Sist oppdatert 30. oktober 2026</p>
+<p><b>Kort sagt:</b> Brannlogg Stord har ingen konto, ingen informasjonskapslar (cookies), ingen sporing og ingen reklame. Sida tel berre kor mange som opnar ho kvar dag, utan å lagre noko som kan kjenne deg att.</p>
 <h3>Kven står bak</h3>
 <p>Brannlogg Stord er ei gratis, privat nettside laga av Leander Wågen Lillerud. Ho er ikkje ein offisiell teneste frå Politiet, brannvesenet eller Stord kommune. Kontakt: <a href="mailto:brannloggstord@gmail.com">brannloggstord@gmail.com</a>.</p>
 <h3>Kva som blir lagra på eininga di</h3>
@@ -995,6 +1010,8 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
 <ul><li><b>GitHub</b> (GitHub Pages) driv nettstaden. Som for alle nettstader får dei IP-adressa di og informasjon om nettlesaren når sida blir lasta, til drift og tryggleik.</li>
 <li><b>Google Fonts</b>: Skrifttypane blir henta frå Google, som då får IP-adressa di.</li></ul>
 <p>Eg får ikkje tilgang til desse opplysningane. Sjå personvernerklæringane til GitHub og Google.</p>
+<h3>Besøkstal</h3>
+<p>Når du opnar appen, sender ho ei melding til Cloudflare (Cloudflare Workers), som tel besøket. For at kvar eining berre skal teljast éin gong per dag, blir IP-adressa og nettlesartypen gjort om til ein kode saman med eit tilfeldig tal som blir bytt ut kvar dag. Koden og det tilfeldige talet blir sletta same døgn, og IP-adressa blir ikkje lagra. Att står berre talet på besøkande per dag. Ingenting blir lagra på eininga di, og infoskjermen på brannstasjonen blir ikkje talt.</p>
 <h3>Admin-tilgang</h3>
 <p>Skriv nokon feil admin-kode tre gonger, eller ber om kode for å opne sperra, får eg ei melding gjennom Cloudflare (Cloudflare Workers), GitHub og ntfy. Meldinga seier omtrent kvar eininga er (fylke og land) og kva slags eining og nettlesar det er. IP-adressa blir ikkje send til meg og blir ikkje lagra. Dette gjeld berre admin-feltet under Innstillingar.</p>
 <h3>Opplysningar om hendingar</h3>
@@ -1008,8 +1025,8 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
 <h3>Endringar</h3>
 <p>Denne erklæringa kan bli endra. Datoen øvst viser siste endring.</p>
       </div>
-      <div class="jur-tekst" data-sprak="nb" hidden><p class="sub">Sist oppdatert 23. oktober 2026</p>
-<p><b>Kort sagt:</b> Brannlogg Stord har ingen konto, ingen informasjonskapsler (cookies), ingen sporing eller statistikk over brukere og ingen reklame.</p>
+      <div class="jur-tekst" data-sprak="nb" hidden><p class="sub">Sist oppdatert 30. oktober 2026</p>
+<p><b>Kort sagt:</b> Brannlogg Stord har ingen konto, ingen informasjonskapsler (cookies), ingen sporing og ingen reklame. Siden teller bare hvor mange som åpner den hver dag, uten å lagre noe som kan kjenne deg igjen.</p>
 <h3>Hvem står bak</h3>
 <p>Brannlogg Stord er en gratis, privat nettside laget av Leander Wågen Lillerud. Den er ikke en offisiell tjeneste fra Politiet, brannvesenet eller Stord kommune. Kontakt: <a href="mailto:brannloggstord@gmail.com">brannloggstord@gmail.com</a>.</p>
 <h3>Hva som lagres på enheten din</h3>
@@ -1018,6 +1035,8 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
 <ul><li><b>GitHub</b> (GitHub Pages) drifter nettstedet. Som for alle nettsteder får de IP-adressen din og informasjon om nettleseren når siden lastes, for drift og sikkerhet.</li>
 <li><b>Google Fonts</b>: Skrifttypene hentes fra Google, som da får IP-adressen din.</li></ul>
 <p>Jeg får ikke tilgang til disse opplysningene. Se personvernerklæringene til GitHub og Google.</p>
+<h3>Besøkstall</h3>
+<p>Når du åpner appen, sender den en melding til Cloudflare (Cloudflare Workers), som teller besøket. For at hver enhet bare skal telles én gang per dag, gjøres IP-adressen og nettlesertypen om til en kode sammen med et tilfeldig tall som byttes ut hver dag. Koden og det tilfeldige tallet slettes samme døgn, og IP-adressen lagres ikke. Igjen står bare antall besøkende per dag. Ingenting lagres på enheten din, og infoskjermen på brannstasjonen telles ikke.</p>
 <h3>Admin-tilgang</h3>
 <p>Skriver noen feil admin-kode tre ganger, eller ber om kode for å åpne sperren, får jeg en melding gjennom Cloudflare (Cloudflare Workers), GitHub og ntfy. Meldingen sier omtrent hvor enheten er (fylke og land) og hva slags enhet og nettleser det er. IP-adressen sendes ikke til meg og lagres ikke. Dette gjelder bare admin-feltet under Innstillinger.</p>
 <h3>Opplysninger om hendelser</h3>
@@ -1031,8 +1050,8 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
 <h3>Endringer</h3>
 <p>Denne erklæringen kan bli endret. Datoen øverst viser siste endring.</p>
       </div>
-      <div class="jur-tekst" data-sprak="en" hidden><p class="sub">Last updated 23 October 2026</p>
-<p><b>In short:</b> Brannlogg Stord has no accounts, no cookies, no tracking or user statistics, and no ads.</p>
+      <div class="jur-tekst" data-sprak="en" hidden><p class="sub">Last updated 30 October 2026</p>
+<p><b>In short:</b> Brannlogg Stord has no accounts, no cookies, no tracking and no ads. The site only counts how many people open it each day, without storing anything that could identify you.</p>
 <h3>Who runs it</h3>
 <p>Brannlogg Stord is a free, private website made by Leander Wågen Lillerud. It is not an official service of the police, the fire service or Stord municipality. Contact: <a href="mailto:brannloggstord@gmail.com">brannloggstord@gmail.com</a>.</p>
 <h3>What is stored on your device</h3>
@@ -1041,6 +1060,8 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
 <ul><li><b>GitHub</b> (GitHub Pages) hosts the website. As with any website, they receive your IP address and browser information when the page loads, for operation and security.</li>
 <li><b>Google Fonts</b>: The fonts are loaded from Google, which then receives your IP address.</li></ul>
 <p>I do not have access to this information. See the privacy policies of GitHub and Google.</p>
+<h3>Visit numbers</h3>
+<p>When you open the app, it sends a message to Cloudflare (Cloudflare Workers), which counts the visit. To count each device only once per day, the IP address and browser type are turned into a code together with a random number that is replaced every day. The code and the random number are deleted the same day, and the IP address is not stored. All that remains is the number of visitors per day. Nothing is stored on your device, and the information screen at the fire station is not counted.</p>
 <h3>Admin access</h3>
 <p>If someone enters a wrong admin code three times, or asks for a code to unlock it, I get a message through Cloudflare (Cloudflare Workers), GitHub and ntfy. The message says roughly where the device is (county and country) and what kind of device and browser it is. The IP address is not sent to me and is not stored. This only applies to the admin field under Settings.</p>
 <h3>Information about incidents</h3>
@@ -1060,8 +1081,8 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
     <div class="panel">
       <button type="button" class="btn jur-tilbake" data-tilbake="1">← Tilbake</button>
       <h2 class="h2">Informasjonskapslar</h2>
-      <div class="jur-tekst" data-sprak="nn"><p class="sub">Sist oppdatert 9. oktober 2026</p>
-<p><b>Brannlogg Stord brukar ikkje informasjonskapslar (cookies)</b>, og heller ingen sporings- eller analyseverktøy.</p>
+      <div class="jur-tekst" data-sprak="nn"><p class="sub">Sist oppdatert 30. oktober 2026</p>
+<p><b>Brannlogg Stord brukar ikkje informasjonskapslar (cookies)</b>, og heller ingen sporings- eller analyseverktøy. Sida tel kor mange som opnar ho kvar dag utan å lagre noko på eininga di (sjå <a href="#personvern" data-go="personvern">Personvern</a>).</p>
 <h3>Lokal lagring i nettlesaren</h3>
 <p>For at funksjonane du sjølv vel skal fungere, lagrar sida litt informasjon i nettlesaren din. Det blir aldri sendt nokon stad.</p>
 <ul><li><code>brannlogg_innst</code>: innstillingane dine (språk, fargar, utsjånad, tekststorleik, rørsle og kva appen opnar med).</li>
@@ -1073,8 +1094,8 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
 <h3>Slik slettar du det</h3>
 <p>Innstillingane kan du setje tilbake under Innstillingar → Tilbakestill. Alt anna slettar du ved å slette nettstaddata for bls.lillerud.com i innstillingane til nettlesaren.</p>
       </div>
-      <div class="jur-tekst" data-sprak="nb" hidden><p class="sub">Sist oppdatert 9. oktober 2026</p>
-<p><b>Brannlogg Stord bruker ikke informasjonskapsler (cookies)</b>, og heller ingen sporings- eller analyseverktøy.</p>
+      <div class="jur-tekst" data-sprak="nb" hidden><p class="sub">Sist oppdatert 30. oktober 2026</p>
+<p><b>Brannlogg Stord bruker ikke informasjonskapsler (cookies)</b>, og heller ingen sporings- eller analyseverktøy. Siden teller hvor mange som åpner den hver dag uten å lagre noe på enheten din (se <a href="#personvern" data-go="personvern">Personvern</a>).</p>
 <h3>Lokal lagring i nettleseren</h3>
 <p>For at funksjonene du selv velger skal virke, lagrer siden litt informasjon i nettleseren din. Det blir aldri sendt noe sted.</p>
 <ul><li><code>brannlogg_innst</code>: innstillingene dine (språk, farger, utseende, tekststørrelse, bevegelse og hva appen åpner med).</li>
@@ -1086,8 +1107,8 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
 <h3>Slik sletter du det</h3>
 <p>Innstillingene kan du tilbakestille under Innstillinger → Tilbakestill. Alt annet sletter du ved å slette nettstedsdata for bls.lillerud.com i innstillingene til nettleseren.</p>
       </div>
-      <div class="jur-tekst" data-sprak="en" hidden><p class="sub">Last updated 9 October 2026</p>
-<p><b>Brannlogg Stord does not use cookies</b>, and no tracking or analytics tools either.</p>
+      <div class="jur-tekst" data-sprak="en" hidden><p class="sub">Last updated 30 October 2026</p>
+<p><b>Brannlogg Stord does not use cookies</b>, and no tracking or analytics tools either. The site counts how many people open it each day without storing anything on your device (see <a href="#personvern" data-go="personvern">Privacy</a>).</p>
 <h3>Local storage in your browser</h3>
 <p>So that the features you choose can work, the site stores a little information in your browser. It is never sent anywhere.</p>
 <ul><li><code>brannlogg_innst</code>: your settings (language, colours, appearance, text size, motion and what the app opens with).</li>
@@ -1598,6 +1619,16 @@ const OMSETJING = [
   ["Adminpanel", "Adminpanel", "Admin panel"],
   ["Infoskjerm", "Infoskjerm", "Info screen"],
   ["Lenke til storskjerm-versjonen for brannstasjonen.", "Lenke til storskjermversjonen for brannstasjonen.", "Link to the big-screen version for the fire station."],
+  ["Besøk", "Besøk", "Visits"],
+  ["Kor mange som har opna appen. Kvar eining blir talt éin gong per dag.", "Hvor mange som har åpnet appen. Hver enhet telles én gang per dag.", "How many have opened the app. Each device is counted once per day."],
+  ["I dag", "I dag", "Today"],
+  ["Siste 7 dagar", "Siste 7 dager", "Last 7 days"],
+  ["Siste 30 dagar", "Siste 30 dager", "Last 30 days"],
+  ["Hentar besøkstal …", "Henter besøkstall …", "Loading visit numbers …"],
+  ["Besøkstala er ikkje sette opp enno.", "Besøkstallene er ikke satt opp ennå.", "Visit numbers are not set up yet."],
+  ["Fekk ikkje henta besøkstala.", "Fikk ikke hentet besøkstallene.", "Could not load the visit numbers."],
+  ["Teljinga starta {d}, så tala gjeld berre dagane sidan då.", "Tellingen startet {d}, så tallene gjelder bare dagene siden da.", "Counting started on {d}, so the numbers only cover the days since then."],
+  ["Siste 30 dagar: kvar stolpe er éin dag, raud er i dag.", "Siste 30 dager: hver stolpe er én dag, rød er i dag.", "Last 30 days: each bar is one day, red is today."],
   ["Kode", "Kode", "Code"],
   ["Opne", "Åpne", "Open"],
   ["Feil kode.", "Feil kode.", "Wrong code."],
@@ -2456,13 +2487,16 @@ $("#personvern-ok").addEventListener("click", () => {
    med ein nøkkel som blir rekna ut frå passordet (PBKDF2, med vilje tregt). Feil passord gir berre rot.
    Nytt passord eller ny adresse: sjå README, bolk 7. ---- */
 const TV_KRYPTERT = "a16cfa16722a3df7cb";
-let tvAdr = "";
+let tvAdr = "", besokNokkel = "";
 async function tvAdresse(kode){
   const enc = new TextEncoder(), krypt = TV_KRYPTERT.match(/../g).map(h => parseInt(h, 16));
   const nokkel = await crypto.subtle.importKey("raw", enc.encode(kode), "PBKDF2", false, ["deriveBits"]);
-  const bitar = new Uint8Array(await crypto.subtle.deriveBits({name:"PBKDF2", hash:"SHA-256", salt:enc.encode("brannlogg-admin-v2"), iterations:600000}, nokkel, krypt.length * 8));
+  // 32 byte: dei første (opptil 16) dekodar adressa, dei siste 16 er nøkkelen til besøkstala (BESOK_NOKKEL, README bolk 11)
+  const bitar = new Uint8Array(await crypto.subtle.deriveBits({name:"PBKDF2", hash:"SHA-256", salt:enc.encode("brannlogg-admin-v2"), iterations:600000}, nokkel, 256));
   const namn = String.fromCharCode(...krypt.map((b, i) => b ^ bitar[i]));
-  return /^tv-[0-9a-z]{6,16}$/.test(namn) ? new URL(namn, location.href).href : null;   // kort adresse utan .html (GitHub Pages finn tv-….html)
+  if (!/^tv-[0-9a-z]{6,13}$/.test(namn)) return null;
+  besokNokkel = [...bitar.slice(16)].map(b => b.toString(16).padStart(2, "0")).join("");
+  return new URL(namn, location.href).href;   // kort adresse utan .html (GitHub Pages finn tv-….html)
 }
 async function kopierAdmin(){
   try { await navigator.clipboard.writeText(tvAdr); $("#admin-status").textContent = T("Lenka er kopiert. Lim henne inn i adresselinja i nettlesaren."); }
@@ -2566,8 +2600,35 @@ $("#admin-skjema").addEventListener("submit", async e => {
   $("#admin-opne").href = tvAdr;
   $("#admin-kode").value = "";
   kopierAdmin();
+  visBesok();
 });
 $("#admin-kopier").addEventListener("click", kopierAdmin);
+
+/* ---- Besøkstal: appen sender éi melding til Cloudflare-tenesta (OPNE_URL) kvar gong ho blir opna – ikkje
+   infoskjermen. Ingen informasjonskapslar og ingenting lagra på eininga; tenesta tel kvar eining éin gong per dag
+   utan å lagre IP-adressa (worker/worker.js, README bolk 11, personvernteksten). Tala blir viste i adminpanelet. ---- */
+if (OPNE_URL && location.hostname === "bls.lillerud.com" && !navigator.webdriver)
+  setTimeout(() => fetch(OPNE_URL + "/besok", {method:"POST", headers:{"Content-Type":"text/plain"}, body:"{}", keepalive:true}).catch(() => {}), 1500);
+async function visBesok(){
+  if (!OPNE_URL || !besokNokkel) return;
+  $("#besok").hidden = false; $("#besok-tal").innerHTML = ""; $("#besok-graf").innerHTML = "";
+  $("#besok-status").textContent = T("Hentar besøkstal …");
+  let d;
+  try { d = await opneKall("/besok-tal", {nokkel:besokNokkel}); }
+  catch (feil) { $("#besok-status").textContent = T(feil.status === 403 ? "Besøkstala er ikkje sette opp enno." : "Fekk ikkje henta besøkstala."); return; }
+  const per = Object.fromEntries((d.dagar || []).map(r => [r.dag, r.besokande]));
+  const dagar = [];
+  for (let i = 29; i >= 0; i--) { const t = new Date(d.idag + "T12:00:00Z"); t.setUTCDate(t.getUTCDate() - i); dagar.push(t.toISOString().slice(0, 10)); }
+  const sum = n => dagar.slice(-n).reduce((s, k) => s + (per[k] || 0), 0);
+  $("#besok-tal").innerHTML = [[sum(1), "I dag"], [sum(7), "Siste 7 dagar"], [sum(30), "Siste 30 dagar"]]
+    .map(([n, t]) => `<div><b>${n.toLocaleString(LOCALE)}</b><span>${T(t)}</span></div>`).join("");
+  const maks = Math.max(1, ...dagar.map(k => per[k] || 0));
+  $("#besok-graf").innerHTML = dagar.map(k => `<i class="${k === d.idag ? "idag" : per[k] ? "" : "tom"}" style="height:${Math.max(3, (per[k] || 0) / maks * 100)}%" title="${k}: ${per[k] || 0}"></i>`).join("");
+  const fyrste = d.fyrste && new Date(d.fyrste + "T12:00:00Z");
+  $("#besok-status").textContent = fyrste && d.fyrste > dagar[0]
+    ? T("Teljinga starta {d}, så tala gjeld berre dagane sidan då.", {d:fyrste.toLocaleDateString(LOCALE, {day:"numeric", month:"long", timeZone:"UTC"})})
+    : T("Siste 30 dagar: kvar stolpe er éin dag, raud er i dag.");
+}
 
 /* ---- Info: innhaldsliste som hoppar til og markerer boksane ---- */
 const infoNav = $(".info-nav");

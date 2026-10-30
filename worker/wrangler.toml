@@ -36,3 +36,12 @@ class_name = "Ko"
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["Ko"]
+
+# Besøksteljaren (berre tal per dag – sjå worker.js)
+[[durable_objects.bindings]]
+name = "TELJAR"
+class_name = "Teljar"
+
+[[migrations]]
+tag = "v2"
+new_sqlite_classes = ["Teljar"]

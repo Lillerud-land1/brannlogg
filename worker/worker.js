@@ -11,8 +11,13 @@
 // Koden sjølv blir ikkje lagra her: appen får ein signert token (HMAC med KODE_NOKKEL) som gjeld i 15 minutt.
 // Meldingane seier omtrent kvar (fylke/land) og kva slags eining – aldri IP-adressa.
 //
+// Besøkstal: appen sender «/besok» kvar gong ho blir opna (ikkje infoskjermen). Teljaren (Durable Object «Teljar»)
+// tel kvar eining éin gong per dag: IP-adresse og nettlesar blir gjort om til ein hash med eit tilfeldig dagssalt,
+// og både saltet og hashane blir sletta når dagen er over. Att står berre talet på besøkande per dag.
+// Adminpanelet hentar tala med «/besok-tal» og ein nøkkel som blir rekna ut frå admin-koden (BESOK_NOKKEL).
+//
 // Hemmelegheiter (npx wrangler secret put …): KODE_NOKKEL (signerer tokenet), HENT_NOKKEL (GitHub brukar
-// han for å hente køen; same verdi som GitHub-hemmelegheita HENT_NOKKEL).
+// han for å hente køen; same verdi som GitHub-hemmelegheita HENT_NOKKEL), BESOK_NOKKEL (sjå README, bolk 11).
 // Legg ut: cd worker && npx wrangler deploy   (sjå README, bolk 11)
 
 const LOVLEGE = ["https://bls.lillerud.com", "http://localhost:8765"];
@@ -64,9 +69,46 @@ async function tilEigaren(env, melding) {
   if (!r.ok) throw new Error(`køen svarte ${r.status}`);
 }
 
-function rettNokkel(env, req) {
-  const fatt = enc.encode(req.headers.get("Authorization") || ""), venta = enc.encode(`Bearer ${env.HENT_NOKKEL || ""}`);
-  return Boolean(env.HENT_NOKKEL) && fatt.byteLength === venta.byteLength && crypto.subtle.timingSafeEqual(fatt, venta);
+function likt(fatt, nokkel) {
+  const a = enc.encode(String(fatt || "")), b = enc.encode(nokkel || "");
+  return Boolean(nokkel) && a.byteLength === b.byteLength && crypto.subtle.timingSafeEqual(a, b);
+}
+const rettNokkel = (env, req) => likt(req.headers.get("Authorization"), `Bearer ${env.HENT_NOKKEL || ""}`);
+
+const teljar = env => env.TELJAR.get(env.TELJAR.idFromName("besok"));
+const osloDag = (d = new Date()) => new Intl.DateTimeFormat("sv-SE", {timeZone: "Europe/Oslo"}).format(d);   // «2026-10-30»
+const ROBOT = /bot|crawl|spider|slurp|headless|lighthouse|preview/i;
+
+// Besøksteljaren: éin instans for heile tenesta (sjå øvst)
+export class Teljar {
+  constructor(ctx) {
+    this.ctx = ctx;
+    this.sql = ctx.storage.sql;
+    this.sql.exec("CREATE TABLE IF NOT EXISTS dagar (dag TEXT PRIMARY KEY, besokande INTEGER NOT NULL)");
+    this.sql.exec("CREATE TABLE IF NOT EXISTS sett (h TEXT PRIMARY KEY)");
+  }
+
+  async fetch(req) {
+    const dag = osloDag();
+    if (new URL(req.url).pathname === "/tel") {
+      const {kjenne} = await req.json();
+      let salt = await this.ctx.storage.get("salt");
+      if (salt?.dag !== dag) {
+        // Ny dag: saltet og hashane frå i går blir sletta, så ingen kan kjennast att frå dag til dag
+        salt = {dag, verdi: b64(crypto.getRandomValues(new Uint8Array(16)))};
+        this.sql.exec("DELETE FROM sett");
+        this.sql.exec("DELETE FROM dagar WHERE dag < ?", osloDag(new Date(Date.now() - 400 * 864e5)));
+        await this.ctx.storage.put("salt", salt);
+      }
+      const h = b64(await crypto.subtle.digest("SHA-256", enc.encode(`${salt.verdi}|${kjenne}`)));
+      if (this.sql.exec("INSERT OR IGNORE INTO sett (h) VALUES (?) RETURNING h", h).toArray().length)
+        this.sql.exec("INSERT INTO dagar (dag, besokande) VALUES (?, 1) ON CONFLICT(dag) DO UPDATE SET besokande = besokande + 1", dag);
+      return new Response("ok");
+    }
+    const fra = osloDag(new Date(Date.now() - 29 * 864e5));
+    return Response.json({idag: dag, dagar: this.sql.exec("SELECT dag, besokande FROM dagar WHERE dag >= ? ORDER BY dag", fra).toArray(),
+      fyrste: this.sql.exec("SELECT MIN(dag) AS d FROM dagar").one().d});
+  }
 }
 
 // Køen: éin instans for heile tenesta, så same melding blir aldri henta to gonger
@@ -117,6 +159,19 @@ export default {
     const data = await req.json().catch(() => ({}));
 
     try {
+      if (sti === "/besok") {
+        const ua = req.headers.get("User-Agent") || "";
+        // Maks 3 opningar i minuttet frå same eining blir talde (IP + nettlesar, sidan mange mobilar deler IP-adresse),
+        // og robotar blir ikkje talde
+        if (!ROBOT.test(ua) && (await innanfor([env.GRENSE_EINING, `besok:${ip}|${ua.slice(0, 300)}`])))
+          await teljar(env).fetch("https://teljar/tel", {method: "POST", body: JSON.stringify({kjenne: `${ip}|${ua}`})});
+        return svar({ok: true});
+      }
+      if (sti === "/besok-tal") {
+        if (!(await innanfor([env.GRENSE_EINING, `tal:${ip}`]))) return svar({feil: "for mange"}, 429);
+        if (!likt(data.nokkel, env.BESOK_NOKKEL)) return svar({feil: "ikkje tillate"}, 403);
+        return svar(await (await teljar(env).fetch("https://teljar/tal")).json());
+      }
       if (sti === "/sperra") {
         if (!(await innanfor([env.GRENSE_EINING, `sperra:${ip}`], [env.GRENSE_ALLE, "meldingar"]))) return svar({feil: "for mange"}, 429);
         await tilEigaren(env, {title: "🔒 Nokon vart sperra frå admin-panelet", tags: ["lock"], priority: 4,
