@@ -1732,5 +1732,11 @@
   "type": "Trafikkulykke",
   "tid": "2026-10-30T11:20:38+00:00",
   "brannvesen": "Stord brann og redning"
+ },
+ "4992421": {
+  "id": "4992421",
+  "type": "",
+  "tid": "2026-10-31T12:14:07+00:00",
+  "brannvesen": "Stord brann og redning"
  }
 }
