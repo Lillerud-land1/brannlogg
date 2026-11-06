@@ -32,7 +32,7 @@ const MND = ['jan.', 'feb.', 'mars', 'apr.', 'mai', 'juni', 'juli', 'aug.', 'sep
 // ---------- Tid (telefonen si klokke, som er norsk tid i Noreg) ----------
 const dagNr = d => Math.round(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 864e5);
 const to = n => String(n).padStart(2, '0');
-const kl = d => `${to(d.getHours())}.${to(d.getMinutes())}`;
+const kl = d => `${to(d.getHours())}:${to(d.getMinutes())}`;
 const dagar = n => `${n} ${n === 1 ? 'dag' : 'dagar'}`;
 function naar(iso, idag) {
   const d = new Date(iso), diff = dagNr(idag) - dagNr(d);

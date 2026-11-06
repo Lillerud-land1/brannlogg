@@ -249,7 +249,7 @@ function oslo(v){
   return {y, m, d, h:+p.hour % 24, min:+p.minute, s:+p.second, dn:Date.UTC(y, m-1, d)/864e5, wd:new Date(Date.UTC(y, m-1, d)).getUTCDay()};
 }
 const pad = n => String(n).padStart(2, "0");
-const kl = o => `${pad(o.h)}.${pad(o.min)}`;
+const kl = o => `${pad(o.h)}:${pad(o.min)}`;   // kolon, som klokka øvst
 const IDAG = oslo(new Date());
 function relDag(o){
   const diff = IDAG.dn - o.dn;

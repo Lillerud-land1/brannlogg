@@ -1781,7 +1781,7 @@ function oslo(iso){
   return {y, m, d:dd, h:+p.hour % 24, min:+p.minute, dn:Date.UTC(y, m-1, dd)/864e5, wd:new Date(Date.UTC(y, m-1, dd)).getUTCDay()};
 }
 const pad = n => String(n).padStart(2,"0");
-const kl = o => `${pad(o.h)}${SPRAK === "en" ? ":" : "."}${pad(o.min)}`;   // norsk skrivemåte: kl. 23.53
+const kl = o => `${pad(o.h)}:${pad(o.min)}`;   // kolon (kl. 23:53), som klokka på infoskjermen – ønske frå brukaren 6.11.2026
 const NO = new Date(), I_DAG = oslo(NO);
 const HALLOWEEN = I_DAG.m === 10;   // pynt og tips frå 1. til 31. oktober kvart år
 const JUL = I_DAG.m === 12 && I_DAG.d <= 25;   // julepynt og juletips 1.–25. desember kvart år
