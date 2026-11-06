@@ -389,7 +389,7 @@ BRIS_TITTEL = {
     "RVR uten foregående innsats": "Restverdiredning", "Avbrutt utrykning alarm": "Avbroten utrykking",
     "Avbrutt utrykning samtale": "Avbroten utrykking", "Unødig kontroll av melding": "Kontroll av melding",
     "Unødig andre alarmer": "Unødig alarm", "Unødig alarm privatmarked": "Unødig alarm", "Oppdrag fra andre alarmer": "Oppdrag frå annan alarm",
-    LØYST_AV_110: "Løyst av 110",
+    LØYST_AV_110: "Anna oppdrag: løyst av 110",
 }
 
 
