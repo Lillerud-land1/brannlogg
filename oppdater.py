@@ -376,6 +376,7 @@ ABA_ÅRSAK = {"matlaging": "matlaging", "vanndamp": "vassdamp", "ukjent": "ukjen
              "manuell melder": "meldeknapp", "annen røyk": "anna røyk", "arbeid på/i bygg": "byggearbeid",
              "trykkfall sprinkler": "sprinklar", "fysisk skade på anlegget": "øydelagd",
              "eksos": "eksos", "røyking": "røyking", "øvelse/service/test av anlegg": "test", "annet": "anna"}
+LØYST_AV_110 = "Oppdrag løst av 110"   # er aldri offentleg i brannstatistikken – sjå hent_bris
 BRIS_TITTEL = {
     "Brann i bygning": "Brann i bygning", "Brann annet": "Brann (anna)", "Brann i skorstein": "Pipebrann",
     "Brann i personbil": "Bilbrann", "Brann i gress- eller innmark": "Brann i gras eller innmark",
@@ -388,6 +389,7 @@ BRIS_TITTEL = {
     "RVR uten foregående innsats": "Restverdiredning", "Avbrutt utrykning alarm": "Avbroten utrykking",
     "Avbrutt utrykning samtale": "Avbroten utrykking", "Unødig kontroll av melding": "Kontroll av melding",
     "Unødig andre alarmer": "Unødig alarm", "Unødig alarm privatmarked": "Unødig alarm", "Oppdrag fra andre alarmer": "Oppdrag frå annan alarm",
+    LØYST_AV_110: "Løyst av 110",
 }
 
 
@@ -449,22 +451,48 @@ def bris_sok(start, slutt):
             return ut
 
 
+def merk_borte(lagra, ids, start):
+    """Merkjer lagra oppdrag som manglar i søket med «borte» (tidspunktet dei først mangla). Kjem eit oppdrag att,
+    skriv hent_bris det på nytt, og merket forsvinn. Brannstatistikken gir av og til ufullstendige svar (sjå hent_fjor):
+    manglar meir enn to oppdrag med type (som ikkje alt har vore borte i over eit døgn), blir ingenting merkt."""
+    no = datetime.now(timezone.utc)
+    grense = datetime.combine(start + timedelta(days=2), datetime.min.time(), timezone.utc)
+    manglar = [m for m in lagra.values() if m["id"] not in ids and datetime.fromisoformat(m["tid"]) > grense]
+    lenge = lambda m: m.get("borte") and no - datetime.fromisoformat(m["borte"]) > timedelta(days=1)
+    if sum(1 for m in manglar if m["type"] and not lenge(m)) > 2:
+        print(f"BRIS_BORTE: ufullstendig svar ({len(manglar)} oppdrag manglar) – merkjer ingenting")
+        return
+    for m in manglar:
+        m.setdefault("borte", no.isoformat(timespec="seconds"))
+    print(f"BRIS_BORTE: {sum(1 for m in manglar if not m['type'])} oppdrag utan type er borte frå brannstatistikken")
+
+
 def hent_bris():
-    """Alle oppdrag i Stord siste år frå brannstatistikk.no. Lagrar i bris.json (arkiv)."""
+    """Alle oppdrag i Stord siste år frå brannstatistikk.no. Lagrar i bris.json (arkiv).
+
+    Nye oppdrag dukkar først opp utan type. Set 110-sentralen typen til «Oppdrag løst av 110» (eller øving/service),
+    blir oppdraget skjult i den offentlege brannstatistikken. Lagra oppdrag utan type som har vore borte frå søket i
+    over ein time, får difor typen «Oppdrag løst av 110» (ønske frå brannvesenet 6.11.2026; ei sjeldan gong er det
+    ei øving). Hadde appen vist «detaljar kjem» på dei for alltid."""
     from datetime import date
     lagra = les_json("bris.json", {})
     nye = 0
     try:
-        for m in bris_sok(str(date.today() - timedelta(days=370)), str(date.today() + timedelta(days=1))):
+        start = date.today() - timedelta(days=370)
+        svar = bris_sok(str(start), str(date.today() + timedelta(days=1)))
+        for m in svar:
             if m["id"] not in lagra:
                 nye += 1
             lagra[m["id"]] = {"id": m["id"], "type": m.get("revisedMissionType") or "", "tid": m["callTimeUtc"].replace("Z", "+00:00"),
                               "brannvesen": m.get("responsibleFireDepartmentName") or ""}
+        merk_borte(lagra, {m["id"] for m in svar}, start)
         skriv_json("bris.json", lagra)
         print(f"BRIS: {len(lagra)} oppdrag i arkivet, {nye} nye")
     except Exception as feil:
         print(f"BRIS_FEIL: kunne ikkje hente brannstatistikk ({feil}) – brukar lagra data")
-    return list(lagra.values())
+    no = datetime.now(timezone.utc)
+    return [{**m, "type": LØYST_AV_110} if not m["type"] and m.get("borte") and no - datetime.fromisoformat(m["borte"]) > timedelta(hours=1)
+            else m for m in lagra.values()]
 
 
 def hent_fjor(bris=()):
@@ -581,11 +609,14 @@ def kombiner_med_bris(hendingar, bris, ekstra, geocache):
             "flagg": {"personskade": False, "evakuert": False, "sak": False, "brannvesen": True,
                       "omkomne": bool(ex.get("omkomne")), "bris": True},
             "meldingar": [{"t": m["tid"], "tekst": ex.get("tekst") or (
+                "110-sentralen løyste oppdraget." if m["type"] == LØYST_AV_110 else
                 f"{m['brannvesen'] or 'Brannvesenet'} registrerte oppdraget som «{m['type']}»." if m["type"] else
                 f"{m['brannvesen'] or 'Brannvesenet'} har registrert eit oppdrag, men ikkje oppgitt kva slags oppdrag det var." if utan_type else
                 f"{m['brannvesen'] or 'Brannvesenet'} har registrert eit oppdrag. Kva slags oppdrag det var, er ikkje fylt ut enno."), "endra": False}],
             "kjelder": ex.get("kjelder", []),
-            "merknad": ex.get("merknad", "Frå brannstatistikken (DSB). Staden og detaljar er ikkje oppgitt der."),
+            "merknad": ex.get("merknad", "Frå brannstatistikken (DSB). Oppdrag som 110-sentralen løyser, blir ikkje viste offentleg der, "
+                                         "og dette forsvann då typen vart sett. Staden og detaljar er ikkje oppgitt." if m["type"] == LØYST_AV_110 else
+                                         "Frå brannstatistikken (DSB). Staden og detaljar er ikkje oppgitt der."),
             "bilete": [], "bris": {"id": m["id"], "type": m["type"], "tid": m["tid"]}, "stor": kat[4],
         })
     # Utrykkingar frå Politiloggen som brannvesenet ikkje har registrert, var dei truleg ikkje med på

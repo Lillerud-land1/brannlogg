@@ -1366,6 +1366,9 @@ const OMSETJING = [
   ["Båt", "Båt", "Boat"],
   ["Anna brann", "Annen brann", "Other fire"],
   ["Trafikkulykke", "Trafikkulykke", "Traffic accident"],
+  ["Løyst av 110", "Løst av 110", "Handled by 110"],
+  ["110-sentralen løyste oppdraget.", "110-sentralen løste oppdraget.", "The 110 emergency centre handled the call."],
+  ["Oppdrag løst av 110", null, "Handled by the 110 centre"],
   ["Sjø", "Sjø", "Sea"],
   ["Ulykke", "Ulykke", "Accident"],
   ["Redning", "Redning", "Rescue"],
@@ -1474,6 +1477,7 @@ const OMSETJING = [
   ["Utrykking", "Utrykning", "Call-out"],
   ["{v} registrerte oppdraget som «{t}».", "{v} registrerte oppdraget som «{t}».", "{v} registered the call-out as “{t}”."],
   ["{v} har registrert eit oppdrag. Kva slags oppdrag det var, er ikkje fylt ut enno.", "{v} har registrert et oppdrag. Hva slags oppdrag det var, er ikke fylt ut ennå.", "{v} has registered a call-out. The type has not been filled in yet."],
+  ["Frå brannstatistikken (DSB). Oppdrag som 110-sentralen løyser, blir ikkje viste offentleg der, og dette forsvann då typen vart sett. Staden og detaljar er ikkje oppgitt.", "Fra brannstatistikken (DSB). Oppdrag som 110-sentralen løser, vises ikke offentlig der, og dette forsvant da typen ble satt. Sted og detaljer er ikke oppgitt.", "From the fire statistics (DSB). Calls handled by the 110 centre are not shown publicly there, and this one disappeared when its type was set. Place and details are not given."],
   ["Frå brannstatistikken (DSB). Staden og detaljar er ikkje oppgitt der.", "Fra brannstatistikken (DSB). Sted og detaljer er ikke oppgitt der.", "From the national fire statistics (DSB). The location and details are not given there."],
   ["Frå media – hendinga står ikkje i Politiloggen.", "Fra media – hendelsen står ikke i Politiloggen.", "From the media – the incident is not in Politiloggen."],
   ["Avbrutt utrykning alarm", null, "Cancelled call-out (alarm)"],
@@ -1772,7 +1776,7 @@ function omsetHending(b){
     m = /^(.+) har registrert eit oppdrag, men ikkje oppgitt kva slags oppdrag det var\.$/.exec(t);
     if (m) return T("{v} har registrert eit oppdrag, men ikkje oppgitt kva slags oppdrag det var.", {v:m[1]});
     m = /^(.+) har registrert eit oppdrag\. Kva slags oppdrag det var, er ikkje fylt ut enno\.$/.exec(t);
-    return m ? T("{v} har registrert eit oppdrag. Kva slags oppdrag det var, er ikkje fylt ut enno.", {v:m[1]}) : t;
+    return m ? T("{v} har registrert eit oppdrag. Kva slags oppdrag det var, er ikkje fylt ut enno.", {v:m[1]}) : T(t);
   };
   return {...b, tittel:T(b.tittel), merknad:b.merknad && T(b.merknad),
     meldingar:b.kjelde_type === "bris" ? b.meldingar.map(m => ({...m, tekst:melding(m.tekst)})) : b.meldingar};

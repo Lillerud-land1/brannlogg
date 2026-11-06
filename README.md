@@ -56,6 +56,7 @@ Bilete frå nyheitssaker blir **ikkje** kopierte (opphavsrett). Appen lenkjer be
 4. Resultatet:
    - **Kopla hending**: tekst og stad frå Politiloggen/media + merket «Brannstatistikk: *type*».
    - **Berre i brannstatistikken**: vist som til dømes «Brann (anna) · Stord», utan stad.
+   - **Løyst av 110**: Nye oppdrag dukkar først opp utan type. Set 110-sentralen typen til «Oppdrag løst av 110» (eller øving/service), blir oppdraget skjult i den offentlege brannstatistikken – i heile landet, same kva filter ein brukar. Lagra oppdrag utan type som har vore borte frå søket i over ein time (`borte` i `bris.json`, `merk_borte()`), blir difor viste som «Løyst av 110» (ønske frå brannvesenet 6.11.2026; ei sjeldan gong er det ei øving). Manglar meir enn to oppdrag med type, er svaret ufullstendig, og ingenting blir merkt (logglinja `BRIS_BORTE`). Mange oppdrag som 110 løyser, kjem aldri fram i brannstatistikken i det heile, så appen tel berre ein del av dei – heile lista finst berre med innlogging (110-portalen eller BRIS).
    - **Berre i Politiloggen**: blir vist med ein gong. Utrykkingar (ikkje brannar) som brannvesenet ikkje har registrert etter 3 dagar, blir fjerna, sidan brannvesenet då truleg ikkje var med.
    - **Berre i media**: blir ikkje vist. Ei nyheitssak kan nemne Stord utan at noko skjedde her (døme: ei sak om ein person frå Stord som drukna i Nord-Noreg).
 5. Oppdragstypen frå brannstatistikken avgjer gruppa:
@@ -202,7 +203,7 @@ Endringar i `oppdater.py`, `mal.html`, `mal-tv.html`, `ekstra.json` eller arbeid
 |---|---|
 | Sida er ikkje oppdatert | Sjå **Actions** på GitHub: grøn hake = ok. Last sida på nytt (F5). Statusprikken øvst blir oransje om dataa er over 3 timar gamle. |
 | Mange køyringar blir «cancelled» | Ei køyring heng (t.d. «waiting» hos GitHub) og blokkerer dei andre. Jobben `rydd` avbryt automatisk køyringar som er over 60 minutt gamle, og vakta på PC-en gjer det same. For hand: `gh api -X POST repos/Lillerud-land1/brannlogg/actions/runs/<id>/force-cancel`. |
-| «Oppdrag – detaljar kjem» | Brannvesenet har ikkje fylt ut typen i brannstatistikken enno. Blir retta av seg sjølv. |
+| «Oppdrag – detaljar kjem» | Brannvesenet har ikkje fylt ut typen i brannstatistikken enno. Blir retta av seg sjølv – forsvinn oppdraget frå brannstatistikken, blir det «Løyst av 110» etter ein time. |
 | Ei nyheitslenke eller mediehending er feil | Legg url-en i `avvis` eller set `avvis_hending: true` i `ekstra.json`, og køyr `--send-ekstra`. |
 | Feil stad på kartet | Set `pos: [lat, lon]` eller `stad` for hendinga i `ekstra.json`. |
 | Ingen varsel | Sjekk at du abonnerer på rett kanal i ntfy og har tillate varsel. Brannalarmar gir aldri varsel. |
