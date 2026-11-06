@@ -870,6 +870,24 @@ def rens_brannfare(bf):
     return ut
 
 
+def skriv_widget(data):
+    """nettside/widget.json til iPhone-widgeten (Scriptable, nettside/widget-kode.js). Berre det widgeten viser:
+    dei siste hendingane (utan loggar og bilete), siste brann, «i år» som på TV-en og skogbrannfaren."""
+    oslo = ZoneInfo("Europe/Oslo")
+    br = data["brannar"]
+
+    def kort(b):
+        return {"id": b["id"], "tittel": b["tittel"], "stad": b["stad"], "start": b["start"], "sist": b["sist"],
+                "gruppe": b["gruppe"], "aktiv": b["aktiv"], "melding": b["meldingar"][-1]["tekst"][:240]}
+    aar = datetime.now(oslo).year
+    brann = next((b for b in br if b["gruppe"] == "brann"), None)
+    bf = data["brannfare"]
+    ut = {"oppdatert": data["oppdatert"], "siste": [kort(b) for b in br[:6]], "siste_brann": kort(brann) if brann else None,
+          "i_aar": sum(1 for b in br if b.get("bris") and datetime.fromisoformat(b["start"]).astimezone(oslo).year == aar),
+          "fjor": data["fjor"], "brannfare": {"klasse": bf["klasse"], "prosent": bf["prosent"]} if bf else None}
+    (MAPPE / "nettside" / "widget.json").write_text(json.dumps(ut, ensure_ascii=False), encoding="utf-8")
+
+
 def json_til_skript(data):
     """JSON som kan stå trygt inne i <script>: alle «<» blir \\u003c, så teksten aldri kan avslutte skriptet."""
     return json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c")
@@ -1367,6 +1385,7 @@ def main():
     (MAPPE / "nettside" / "status.json").write_text(
         json.dumps({"oppdatert": data["oppdatert"], "neste": data["neste"], "sum": kontrollsum,
                     "brannfare": data["brannfare"]}, ensure_ascii=False), encoding="utf-8")
+    skriv_widget(data)
     skriv_tv(json_tekst)
 
     grense = no - timedelta(days=VINDAUGE_DAGAR)

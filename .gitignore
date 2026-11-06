@@ -8,6 +8,7 @@ nettside/tv-*.html
 nettside/tv-*.webmanifest
 varsel_kanal.txt
 nettside/status.json
+nettside/widget.json
 # Hemmelegheiter skal aldri i repoet (bruk GitHub-hemmelegheiter)
 .env
 .env.*

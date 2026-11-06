@@ -108,7 +108,7 @@ flowchart LR
 | `geokode.json` | Mellomlager for stadfesting frå Kartverket. |
 | `kart.json` | SVG-kart over Stord (laga av `lag_kart.py`). |
 | `lag_kart.py`, `lag_ikon.py` | Køyrde éin gong for å lage kart og app-ikon. |
-| `nettside/` | Det som blir lagt ut: `index.html`, infoskjermen og `tv.html` (blir bygde, ikkje i git), manifest, ikon, `sw.js` (fungerer utan nett), `qr.svg`, `status.json`. |
+| `nettside/` | Det som blir lagt ut: `index.html`, infoskjermen og `tv.html` (blir bygde, ikkje i git), manifest, ikon, `sw.js` (fungerer utan nett), `qr.svg`, `status.json`, `widget.json` og `widget-kode.js` (iPhone-widgeten, sjå bolk 6). |
 
 ### `ekstra.json`
 
@@ -165,6 +165,8 @@ Ein eigen arbeidsflyt (`vakt.yml`) sjekkar kvart kvarter at nettsida er oppdater
 Kanalnamnet står **ikkje** i appen eller her. Det ligg i GitHub-hemmelegheita `NTFY_VAKT` og i `vakt_kanal.txt` på PC-en (ikkje i git). Test: `python oppdater.py --vakt-test`.
 
 ---
+
+**Widget på iPhone (Scriptable):** Under Info → «Widget på iPhone» kopierer brukaren eit kort skript inn i appen Scriptable. Skriptet hentar `nettside/widget-kode.js` (bls.lillerud.com/widget-kode.js) kvar gong, så endringar i widgeten kjem ut til alle utan at nokon må lime inn på nytt – berre push. Widgeten les `widget.json` (skriven av `skriv_widget()` i `oppdater.py`: dei 6 siste hendingane utan loggar, siste brann, «i år» som på TV-en, «same tid i fjor» og skogbrannfaren). Utsjånad: forslag A «Klassisk» (godkjent 6.11.2026) – stort raudt tal for dagar sidan siste hending, siste brann, i år og skogbrannfare; raud når noko pågår (aktiv i Politiloggen og ny melding siste 3 timar, som i appen). Liten, middels og stor widget og låseskjermen (rund, avlang, linje). Følgjer lys/mørk på telefonen; skriv `lys` eller `mørk` i «Parameter» for å låse fargen. Oppdaterer seg om lag kvart kvarter (iOS avgjer) og like over midnatt. Testa med etterlikna Scriptable-API i Node, ikkje på ein ekte iPhone. Skriptet køyrer kode frå bls.lillerud.com, så det er like trygt som sida sjølv (sjå tryggleiksvakta i bolk 11).
 
 ## 7. Infoskjerm (TV)
 

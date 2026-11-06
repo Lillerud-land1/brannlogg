@@ -413,6 +413,9 @@ button.hbar[aria-pressed="true"] .fill{background:var(--ink)}
 .fot{font-size:12.5px;color:var(--muted);text-align:center;padding-top:6px}
 .steg{margin:0 0 12px;padding-left:20px;display:grid;gap:4px}
 .info .steg li{font-size:15px}
+.widget-knapp{margin:2px 0 12px}
+.widget-vis summary{cursor:pointer;font-size:14px;color:var(--ink-2);margin-top:6px}
+.widget-kode{font-size:12px;line-height:1.45;white-space:pre-wrap;word-break:break-word;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:10px;margin:8px 0 0;user-select:all;max-height:280px;overflow:auto}
 .kanalar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:10px}
 .kanal{border-radius:10px;padding:12px 14px;display:grid;gap:6px;background:var(--surface-2)}
 .kanal .sub{display:block;margin-top:2px}
@@ -841,6 +844,7 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
       <button type="button" data-hopp="info-heim">Legg appen på heimeskjermen</button>
       <button type="button" data-hopp="info-kjelder">Kjelder</button>
       <button type="button" data-hopp="varsel">Få varsel på mobilen</button>
+      <button type="button" data-hopp="widget">Widget på iPhone</button>
     </nav>
     <div class="info-innhald">
     <div class="panel" id="info-brann">
@@ -910,6 +914,41 @@ try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")
         </div>
       </div>
       <p class="sub">Trykkjer du på eit varsel, opnar Brannlogg seg på hendinga. På PC: trykk «Opne på PC», så «Subscribe», og tillat varsel i nettlesaren.</p>
+    </div>
+    <div class="panel varsel" id="widget">
+      <h3>Widget på iPhone</h3>
+      <p>Sjå kor mange dagar det er sidan siste hending, siste brann og skogbrannfaren rett på heimeskjermen eller låseskjermen. Det er gratis og krev ingen konto.</p>
+      <ol class="steg">
+        <li>Last ned den gratis appen <b>Scriptable</b>: <a href="https://apps.apple.com/app/scriptable/id1405459188" target="_blank" rel="noopener">App Store</a></li>
+        <li>Trykk «Kopier koden» under.</li>
+        <li>Opne Scriptable, trykk + øvst til høgre, lim inn koden og kall skriptet Brannlogg.</li>
+        <li>Hald fingeren på heimeskjermen, trykk Rediger → Legg til widget og vel Scriptable og storleik.</li>
+        <li>Hald fingeren på den nye widgeten, vel Rediger widget og vel Brannlogg under Script.</li>
+      </ol>
+      <div class="widget-knapp"><button type="button" class="btn" id="widget-kopier">Kopier koden</button></div>
+      <p class="sub">Lys eller mørk uansett innstilling på telefonen: skriv «lys» eller «mørk» i feltet Parameter når du redigerer widgeten. Widgeten hentar nye tal og ny kode av seg sjølv.</p>
+      <details class="widget-vis"><summary>Vis koden</summary><pre class="widget-kode"><code id="widget-kode">// Brannlogg Stord – widget for iPhone (Scriptable)
+// Hentar den nyaste widget-koden frå bls.lillerud.com kvar gong.
+// Lys eller mørk: skriv «lys» eller «mørk» i «Parameter» når du redigerer widgeten.
+const KODE = 'https://bls.lillerud.com/widget-kode.js';
+const fm = FileManager.local();
+const fil = fm.joinPath(fm.libraryDirectory(), 'brannlogg-widget-kode.js');
+try {
+  const req = new Request(KODE + '?t=' + Date.now());
+  req.timeoutInterval = 15;
+  const kode = await req.loadString();
+  if (req.response.statusCode === 200) {
+    if (kode.includes('brannlogg-widget-kode')) fm.writeString(fil, kode);
+  }
+} catch (e) {}
+if (fm.fileExists(fil)) {
+  await importModule(fil).run();
+} else {
+  const w = new ListWidget();
+  w.addText('Brannlogg: fekk ikkje henta widgeten. Sjekk nettet.');
+  Script.setWidget(w);
+  Script.complete();
+}</code></pre></details>
     </div>
     </div>
   </section>
@@ -1525,6 +1564,15 @@ const OMSETJING = [
   ["Del", "Del", "Share"],
   ["Kopier lenka:", "Kopier lenken:", "Copy the link:"],
   ["Opne ntfy, trykk", "Åpne ntfy, trykk", "Open ntfy, tap"],
+  ["Widget på iPhone", "Widget på iPhone", "iPhone widget"],
+  ["Sjå kor mange dagar det er sidan siste hending, siste brann og skogbrannfaren rett på heimeskjermen eller låseskjermen. Det er gratis og krev ingen konto.", "Se hvor mange dager det er siden siste hendelse, siste brann og skogbrannfaren rett på hjemskjermen eller låseskjermen. Det er gratis og krever ingen konto.", "See the days since the last incident, the last fire and the forest fire danger right on your home screen or lock screen. It is free and needs no account."],
+  ["Trykk «Kopier koden» under.", "Trykk «Kopier koden» under.", "Tap “Copy the code” below."],
+  ["Opne Scriptable, trykk + øvst til høgre, lim inn koden og kall skriptet Brannlogg.", "Åpne Scriptable, trykk + øverst til høyre, lim inn koden og kall skriptet Brannlogg.", "Open Scriptable, tap + in the top right, paste the code and name the script Brannlogg."],
+  ["Hald fingeren på heimeskjermen, trykk Rediger → Legg til widget og vel Scriptable og storleik.", "Hold fingeren på hjemskjermen, trykk Rediger → Legg til widget og velg Scriptable og størrelse.", "Touch and hold the home screen, tap Edit → Add Widget and choose Scriptable and a size."],
+  ["Hald fingeren på den nye widgeten, vel Rediger widget og vel Brannlogg under Script.", "Hold fingeren på den nye widgeten, velg Rediger widget og velg Brannlogg under Script.", "Touch and hold the new widget, choose Edit Widget and pick Brannlogg under Script."],
+  ["Kopier koden", "Kopier koden", "Copy the code"],
+  ["Lys eller mørk uansett innstilling på telefonen: skriv «lys» eller «mørk» i feltet Parameter når du redigerer widgeten. Widgeten hentar nye tal og ny kode av seg sjølv.", "Lys eller mørk uansett innstilling på telefonen: skriv «lys» eller «mørk» i feltet Parameter når du redigerer widgeten. Widgeten henter nye tall og ny kode av seg selv.", "Light or dark whatever your phone is set to: type “light” or “dark” in the Parameter field when you edit the widget. The widget fetches new numbers and new code by itself."],
+  ["Vis koden", "Vis koden", "Show the code"],
   [", lim inn kanalnamnet og trykk", ", lim inn kanalnavnet og trykk", ", paste the channel name and tap"],
   [". Tillat varsel når telefonen spør.", ". Tillat varsler når telefonen spør.", ". Allow notifications when your phone asks."],
   ["Alle oppdrag utan alarmar", "Alle oppdrag uten alarmer", "All call-outs except alarms"],
@@ -2396,6 +2444,13 @@ document.querySelectorAll("[data-kopier]").forEach(k => k.addEventListener("clic
   try { await navigator.clipboard.writeText(k.dataset.kopier); const tekst = k.textContent; k.textContent = T("Kopiert!"); setTimeout(() => { k.textContent = tekst; }, 2500); }
   catch (feil) { const r = document.createRange(); r.selectNodeContents(k.closest(".kanal").querySelector(".adr")); getSelection().removeAllRanges(); getSelection().addRange(r); }
 }));
+
+/* ---- Widget på iPhone: kopier Scriptable-skriptet. Det hentar sjølve widgeten (nettside/widget-kode.js) kvar gong. ---- */
+$("#widget-kopier").addEventListener("click", async () => {
+  const k = $("#widget-kopier");
+  try { await navigator.clipboard.writeText($("#widget-kode").textContent); k.textContent = T("Kopiert!"); setTimeout(() => { k.textContent = T("Kopier koden"); }, 2500); }
+  catch (feil) { $(".widget-vis").open = true; const r = document.createRange(); r.selectNodeContents($("#widget-kode")); getSelection().removeAllRanges(); getSelection().addRange(r); }
+});
 
 /* ---- Rapporter eit problem ---- */
 (function(){
