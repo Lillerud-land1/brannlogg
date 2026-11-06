@@ -312,7 +312,8 @@ const s0 = new Date(START * 864e5);
 const n50 = B.filter(b => b._o.dn >= START).length;
 // I år: frå 1. januar – byrjar på null att etter nyttår. Snittet deler på månadene som er gått (denne medrekna).
 // Berre oppdrag i brannstatistikken, så talet kan samanliknast med «same tid i fjor» (som òg er derifrå).
-const aar = B.filter(b => b._o.y === IDAG.y && b.bris).length;
+// «Oppdrag løst av 110» er ikkje offentlege der, så dei er ikkje med (talet blir likt brannstatistikk.no).
+const aar = B.filter(b => b._o.y === IDAG.y && b.bris && b.bris.type !== "Oppdrag løst av 110").length;
 const snittAar = aar / IDAG.m;
 t += `<div class="stripe-boks"><div class="etikett">Hendingar siste ${VINDU} dagar</div><div class="stripe" style="--kol:${VINDU}">${celler}</div>
       <div class="akse"><span>${s0.getUTCDate()}. ${MND_K[s0.getUTCMonth()]}</span><span>i dag</span></div>

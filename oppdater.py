@@ -522,7 +522,8 @@ def hent_fjor(bris=()):
         print(f"FJOR_FEIL: {feil}")
         tal = None
     if tal is not None:
-        i_aar = sum(1 for m in bris if datetime.fromisoformat(m["tid"]).astimezone(oslo).date() >= idag.replace(month=1, day=1))
+        i_aar = sum(1 for m in bris if m["type"] != LØYST_AV_110
+                    and datetime.fromisoformat(m["tid"]).astimezone(oslo).date() >= idag.replace(month=1, day=1))
         if forrige and tal < forrige["tal"] * 0.9:
             print(f"FJOR_AVVIST: {tal} oppdrag er for lite mot sist godkjende tal ({forrige['tal']} til {forrige['dato']}) – brukar det")
         elif not forrige and tal < i_aar / 2:
@@ -883,7 +884,8 @@ def skriv_widget(data):
     brann = next((b for b in br if b["gruppe"] == "brann"), None)
     bf = data["brannfare"]
     ut = {"oppdatert": data["oppdatert"], "siste": [kort(b) for b in br[:6]], "siste_brann": kort(brann) if brann else None,
-          "i_aar": sum(1 for b in br if b.get("bris") and datetime.fromisoformat(b["start"]).astimezone(oslo).year == aar),
+          "i_aar": sum(1 for b in br if b.get("bris") and b["bris"].get("type") != LØYST_AV_110
+                       and datetime.fromisoformat(b["start"]).astimezone(oslo).year == aar),
           "fjor": data["fjor"], "brannfare": {"klasse": bf["klasse"], "prosent": bf["prosent"]} if bf else None}
     (MAPPE / "nettside" / "widget.json").write_text(json.dumps(ut, ensure_ascii=False), encoding="utf-8")
 
