@@ -22,7 +22,7 @@ Laga av **Leander Wågen Lillerud**. Ikkje ein offisiell teneste frå Politiet, 
 - **Kart** over Stord med alle hendingar dei siste 12 månadene som har kjend stad. Fargen viser kor alvorleg det var (som på TV-en), alarmar er tomme ringar, og dei siste 100 dagane er større og blinkar.
 - **Del-knapp** på kvar hending: opnar delingsmenyen på mobilen (SMS, Messenger …), elles blir lenka kopiert.
 - **Temadagar** (berre på sjølve dagen, i appen og på TV-en i staden for månadens tips): bålforbodet startar 15. april, sankthansaftan, brannvernuka (veke 38), røykvarslardagen 1. desember, julaftan og nyttårsaftan. Tekstane står i `TEMA` i `oppdater.py`.
-- **«Pågår no»**: raudt banner øvst på alle faner når politiet har ei aktiv hending med ny melding siste 3 timar (same regel som alarmmodus på TV-en).
+- **«Pågår no»**: raudt banner øvst på alle faner når politiet har ei aktiv hending med ny melding siste 3 timar (same regel som TV-en og widgeten).
 - **Året i ruter** øvst under Statistikk: éi rute per dag sidan 1. januar (kolonne = månad), farga etter kva slags dag det var, og talet på brannar per månad under (`aaret()` i `mal.html`).
 - **Statistikk** for siste 12 månader: knappar for å sjå fordelinga per månad, årstid, vekedag eller klokketime, og for å filtrere på gruppe og type. I tillegg type, tid på døgnet og konsekvensar.
 - **Innstillingar** (eiga fane): språk (nynorsk, bokmål, engelsk), fargeblind-vennlege fargar, lys/mørk/automatisk utsjånad, stor tekst, rørsle av/på og kva appen opnar med. Blir lagra i nettlesaren (`localStorage`, nøkkel `brannlogg_innst`).
@@ -177,6 +177,7 @@ Kanalnamnet står **ikkje** i appen eller her. Det ligg i GitHub-hemmelegheita `
 - Ny `TV_KRYPTERT` (set `TV_ADRESSE` og `ADMIN_KODE` som miljøvariablar først):
   `python -c "import hashlib,os; n=os.environ['TV_ADRESSE'].encode(); k=hashlib.pbkdf2_hmac('sha256', os.environ['ADMIN_KODE'].encode(), b'brannlogg-admin-v2', 600000, len(n)); print(bytes(a^b for a,b in zip(n,k)).hex())"`
 - Viser alle hendingar (også brannalarmar), klokke, «dagar sidan siste hending», stripe, tal for **i år** (frå 1. januar) og **same tid i fjor** (begge berre oppdrag i brannstatistikken, så dei kan samanliknast; fjoråret kjem frå `hent_fjor()`), kart, månadens brannverntips og QR-kode til appen.
+- **«Pågår no» / alarmbilete:** same regel som i appen og widgeten – aktiv i Politiloggen *og* ny melding dei siste 3 timane (`alarmNo()` i `mal-tv.html`). Då tek alarmbiletet over skjermen; elles viser teljaren «Dagar sidan siste hending». Før 7.11.2026 brukte teljaren berre «aktiv», så TV-en kunne stå med «Pågår no» i fleire dagar medan appen ikkje gjorde det.
 - Sjekkar etter nye data kvart 2. minutt, lastar heile sida på nytt kvar time og ved midnatt, og held skjermen vaken.
 - **Infoskjermen.no**: «Nytt oppslag» → «Nettside» → lim inn adressa → vel **Fullskjerm** → lagre. Sida kan visast i iframe (https, inga innlogging).
 - PC/TV: opne adressa i Edge/Chrome og trykk F11.
