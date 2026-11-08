@@ -585,6 +585,21 @@ button.hbar[aria-pressed="true"] .fill{background:var(--ink)}
 dialog.boble{border:0;padding:30px 26px 24px;width:min(92vw,420px);overflow:visible;text-align:center;border-radius:28px;
   background:var(--surface);color:var(--ink);box-shadow:0 24px 70px rgba(0,0,0,.4);animation:boble-inn .45s cubic-bezier(.2,1.6,.4,1)}
 dialog.boble::backdrop{background:rgba(10,15,20,.6)}
+/* Innloggingsskjermen for adminpanelet: dekkjer nesten heile skjermen */
+dialog.innlogging{border:0;padding:0;margin:auto;width:calc(100vw - 32px);height:calc(100dvh - 32px);max-width:none;max-height:none;border-radius:20px;background:var(--surface);color:var(--ink);box-shadow:0 24px 80px rgba(0,0,0,.4)}
+dialog.innlogging::backdrop{background:rgba(10,14,18,.78);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.innlogging-kort{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;text-align:center;max-width:420px;margin:0 auto}
+.innlogging .laas{width:68px;height:68px;border-radius:50%;background:var(--fire);color:#fff;display:grid;place-items:center}
+.innlogging h2{font-size:30px;margin:0}
+.innlogging input{width:100%;max-width:260px;font:inherit;font-size:30px;letter-spacing:.35em;text-indent:.35em;text-align:center;padding:12px;border:2px solid var(--line-3);border-radius:14px;background:var(--surface-2);color:var(--ink)}
+.innlogging input:focus{outline:none;border-color:var(--fire)}
+.pin-feil{min-height:1.4em;margin:0;color:var(--fire);font-weight:600}
+.innlogging .btn-lagre{flex:none;width:100%;max-width:260px}
+.lenke-knapp{background:none;border:0;padding:6px;color:var(--ink-2);text-decoration:underline;font:inherit;cursor:pointer}
+.innlogging .liten{font-size:13px;max-width:320px}
+.admin-okt{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}
+.admin-okt .btn{margin-left:auto}
+.tv-blokk{display:grid;gap:8px}
 dialog.boble::after{content:"";position:absolute;left:50%;bottom:-18px;margin-left:-20px;border:20px solid transparent;border-bottom:0;border-top-color:var(--surface)}
 .boble-emoji{font-size:64px;line-height:1.1;letter-spacing:4px}
 dialog.boble h2{font-size:25px;line-height:1.2;font-weight:700;margin-top:10px}
@@ -1010,24 +1025,29 @@ if (fm.fileExists(fil)) {
       </div>
       <p class="admin-feil" id="admin-feil" hidden>Feil kode.</p>
       <div class="admin-lenke" id="admin-lenke" hidden>
-        <b class="admin-tittel">Adminpanel</b>
-        <div><b>Infoskjerm</b><span class="sub" style="display:block">Lenke til storskjerm-versjonen for brannstasjonen.</span></div>
-        <code class="adr" id="admin-url"></code>
-        <div class="rad">
-          <button type="button" class="btn" id="admin-kopier">Kopier lenka</button>
-          <a class="btn" id="admin-opne" target="_blank" rel="noopener">Opne infoskjermen</a>
+        <div class="admin-okt"><b class="admin-tittel">Adminpanel</b><span class="sub" id="okt-tekst"></span><button type="button" class="btn" id="logg-ut">Logg ut</button></div>
+        <p class="sub" id="okt-avgrensa" hidden>Avgrensa tilgang: du ser status og tal, men ikkje lenka til infoskjermen, «Oppdater no» eller nedlasting.</p>
+        <div class="tv-blokk" id="tv-blokk" hidden>
+          <div><b>Infoskjerm</b><span class="sub" style="display:block">Lenke til storskjerm-versjonen for brannstasjonen.</span></div>
+          <code class="adr" id="admin-url"></code>
+          <div class="rad">
+            <button type="button" class="btn" id="admin-kopier">Kopier lenka</button>
+            <a class="btn" id="admin-opne" target="_blank" rel="noopener">Opne infoskjermen</a>
+          </div>
+          <span class="sub" id="admin-status"></span>
         </div>
-        <span class="sub" id="admin-status"></span>
         <ul class="sys-liste" id="tv-sett" hidden></ul>
         <div class="sys" id="sys">
           <div><b>Systemstatus</b><span class="sub" style="display:block">Om appen hentar data som han skal. Blir sjekka kvart kvarter.</span></div>
           <ul class="sys-liste" id="sys-liste"></ul>
-          <div class="rad"><button type="button" class="btn" id="oppd-no">Oppdater no</button></div>
-          <form class="admin-kode" id="oppd-skjema" autocomplete="off" hidden>
-            <input id="oppd-kode" inputmode="numeric" maxlength="6" autocomplete="one-time-code" aria-label="Kode frå mobilen" placeholder="Kode frå mobilen">
-            <button type="submit" class="btn">Start</button>
-          </form>
-          <span class="sub" id="oppd-status"></span>
+          <div class="tv-blokk" id="oppd-blokk" hidden>
+            <div class="rad"><button type="button" class="btn" id="oppd-no">Oppdater no</button></div>
+            <form class="admin-kode" id="oppd-skjema" autocomplete="off" hidden>
+              <input id="oppd-kode" inputmode="numeric" maxlength="6" autocomplete="one-time-code" aria-label="Kode frå mobilen" placeholder="Kode frå mobilen">
+              <button type="submit" class="btn">Start</button>
+            </form>
+            <span class="sub" id="oppd-status"></span>
+          </div>
         </div>
         <div class="besok" id="besok" hidden>
           <div><b>Besøk</b><span class="sub" style="display:block">Kor mange som har opna appen. Kvar eining blir talt éin gong per dag.</span></div>
@@ -1054,6 +1074,19 @@ if (fm.fileExists(fil)) {
       </div>
     </div>
     <!-- Blir vist etter tre feil admin-kodar (sjå «Admin-sperre» i skriptet) -->
+    <!-- Steg 2 i admin-innlogginga: personleg PIN-kode (sjå «Admin-innlogging» i skriptet og worker/worker.js) -->
+    <dialog class="innlogging" id="innlogging" aria-labelledby="innlogging-tittel">
+      <form class="innlogging-kort" id="pin-skjema" autocomplete="off">
+        <div class="laas" aria-hidden="true"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+        <h2 id="innlogging-tittel">Logg inn</h2>
+        <p class="sub">Admin-koden var rett. Skriv PIN-koden din for å opne adminpanelet.</p>
+        <input id="pin" type="password" inputmode="numeric" maxlength="8" autocomplete="off" aria-label="PIN-kode" placeholder="PIN">
+        <p class="pin-feil" id="pin-feil" role="alert"></p>
+        <button type="submit" class="btn-lagre" id="pin-knapp">Logg inn</button>
+        <button type="button" class="lenke-knapp" id="pin-avbryt">Avbryt</button>
+        <p class="sub liten">Kvar innlogging blir meld til eigaren. Etter 5 feil PIN-kodar blir eininga sperra i 15 minutt.</p>
+      </form>
+    </dialog>
     <dialog class="boble" id="admin-boble" aria-labelledby="boble-tittel">
       <div class="boble-emoji" aria-hidden="true">🔒</div>
       <h2 id="boble-tittel">Ver venleg og prøv igjen seinare</h2>
@@ -1726,6 +1759,24 @@ const OMSETJING = [
   ["QR-koden på infoskjermen", "QR-koden på infoskjermen", "QR code on the info screen"],
   ["Kor mange gonger QR-koden på TV-en er skanna. Kvar skanning blir talt (maks 3 i minuttet frå same eining).", "Hvor mange ganger QR-koden på TV-en er skannet. Hver skanning telles (maks 3 i minuttet fra samme enhet).", "How many times the QR code on the TV has been scanned. Every scan is counted (max 3 per minute from the same device)."],
   ["Oppdater no", "Oppdater nå", "Update now"],
+  ["Logg inn", "Logg inn", "Log in"],
+  ["Logg ut", "Logg ut", "Log out"],
+  ["Avbryt", "Avbryt", "Cancel"],
+  ["Admin-koden var rett. Skriv PIN-koden din for å opne adminpanelet.", "Admin-koden var riktig. Skriv PIN-koden din for å åpne adminpanelet.", "The admin code was correct. Enter your PIN to open the admin panel."],
+  ["Kvar innlogging blir meld til eigaren. Etter 5 feil PIN-kodar blir eininga sperra i 15 minutt.", "Hver innlogging meldes til eieren. Etter 5 feil PIN-koder sperres enheten i 15 minutter.", "Every login is reported to the owner. After 5 wrong PINs the device is locked for 15 minutes."],
+  ["PIN-koden har 4–8 siffer.", "PIN-koden har 4–8 sifre.", "The PIN has 4–8 digits."],
+  ["For mange feil. Prøv igjen om {n} min.", "For mange feil. Prøv igjen om {n} min.", "Too many errors. Try again in {n} min."],
+  ["Feil PIN-kode. {n} forsøk att.", "Feil PIN-kode. {n} forsøk igjen.", "Wrong PIN. {n} attempts left."],
+  ["Feil PIN-kode.", "Feil PIN-kode.", "Wrong PIN."],
+  ["Admin-koden er ikkje lenger gyldig. Start på nytt.", "Admin-koden er ikke lenger gyldig. Start på nytt.", "The admin code is no longer valid. Start again."],
+  ["For mange feil forsøk frå denne eininga. Prøv igjen om {n} min.", "For mange feil forsøk fra denne enheten. Prøv igjen om {n} min.", "Too many wrong attempts from this device. Try again in {n} min."],
+  ["Logga inn som {n} · full tilgang", "Logget inn som {n} · full tilgang", "Logged in as {n} · full access"],
+  ["Logga inn som {n} · avgrensa tilgang", "Logget inn som {n} · begrenset tilgang", "Logged in as {n} · limited access"],
+  ["blir logga ut kl. {k}", "logges ut kl. {k}", "logged out at {k}"],
+  ["Avgrensa tilgang: du ser status og tal, men ikkje lenka til infoskjermen, «Oppdater no» eller nedlasting.", "Begrenset tilgang: du ser status og tall, men ikke lenken til infoskjermen, «Oppdater nå» eller nedlasting.", "Limited access: you see status and numbers, but not the info screen link, “Update now” or downloads."],
+  ["Fekk ikkje henta lenka.", "Fikk ikke hentet lenken.", "Could not fetch the link."],
+  ["Innlogginga har gått ut. Logg inn på nytt.", "Innloggingen har gått ut. Logg inn på nytt.", "Your login has expired. Log in again."],
+  ["Du har ikkje tilgang til dette.", "Du har ikke tilgang til dette.", "You do not have access to this."],
   ["Start", "Start", "Start"],
   ["Einingar", "Enheter", "Devices"],
   ["Kva slags einingar som opnar appen, siste 30 dagar. Berre tal – ingen personar.", "Hva slags enheter som åpner appen, siste 30 dager. Bare tall – ingen personer.", "What kind of devices open the app, last 30 days. Numbers only – no people."],
@@ -2630,20 +2681,22 @@ $("#personvern-ok").addEventListener("click", () => {
   try { localStorage.setItem("brannlogg_personvern_ok", "1"); } catch (e) {}
 });
 
-/* ---- Admin-tilgang: lenka til infoskjermen. Verken passordet eller adressa står i sida: adressa ligg kryptert
-   med ein nøkkel som blir rekna ut frå passordet (PBKDF2, med vilje tregt). Feil passord gir berre rot.
-   Nytt passord eller ny adresse: sjå README, bolk 7. ---- */
-const TV_KRYPTERT = "a16cfa16722a3df7cb";
-let tvAdr = "", besokNokkel = "";
-async function tvAdresse(kode){
-  const enc = new TextEncoder(), krypt = TV_KRYPTERT.match(/../g).map(h => parseInt(h, 16));
+/* ---- Admin-innlogging (8.11.2026, ønske frå brukaren: «ikkje mogleg å kome forbi utan rett passord»).
+   Steg 1: admin-koden. Appen reknar ut ein nøkkel frå koden (PBKDF2, med vilje tregt – same som BESOK_NOKKEL før)
+   og spør workeren om han er rett («/admin-sjekk»). Koden sjølv blir aldri sendt.
+   Steg 2: personleg PIN-kode på ein skjerm som dekkjer nesten heile sida («/logginn»). Workeren gir eit signert
+   innloggingsbevis som gjeld i 30 minutt, med rolla «full» (alt) eller «avgrensa» (status og tal).
+   Alt i panelet som ikkje er offentleg, kjem frå workeren og krev beviset – også lenka til infoskjermen (berre full
+   tilgang). Difor kan ingen kome forbi innloggingsskjermen ved å endre sida i nettlesaren: panelet er då tomt.
+   Beviset ligg berre i minnet (borte når sida blir lasta på nytt). Sjå worker/worker.js og README, bolk 11. ---- */
+let tvAdr = "", besokNokkel = "", okt = null;   // okt = {token, ut, namn, rolle}
+async function adminNokkel(kode){
+  const enc = new TextEncoder();
   const nokkel = await crypto.subtle.importKey("raw", enc.encode(kode), "PBKDF2", false, ["deriveBits"]);
-  // 32 byte: dei første (opptil 16) dekodar adressa, dei siste 16 er nøkkelen til besøkstala (BESOK_NOKKEL, README bolk 11)
+  // 32 byte; dei siste 16 er nøkkelen workeren kjenner (BESOK_NOKKEL). Dei første 16 vart brukte til den gamle
+  // krypterte infoskjerm-adressa i sida, som er fjerna.
   const bitar = new Uint8Array(await crypto.subtle.deriveBits({name:"PBKDF2", hash:"SHA-256", salt:enc.encode("brannlogg-admin-v2"), iterations:600000}, nokkel, 256));
-  const namn = String.fromCharCode(...krypt.map((b, i) => b ^ bitar[i]));
-  if (!/^tv-[0-9a-z]{6,13}$/.test(namn)) return null;
-  besokNokkel = [...bitar.slice(16)].map(b => b.toString(16).padStart(2, "0")).join("");
-  return new URL(namn, location.href).href;   // kort adresse utan .html (GitHub Pages finn tv-….html)
+  return [...bitar.slice(16)].map(b => b.toString(16).padStart(2, "0")).join("");
 }
 async function kopierAdmin(){
   try { await navigator.clipboard.writeText(tvAdr); $("#admin-status").textContent = T("Lenka er kopiert. Lim henne inn i adresselinja i nettlesaren."); }
@@ -2720,16 +2773,26 @@ $("#admin-skjema").addEventListener("submit", async e => {
   const sperre = lesSperre();
   if (sperre.til > Date.now()) { $("#admin-kode").value = ""; visBoble(sperre.til); return; }
   knapp.disabled = true;
-  let ok = false, nettfeil = false;
+  let ok = false, nettfeil = false, tenarSperre = null;
+  loggUt();   // ei ny innlogging startar alltid frå null
   try {
-    const adr = await tvAdresse(kode);
-    ok = !!adr && (await fetch(adr, {method:"HEAD", cache:"no-store"})).ok;
-    if (ok) tvAdr = adr;
-  } catch (feil) { nettfeil = true; }
+    besokNokkel = await adminNokkel(kode);
+    await opneKall("/admin-sjekk", {nokkel:besokNokkel});
+    ok = true;
+  } catch (feil) {
+    if (feil.status === 423) tenarSperre = {sekund:(feil.data || {}).sekund || 60};
+    else if (feil.status === 429) tenarSperre = {fart:true};
+    else if (feil.status !== 403) nettfeil = true;
+  }
   knapp.disabled = false;
+  if (tenarSperre) {
+    besokNokkel = "";
+    $("#admin-feil").textContent = tenarSperre.fart ? T("For mange forsøk. Vent eitt minutt.")
+      : T("For mange feil forsøk frå denne eininga. Prøv igjen om {n} min.", {n:Math.ceil(tenarSperre.sekund / 60)});
+    $("#admin-feil").hidden = false; $("#admin-kode").select(); return;
+  }
   $("#admin-feil").textContent = T(nettfeil ? "Fekk ikkje kontakt. Prøv igjen." : "Feil kode.");
   $("#admin-feil").hidden = ok;
-  $("#admin-lenke").hidden = !ok;
   if (ok) lagreSperre({feil:0, til:0});
   else if (!nettfeil) {
     sperre.feil++;
@@ -2742,14 +2805,82 @@ $("#admin-skjema").addEventListener("submit", async e => {
     }
     lagreSperre(sperre);
   }
-  if (!ok) { $("#admin-kode").select(); return; }
-  $("#admin-url").textContent = tvAdr;
-  $("#admin-opne").href = tvAdr;
+  if (!ok) { besokNokkel = ""; $("#admin-kode").select(); return; }
   $("#admin-kode").value = "";
-  kopierAdmin();
-  visBesok();
+  opneInnlogging();
 });
 $("#admin-kopier").addEventListener("click", kopierAdmin);
+
+// Steg 2: PIN-skjermen. Han kan berre lukkast med «Avbryt» (eller Esc), og då må admin-koden skrivast på nytt.
+function opneInnlogging(){
+  const d = $("#innlogging");
+  $("#pin").value = ""; $("#pin-feil").textContent = "";
+  if (!d.open) { if (d.showModal) d.showModal(); else d.setAttribute("open", ""); }
+  setTimeout(() => $("#pin").focus(), 50);
+}
+const lukkInnlogging = () => { const d = $("#innlogging"); if (d.open) { d.close ? d.close() : d.removeAttribute("open"); } };
+$("#innlogging").addEventListener("cancel", e => { e.preventDefault(); loggUt(); });
+$("#pin-avbryt").addEventListener("click", () => loggUt());
+$("#pin-skjema").addEventListener("submit", async e => {
+  e.preventDefault();
+  const pin = $("#pin").value.trim(), knapp = $("#pin-knapp"), feilEl = $("#pin-feil");
+  if (knapp.disabled) return;
+  if (!/^\d{4,8}$/.test(pin)) { feilEl.textContent = T("PIN-koden har 4–8 siffer."); return; }
+  if (!besokNokkel) { loggUt(); return; }
+  knapp.disabled = true; feilEl.textContent = "";
+  try {
+    const svar = await opneKall("/logginn", {nokkel:besokNokkel, pin});
+    okt = {token:svar.token, ut:Number(svar.ut), namn:String(svar.namn || ""), rolle:svar.rolle === "full" ? "full" : "avgrensa"};
+    lukkInnlogging();
+    visPanel();
+  } catch (feil) {
+    const d = feil.data || {};
+    feilEl.textContent = feil.status === 423 ? T("For mange feil. Prøv igjen om {n} min.", {n:Math.ceil((Number(d.sekund) || 900) / 60)})
+      : feil.status === 403 && d.feil === "feil pin" ? (d.att ? T("Feil PIN-kode. {n} forsøk att.", {n:d.att}) : T("Feil PIN-kode."))
+      : feil.status === 403 ? T("Admin-koden er ikkje lenger gyldig. Start på nytt.")
+      : feil.status === 429 ? T("For mange forsøk. Vent eitt minutt.")
+      : T("Fekk ikkje kontakt. Prøv igjen.");
+    $("#pin").value = ""; $("#pin").focus();
+  } finally {
+    knapp.disabled = false;
+  }
+});
+// Panelet etter innlogging: kva som blir vist, avheng av rolla. Data kjem berre frå workeren, med beviset.
+async function visPanel(){
+  if (!okt) return;
+  const full = okt.rolle === "full";
+  $("#admin-lenke").hidden = false;
+  $("#okt-tekst").textContent = T(full ? "Logga inn som {n} · full tilgang" : "Logga inn som {n} · avgrensa tilgang", {n:okt.namn}) +
+    " · " + T("blir logga ut kl. {k}", {k:kl(oslo(new Date(okt.ut)))});
+  $("#okt-avgrensa").hidden = full;
+  $("#tv-blokk").hidden = !full;
+  $("#oppd-blokk").hidden = !full;
+  if (full) {
+    try {
+      tvAdr = (await opneKall("/tv-adresse", {okt:okt.token})).adresse || "";
+      $("#admin-url").textContent = tvAdr; $("#admin-opne").href = tvAdr;
+      kopierAdmin();
+    } catch (feil) {
+      if (feil.status === 401) { utlopt(); return; }
+      $("#admin-url").textContent = T("Fekk ikkje henta lenka.");
+    }
+  }
+  visBesok();
+}
+// Logg ut: alt som kom frå workeren, blir fjerna frå sida, og nøkkelen og beviset blir gløymde
+function loggUt(melding){
+  okt = null; besokNokkel = ""; tvAdr = ""; oppdToken = ""; sisteTal = null;
+  lukkInnlogging();
+  $("#admin-lenke").hidden = true;
+  $("#admin-url").textContent = ""; $("#admin-opne").removeAttribute("href"); $("#admin-status").textContent = "";
+  for (const s of ["#tv-blokk", "#oppd-blokk", "#besok", "#qr-boks", "#eining-boks", "#eksport-boks", "#tv-sett", "#oppd-skjema"]) $(s).hidden = true;
+  for (const s of ["#besok-tal", "#besok-graf", "#qr-tal", "#qr-graf", "#eining-tal", "#tv-sett"]) $(s).innerHTML = "";
+  for (const s of ["#besok-status", "#qr-status", "#eining-app", "#oppd-status", "#eksport-status", "#okt-tekst"]) $(s).textContent = "";
+  if (melding) { $("#admin-feil").textContent = melding; $("#admin-feil").hidden = false; }
+}
+const utlopt = () => loggUt(T("Innlogginga har gått ut. Logg inn på nytt."));
+setInterval(() => { if (okt && Date.now() > okt.ut) utlopt(); }, 15000);
+$("#logg-ut").addEventListener("click", () => { loggUt(); $("#admin-feil").hidden = true; });
 
 /* ---- Besøkstal: appen sender éi melding til Cloudflare-tenesta (OPNE_URL) kvar gong ho blir opna – ikkje
    infoskjermen. Ingen informasjonskapslar og ingenting lagra på eininga; tenesta tel kvar eining éin gong per dag
@@ -2785,13 +2916,17 @@ const datoLang = dag => new Date(dag + "T12:00:00Z").toLocaleDateString(LOCALE, 
 const erPC = () => matchMedia("(pointer: fine)").matches && innerWidth >= 900;   // «Last ned statistikk» berre på PC
 let sisteTal = null;   // svaret frå /besok-tal, til Excel-fila
 async function visBesok(){
-  if (!OPNE_URL || !besokNokkel) return;
-  $("#eksport-boks").hidden = !erPC();
+  if (!OPNE_URL || !okt) return;
+  $("#eksport-boks").hidden = !(erPC() && okt.rolle === "full");
   $("#besok").hidden = false; $("#besok-tal").innerHTML = ""; $("#besok-graf").innerHTML = "";
   $("#besok-status").textContent = T("Hentar besøkstal …");
   let d;
-  try { d = await opneKall("/besok-tal", {nokkel:besokNokkel}); }
-  catch (feil) { $("#besok-status").textContent = T(feil.status === 403 ? "Besøkstala er ikkje sette opp enno." : "Fekk ikkje henta besøkstala."); return; }
+  try { d = await opneKall("/besok-tal", {okt:okt.token}); }
+  catch (feil) {
+    if (feil.status === 401) { utlopt(); return; }
+    $("#besok-status").textContent = T("Fekk ikkje henta besøkstala."); return;
+  }
+  if (!okt) return;   // logga ut medan tala vart henta
   sisteTal = d;
   visTal(Object.fromEntries((d.dagar || []).map(r => [r.dag, r.besokande])), d.idag, d.totalt, "#besok-tal", "#besok-graf");
   $("#besok-status").textContent = T("Totalt sidan {d}. Stolpane viser dei siste 30 dagane, raud er i dag.", {d:datoLang(d.fyrste || d.idag)});
@@ -2838,15 +2973,16 @@ function visTvSett(tv){
 let oppdToken = "";
 $("#oppd-no").addEventListener("click", async () => {
   const st = $("#oppd-status");
-  if (!besokNokkel) { st.textContent = T("Skriv admin-koden først."); return; }
+  if (!okt || okt.rolle !== "full") { st.textContent = T("Du har ikkje tilgang til dette."); return; }
   $("#oppd-no").disabled = true;
   st.textContent = T("Sender kode til mobilen …");
   try {
-    oppdToken = (await opneKall("/oppdater-kode", {nokkel:besokNokkel})).token || "";
+    oppdToken = (await opneKall("/oppdater-kode", {okt:okt.token})).token || "";
     $("#oppd-skjema").hidden = false; $("#oppd-kode").value = ""; $("#oppd-kode").focus();
     st.textContent = T("Koden kjem i den private ntfy-kanalen din, vanlegvis innan 1–2 minutt. Han gjeld i 15 minutt.");
   } catch (feil) {
-    st.textContent = T(feil.status === 429 ? "For mange forsøk. Vent eitt minutt." : "Fekk ikkje sendt kode. Prøv igjen seinare.");
+    if (feil.status === 401) { utlopt(); return; }
+    st.textContent = T(feil.status === 429 ? "For mange forsøk. Vent eitt minutt." : feil.status === 403 ? "Du har ikkje tilgang til dette." : "Fekk ikkje sendt kode. Prøv igjen seinare.");
   } finally {
     $("#oppd-no").disabled = false;
   }
@@ -2855,11 +2991,13 @@ $("#oppd-skjema").addEventListener("submit", async e => {
   e.preventDefault();
   const st = $("#oppd-status"), kode = $("#oppd-kode").value.trim();
   if (!/^\d{6}$/.test(kode)) { st.textContent = T("Koden har 6 siffer."); return; }
+  if (!okt) { utlopt(); return; }
   try {
-    await opneKall("/oppdater", {nokkel:besokNokkel, token:oppdToken, kode});
+    await opneKall("/oppdater", {okt:okt.token, token:oppdToken, kode});
     $("#oppd-skjema").hidden = true; oppdToken = "";
     st.textContent = T("Oppdateringa er starta. Nye data kjem om 1–3 minutt (litt meir om ei oppdatering går akkurat no).");
   } catch (feil) {
+    if (feil.status === 401) { utlopt(); return; }
     const d = feil.data || {};
     const ferdig = ["brukt", "sperra", "ugyldig"].includes(d.feil) || (d.feil === "feil kode" && !d.att);
     st.textContent = d.feil === "feil kode" && d.att ? T("Feil kode. {n} forsøk att.", {n:d.att})
@@ -2953,6 +3091,7 @@ function lagStatistikk(){
   return {blob:lagXlsx(ark), namn:`brannlogg-stord-${o.y}-${pad(o.m)}-${pad(o.d)}.xlsx`};
 }
 $("#eksport").addEventListener("click", () => {
+  if (!okt || okt.rolle !== "full") { $("#eksport-status").textContent = T("Du har ikkje tilgang til dette."); return; }
   try {
     const {blob, namn} = lagStatistikk(), a = document.createElement("a");
     a.href = URL.createObjectURL(blob); a.download = namn; document.body.appendChild(a); a.click();

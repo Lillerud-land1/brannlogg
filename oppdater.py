@@ -720,7 +720,7 @@ def skriv_nettside(side):
 
 
 # Infoskjermen ligg på ei hemmeleg adresse som berre står i GitHub-hemmelegheita TV_ADRESSE – ikkje i koden.
-# Adminpanelet i appen har adressa kryptert med admin-passordet (TV_KRYPTERT i mal.html, sjå README, bolk 7).
+# Adminpanelet får adressa frå Cloudflare-workeren etter innlogging med admin-kode + PIN (full tilgang), sjå README, bolk 7 og 11.
 TV_GAMAL = """<!doctype html>
 <html lang="nn">
 <head>

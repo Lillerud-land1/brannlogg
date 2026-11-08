@@ -15,7 +15,7 @@
 // tel kvar eining éin gong per dag: IP-adresse og nettlesar blir gjort om til ein hash med eit tilfeldig dagssalt,
 // og både saltet og hashane blir sletta når dagen er over. Att står berre talet på besøkande per dag (alle dagar,
 // så adminpanelet kan vise totalen).
-// Adminpanelet hentar tala med «/besok-tal» og ein nøkkel som blir rekna ut frå admin-koden (BESOK_NOKKEL).
+// Adminpanelet hentar tala med «/besok-tal» og eit innloggingsbevis (admin-kode + PIN, sjå «Innlogging i adminpanelet»).
 // Kjem nokon via QR-koden på infoskjermen (adressa «/?qr»), sender appen {qr: true}, og kvar skanning blir talt
 // (tabellen qr; berre talet per dag, maks 3 i minuttet frå same eining – sjå GRENSE_EINING). Appen sender òg kva
 // slags eining det er (mobil/nettbrett/pc) og om ho er opna som app frå heimeskjermen; det blir talt saman med
@@ -24,12 +24,13 @@
 // Infoskjermen melder frå kvart 5. minutt («/tv», med ein nøkkel som byggjeskriptet reknar ut som
 // HMAC(HENT_NOKKEL, "tv-ping")), og adminpanelet viser når han sist vart sett og kor gamle dataa på skjermen er.
 //
-// «Oppdater no» i adminpanelet: krev BESOK_NOKKEL (frå admin-koden) OG ein 6-sifra kode som blir sendt til den
+// «Oppdater no» i adminpanelet: krev innlogging med full tilgang (admin-kode + PIN) OG ein 6-sifra kode som blir sendt til den
 // private ntfy-kanalen (same kø som over). Koden gjeld i 15 minutt, éin gong, maks 5 feil forsøk, og det må gå
 // 5 minutt mellom kvar oppdatering. Eigaren får melding både om koden og når oppdateringa blir starta.
 // Køen får meldinga {type: "oppdater"}; jobben «neste» i oppdater.yml startar då neste køyring med ein gong.
 //
-// Hemmelegheiter (npx wrangler secret put …): KODE_NOKKEL (signerer tokenet), HENT_NOKKEL (GitHub brukar
+// Hemmelegheiter (npx wrangler secret put …): PINAR (PIN-kodane, berre hashar) og TV_ADRESSE (lenka til infoskjermen) –
+// begge set av admin_oppsett.py –, KODE_NOKKEL (signerer token og innloggingsbevis), HENT_NOKKEL (GitHub brukar
 // han for å hente køen; same verdi som GitHub-hemmelegheita HENT_NOKKEL), BESOK_NOKKEL (sjå README, bolk 11).
 // Legg ut: cd worker && npx wrangler deploy   (sjå README, bolk 11)
 
@@ -98,6 +99,57 @@ function likt(fatt, nokkel) {
 }
 const rettNokkel = (env, req) => likt(req.headers.get("Authorization"), `Bearer ${env.HENT_NOKKEL || ""}`);
 
+/* ---- Innlogging i adminpanelet (8.11.2026, ønske frå brukaren: «ikkje mogleg å kome forbi utan rett passord»).
+   Steg 1: admin-koden (appen reknar ut BESOK_NOKKEL med PBKDF2 og sender berre nøkkelen, «/admin-sjekk»).
+   Steg 2: personleg PIN-kode («/logginn»). PIN-kodane ligg i hemmelegheita PINAR som JSON:
+     [{"namn": "Leander", "rolle": "full" | "avgrensa", "salt": "<b64>", "hash": "<b64 HMAC-SHA256(salt, pin)>"}]
+   (laga av C:\Claude\brannlogg-forslag\admin_oppsett.py – PIN-kodane sjølve står ingen stad).
+   Rett admin-kode + rett PIN gir eit signert innloggingsbevis (HMAC med KODE_NOKKEL) som gjeld i OKT_MIN minutt.
+   Alt i panelet som ikkje er offentleg (besøkstal, «Oppdater no», lenka til infoskjermen) krev beviset, og
+   «full» krevst for lenka til infoskjermen og «Oppdater no». Lenka står berre her (hemmelegheita TV_ADRESSE).
+   Gjetting: 5 feil PIN frå same eining = sperra i 15 minutt; 20 feil totalt på ein time = alle sperra i ein time;
+   10 feil admin-kodar frå same eining på ein time = sperra i ein time. Eigaren får melding om sperrer og
+   om kvar innlogging. Einingar blir kjende att på ein hash av IP-adressa, aldri sjølve adressa. ---- */
+const OKT_MIN = 30;
+const ROLLER = ["full", "avgrensa"];
+async function hmacB64(nokkelBytes, tekst) {
+  const k = await crypto.subtle.importKey("raw", nokkelBytes, {name: "HMAC", hash: "SHA-256"}, false, ["sign"]);
+  return b64(await crypto.subtle.sign("HMAC", k, enc.encode(tekst)));
+}
+const ipHash = async (env, ip) => (await hmacB64(enc.encode(env.KODE_NOKKEL || ""), `ip.${ip}`)).slice(0, 22);
+function pinListe(env) {
+  try {
+    const l = JSON.parse(env.PINAR || "[]");
+    return Array.isArray(l) ? l.filter(p => p && typeof p.namn === "string" && ROLLER.includes(p.rolle) && p.salt && p.hash) : [];
+  } catch (e) {
+    return [];
+  }
+}
+async function finnPin(env, pin) {
+  if (!/^\d{4,8}$/.test(pin)) return null;
+  let funnen = null;
+  for (const p of pinListe(env)) {   // går gjennom alle, så tida ikkje avslører kven som var nær
+    let salt;
+    try { salt = unb64(p.salt); } catch (e) { continue; }
+    if (likt(await hmacB64(salt, pin), p.hash) && !funnen) funnen = {namn: p.namn.slice(0, 40), rolle: p.rolle};
+  }
+  return funnen;
+}
+async function lagOkt(env, brukar) {
+  const ut = Date.now() + OKT_MIN * 60000, namn = b64(enc.encode(brukar.namn));
+  const sig = await hmacB64(enc.encode(env.KODE_NOKKEL), `okt.${ut}.${brukar.rolle}.${namn}`);
+  return {token: `${ut}.${brukar.rolle}.${namn}.${sig}`, ut};
+}
+async function sjekkOkt(env, token) {
+  const [ut, rolle, namn, sig] = String(token || "").split(".");
+  if (!sig || !ROLLER.includes(rolle) || !(Number(ut) > Date.now()) || Number(ut) > Date.now() + (OKT_MIN + 1) * 60000) return null;
+  if (!likt(sig, await hmacB64(enc.encode(env.KODE_NOKKEL || ""), `okt.${ut}.${rolle}.${namn}`))) return null;
+  try { return {rolle, namn: new TextDecoder().decode(unb64(namn))}; } catch (e) { return null; }
+}
+// Sperre mot gjetting, lagra i Durable Object «Ko» (éin instans for heile tenesta)
+const sperre = async (env, type, id, utfall) => (await ko(env).fetch("https://ko/sperre", {method: "POST",
+  body: JSON.stringify({type, id, utfall, ...(type === "pin" ? {maks: 5, sperreMin: 15, alleMaks: 20} : {maks: 10, sperreMin: 60, alleMaks: 100})})})).json();
+
 const teljar = env => env.TELJAR.get(env.TELJAR.idFromName("besok"));
 const osloDag = (d = new Date()) => new Intl.DateTimeFormat("sv-SE", {timeZone: "Europe/Oslo"}).format(d);   // «2026-10-30»
 const ROBOT = /bot|crawl|spider|slurp|headless|lighthouse|preview/i;
@@ -160,6 +212,29 @@ export class Ko {
 
   async fetch(req) {
     const no = Date.now();
+    // Sperre mot gjetting av PIN («pin») og admin-kode («admin») – sjå «Innlogging i adminpanelet» øvst.
+    // utfall «sjekk» (før forsøket), «feil» eller «ok». Feil eldre enn ein time blir gløymde.
+    if (new URL(req.url).pathname === "/sperre") {
+      const {type, id, utfall, maks, sperreMin, alleMaks} = await req.json();
+      if (!["pin", "admin"].includes(type) || typeof id !== "string" || id.length > 40) return Response.json({feil: "ugyldig"});
+      const lager = "sp_" + type, s = (await this.ctx.storage.get(lager)) || {einingar: {}, alle: [], alleTil: 0};
+      for (const [k, v] of Object.entries(s.einingar)) if (v.til < no && no - v.sist > 3600000) delete s.einingar[k];
+      s.alle = s.alle.filter(t => no - t < 3600000);
+      const e = s.einingar[id] ||= {feil: 0, til: 0, sist: no};
+      const sperraTil = Math.max(e.til, s.alleTil || 0);
+      let svar = {ok: true};
+      if (sperraTil > no) svar = {feil: "sperra", sekund: Math.ceil((sperraTil - no) / 1000), alle: (s.alleTil || 0) > no};
+      else if (utfall === "ok") delete s.einingar[id];
+      else if (utfall === "feil") {
+        e.feil++; e.sist = no; s.alle.push(no);
+        svar = {ok: true, att: Math.max(0, maks - e.feil)};
+        if (e.feil >= maks) { e.til = no + sperreMin * 60000; e.feil = 0; svar = {feil: "sperra", sekund: sperreMin * 60, nySperre: true}; }
+        if (s.alle.length >= alleMaks) { s.alleTil = no + 3600000; s.alle = []; svar = {feil: "sperra", sekund: 3600, alle: true, nySperre: true}; }
+      }
+      if (Object.keys(s.einingar).length > 500) s.einingar = {};   // vern mot at lageret veks utan grense
+      await this.ctx.storage.put(lager, s);
+      return Response.json(svar);
+    }
     // «Oppdater no»: kvart token (koden) kan brukast éin gong, maks 5 feil forsøk, og 5 minutt mellom kvar oppdatering.
     // Same instans som køen, så kontrollen gjeld for heile tenesta.
     if (new URL(req.url).pathname === "/oppdater") {
@@ -238,26 +313,77 @@ export default {
         await teljar(env).fetch("https://teljar/tv", {method: "POST", body: JSON.stringify({sist: Date.now(), skjerm, data: dataTid})});
         return svar({ok: true});
       }
-      if (sti === "/oppdater-kode") {
-        // Lag 1: berre den som har admin-koden (BESOK_NOKKEL) kan be om kode. Lag 2: koden går til mobilen til eigaren.
-        if (!(await innanfor([env.GRENSE_EINING, `okode:${ip}`], [env.GRENSE_ALLE, "meldingar"]))) return svar({feil: "for mange"}, 429);
+      // Innloggingsbeviset (sjå «Innlogging i adminpanelet» øvst): 401 utan gyldig bevis, 403 utan rett rolle
+      const krevOkt = async rolle => {
+        const o = await sjekkOkt(env, data.okt);
+        if (!o) return [null, svar({feil: "logg inn"}, 401)];
+        if (rolle === "full" && o.rolle !== "full") return [null, svar({feil: "ikkje tilgang"}, 403)];
+        return [o, null];
+      };
+      if (sti === "/admin-sjekk") {
+        // Steg 1: er admin-koden rett? (appen sender berre nøkkelen som er rekna ut frå koden)
+        if (!(await innanfor([env.GRENSE_EINING, `asjekk:${ip}`]))) return svar({feil: "for mange"}, 429);
+        const id = await ipHash(env, ip), forst = await sperre(env, "admin", id, "sjekk");
+        if (!forst.ok) return svar(forst, 423);
+        if (likt(data.nokkel, env.BESOK_NOKKEL)) { await sperre(env, "admin", id, "ok"); return svar({ok: true}); }
+        const r = await sperre(env, "admin", id, "feil");
+        if (r.nySperre)
+          await tilEigaren(env, {title: "⚠️ Mange feil admin-kodar", tags: ["warning"], priority: 4,
+            message: `${r.alle ? "Alle einingar" : "Ei eining"} er sperra frå admin-innlogginga i ein time etter mange feil kodar.\n${kven}`});
+        return svar(r.nySperre ? r : {feil: "feil kode"}, r.nySperre ? 423 : 403);
+      }
+      if (sti === "/logginn") {
+        // Steg 2: personleg PIN-kode. Utan rett admin-kode blir PIN-koden ikkje ein gong sjekka.
+        if (!(await innanfor([env.GRENSE_EINING, `pin:${ip}`]))) return svar({feil: "for mange"}, 429);
         if (!likt(data.nokkel, env.BESOK_NOKKEL)) return svar({feil: "ikkje tillate"}, 403);
+        const id = await ipHash(env, ip), forst = await sperre(env, "pin", id, "sjekk");
+        if (!forst.ok) return svar(forst, 423);
+        const brukar = await finnPin(env, String(data.pin || ""));
+        if (!brukar) {
+          const r = await sperre(env, "pin", id, "feil");
+          if (r.nySperre)
+            await tilEigaren(env, {title: "⚠️ Feil PIN-kodar i adminpanelet", tags: ["warning"], priority: 4,
+              message: `${r.alle ? "For mange feil PIN-kodar totalt – all innlogging er sperra i ein time." : "Nokon med rett admin-kode skreiv feil PIN-kode fem gonger. Eininga er sperra i 15 minutt."}\n${kven}\n` +
+                       "Var det ikkje nokon du kjenner: byt admin-koden (admin_oppsett.py)."});
+          return svar(r.nySperre ? r : {feil: "feil pin", att: r.att}, r.nySperre ? 423 : 403);
+        }
+        await sperre(env, "pin", id, "ok");
+        const {token, ut} = await lagOkt(env, brukar);
+        await tilEigaren(env, {title: `🔓 ${brukar.namn} logga inn i adminpanelet`, tags: ["unlock"], priority: 3,
+          message: `${brukar.rolle === "full" ? "Full tilgang" : "Avgrensa tilgang"}, i ${OKT_MIN} minutt.\n${kven}\n` +
+                   "Var det ikkje deg eller nokon du har gitt PIN-kode: byt admin-koden og PIN-kodane (admin_oppsett.py)."});
+        return svar({token, ut, namn: brukar.namn, rolle: brukar.rolle});
+      }
+      if (sti === "/tv-adresse") {
+        // Lenka til infoskjermen – berre med full tilgang
+        if (!(await innanfor([env.GRENSE_EINING, `tvadr:${ip}`]))) return svar({feil: "for mange"}, 429);
+        const [, nei] = await krevOkt("full");
+        if (nei) return nei;
+        if (!/^tv-[0-9a-z]{6,13}$/.test(env.TV_ADRESSE || "")) return svar({feil: "ikkje sett opp"}, 503);
+        return svar({adresse: `https://bls.lillerud.com/${env.TV_ADRESSE}`});
+      }
+      if (sti === "/oppdater-kode") {
+        // Lag 1: innlogga med full tilgang (admin-kode + PIN). Lag 2: koden går til mobilen til eigaren.
+        if (!(await innanfor([env.GRENSE_EINING, `okode:${ip}`], [env.GRENSE_ALLE, "meldingar"]))) return svar({feil: "for mange"}, 429);
+        const [okt, nei] = await krevOkt("full");
+        if (nei) return nei;
         const kode = String(crypto.getRandomValues(new Uint32Array(1))[0] % 1000000).padStart(6, "0");
         await tilEigaren(env, {title: `🔄 Kode for «Oppdater no»: ${kode}`, tags: ["key"], priority: 4,
-          message: `Nokon bad om å starte oppdateringa frå adminpanelet. Koden gjeld i ${GYLDIG_MIN} minutt, éin gong.\n${kven}\n` +
-                   "Var det ikkje deg: ikkje gi koden til nokon, og byt admin-koden."});
+          message: `${okt.namn} bad om å starte oppdateringa frå adminpanelet. Koden gjeld i ${GYLDIG_MIN} minutt, éin gong.\n${kven}\n` +
+                   "Var det ikkje deg: ikkje gi koden til nokon, og byt admin-koden og PIN-kodane."});
         return svar({token: await lagToken(env, kode, "oppdater")});
       }
       if (sti === "/oppdater") {
         if (!(await innanfor([env.GRENSE_EINING, `oppd:${ip}`]))) return svar({feil: "for mange"}, 429);
-        if (!likt(data.nokkel, env.BESOK_NOKKEL)) return svar({feil: "ikkje tillate"}, 403);
+        const [okt, nei] = await krevOkt("full");
+        if (nei) return nei;
         const [ut, tilfeldig] = String(data.token || "").split(".");
         const gyldig = await sjekkToken(env, data.token, String(data.kode || ""), "oppdater");
         const r = await (await ko(env).fetch("https://ko/oppdater", {method: "POST",
           body: JSON.stringify({tilfeldig, ut: Number(ut), gyldig})})).json();
         if (r.ok) {
           await tilEigaren(env, {type: "oppdater", title: "🔄 Oppdatering starta frå adminpanelet", tags: ["arrows_counterclockwise"],
-            priority: 3, message: `Appen og infoskjermen hentar nye data no.\n${kven}`});
+            priority: 3, message: `${okt.namn} starta henne. Appen og infoskjermen hentar nye data no.\n${kven}`});
           return svar({ok: true});
         }
         if (r.feil === "feil kode" && r.att === 0)
@@ -267,7 +393,8 @@ export default {
       }
       if (sti === "/besok-tal") {
         if (!(await innanfor([env.GRENSE_EINING, `tal:${ip}`]))) return svar({feil: "for mange"}, 429);
-        if (!likt(data.nokkel, env.BESOK_NOKKEL)) return svar({feil: "ikkje tillate"}, 403);
+        const [, nei] = await krevOkt("avgrensa");   // begge rollene kan sjå tala
+        if (nei) return nei;
         return svar(await (await teljar(env).fetch("https://teljar/tal")).json());
       }
       if (sti === "/sperra") {
