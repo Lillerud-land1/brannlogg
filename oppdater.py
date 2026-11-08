@@ -786,6 +786,16 @@ def tv_namn():
     return "tv-lokal"
 
 
+def tv_ping_nokkel():
+    """Nøkkelen infoskjermen sender til workeren («sist sett» i adminpanelet): HMAC(HENT_NOKKEL, "tv-ping"),
+    same utrekning som tvNokkel() i worker/worker.js. Han kan ikkje brukast til å finne HENT_NOKKEL. Tom utan nøkkel."""
+    import hmac
+    nokkel = os.environ.get("HENT_NOKKEL", "").strip()
+    if not nokkel:
+        return ""
+    return base64.urlsafe_b64encode(hmac.new(nokkel.encode(), b"tv-ping", hashlib.sha256).digest()).rstrip(b"=").decode()
+
+
 def skriv_tv(json_tekst):
     """Byggjer infoskjermen på den hemmelege adressa. Den gamle adressa (tv.html) seier berre at ho er flytta."""
     tv_mal = MAPPE / "mal-tv.html"
@@ -793,6 +803,7 @@ def skriv_tv(json_tekst):
         return
     namn, mappe = tv_namn(), MAPPE / "nettside"
     side = tv_mal.read_text(encoding="utf-8").replace("/*__DATA__*/null", json_tekst)
+    side = side.replace('"__TV_PING__"', json.dumps(tv_ping_nokkel()))
     if side.count('href="tv.webmanifest"') != 1:
         sys.exit('Fann ikkje href="tv.webmanifest" i mal-tv.html')
     side = side.replace('href="tv.webmanifest"', f'href="{namn}.webmanifest"')
@@ -1036,6 +1047,58 @@ def vakt_varsle(feil, tekst):
         print(f"VAKT_VARSEL_FEIL: {e}")
 
 
+KJELDE_TITTEL = {"politi": "Politiloggen", "bris": "Brannstatistikken", "ver": "Vêrdata (skogbrannfare)"}
+KJELDE_GRENSE = timedelta(hours=1)
+
+
+def kjelde_varsle(kjelder, no=None):
+    """Varsel til den private kanalen når ei kjelde i systemstatusen (status.json, kjelde_status()) ikkje har svart
+    på over ein time, påminning kvar 3. time, og éi melding når ho svarar igjen (ønske frå brukaren 8.11.2026).
+    Kva som alt er sendt, blir lese frå kanalen (titlane «… svarar ikkje» / «… svarar igjen»)."""
+    kanal = vakt_kanal()
+    if not kanal or not isinstance(kjelder, dict):
+        return
+    try:
+        meldingar = vakt_meldingar(kanal)
+    except Exception as e:
+        print(f"KJELDE_VARSEL: kunne ikkje lese kanalen ({e})")
+        return
+    no = no or datetime.now(timezone.utc)
+    for namn, tittel in KJELDE_TITTEL.items():
+        s = kjelder.get(namn)
+        if not isinstance(s, dict):
+            continue
+        mine = [m for m in meldingar if str(m.get("title") or "").endswith((f"{tittel} svarar ikkje", f"{tittel} svarar igjen"))]
+        siste = max(mine, key=lambda m: m.get("time", 0), default=None)
+        nede_sist = bool(siste) and str(siste.get("title")).endswith("svarar ikkje")
+        if s.get("ok") is False:
+            sidan = _iso(s.get("sidan"))
+            if not sidan or no - datetime.fromisoformat(sidan) < KJELDE_GRENSE:
+                continue
+            if nede_sist and no.timestamp() - siste.get("time", 0) < VAKT_PAMINNING.total_seconds():
+                continue
+            o = datetime.fromisoformat(sidan).astimezone(ZoneInfo("Europe/Oslo"))
+            grunn = ("får ikkje kontakt" if s.get("feil") == "nett" else
+                     f"svarar med feilkode {int(s['http'])}" if s.get("feil") == "http" and str(s.get("http", "")).isdigit() else
+                     "gir eit uventa svar")
+            if s.get("del") == "farevarsel":
+                grunn = "farevarselet frå MET " + grunn
+            melding = {"title": f"📡 {tittel} svarar ikkje",
+                       "message": f"Sidan kl. {o:%H:%M} ({o.day}.{o.month}.): {grunn}. Appen og infoskjermen brukar dei siste "
+                                  "dataa dei har. Sjå «Systemstatus» i adminpanelet.",
+                       "tags": ["satellite"], "priority": 4, "click": NETTSIDE}
+        elif s.get("ok") is True and nede_sist:
+            melding = {"title": f"✔️ {tittel} svarar igjen", "message": "Appen hentar data som vanleg igjen.",
+                       "tags": ["heavy_check_mark"], "priority": 3, "click": NETTSIDE}
+        else:
+            continue
+        try:
+            vakt_send(kanal, melding)
+            print(f"KJELDE_VARSEL: sendt – {melding['title']}")
+        except Exception as e:
+            print(f"KJELDE_VARSEL_FEIL: {e}")
+
+
 def vakt():
     """Sjekkar at nettsida blir oppdatert. Er ho meir enn ein time gammal: avbryt køyringar som heng,
     startar oppdateringa på GitHub og sender varsel til den private kanalen.
@@ -1044,7 +1107,8 @@ def vakt():
     try:
         url = f"{NETTSIDE}status.json?t={int(datetime.now().timestamp())}"
         with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=30) as r:
-            oppdatert = datetime.fromisoformat(json.loads(r.read())["oppdatert"])
+            status = json.loads(r.read())
+            oppdatert = datetime.fromisoformat(status["oppdatert"])
     except HTTPError as feil:
         print(f"VAKT: nettsida svarar med feil ({feil.code})")
         vakt_varsle(True, f"Nettsida svarar ikkje som ho skal (HTTP {feil.code}).")
@@ -1057,6 +1121,7 @@ def vakt():
     if alder < VAKT_GRENSE:
         print(f"VAKT: OK, nettsida vart oppdatert for {minutt} min sidan")
         vakt_varsle(False, f"Nettsida vart oppdatert for {minutt} min sidan.")
+        kjelde_varsle(status.get("kjelder"))
         return
     o = oppdatert.astimezone(ZoneInfo("Europe/Oslo"))
     tekst = ((f"Nettsida vart sist oppdatert for {minutt} min sidan" if minutt < 120 else
@@ -1216,14 +1281,16 @@ def admin_meldingar(sekund):
     """Hentar køen med admin-meldingar (sperre-varsel og opningskodar) frå Cloudflare-workeren kvart 10. sekund
     i `sekund` sekund og sender dei til den private ntfy-kanalen. ntfy.sh tek ikkje imot meldingar direkte frå
     Cloudflare (dagskvote per IP-adresse, som Cloudflare deler med mange), men gjer det frå GitHub.
-    Køyrer i jobben «neste» i oppdater.yml, som elles berre ventar. Innhaldet (koden) blir aldri skrive i loggen."""
+    Køyrer i jobben «neste» i oppdater.yml, som elles berre ventar. Innhaldet (koden) blir aldri skrive i loggen.
+    Gir True om køen hadde ei melding med type «oppdater» («Oppdater no» i adminpanelet, sjå worker/worker.js) –
+    då sluttar ventinga, og neste køyring blir starta med ein gong."""
     nokkel, kanal = os.environ.get("HENT_NOKKEL", "").strip(), vakt_kanal()
     slutt = time.monotonic() + sekund
     if not nokkel or not kanal:
         print("ADMIN: manglar HENT_NOKKEL eller privat kanal – ventar berre")
         time.sleep(max(0, sekund))
-        return
-    feil = 0
+        return False
+    feil, oppdater_no = 0, False
     while True:
         try:
             req = urllib.request.Request(f"{ADMIN_TENESTE}/hent", method="POST",
@@ -1241,15 +1308,20 @@ def admin_meldingar(sekund):
                         time.sleep(3)
             if liste:
                 print(f"ADMIN: sende {len(liste)} melding(ar) vidare til den private kanalen")
+            oppdater_no = any(isinstance(m, dict) and m.get("type") == "oppdater" for m in liste)
             feil = 0
         except Exception as e:
             feil += 1
             if feil in (1, 10, 50):
                 print(f"ADMIN_FEIL: kunne ikkje hente køen ({type(e).__name__}: {str(e)[:80]})")
+        if oppdater_no:
+            print("ADMIN: «Oppdater no» frå adminpanelet – startar neste køyring med ein gong")
+            return True
         rest = slutt - time.monotonic()
         if rest <= 0:
             break
         time.sleep(min(10, rest))
+    return False
 
 
 def tryggleik():
@@ -1795,6 +1867,7 @@ if __name__ == "__main__":
     elif "--tryggleik" in sys.argv:
         tryggleik()
     elif "--admin-meldingar" in sys.argv:
-        admin_meldingar(int(sys.argv[sys.argv.index("--admin-meldingar") + 1]))
+        if admin_meldingar(int(sys.argv[sys.argv.index("--admin-meldingar") + 1])):
+            sys.exit(10)   # oppdater.yml (jobben «neste»): start neste køyring no
     else:
         main()

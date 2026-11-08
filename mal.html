@@ -1018,9 +1018,16 @@ if (fm.fileExists(fil)) {
           <a class="btn" id="admin-opne" target="_blank" rel="noopener">Opne infoskjermen</a>
         </div>
         <span class="sub" id="admin-status"></span>
+        <ul class="sys-liste" id="tv-sett" hidden></ul>
         <div class="sys" id="sys">
           <div><b>Systemstatus</b><span class="sub" style="display:block">Om appen hentar data som han skal. Blir sjekka kvart kvarter.</span></div>
           <ul class="sys-liste" id="sys-liste"></ul>
+          <div class="rad"><button type="button" class="btn" id="oppd-no">Oppdater no</button></div>
+          <form class="admin-kode" id="oppd-skjema" autocomplete="off" hidden>
+            <input id="oppd-kode" inputmode="numeric" maxlength="6" autocomplete="one-time-code" aria-label="Kode frå mobilen" placeholder="Kode frå mobilen">
+            <button type="submit" class="btn">Start</button>
+          </form>
+          <span class="sub" id="oppd-status"></span>
         </div>
         <div class="besok" id="besok" hidden>
           <div><b>Besøk</b><span class="sub" style="display:block">Kor mange som har opna appen. Kvar eining blir talt éin gong per dag.</span></div>
@@ -1028,11 +1035,21 @@ if (fm.fileExists(fil)) {
           <div class="besok-graf" id="besok-graf" aria-hidden="true"></div>
           <span class="sub" id="besok-status"></span>
         </div>
+        <div class="besok" id="eining-boks" hidden>
+          <div><b>Einingar</b><span class="sub" style="display:block">Kva slags einingar som opnar appen, siste 30 dagar. Berre tal – ingen personar.</span></div>
+          <div class="besok-tal" id="eining-tal"></div>
+          <span class="sub" id="eining-app"></span>
+        </div>
         <div class="besok" id="qr-boks" hidden>
-          <div><b>QR-koden på infoskjermen</b><span class="sub" style="display:block">Kor mange som har skanna QR-koden på TV-en. Kvar eining blir talt éin gong per dag.</span></div>
+          <div><b>QR-koden på infoskjermen</b><span class="sub" style="display:block">Kor mange gonger QR-koden på TV-en er skanna. Kvar skanning blir talt (maks 3 i minuttet frå same eining).</span></div>
           <div class="besok-tal" id="qr-tal"></div>
           <div class="besok-graf" id="qr-graf" aria-hidden="true"></div>
           <span class="sub" id="qr-status"></span>
+        </div>
+        <div class="besok" id="eksport-boks" hidden>
+          <div><b>Last ned statistikk</b><span class="sub" style="display:block">Alle oppdraga, tal per månad og besøka siste 30 dagar som Excel-fil. Fila blir laga på PC-en din.</span></div>
+          <div class="rad"><button type="button" class="btn" id="eksport">Last ned Excel-fil</button></div>
+          <span class="sub" id="eksport-status"></span>
         </div>
       </div>
     </div>
@@ -1069,7 +1086,7 @@ if (fm.fileExists(fil)) {
 <li><b>Google Fonts</b>: Skrifttypane blir henta frå Google, som då får IP-adressa di.</li></ul>
 <p>Eg får ikkje tilgang til desse opplysningane. Sjå personvernerklæringane til GitHub og Google.</p>
 <h3>Besøkstal</h3>
-<p>Når du opnar appen, sender ho ei melding til Cloudflare (Cloudflare Workers), som tel besøket. For at kvar eining berre skal teljast éin gong per dag, blir IP-adressa og nettlesartypen gjort om til ein kode saman med eit tilfeldig tal som blir bytt ut kvar dag. Koden og det tilfeldige talet blir sletta same døgn, og IP-adressa blir ikkje lagra. Att står berre talet på besøkande per dag. Ingenting blir lagra på eininga di, og infoskjermen på brannstasjonen blir ikkje talt. Opnar du appen med QR-koden på infoskjermen, blir det i tillegg talt som ei skanning, på same måte (éin gong per eining per dag, berre talet blir lagra).</p>
+<p>Når du opnar appen, sender ho ei melding til Cloudflare (Cloudflare Workers), som tel besøket. For at kvar eining berre skal teljast éin gong per dag, blir IP-adressa og nettlesartypen gjort om til ein kode saman med eit tilfeldig tal som blir bytt ut kvar dag. Koden og det tilfeldige talet blir sletta same døgn, og IP-adressa blir ikkje lagra. Att står berre talet på besøkande per dag. Ingenting blir lagra på eininga di, og infoskjermen på brannstasjonen blir ikkje talt. Appen sender òg om ho er opna på mobil, nettbrett eller PC, og om ho er opna som app frå heimeskjermen – det blir berre lagra som tal per dag. Opnar du appen med QR-koden på infoskjermen, blir det i tillegg talt som ei skanning (berre talet per dag blir lagra).</p>
 <h3>Admin-tilgang</h3>
 <p>Skriv nokon feil admin-kode tre gonger, eller ber om kode for å opne sperra, får eg ei melding gjennom Cloudflare (Cloudflare Workers), GitHub og ntfy. Meldinga seier omtrent kvar eininga er (fylke og land) og kva slags eining og nettlesar det er. IP-adressa blir ikkje send til meg og blir ikkje lagra. Dette gjeld berre admin-feltet under Innstillingar.</p>
 <h3>Opplysningar om hendingar</h3>
@@ -1094,7 +1111,7 @@ if (fm.fileExists(fil)) {
 <li><b>Google Fonts</b>: Skrifttypene hentes fra Google, som da får IP-adressen din.</li></ul>
 <p>Jeg får ikke tilgang til disse opplysningene. Se personvernerklæringene til GitHub og Google.</p>
 <h3>Besøkstall</h3>
-<p>Når du åpner appen, sender den en melding til Cloudflare (Cloudflare Workers), som teller besøket. For at hver enhet bare skal telles én gang per dag, gjøres IP-adressen og nettlesertypen om til en kode sammen med et tilfeldig tall som byttes ut hver dag. Koden og det tilfeldige tallet slettes samme døgn, og IP-adressen lagres ikke. Igjen står bare antall besøkende per dag. Ingenting lagres på enheten din, og infoskjermen på brannstasjonen telles ikke. Åpner du appen med QR-koden på infoskjermen, telles det i tillegg som en skanning, på samme måte (én gang per enhet per dag, bare tallet lagres).</p>
+<p>Når du åpner appen, sender den en melding til Cloudflare (Cloudflare Workers), som teller besøket. For at hver enhet bare skal telles én gang per dag, gjøres IP-adressen og nettlesertypen om til en kode sammen med et tilfeldig tall som byttes ut hver dag. Koden og det tilfeldige tallet slettes samme døgn, og IP-adressen lagres ikke. Igjen står bare antall besøkende per dag. Ingenting lagres på enheten din, og infoskjermen på brannstasjonen telles ikke. Appen sender også om den er åpnet på mobil, nettbrett eller PC, og om den er åpnet som app fra hjemskjermen – det lagres bare som tall per dag. Åpner du appen med QR-koden på infoskjermen, telles det i tillegg som en skanning (bare tallet per dag lagres).</p>
 <h3>Admin-tilgang</h3>
 <p>Skriver noen feil admin-kode tre ganger, eller ber om kode for å åpne sperren, får jeg en melding gjennom Cloudflare (Cloudflare Workers), GitHub og ntfy. Meldingen sier omtrent hvor enheten er (fylke og land) og hva slags enhet og nettleser det er. IP-adressen sendes ikke til meg og lagres ikke. Dette gjelder bare admin-feltet under Innstillinger.</p>
 <h3>Opplysninger om hendelser</h3>
@@ -1119,7 +1136,7 @@ if (fm.fileExists(fil)) {
 <li><b>Google Fonts</b>: The fonts are loaded from Google, which then receives your IP address.</li></ul>
 <p>I do not have access to this information. See the privacy policies of GitHub and Google.</p>
 <h3>Visit numbers</h3>
-<p>When you open the app, it sends a message to Cloudflare (Cloudflare Workers), which counts the visit. To count each device only once per day, the IP address and browser type are turned into a code together with a random number that is replaced every day. The code and the random number are deleted the same day, and the IP address is not stored. All that remains is the number of visitors per day. Nothing is stored on your device, and the information screen at the fire station is not counted. If you open the app with the QR code on the information screen, it is also counted as a scan, in the same way (once per device per day, only the number is stored).</p>
+<p>When you open the app, it sends a message to Cloudflare (Cloudflare Workers), which counts the visit. To count each device only once per day, the IP address and browser type are turned into a code together with a random number that is replaced every day. The code and the random number are deleted the same day, and the IP address is not stored. All that remains is the number of visitors per day. Nothing is stored on your device, and the information screen at the fire station is not counted. The app also sends whether it is opened on a phone, tablet or PC, and whether it is opened as an app from the home screen – this is only stored as numbers per day. If you open the app with the QR code on the information screen, it is also counted as a scan (only the number per day is stored).</p>
 <h3>Admin access</h3>
 <p>If someone enters a wrong admin code three times, or asks for a code to unlock it, I get a message through Cloudflare (Cloudflare Workers), GitHub and ntfy. The message says roughly where the device is (county and country) and what kind of device and browser it is. The IP address is not sent to me and is not stored. This only applies to the admin field under Settings.</p>
 <h3>Information about incidents</h3>
@@ -1707,7 +1724,38 @@ const OMSETJING = [
   ["Farevarsel frå MET", "Farevarsel fra MET", "MET warning"],
   ["Besøk", "Besøk", "Visits"],
   ["QR-koden på infoskjermen", "QR-koden på infoskjermen", "QR code on the info screen"],
-  ["Kor mange som har skanna QR-koden på TV-en. Kvar eining blir talt éin gong per dag.", "Hvor mange som har skannet QR-koden på TV-en. Hver enhet telles én gang per dag.", "How many have scanned the QR code on the TV. Each device is counted once per day."],
+  ["Kor mange gonger QR-koden på TV-en er skanna. Kvar skanning blir talt (maks 3 i minuttet frå same eining).", "Hvor mange ganger QR-koden på TV-en er skannet. Hver skanning telles (maks 3 i minuttet fra samme enhet).", "How many times the QR code on the TV has been scanned. Every scan is counted (max 3 per minute from the same device)."],
+  ["Oppdater no", "Oppdater nå", "Update now"],
+  ["Start", "Start", "Start"],
+  ["Einingar", "Enheter", "Devices"],
+  ["Kva slags einingar som opnar appen, siste 30 dagar. Berre tal – ingen personar.", "Hva slags enheter som åpner appen, siste 30 dager. Bare tall – ingen personer.", "What kind of devices open the app, last 30 days. Numbers only – no people."],
+  ["Mobil", "Mobil", "Mobile"],
+  ["PC", "PC", "PC"],
+  ["Nettbrett", "Nettbrett", "Tablet"],
+  ["Har appen på heimeskjermen: {p} % av besøka. Rekna ut frå {n} besøk.", "Har appen på hjemskjermen: {p} % av besøkene. Regnet ut fra {n} besøk.", "Have the app on their home screen: {p} % of visits. Based on {n} visits."],
+  ["Ingen tal enno – teljinga starta 8. november 2026.", "Ingen tall ennå – tellingen startet 8. november 2026.", "No numbers yet – counting started 8 November 2026."],
+  ["Last ned statistikk", "Last ned statistikk", "Download statistics"],
+  ["Alle oppdraga, tal per månad og besøka siste 30 dagar som Excel-fil. Fila blir laga på PC-en din.", "Alle oppdragene, tall per måned og besøkene siste 30 dager som Excel-fil. Filen lages på PC-en din.", "All call-outs, numbers per month and visits for the last 30 days as an Excel file. The file is made on your PC."],
+  ["Last ned Excel-fil", "Last ned Excel-fil", "Download Excel file"],
+  ["Fila «{f}» er lasta ned.", "Filen «{f}» er lastet ned.", "The file “{f}” has been downloaded."],
+  ["Fekk ikkje laga fila.", "Fikk ikke laget filen.", "Could not create the file."],
+  ["Infoskjermen", "Infoskjermen", "Info screen"],
+  ["Ikkje sett enno. Skjermen melder frå kvart 5. minutt.", "Ikke sett ennå. Skjermen melder fra hvert 5. minutt.", "Not seen yet. The screen checks in every 5 minutes."],
+  ["Sist sett {t}", "Sist sett {t}", "Last seen {t}"],
+  ["Ikkje sett sidan {t}", "Ikke sett siden {t}", "Not seen since {t}"],
+  ["Viser data frå {t}.", "Viser data fra {t}.", "Showing data from {t}."],
+  ["Skjerm: {s} punkt.", "Skjerm: {s} punkter.", "Screen: {s} pixels."],
+  ["Skriv admin-koden først.", "Skriv admin-koden først.", "Enter the admin code first."],
+  ["Sender kode til mobilen …", "Sender kode til mobilen …", "Sending a code to your phone …"],
+  ["Koden kjem i den private ntfy-kanalen din, vanlegvis innan 1–2 minutt. Han gjeld i 15 minutt.", "Koden kommer i den private ntfy-kanalen din, vanligvis innen 1–2 minutter. Den gjelder i 15 minutter.", "The code arrives in your private ntfy channel, usually within 1–2 minutes. It is valid for 15 minutes."],
+  ["For mange forsøk. Vent eitt minutt.", "For mange forsøk. Vent ett minutt.", "Too many attempts. Wait one minute."],
+  ["Fekk ikkje sendt kode. Prøv igjen seinare.", "Fikk ikke sendt kode. Prøv igjen senere.", "Could not send a code. Try again later."],
+  ["Koden har 6 siffer.", "Koden har 6 sifre.", "The code has 6 digits."],
+  ["Oppdateringa er starta. Nye data kjem om 1–3 minutt (litt meir om ei oppdatering går akkurat no).", "Oppdateringen er startet. Nye data kommer om 1–3 minutter (litt mer hvis en oppdatering pågår akkurat nå).", "The update has started. New data arrives in 1–3 minutes (a bit longer if an update is running right now)."],
+  ["Feil kode. {n} forsøk att.", "Feil kode. {n} forsøk igjen.", "Wrong code. {n} attempts left."],
+  ["Det vart nett oppdatert frå panelet. Prøv igjen om {n} min.", "Det ble nettopp oppdatert fra panelet. Prøv igjen om {n} min.", "It was just updated from the panel. Try again in {n} min."],
+  ["Koden er brukt, gått ut eller sperra. Be om ein ny kode.", "Koden er brukt, utløpt eller sperret. Be om en ny kode.", "The code is used, expired or blocked. Ask for a new code."],
+  ["Fekk ikkje starta oppdateringa. Prøv igjen seinare.", "Fikk ikke startet oppdateringen. Prøv igjen senere.", "Could not start the update. Try again later."],
   ["Totalt sidan {d}.", "Totalt siden {d}.", "Total since {d}."],
   ["Ingen har skanna QR-koden enno.", "Ingen har skannet QR-koden ennå.", "Nobody has scanned the QR code yet."],
   ["Kor mange som har opna appen. Kvar eining blir talt éin gong per dag.", "Hvor mange som har åpnet appen. Hver enhet telles én gang per dag.", "How many have opened the app. Each device is counted once per day."],
@@ -2613,7 +2661,7 @@ const OPNE_URL = "https://brannlogg-admin.brannlogg-admin.workers.dev";
 async function opneKall(sti, data){
   const r = await fetch(OPNE_URL + sti, {method:"POST", headers:{"Content-Type":"text/plain"}, body:JSON.stringify(data || {})});
   const svar = await r.json().catch(() => ({}));
-  if (!r.ok) throw Object.assign(new Error(svar.feil || r.status), {status:r.status});
+  if (!r.ok) throw Object.assign(new Error(svar.feil || r.status), {status:r.status, data:svar});
   return svar;
 }
 let opneToken = "";
@@ -2710,8 +2758,15 @@ $("#admin-kopier").addEventListener("click", kopierAdmin);
 // «?qr» blir fjerna frå adressa med ein gong, så eit bokmerke eller ei lenke som blir delt vidare, ikkje tel som skanning.
 const FRA_QR = new URLSearchParams(location.search).has("qr");
 if (FRA_QR) try { history.replaceState(history.state, "", location.pathname + location.hash); } catch (e) {}
+// Kva slags eining (berre «mobil», «nettbrett» eller «pc») og om appen er opna frå heimeskjermen – blir talt saman med
+// besøket, berre som tal per dag (8.11.2026). Android-nettbrett har «Android» utan «Mobile»; iPad kan seie «Macintosh».
+const UA_ = navigator.userAgent;
+const EINING = /iPad|Tablet/i.test(UA_) || (/Macintosh/.test(UA_) && navigator.maxTouchPoints > 1) || (/Android/.test(UA_) && !/Mobile/.test(UA_)) ? "nettbrett"
+  : /Mobi|iPhone|iPod|Android/i.test(UA_) ? "mobil" : "pc";
+const SOM_APP = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
 if (OPNE_URL && location.hostname === "bls.lillerud.com" && !navigator.webdriver)
-  setTimeout(() => fetch(OPNE_URL + "/besok", {method:"POST", headers:{"Content-Type":"text/plain"}, body:JSON.stringify(FRA_QR ? {qr:true} : {}), keepalive:true}).catch(() => {}), 1500);
+  setTimeout(() => fetch(OPNE_URL + "/besok", {method:"POST", headers:{"Content-Type":"text/plain"},
+    body:JSON.stringify({...(FRA_QR ? {qr:true} : {}), eining:EINING, app:SOM_APP}), keepalive:true}).catch(() => {}), 1500);
 const siste30 = idag => {
   const d = [];
   for (let i = 29; i >= 0; i--) { const t = new Date(idag + "T12:00:00Z"); t.setUTCDate(t.getUTCDate() - i); d.push(t.toISOString().slice(0, 10)); }
@@ -2727,13 +2782,17 @@ function visTal(per, idag, totalt, talEl, grafEl){
   $(grafEl).innerHTML = dagar.map(k => `<i class="${k === idag ? "idag" : per[k] ? "" : "tom"}" style="height:${Math.max(3, (per[k] || 0) / maks * 100)}%" title="${k}: ${per[k] || 0}"></i>`).join("");
 }
 const datoLang = dag => new Date(dag + "T12:00:00Z").toLocaleDateString(LOCALE, {day:"numeric", month:"long", year:"numeric", timeZone:"UTC"});
+const erPC = () => matchMedia("(pointer: fine)").matches && innerWidth >= 900;   // «Last ned statistikk» berre på PC
+let sisteTal = null;   // svaret frå /besok-tal, til Excel-fila
 async function visBesok(){
   if (!OPNE_URL || !besokNokkel) return;
+  $("#eksport-boks").hidden = !erPC();
   $("#besok").hidden = false; $("#besok-tal").innerHTML = ""; $("#besok-graf").innerHTML = "";
   $("#besok-status").textContent = T("Hentar besøkstal …");
   let d;
   try { d = await opneKall("/besok-tal", {nokkel:besokNokkel}); }
   catch (feil) { $("#besok-status").textContent = T(feil.status === 403 ? "Besøkstala er ikkje sette opp enno." : "Fekk ikkje henta besøkstala."); return; }
+  sisteTal = d;
   visTal(Object.fromEntries((d.dagar || []).map(r => [r.dag, r.besokande])), d.idag, d.totalt, "#besok-tal", "#besok-graf");
   $("#besok-status").textContent = T("Totalt sidan {d}. Stolpane viser dei siste 30 dagane, raud er i dag.", {d:datoLang(d.fyrste || d.idag)});
   // Skanningar av QR-koden på infoskjermen (finst berre når workeren er ny nok)
@@ -2742,7 +2801,167 @@ async function visBesok(){
     visTal(Object.fromEntries((d.qr.dagar || []).map(r => [r.dag, r.skann])), d.idag, d.qr.totalt, "#qr-tal", "#qr-graf");
     $("#qr-status").textContent = d.qr.fyrste ? T("Totalt sidan {d}.", {d:datoLang(d.qr.fyrste)}) : T("Ingen har skanna QR-koden enno.");
   }
+  if ("tv" in d) visTvSett(d.tv);
+  if (d.typar) {
+    // Prosent av besøka siste 30 dagar som har einingstype (teljinga starta 8.11.2026)
+    const ty = d.typar, n = ["mobil", "pc", "nettbrett"].reduce((s, k) => s + (Number(ty[k]) || 0), 0);
+    const pst = k => Math.round(100 * (Number(ty[k]) || 0) / n);
+    $("#eining-boks").hidden = false;
+    $("#eining-tal").innerHTML = n ? [["mobil", "Mobil"], ["pc", "PC"], ["nettbrett", "Nettbrett"]]
+      .map(([k, t]) => `<div><b>${pst(k)} %</b><span>${T(t)}</span></div>`).join("") : "";
+    $("#eining-app").textContent = n ? T("Har appen på heimeskjermen: {p} % av besøka. Rekna ut frå {n} besøk.", {p:pst("app"), n:n.toLocaleString(LOCALE)})
+      : T("Ingen tal enno – teljinga starta 8. november 2026.");
+  }
 }
+
+/* ---- Infoskjermen sist sett (8.11.2026): TV-en melder frå til workeren kvart 5. minutt (mal-tv.html, meldFraa).
+   Grøn når han er sett siste kvarteret og dataa på skjermen er under ein time gamle. ---- */
+function visTvSett(tv){
+  const el = $("#tv-sett");
+  el.hidden = false;
+  if (!tv || !tv.sist) {
+    el.innerHTML = `<li class="ukjend"><i aria-hidden="true"></i><b>${T("Infoskjermen")}</b><span>${T("Ikkje sett enno. Skjermen melder frå kvart 5. minutt.")}</span></li>`;
+    return;
+  }
+  const sett = new Date(tv.sist), dataTid = tv.data ? new Date(tv.data) : null;
+  const ok = Date.now() - sett < 15 * 6e4 && (!dataTid || Date.now() - dataTid < 60 * 6e4);
+  const tekst = T(Date.now() - sett < 15 * 6e4 ? "Sist sett {t}" : "Ikkje sett sidan {t}", {t:naar(oslo(sett))}) +
+    ` (${T("for {d} sidan", {d:sysSidan(sett)})}).` +
+    (dataTid ? " " + T("Viser data frå {t}.", {t:naar(oslo(dataTid))}) : "") +
+    (tv.skjerm ? " " + T("Skjerm: {s} punkt.", {s:String(tv.skjerm).replace("x", " × ")}) : "");
+  el.innerHTML = `<li class="${ok ? "ok" : "feil"}"><i aria-hidden="true"></i><b>${T("Infoskjermen")}</b><span>${esc(tekst)}</span></li>`;
+}
+
+/* ---- «Oppdater no» (8.11.2026). Ekstra tryggleik i tilfelle nokon finn admin-koden: kvar gong må det òg ein 6-sifra
+   kode til, og han blir sendt til den private ntfy-kanalen til eigaren. Workeren tillèt éin bruk per kode, maks 5 feil
+   forsøk og 5 minutt mellom kvar oppdatering, og eigaren får melding når oppdateringa blir starta (worker/worker.js). ---- */
+let oppdToken = "";
+$("#oppd-no").addEventListener("click", async () => {
+  const st = $("#oppd-status");
+  if (!besokNokkel) { st.textContent = T("Skriv admin-koden først."); return; }
+  $("#oppd-no").disabled = true;
+  st.textContent = T("Sender kode til mobilen …");
+  try {
+    oppdToken = (await opneKall("/oppdater-kode", {nokkel:besokNokkel})).token || "";
+    $("#oppd-skjema").hidden = false; $("#oppd-kode").value = ""; $("#oppd-kode").focus();
+    st.textContent = T("Koden kjem i den private ntfy-kanalen din, vanlegvis innan 1–2 minutt. Han gjeld i 15 minutt.");
+  } catch (feil) {
+    st.textContent = T(feil.status === 429 ? "For mange forsøk. Vent eitt minutt." : "Fekk ikkje sendt kode. Prøv igjen seinare.");
+  } finally {
+    $("#oppd-no").disabled = false;
+  }
+});
+$("#oppd-skjema").addEventListener("submit", async e => {
+  e.preventDefault();
+  const st = $("#oppd-status"), kode = $("#oppd-kode").value.trim();
+  if (!/^\d{6}$/.test(kode)) { st.textContent = T("Koden har 6 siffer."); return; }
+  try {
+    await opneKall("/oppdater", {nokkel:besokNokkel, token:oppdToken, kode});
+    $("#oppd-skjema").hidden = true; oppdToken = "";
+    st.textContent = T("Oppdateringa er starta. Nye data kjem om 1–3 minutt (litt meir om ei oppdatering går akkurat no).");
+  } catch (feil) {
+    const d = feil.data || {};
+    const ferdig = ["brukt", "sperra", "ugyldig"].includes(d.feil) || (d.feil === "feil kode" && !d.att);
+    st.textContent = d.feil === "feil kode" && d.att ? T("Feil kode. {n} forsøk att.", {n:d.att})
+      : d.feil === "nyleg" ? T("Det vart nett oppdatert frå panelet. Prøv igjen om {n} min.", {n:Math.ceil((Number(d.sekund) || 60) / 60)})
+      : ferdig ? T("Koden er brukt, gått ut eller sperra. Be om ein ny kode.")
+      : feil.status === 429 ? T("For mange forsøk. Vent eitt minutt.") : T("Fekk ikkje starta oppdateringa. Prøv igjen seinare.");
+    if (ferdig) { $("#oppd-skjema").hidden = true; oppdToken = ""; }
+  }
+});
+
+/* ---- Last ned statistikk (berre på PC, 8.11.2026): lagar ei ekte Excel-fil (.xlsx) her i nettlesaren av dataa som
+   alt er i appen (og besøkstala frå adminpanelet). Ingenting blir sendt nokon stad. ---- */
+const CRC_TAB = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+const crc32 = b => { let c = 0xFFFFFFFF; for (let i = 0; i < b.length; i++) c = CRC_TAB[(c ^ b[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; };
+// Enkel zip utan komprimering (STORE) – nok for ei lita xlsx-fil
+function lagZip(filer){
+  const te = new TextEncoder(), delar = [], sentral = [];
+  let pos = 0;
+  for (const f of filer) {
+    const namn = te.encode(f.namn), crc = crc32(f.data), n = f.data.length;
+    const h = new DataView(new ArrayBuffer(30));
+    h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(12, 0x21, true);
+    h.setUint32(14, crc, true); h.setUint32(18, n, true); h.setUint32(22, n, true); h.setUint16(26, namn.length, true);
+    delar.push(new Uint8Array(h.buffer), namn, f.data);
+    const c = new DataView(new ArrayBuffer(46));
+    c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true); c.setUint16(14, 0x21, true);
+    c.setUint32(16, crc, true); c.setUint32(20, n, true); c.setUint32(24, n, true); c.setUint16(28, namn.length, true); c.setUint32(42, pos, true);
+    sentral.push(new Uint8Array(c.buffer), namn);
+    pos += 30 + namn.length + n;
+  }
+  const storleik = sentral.reduce((s, b) => s + b.length, 0), e = new DataView(new ArrayBuffer(22));
+  e.setUint32(0, 0x06054b50, true); e.setUint16(8, filer.length, true); e.setUint16(10, filer.length, true);
+  e.setUint32(12, storleik, true); e.setUint32(16, pos, true);
+  return new Blob([...delar, ...sentral, new Uint8Array(e.buffer)], {type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+}
+const xmlEsc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;"}[c])).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "");
+const kolonne = i => { let s = ""; for (i++; i; i = Math.floor((i - 1) / 26)) s = String.fromCharCode(65 + (i - 1) % 26) + s; return s; };
+function lagArk(rader, breidder){
+  const rad = (r, ri) => `<row r="${ri + 1}">` + r.map((v, ci) => {
+    const ref = kolonne(ci) + (ri + 1), stil = ri === 0 ? ' s="1"' : "";
+    return typeof v === "number" && isFinite(v) ? `<c r="${ref}"${stil}><v>${v}</v></c>`
+      : `<c r="${ref}" t="inlineStr"${stil}><is><t xml:space="preserve">${xmlEsc(v)}</t></is></c>`;
+  }).join("") + "</row>";
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">` +
+    `<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>` +
+    `<cols>${breidder.map((b, i) => `<col min="${i + 1}" max="${i + 1}" width="${b}" customWidth="1"/>`).join("")}</cols>` +
+    `<sheetData>${rader.map(rad).join("")}</sheetData></worksheet>`;
+}
+function lagXlsx(ark){
+  const te = new TextEncoder(), x = s => te.encode(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>${s}`);
+  const NS = "http://schemas.openxmlformats.org", REL = `${NS}/officeDocument/2006/relationships`;
+  return lagZip([
+    {namn:"[Content_Types].xml", data:x(`<Types xmlns="${NS}/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${ark.map((_, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join("")}</Types>`)},
+    {namn:"_rels/.rels", data:x(`<Relationships xmlns="${NS}/package/2006/relationships"><Relationship Id="rId1" Type="${REL}/officeDocument" Target="xl/workbook.xml"/></Relationships>`)},
+    {namn:"xl/workbook.xml", data:x(`<workbook xmlns="${NS}/spreadsheetml/2006/main" xmlns:r="${REL}"><sheets>${ark.map((a, i) => `<sheet name="${xmlEsc(a.namn)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join("")}</sheets></workbook>`)},
+    {namn:"xl/_rels/workbook.xml.rels", data:x(`<Relationships xmlns="${NS}/package/2006/relationships">${ark.map((_, i) => `<Relationship Id="rId${i + 1}" Type="${REL}/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join("")}<Relationship Id="rId${ark.length + 1}" Type="${REL}/styles" Target="styles.xml"/></Relationships>`)},
+    {namn:"xl/styles.xml", data:x(`<styleSheet xmlns="${NS}/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs></styleSheet>`)},
+    ...ark.map((a, i) => ({namn:`xl/worksheets/sheet${i + 1}.xml`, data:te.encode(a.xml)})),
+  ]);
+}
+// Innhaldet i fila: alltid på nynorsk, frå dei originale dataa (D.brannar), så tala er like for alle
+function lagStatistikk(){
+  const GRUPPE = {brann:"Brann", utrykking:"Anna oppdrag", alarm:"Alarm utan brann"}, ALV = {1:"Mindre", 2:"Middels", 3:"Alvorleg"};
+  const VEKEDAG = ["sundag","måndag","tysdag","onsdag","torsdag","fredag","laurdag"];
+  const kjelde = b => b.kjelde_type === "bris" ? "Brannstatistikken" : b.bris ? "Brannstatistikken og Politiloggen" : b.kjelde_type === "media" ? "Media" : "Politiloggen";
+  const alle = D.brannar.map(b => ({b, o:oslo(b.start)}));
+  const oppdrag = [["Dato", "Kl.", "Vekedag", "Tittel", "Stad", "Gruppe", "Kjelde", "Type i brannstatistikken", "Alvor", "Lenke"],
+    ...alle.map(({b, o}) => [`${o.y}-${pad(o.m)}-${pad(o.d)}`, kl(o), VEKEDAG[o.wd], b.tittel, b.stad, GRUPPE[b.gruppe || "brann"] || b.gruppe,
+      kjelde(b), b.bris ? b.bris.type || "(ikkje fylt ut)" : "", ALV[b.alvor] || "", `https://bls.lillerud.com/#b-${b.id}`])];
+  const mnd = {};
+  for (const {b, o} of alle) {
+    const k = `${o.y}-${pad(o.m)}`, m = mnd[k] ||= {brann:0, utrykking:0, alarm:0, bris:0};
+    m[b.gruppe || "brann"] = (m[b.gruppe || "brann"] || 0) + 1;
+    if (b.bris && b.bris.type !== "Oppdrag løst av 110") m.bris++;
+  }
+  const perMnd = [["Månad", "Brannar", "Anna oppdrag", "Alarmar utan brann", "Totalt", "I brannstatistikken (utan «løyst av 110»)"],
+    ...Object.keys(mnd).sort().reverse().map(k => { const m = mnd[k]; return [k, m.brann, m.utrykking, m.alarm, m.brann + m.utrykking + m.alarm, m.bris]; })];
+  const ark = [{namn:"Oppdrag", xml:lagArk(oppdrag, [11, 7, 10, 36, 22, 18, 30, 30, 10, 40])},
+               {namn:"Per månad", xml:lagArk(perMnd, [10, 10, 14, 18, 10, 38])}];
+  if (sisteTal) {
+    const per = Object.fromEntries((sisteTal.dagar || []).map(r => [r.dag, r.besokande]));
+    const qr = Object.fromEntries(((sisteTal.qr || {}).dagar || []).map(r => [r.dag, r.skann]));
+    ark.push({namn:"Besøk", xml:lagArk([["Dag", "Besøkande", "QR-skanningar"], ...siste30(sisteTal.idag).reverse().map(k => [k, per[k] || 0, qr[k] || 0])], [12, 12, 15])});
+  }
+  const o = oslo(new Date());
+  ark.push({namn:"Om fila", xml:lagArk([["Brannlogg Stord – statistikk", ""],
+    ["Laga", `${o.y}-${pad(o.m)}-${pad(o.d)} kl. ${kl(o)}`], ["Oppdrag", `${alle.length} frå Politiloggen og brannstatistikken`],
+    ["Data oppdatert", naar(oslo(D.oppdatert))],
+    ["Merk", "«I år» på infoskjermen tel berre oppdrag i brannstatistikken, utan «Oppdrag løst av 110»."],
+    ["Merk", "Besøk: kvar eining éin gong per dag. QR-skanningar: kvar skanning."]], [26, 90])});
+  return {blob:lagXlsx(ark), namn:`brannlogg-stord-${o.y}-${pad(o.m)}-${pad(o.d)}.xlsx`};
+}
+$("#eksport").addEventListener("click", () => {
+  try {
+    const {blob, namn} = lagStatistikk(), a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = namn; document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+    $("#eksport-status").textContent = T("Fila «{f}» er lasta ned.", {f:namn});
+  } catch (e) {
+    $("#eksport-status").textContent = T("Fekk ikkje laga fila.");
+  }
+});
 
 /* ---- Systemstatus i adminpanelet (ønske frå brukaren 8.11.2026): om oppdateringa går og om kjeldene svarar.
    Dataa kjem frå D.kjelder og status.json (kjelde_status() i oppdater.py). Har sida ikkje vore oppdatert på over

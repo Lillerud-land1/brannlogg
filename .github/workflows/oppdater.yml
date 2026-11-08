@@ -66,6 +66,7 @@ jobs:
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
           TV_ADRESSE: ${{ secrets.TV_ADRESSE }}   # hemmeleg adresse til infoskjermen
+          HENT_NOKKEL: ${{ secrets.HENT_NOKKEL }}   # berre til å rekne ut nøkkelen infoskjermen melder frå med (tv_ping_nokkel)
 
       - name: Lagre nye brannar i arkivet
         run: |
@@ -119,11 +120,18 @@ jobs:
         env:
           NTFY_VAKT: ${{ secrets.NTFY_VAKT }}
           HENT_NOKKEL: ${{ secrets.HENT_NOKKEL }}
+        # Kode 10 = «Oppdater no» i adminpanelet (godkjend med kode på mobilen til eigaren): start neste køyring med ein gong
         run: |
           slutt=$(( $(date +%s) + 780 ))
-          python3 oppdater.py --admin-meldingar 780 || echo "Admin-meldingane feila – ventar vidare"
-          rest=$(( slutt - $(date +%s) ))
-          if [ "$rest" -gt 0 ]; then sleep "$rest"; fi
+          kode=0
+          python3 oppdater.py --admin-meldingar 780 || kode=$?
+          if [ "$kode" = "10" ]; then
+            echo "Oppdater no frå adminpanelet – startar neste køyring med ein gong"
+          else
+            [ "$kode" = "0" ] || echo "Admin-meldingane feila – ventar vidare"
+            rest=$(( slutt - $(date +%s) ))
+            if [ "$rest" -gt 0 ]; then sleep "$rest"; fi
+          fi
           andre=$(gh run list --workflow oppdater.yml --limit 20 --json databaseId,status \
             -q '[.[] | select(.databaseId != ${{ github.run_id }}) | select(.status != "completed")] | length')
           if [ "$andre" = "0" ]; then

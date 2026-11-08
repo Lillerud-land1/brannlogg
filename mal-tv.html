@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- Berre skripta i sida får køyre (hashane blir fylte inn av oppdater.py) -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src __SKRIPT_HASHAR__; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; child-src 'self'; base-uri 'none'; form-action 'self'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src __SKRIPT_HASHAR__; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://brannlogg-admin.brannlogg-admin.workers.dev; manifest-src 'self'; worker-src 'self'; child-src 'self'; base-uri 'none'; form-action 'self'; object-src 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>Stord brann og redning – infoskjerm</title>
@@ -510,11 +510,24 @@ async function sjekkNyeData(){
     if (st.sum && st.sum !== D.sum) location.reload();
     else if (st.oppdatert) {
       const o = oslo(st.oppdatert); $("#oppd").textContent = `Data oppdatert ${relDag(o).toLowerCase()} kl. ${kl(o)}`;
+      visteData = st.oppdatert;
       if ("brannfare" in st) { D.brannfare = st.brannfare; renderBrannfare(); }
     }
   } catch (e) {}
 }
 setInterval(sjekkNyeData, 2 * 60 * 1000);
+
+/* «Infoskjermen sist sett» i adminpanelet (8.11.2026): skjermen melder frå til Cloudflare-workeren rett etter
+   at sida er lasta og så kvart 5. minutt – berre tidspunkt, skjermstorleik og kor gamle dataa på skjermen er.
+   Nøkkelen blir fylt inn av byggjeskriptet (tv_ping_nokkel i oppdater.py); utan nøkkel blir det ikkje sendt noko. */
+const TV_PING = "__TV_PING__";
+let visteData = D.oppdatert;
+function meldFraa(){
+  if (TV_PING.length < 40 || location.hostname !== "bls.lillerud.com") return;   // ikkje fylt inn (t.d. ved testing)
+  fetch("https://brannlogg-admin.brannlogg-admin.workers.dev/tv", {method:"POST", headers:{"Content-Type":"text/plain"},
+    body:JSON.stringify({nokkel:TV_PING, skjerm:`${innerWidth}x${innerHeight}`, data:visteData})}).catch(() => {});
+}
+setTimeout(meldFraa, 5000); setInterval(meldFraa, 5 * 60 * 1000);
 setInterval(() => location.reload(), 60 * 60 * 1000);  // tryggleiksnett: last heile sida på nytt kvar time
 })();
 </script>
