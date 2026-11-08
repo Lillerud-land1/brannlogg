@@ -1869,5 +1869,11 @@
   "type": "Helseoppdrag annet",
   "tid": "2026-11-08T12:58:11+00:00",
   "brannvesen": "Stord brann og redning"
+ },
+ "5005553": {
+  "id": "5005553",
+  "type": "",
+  "tid": "2026-11-08T19:46:19+00:00",
+  "brannvesen": "Stord brann og redning"
  }
 }
