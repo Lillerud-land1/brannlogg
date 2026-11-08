@@ -16,6 +16,8 @@
 // og både saltet og hashane blir sletta når dagen er over. Att står berre talet på besøkande per dag (alle dagar,
 // så adminpanelet kan vise totalen).
 // Adminpanelet hentar tala med «/besok-tal» og ein nøkkel som blir rekna ut frå admin-koden (BESOK_NOKKEL).
+// Kjem nokon via QR-koden på infoskjermen (adressa «/?qr»), sender appen {qr: true}, og skanninga blir òg talt –
+// kvar eining éin gong per dag, med same hash og same sletting som besøka (tabellane qr og qr_sett, 8.11.2026).
 //
 // Hemmelegheiter (npx wrangler secret put …): KODE_NOKKEL (signerer tokenet), HENT_NOKKEL (GitHub brukar
 // han for å hente køen; same verdi som GitHub-hemmelegheita HENT_NOKKEL), BESOK_NOKKEL (sjå README, bolk 11).
@@ -87,28 +89,36 @@ export class Teljar {
     this.sql = ctx.storage.sql;
     this.sql.exec("CREATE TABLE IF NOT EXISTS dagar (dag TEXT PRIMARY KEY, besokande INTEGER NOT NULL)");
     this.sql.exec("CREATE TABLE IF NOT EXISTS sett (h TEXT PRIMARY KEY)");
+    // Skanningar av QR-koden på infoskjermen (adressa «/?qr»), talde på same måte: kvar eining éin gong per dag
+    this.sql.exec("CREATE TABLE IF NOT EXISTS qr (dag TEXT PRIMARY KEY, skann INTEGER NOT NULL)");
+    this.sql.exec("CREATE TABLE IF NOT EXISTS qr_sett (h TEXT PRIMARY KEY)");
   }
 
   async fetch(req) {
     const dag = osloDag();
     if (new URL(req.url).pathname === "/tel") {
-      const {kjenne} = await req.json();
+      const {kjenne, qr} = await req.json();
       let salt = await this.ctx.storage.get("salt");
       if (salt?.dag !== dag) {
         // Ny dag: saltet og hashane frå i går blir sletta, så ingen kan kjennast att frå dag til dag
         salt = {dag, verdi: b64(crypto.getRandomValues(new Uint8Array(16)))};
         this.sql.exec("DELETE FROM sett");
+        this.sql.exec("DELETE FROM qr_sett");
         await this.ctx.storage.put("salt", salt);
       }
       const h = b64(await crypto.subtle.digest("SHA-256", enc.encode(`${salt.verdi}|${kjenne}`)));
       if (this.sql.exec("INSERT OR IGNORE INTO sett (h) VALUES (?) RETURNING h", h).toArray().length)
         this.sql.exec("INSERT INTO dagar (dag, besokande) VALUES (?, 1) ON CONFLICT(dag) DO UPDATE SET besokande = besokande + 1", dag);
+      if (qr === true && this.sql.exec("INSERT OR IGNORE INTO qr_sett (h) VALUES (?) RETURNING h", h).toArray().length)
+        this.sql.exec("INSERT INTO qr (dag, skann) VALUES (?, 1) ON CONFLICT(dag) DO UPDATE SET skann = skann + 1", dag);
       return new Response("ok");
     }
     const fra = osloDag(new Date(Date.now() - 29 * 864e5));
     const alle = this.sql.exec("SELECT MIN(dag) AS fyrste, COALESCE(SUM(besokande), 0) AS totalt FROM dagar").one();
+    const qr = this.sql.exec("SELECT MIN(dag) AS fyrste, COALESCE(SUM(skann), 0) AS totalt FROM qr").one();
     return Response.json({idag: dag, dagar: this.sql.exec("SELECT dag, besokande FROM dagar WHERE dag >= ? ORDER BY dag", fra).toArray(),
-      fyrste: alle.fyrste, totalt: alle.totalt});
+      fyrste: alle.fyrste, totalt: alle.totalt,
+      qr: {dagar: this.sql.exec("SELECT dag, skann FROM qr WHERE dag >= ? ORDER BY dag", fra).toArray(), fyrste: qr.fyrste, totalt: qr.totalt}});
   }
 }
 
@@ -165,7 +175,7 @@ export default {
         // Maks 3 opningar i minuttet frå same eining blir talde (IP + nettlesar, sidan mange mobilar deler IP-adresse),
         // og robotar blir ikkje talde
         if (!ROBOT.test(ua) && (await innanfor([env.GRENSE_EINING, `besok:${ip}|${ua.slice(0, 300)}`])))
-          await teljar(env).fetch("https://teljar/tel", {method: "POST", body: JSON.stringify({kjenne: `${ip}|${ua}`})});
+          await teljar(env).fetch("https://teljar/tel", {method: "POST", body: JSON.stringify({kjenne: `${ip}|${ua}`, qr: data.qr === true})});
         return svar({ok: true});
       }
       if (sti === "/besok-tal") {
