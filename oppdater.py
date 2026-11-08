@@ -42,6 +42,56 @@ def hent(url, rå=False):
     return data if rå else json.loads(data.decode("utf-8"))
 
 
+# ---------- Systemstatus (adminpanelet) ----------
+# Kvar kjelde blir merkt ok eller feil under bygginga: politi (Politiloggen), bris (brannstatistikken) og ver
+# (vêrdata til skogbrannfaren). kjelde_status() lagar det som står i status.json og i sida (ønske frå brukaren 8.11.2026).
+KJELDE_STATUS = {}
+
+
+def kjelde_ok(namn):
+    KJELDE_STATUS[namn] = {"ok": True}
+
+
+def kjelde_feil(namn, feil, del_=None):
+    """Lagrar berre ein kort kode for feilen – aldri sjølve feilteksten, så ingenting uventa hamnar på nettsida."""
+    from urllib.error import HTTPError, URLError
+    s = ({"ok": False, "feil": "http", "http": int(feil.code)} if isinstance(feil, HTTPError) else
+         {"ok": False, "feil": "nett"} if isinstance(feil, (URLError, OSError)) else {"ok": False, "feil": "svar"})
+    if del_:
+        s["del"] = del_
+    KJELDE_STATUS[namn] = s
+
+
+def _iso(v):
+    """Godtek berre eit gyldig ISO-tidspunkt (frå førre status.json), elles None."""
+    try:
+        return v if isinstance(v, str) and len(v) < 40 and datetime.fromisoformat(v) else None
+    except ValueError:
+        return None
+
+
+def kjelde_status(no):
+    """Status per kjelde til adminpanelet. Når ein feil byrja («sidan») og når kjelda sist svara («sist_ok»),
+    blir lese frå førre status.json på nettstaden, så ingenting treng lagrast i repoet."""
+    try:
+        with urllib.request.urlopen(urllib.request.Request(f"{NETTSIDE}status.json?t={int(no.timestamp())}", headers=UA),
+                                    timeout=20) as r:
+            forrige = json.loads(r.read().decode("utf-8")).get("kjelder")
+    except Exception:
+        forrige = None
+    forrige = forrige if isinstance(forrige, dict) else {}
+    t = no.isoformat(timespec="seconds")
+    ut = {}
+    for namn, s in KJELDE_STATUS.items():
+        f = forrige.get(namn) if isinstance(forrige.get(namn), dict) else {}
+        if s["ok"]:
+            ut[namn] = {"ok": True, "sist_ok": t}
+        else:
+            ut[namn] = {**s, "sidan": (_iso(f.get("sidan")) if f.get("ok") is False else None) or t,
+                        "sist_ok": _iso(f.get("sist_ok"))}
+    return ut
+
+
 def les_json(namn, standard):
     fil = MAPPE / namn
     return json.loads(fil.read_text(encoding="utf-8")) if fil.exists() else standard
@@ -488,8 +538,10 @@ def hent_bris():
         merk_borte(lagra, {m["id"] for m in svar}, start)
         skriv_json("bris.json", lagra)
         print(f"BRIS: {len(lagra)} oppdrag i arkivet, {nye} nye")
+        kjelde_ok("bris")
     except Exception as feil:
         print(f"BRIS_FEIL: kunne ikkje hente brannstatistikk ({feil}) – brukar lagra data")
+        kjelde_feil("bris", feil)
     no = datetime.now(timezone.utc)
     return [{**m, "type": LØYST_AV_110} if not m["type"] and m.get("borte") and no - datetime.fromisoformat(m["borte"]) > timedelta(hours=1)
             else m for m in lagra.values()]
@@ -1287,7 +1339,8 @@ def main():
     geocache = les_json("geokode.json", {})
 
     print("Hentar frå Politiloggen …")
-    alle_trådar = hent_trådar(alle=True)
+    alle_trådar = hent_trådar(alle=True)   # svarar ikkje Politiloggen, stoppar bygginga her (adminpanelet viser då gammal oppdatering)
+    kjelde_ok("politi")
     bris = hent_bris()
     trådar = [t for t in alle_trådar if gruppe_for(t)] + [{**t, "bris_kopla": True} for t in politi_til_bris(alle_trådar, bris)]
     for t in trådar:
@@ -1376,6 +1429,7 @@ def main():
         "fjor": hent_fjor(bris),
         "temadagar": temadagar(),
     }
+    data["kjelder"] = kjelde_status(no)   # etter hent_brannfare(), som merkjer vêrdata
     json_tekst = json_til_skript(data)
     mal = (MAPPE / "mal.html").read_text(encoding="utf-8")
     if "/*__DATA__*/null" not in mal:
@@ -1386,7 +1440,7 @@ def main():
     # Liten fil som opne sider sjekkar for å sjå om det finst nye data
     (MAPPE / "nettside" / "status.json").write_text(
         json.dumps({"oppdatert": data["oppdatert"], "neste": data["neste"], "sum": kontrollsum,
-                    "brannfare": data["brannfare"]}, ensure_ascii=False), encoding="utf-8")
+                    "brannfare": data["brannfare"], "kjelder": data["kjelder"]}, ensure_ascii=False), encoding="utf-8")
     skriv_widget(data)
     skriv_tv(json_tekst)
 
@@ -1500,8 +1554,10 @@ def hent_brannfare():
             "&past_days=92&forecast_days=2&timezone=Europe%2FOslo&models=metno_seamless", headers=MET_UA)   # berre MET sin vêrmodell (MET Nordic)
         with urllib.request.urlopen(req, timeout=30) as r:
             h = json.loads(r.read().decode("utf-8"))["hourly"]
+        kjelde_ok("ver")
     except Exception as feil:
         print(f"BRANNFARE_FEIL: {feil}")
+        kjelde_feil("ver", feil)
         return None
     tider = h["time"]
     rad = {t: i for i, t in enumerate(tider)}
@@ -1546,6 +1602,7 @@ def hent_brannfare():
                     break
     except Exception as feil:
         print(f"FAREVARSEL_FEIL: {feil}")
+        kjelde_feil("ver", feil, "farevarsel")
     return ut
 
 

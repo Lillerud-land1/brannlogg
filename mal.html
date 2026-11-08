@@ -474,6 +474,15 @@ button.hbar[aria-pressed="true"] .fill{background:var(--ink)}
 .admin-lenke .adr{font-size:15px;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:8px 10px;user-select:all;word-break:break-all}
 .admin-lenke .rad{display:flex;flex-wrap:wrap;gap:8px}
 .besok{display:grid;gap:8px;margin-top:8px;padding-top:12px;border-top:1px solid var(--line-2)}
+.sys{display:grid;gap:8px;margin-top:8px;padding-top:12px;border-top:1px solid var(--line-2)}
+.sys-liste{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.sys-liste li{display:grid;grid-template-columns:auto 1fr;column-gap:10px;align-items:center;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:8px 10px}
+.sys-liste li i{width:10px;height:10px;border-radius:50%;background:var(--ok)}
+.sys-liste li.feil i{background:var(--fire)}
+.sys-liste li.ukjend i{background:var(--muted);opacity:.6}
+.sys-liste li b{color:var(--ink)}
+.sys-liste li span{grid-column:2;font-size:14px;color:var(--ink-2)}
+.sys-liste li.feil span{color:var(--fire)}
 .besok-tal{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .besok-tal div{background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:8px 10px}
 .besok-tal b{display:block;font-size:24px;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--ink)}
@@ -1009,6 +1018,10 @@ if (fm.fileExists(fil)) {
           <a class="btn" id="admin-opne" target="_blank" rel="noopener">Opne infoskjermen</a>
         </div>
         <span class="sub" id="admin-status"></span>
+        <div class="sys" id="sys">
+          <div><b>Systemstatus</b><span class="sub" style="display:block">Om appen hentar data som han skal. Blir sjekka kvart kvarter.</span></div>
+          <ul class="sys-liste" id="sys-liste"></ul>
+        </div>
         <div class="besok" id="besok" hidden>
           <div><b>Besøk</b><span class="sub" style="display:block">Kor mange som har opna appen. Kvar eining blir talt éin gong per dag.</span></div>
           <div class="besok-tal" id="besok-tal"></div>
@@ -1671,6 +1684,21 @@ const OMSETJING = [
   ["Adminpanel", "Adminpanel", "Admin panel"],
   ["Infoskjerm", "Infoskjerm", "Info screen"],
   ["Lenke til storskjerm-versjonen for brannstasjonen.", "Lenke til storskjermversjonen for brannstasjonen.", "Link to the big-screen version for the fire station."],
+  ["Systemstatus", "Systemstatus", "System status"],
+  ["Om appen hentar data som han skal. Blir sjekka kvart kvarter.", "Om appen henter data som den skal. Sjekkes hvert kvarter.", "Whether the app is fetching data as it should. Checked every 15 minutes."],
+  ["Sist oppdatert", "Sist oppdatert", "Last updated"],
+  ["for {d} sidan", "for {d} siden", "{d} ago"],
+  ["under eitt minutt", "under ett minutt", "less than a minute"],
+  ["Oppdateringa på GitHub ser ut til å ha stoppa.", "Oppdateringen på GitHub ser ut til å ha stoppet.", "The update on GitHub seems to have stopped."],
+  ["Brannstatistikken", "Brannstatistikken", "Fire statistics"],
+  ["Vêrdata (skogbrannfare)", "Værdata (skogbrannfare)", "Weather data (wildfire risk)"],
+  ["ukjend", "ukjent", "unknown"],
+  ["svarar", "svarer", "responding"],
+  ["svarar ikkje sidan {t}", "svarer ikke siden {t}", "not responding since {t}"],
+  ["feilkode {k}", "feilkode {k}", "error code {k}"],
+  ["får ikkje kontakt", "får ikke kontakt", "cannot connect"],
+  ["uventa svar", "uventet svar", "unexpected response"],
+  ["Farevarsel frå MET", "Farevarsel fra MET", "MET warning"],
   ["Besøk", "Besøk", "Visits"],
   ["Kor mange som har opna appen. Kvar eining blir talt éin gong per dag.", "Hvor mange som har åpnet appen. Hver enhet telles én gang per dag.", "How many have opened the app. Each device is counted once per day."],
   ["Totalt", "Totalt", "All time"],
@@ -2377,6 +2405,7 @@ async function sjekkNyeData(){
     const svar = await fetch("status.json?t=" + Date.now(), {cache:"no-store"});
     if (!svar.ok) return;
     const st = await svar.json();
+    if (st.oppdatert) { sysData = {oppdatert:st.oppdatert, kjelder:st.kjelder || sysData.kjelder}; renderSys(); }
     if (!st.sum || st.sum === D.sum) {
       // Ingen nye hendingar – berre oppdater klokkeslettet øvst
       if (st.oppdatert && st.oppdatert !== D.oppdatert) { D.oppdatert = st.oppdatert; D.neste = st.neste; renderStatus(); }
@@ -2687,6 +2716,33 @@ async function visBesok(){
   const fyrste = new Date((d.fyrste || d.idag) + "T12:00:00Z").toLocaleDateString(LOCALE, {day:"numeric", month:"long", year:"numeric", timeZone:"UTC"});
   $("#besok-status").textContent = T("Totalt sidan {d}. Stolpane viser dei siste 30 dagane, raud er i dag.", {d:fyrste});
 }
+
+/* ---- Systemstatus i adminpanelet (ønske frå brukaren 8.11.2026): om oppdateringa går og om kjeldene svarar.
+   Dataa kjem frå D.kjelder og status.json (kjelde_status() i oppdater.py). Har sida ikkje vore oppdatert på over
+   ein time, har køyringa på GitHub stoppa – då er stoda til kjeldene ukjend. ---- */
+const KJELDE_NAMN = [["politi", "Politiloggen"], ["bris", "Brannstatistikken"], ["ver", "Vêrdata (skogbrannfare)"]];
+let sysData = {oppdatert:D.oppdatert, kjelder:D.kjelder || null};
+const sysSidan = t => varigheit(t, new Date()) || T("under eitt minutt");
+function sysFeil(s){
+  const grunn = s.feil === "http" ? T("feilkode {k}", {k:Number(s.http) || "?"}) : T(s.feil === "nett" ? "får ikkje kontakt" : "uventa svar");
+  return (s.del === "farevarsel" ? T("Farevarsel frå MET") + ": " : "") + grunn;
+}
+function renderSys(){
+  const el = $("#sys-liste");
+  if (!el || !sysData.oppdatert) return;
+  const gammal = Date.now() - new Date(sysData.oppdatert) > 60 * 6e4;
+  const rad = (k, namn, tekst) => `<li class="${k}"><i aria-hidden="true"></i><b>${esc(namn)}</b><span>${esc(tekst)}</span></li>`;
+  let h = rad(gammal ? "feil" : "ok", T("Sist oppdatert"), `${naar(oslo(sysData.oppdatert))} (${T("for {d} sidan", {d:sysSidan(sysData.oppdatert)})})` +
+    (gammal ? ". " + T("Oppdateringa på GitHub ser ut til å ha stoppa.") : ""));
+  for (const [k, namn] of KJELDE_NAMN) {
+    const s = sysData.kjelder && sysData.kjelder[k];
+    if (gammal || !s) h += rad("ukjend", T(namn), T("ukjend"));
+    else if (s.ok) h += rad("ok", T(namn), T("svarar"));
+    else h += rad("feil", T(namn), T("svarar ikkje sidan {t}", {t:naar(oslo(s.sidan))}) + ` (${sysFeil(s)})`);
+  }
+  el.innerHTML = h;
+}
+renderSys(); setInterval(renderSys, 60 * 1000);
 
 /* ---- Info: innhaldsliste som hoppar til og markerer boksane ---- */
 const infoNav = $(".info-nav");
