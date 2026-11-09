@@ -269,14 +269,14 @@ const PG_NOKKEL = "__TV_PING__", WORKER = "https://brannlogg-admin.brannlogg-adm
 let PG = null;
 try { PG = JSON.parse(localStorage.getItem("brannlogg_pagar") || "null"); } catch (e) {}
 if (PG && !(Date.now() - new Date(PG.start) < 8 * 36e5 && !B.some(b => b.bris && b.bris.type && b.bris.type !== "Oppdrag løst av 110" && new Date(b.start) >= new Date(PG.start) - 20 * 6e4))) PG = null;
-if (PG) B.unshift({id:"pagar", gruppe:"utrykking", tittel:String(PG.tittel).slice(0, 60), stad:String(PG.stad || "Stord").slice(0, 80), start:PG.start, sist:new Date().toISOString(), aktiv:true,
+if (PG) B.unshift({id:"pagar", gruppe:"utrykking", tittel:String(PG.tittel).slice(0, 60), stad:String(PG.stad || "Stord").slice(0, 80), start:PG.start, utanTid:!!PG.utanTid, sist:new Date().toISOString(), aktiv:true,
   type:"utrykking", alvor:3, pos:Array.isArray(PG.pos) && PG.pos.length === 2 && PG.pos.every(Number.isFinite) ? PG.pos : null, meldingar:[{t:PG.start, tekst:"Melding frå brannstasjonen. Detaljar kjem."}], _o:oslo(PG.start)});
 async function sjekkPagar(){
   if (PG_NOKKEL.length < 40 || location.hostname !== "bls.lillerud.com") return;
   try {
     const r = await (await fetch(WORKER + "/pagar-hent", {method:"POST", headers:{"Content-Type":"text/plain"}, body:JSON.stringify({nokkel:PG_NOKKEL})})).json();
     if (r.feil) return;
-    const no = r.tittel ? JSON.stringify({tittel:r.tittel, start:r.start, pos:r.pos, stad:r.stad}) : "";
+    const no = r.tittel ? JSON.stringify({tittel:r.tittel, start:r.start, pos:r.pos, stad:r.stad, utanTid:!!r.utanTid}) : "";
     if ((localStorage.getItem("brannlogg_pagar") || "") !== no) { no ? localStorage.setItem("brannlogg_pagar", no) : localStorage.removeItem("brannlogg_pagar"); location.reload(); }
   } catch (e) {}
 }
@@ -385,7 +385,7 @@ function sidanTekst(fraa){
 if (ALARM.length) {
   const a = ALARM[0];
   const logg = [...a.meldingar].sort((x, y) => y.t.localeCompare(x.t)).slice(0, 4)
-    .map(m => `<li><time>${kl(oslo(m.t))}</time><p>${esc(m.tekst)}</p></li>`).join("");
+    .map(m => `<li>${a.utanTid ? "" : `<time>${kl(oslo(m.t))}</time>`}<p>${esc(m.tekst)}</p></li>`).join("");
   const fleire = ALARM.slice(1).map(b => `${esc(b.tittel)}, ${esc(b.stad)}`).join(" · ");
   let kart = "";
   if (K) {
@@ -402,7 +402,7 @@ if (ALARM.length) {
       <div class="av-topp"><i></i>Pågår no</div>
       <div class="av-tittel"><span class="ic"><svg><use href="#${TYPE[a.type] || "i-anna"}"/></svg></span><h2>${esc(a.tittel)}</h2></div>
       <div class="av-stad">${esc(a.stad)}</div>
-      <div class="av-tid">Starta kl. <b>${kl(a._o)}</b>, for <b id="av-sidan">${sidanTekst(a.start)}</b> sidan</div>
+      ${a.utanTid ? "" : `<div class="av-tid">Starta kl. <b>${kl(a._o)}</b>, for <b id="av-sidan">${sidanTekst(a.start)}</b> sidan</div>`}
       <ul class="av-logg">${logg}</ul>
       ${fleire ? `<div class="av-fleire">Pågår òg: ${fleire}</div>` : ""}
     </div>

@@ -206,11 +206,11 @@ export class Teljar {
     // «Brann pågår»: eit oppslag som set infoskjermen i alarmmodus til det blir avslutta (maks 8 timar)
     if (new URL(req.url).pathname === "/pagar") {
       const d = await req.json();
-      if (d.handling === "sett") await this.ctx.storage.put("pagar", {tittel: d.tittel, start: d.start || new Date().toISOString(), ut: Date.now() + 8 * 36e5, av: d.av, pos: d.pos || null, stad: d.stad || null});
+      if (d.handling === "sett") await this.ctx.storage.put("pagar", {tittel: d.tittel, start: d.start || new Date().toISOString(), ut: Date.now() + 8 * 36e5, av: d.av, pos: d.pos || null, stad: d.stad || null, utanTid: d.utanTid === true});
       else if (d.handling === "av") await this.ctx.storage.delete("pagar");
       const p = await this.ctx.storage.get("pagar");
       if (p && p.ut < Date.now()) { await this.ctx.storage.delete("pagar"); return Response.json({}); }
-      return Response.json(p ? {tittel: p.tittel, start: p.start, av: p.av, pos: p.pos, stad: p.stad} : {});
+      return Response.json(p ? {tittel: p.tittel, start: p.start, av: p.av, pos: p.pos, stad: p.stad, utanTid: !!p.utanTid} : {});
     }
     if (new URL(req.url).pathname === "/tv") {
       await this.ctx.storage.put("tv", await req.json());
@@ -395,7 +395,7 @@ export default {
         const adr = String(data.adresse || "").replace(/[ -<>]/g, "").trim().slice(0, 80);
         const g = sti === "/pagar-sett" && adr ? await geokod(adr) : null;
         const r = await (await teljar(env).fetch("https://teljar/pagar", {method: "POST",
-          body: JSON.stringify({handling: sti === "/pagar-sett" ? "sett" : "av", tittel, av: okt.namn, pos: g && g.pos, stad: g && g.stad, start})})).json();
+          body: JSON.stringify({handling: sti === "/pagar-sett" ? "sett" : "av", tittel, av: okt.namn, pos: g && g.pos, stad: g && g.stad, start, utanTid: data.utanTid === true})})).json();
         if (adr && !g) r.adresseFeil = true;
         await tilEigaren(env, {title: sti === "/pagar-sett" ? `🚨 «Brann pågår» på infoskjermen: ${tittel}` : "✅ «Brann pågår» avslutta på infoskjermen",
           tags: [sti === "/pagar-sett" ? "rotating_light" : "mute"], priority: 3, message: `${okt.namn}.

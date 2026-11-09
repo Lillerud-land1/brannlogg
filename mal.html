@@ -609,6 +609,7 @@ dialog.innlogging::backdrop{background:rgba(10,14,18,.78);backdrop-filter:blur(6
 #pagar-skjema .btn{width:100%;justify-content:center}
 .pagar-tid-val{grid-column:1 / -1;display:grid;gap:6px}
 .pagar-tid-val .rad{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pagar-tid-val #pt-siste{grid-column:1 / -1}
 .pagar-tid-val .btn.valt{background:var(--ink);color:var(--surface);border-color:var(--ink)}
 .pagar-tid-val input[type=time]{width:auto;justify-self:start}
 dialog.boble::after{content:"";position:absolute;left:50%;bottom:-18px;margin-left:-20px;border:20px solid transparent;border-bottom:0;border-top-color:var(--surface)}
@@ -1054,7 +1055,7 @@ if (fm.fileExists(fil)) {
             <input id="pagar-tittel" maxlength="60" aria-label="Tittel" placeholder="Til dømes: Pipebrann">
             <div class="pagar-tid-val">
               <span class="sub">Når starta det?</span>
-              <div class="rad"><button type="button" class="btn" id="pt-siste"></button><button type="button" class="btn" id="pt-anna">Anna tid</button></div>
+              <div class="rad"><button type="button" class="btn" id="pt-siste"></button><button type="button" class="btn" id="pt-anna">Anna tid</button><button type="button" class="btn" id="pt-ingen">Ingen tid</button></div>
               <input id="pagar-tid" type="time" aria-label="Klokkeslett det starta" hidden>
             </div>
             <input id="pagar-adresse" maxlength="80" aria-label="Adresse" placeholder="Adresse (valfritt), til dømes Nordstokkevegen 12">
@@ -3002,13 +3003,15 @@ function pagarTidOppsett(){
 }
 function pagarTidVelg(v){
   pagarTid = v;
-  $("#pt-siste").classList.toggle("valt", v === "siste"); $("#pt-anna").classList.toggle("valt", v === "anna");
+  $("#pt-siste").classList.toggle("valt", v === "siste"); $("#pt-anna").classList.toggle("valt", v === "anna"); $("#pt-ingen").classList.toggle("valt", v === "ingen");
   $("#pagar-tid").hidden = v !== "anna";
 }
 $("#pt-siste").addEventListener("click", () => pagarTidVelg("siste"));
+$("#pt-ingen").addEventListener("click", () => pagarTidVelg("ingen"));
 $("#pt-anna").addEventListener("click", () => { pagarTidVelg("anna"); $("#pagar-tid").focus(); });
 function pagarStart(){
   const v = $("#pagar-tid").value;
+  if (pagarTid === "ingen") return "";
   if (pagarTid === "siste" && B[0]) return new Date(B[0].start).toISOString();
   if (!/^\d\d:\d\d$/.test(v)) return "";
   const d = new Date(); d.setHours(+v.slice(0, 2), +v.slice(3), 0, 0);
@@ -3020,7 +3023,7 @@ $("#pagar-skjema").addEventListener("submit", async e => {
   const tittel = $("#pagar-tittel").value.trim(), st = $("#pagar-status");
   if (!okt || okt.rolle !== "full") return;
   if (tittel.length < 2) { st.textContent = "Skriv ein kort tittel først."; return; }
-  try { const r = await opneKall("/pagar-sett", {okt:okt.token, tittel, adresse:$("#pagar-adresse").value.trim(), start:pagarStart()}); pagarTom(); await pagarStatus(); if (r.adresseFeil) st.textContent = "Starta, men fann ikkje adressen i Stord – ingen prikk på kartet. " + st.textContent; }
+  try { const r = await opneKall("/pagar-sett", {okt:okt.token, tittel, adresse:$("#pagar-adresse").value.trim(), start:pagarStart(), utanTid:pagarTid === "ingen"}); pagarTom(); await pagarStatus(); if (r.adresseFeil) st.textContent = "Starta, men fann ikkje adressen i Stord – ingen prikk på kartet. " + st.textContent; }
   catch (feil) { if (feil.status === 401) utlopt(); else st.textContent = "Fekk ikkje starta. Prøv igjen."; }
 });
 $("#pagar-av").addEventListener("click", async () => {
