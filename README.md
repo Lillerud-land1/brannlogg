@@ -96,6 +96,7 @@ flowchart LR
 | `mal.html` | Mal for appen. Data blir sett inn der det står `/*__DATA__*/null`. |
 | `mal-tv.html` | Mal for TV-/infoskjermversjonen. |
 | `mal-tv.webmanifest` | Mal for app-manifestet til infoskjermen (adressa blir fylt inn ved bygging). |
+| `mal-admin.html` | Mal for adminappen (`bls.lillerud.com/admin`): adminpanelet som eigen app. Sjå bolk 11. |
 | `.github/workflows/oppdater.yml` | GitHub Actions: køyrer skriptet kvart kvarter og legg ut sida. |
 | `.github/workflows/vakt.yml` | Vakt kvart kvarter: varsel til eigaren (privat ntfy-kanal) om nettsida ikkje er oppdatert på over ein time. |
 | `ekstra.json` | Manuelle tillegg og rettingar per hending (sjå under). Skrive av Claude eller for hand. |
@@ -108,6 +109,7 @@ flowchart LR
 | `geokode.json` | Mellomlager for stadfesting frå Kartverket. |
 | `kart.json` | SVG-kart over Stord (laga av `lag_kart.py`). |
 | `lag_kart.py`, `lag_ikon.py` | Køyrde éin gong for å lage kart og app-ikon. |
+| `lag_ikon_admin.py` | Køyrd éin gong for å lage ikonet til adminappen (`nettside/admin-*.png`). |
 | `nettside/` | Det som blir lagt ut: `index.html`, infoskjermen og `tv.html` (blir bygde, ikkje i git), manifest, ikon, `sw.js` (fungerer utan nett), `qr.svg`, `status.json`, `widget.json` og `widget-kode.js` (iPhone-widgeten, sjå bolk 6). |
 
 ### `ekstra.json`
@@ -265,3 +267,5 @@ Appen er ei statisk nettside på GitHub Pages: det finst ingen server, database,
 **Kjende avgrensingar:** GitHub Pages gir ingen besøkslogg og ingen brannmur (besøkstala over kjem frå appen sjølv), så det går ikkje å sjå eller blokkere einingar eller IP-adresser som besøkjer sida – men det finst heller inga innlogging, ingen database og ingen persondata der å angripe. Det viktigaste vernet er GitHub-kontoen (tofaktor) og domenet. Domenet `lillerud.com` er ikkje stadfesta i GitHub («verified domain», TXT-post hos ServeTheWorld) – det ville hindra at andre kan ta over `bls.`-adressa om ho ein gong blir fjerna frå Pages. Grensene i workeren gjeld per Cloudflare-stad og per minutt, så nokon som verkeleg vil, kan framleis sende mange 🔒/🔐-meldingar til eigaren – men ikkje lese kanalen eller opne noko. Alle som kjenner ntfy-kanalnamnet, kan sende falske varsel til kanalen (gratisversjonen av ntfy har ingen tilgangsstyring). Det kan berre løysast med betalt ntfy-konto med reservert kanal eller eigen ntfy-server.
 
 Når nye tekstfelt eller lenker blir lagde til i appen: legg dei inn i `rens_hending()` (elles blir dei fjerna) og bruk `esc()` / `trygUrl()` i malen. Nye `<script>`-blokker i malane får hash automatisk; inline-hendingar som `onclick="…"` vil ikkje verke (bruk `addEventListener`).
+
+**Adminappen (`mal-admin.html`, 9.11.2026):** Adminpanelet som eigen app (PWA) på `bls.lillerud.com/admin`, med eige manifest (`nettside/admin.webmanifest`, «BLS Admin») og eige ikon (flamma med gult band «ADMIN»), så ho kan liggje på heimeskjermen ved sida av Brannlogg. Same worker, same innlogging (admin-kode + PIN, 30 minutt, beviset berre i minnet) og same sperrer som panelet i appen – sida har ingen hemmelegheiter, og adressa treng ikkje vere hemmeleg. Tre faner på mobil (Infoskjerm · Status · Tal), alt på éin skjerm på PC. `skriv_admin()` i `oppdater.py` byggjer `nettside/admin.html` (med CSP-hashar) og `nettside/admin-data.json` (`admin_data()`: siste alarm, systemstatus og felta Excel-fila treng – alt offentleg). Appen hentar `status.json` kvart minutt og datafila på nytt når `sum` er endra, utan å laste sida på nytt (då hadde innlogginga forsvunne). Logikken er kopiert frå `mal.html` – **endrar du adminpanelet der, så endre i `mal-admin.html` òg** (og omvendt). Skilnader: lenka til infoskjermen er løynd til ein trykkjer «Vis adressa», svaret frå `/pagar-sett`/`/pagar-av` blir brukt som ny status (eitt kall mindre mot grensa infoskjermen deler per IP), kodefeltet har `autocomplete="current-password"` (telefonen kan tilby å hugse admin-koden; PIN-koden må alltid skrivast), og sida nektar å bli vist i ei ramme. Testar: `C:\Clauderannlogg-forslagdminapp\` (`lag_admin_test.py`, `test_adminapp.js` med 69 sjekkar, `hent_ko.py`, `sim_nye_data.py`).

@@ -1,0 +1,916 @@
+<!doctype html>
+<html lang="nn">
+<head>
+<meta charset="utf-8">
+<!-- Brannlogg Admin: adminpanelet som eigen app (PWA) på bls.lillerud.com/admin. Same innlogging og same
+     Cloudflare-worker som adminpanelet i appen (mal.html) – sjå README, bolk 11. Sida har ingen hemmelegheiter:
+     alt som ikkje er offentleg, kjem frå workeren etter innlogging med admin-kode + PIN.
+     Berre skripta i sida får køyre (hashane blir fylte inn av oppdater.py). -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src __SKRIPT_HASHAR__; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://brannlogg-admin.brannlogg-admin.workers.dev; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Brannlogg Admin</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="manifest" href="admin.webmanifest">
+<link rel="apple-touch-icon" href="admin-touch.png">
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121A22" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="BLS Admin">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;600;700&display=swap">
+<style>
+/* Same uttrykk som appen: éi lettlesen skrift, kvit grunn, raudt berre der det gjeld brann. */
+:root{
+  --bg:#FFFFFF; --surface:#FFFFFF; --surface-2:#F3F5F7; --ink:#17222D; --ink-2:#3D4A57; --muted:#5E6B78;
+  --line:#E2E6EA; --line-2:#EDF0F3; --line-3:#C9D0D6; --fire:#C0361F; --ok:#2E7D4F;
+  --f-body:"Atkinson Hyperlegible Next","Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-tal:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;   /* store tal: utan strek gjennom null */
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#121A22; --surface:#121A22; --surface-2:#1B2630; --ink:#E8EDF2; --ink-2:#C2CCD5; --muted:#9AA6B2;
+    --line:#2A3642; --line-2:#212C37; --line-3:#3A4855; --fire:#FF6B4E; --ok:#5CC48A;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#121A22; --surface:#121A22; --surface-2:#1B2630; --ink:#E8EDF2; --ink-2:#C2CCD5; --muted:#9AA6B2;
+  --line:#2A3642; --line-2:#212C37; --line-3:#3A4855; --fire:#FF6B4E; --ok:#5CC48A;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;min-height:100dvh;background:var(--bg);color:var(--ink);font:17px/1.45 var(--f-body);-webkit-tap-highlight-color:transparent}
+h1,h2,h3,p{margin:0}
+[hidden]{display:none!important}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.sub{font-size:14.5px;color:var(--muted)}
+.logo{width:36px;height:36px;flex:none}
+
+/* Knappar og felt */
+.knapp{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:46px;padding:0 14px;border:1px solid var(--line-3);border-radius:10px;background:var(--surface);color:var(--ink);font-size:16px;font-weight:600;text-decoration:none;cursor:pointer}
+.knapp:hover{background:var(--surface-2)}
+.knapp.valt{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.hovud{display:flex;align-items:center;justify-content:center;width:100%;min-height:52px;border:0;border-radius:12px;background:var(--ink);color:var(--surface);font-size:17px;font-weight:700;cursor:pointer}
+.hovud:hover{opacity:.9}
+.hovud.raud{background:var(--fire);color:var(--bg)}
+button:disabled{opacity:.5;cursor:default}
+.lenke{background:none;border:0;padding:8px;color:var(--ink-2);text-decoration:underline;cursor:pointer;font-size:15.5px}
+input:not([type=time]){width:100%}
+input{min-height:48px;padding:10px 12px;border:1px solid var(--line-3);border-radius:10px;background:var(--surface);color:var(--ink);font-size:17px}
+input:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 2px var(--ink)}
+label,.etikett{display:block;font-size:15px;font-weight:600;color:var(--ink-2)}
+.valfri{font-weight:400;color:var(--muted)}
+
+/* Innlogginga: eigen skjerm, midt på */
+.inn{min-height:100vh;min-height:100dvh;display:grid;place-items:center;padding:calc(24px + env(safe-area-inset-top)) 22px calc(24px + env(safe-area-inset-bottom))}
+.inn-kort{width:100%;max-width:380px;display:grid;gap:14px;justify-items:center;text-align:center}
+.inn .logo{width:76px;height:76px}
+.inn h1{font-size:30px;line-height:1.15;margin-top:6px}
+.steg{list-style:none;display:flex;gap:8px;margin:6px 0 0;padding:0;font-size:14px;font-weight:600;color:var(--muted)}
+.steg li{padding:5px 12px;border-radius:99px;border:1px solid var(--line)}
+.steg li.no{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+.steg li.ferdig{color:var(--ok);border-color:var(--ok)}
+.inn form{width:100%;display:grid;gap:10px;justify-items:stretch;text-align:left;margin-top:4px}
+.inn form input{text-align:center;font-family:var(--f-tal);font-size:20px;min-height:56px}
+#pin{font-size:30px;letter-spacing:.35em;text-indent:.35em}
+.inn-feil{min-height:1.45em;color:var(--fire);font-weight:600}
+.inn .liten{font-size:13.5px;color:var(--muted);max-width:330px}
+.inn a{color:var(--ink-2)}
+.usynleg{position:absolute!important;width:1px!important;height:1px!important;min-height:0!important;padding:0!important;border:0!important;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+details.heim{width:100%;text-align:left;font-size:14.5px;color:var(--ink-2);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+details.heim summary{cursor:pointer;font-weight:600}
+details.heim p{margin-top:8px}
+
+/* Panelet */
+.app{max-width:1240px;margin:0 auto;padding:0 16px calc(96px + env(safe-area-inset-bottom))}
+.topp{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;margin:0 -16px;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;background:var(--bg);border-bottom:1px solid var(--line)}
+.topp b{flex:1;min-width:0;font-size:19px;line-height:1.2}
+.okt{margin-top:12px;font-size:14.5px;color:var(--muted)}
+.topp .knapp{min-height:40px;font-size:15px}
+.merknad{margin-top:14px;padding:10px 14px;border-radius:12px;background:var(--surface-2);font-size:15px;color:var(--ink-2)}
+.fane{display:none;gap:14px;padding-top:16px;align-content:start}
+.fane.aktiv{display:grid}
+.fane > h2{font-size:24px;line-height:1.2}
+.kort{display:grid;gap:10px;padding:16px;border:1px solid var(--line);border-radius:16px;background:var(--surface);min-width:0}
+.kort h3{font-size:18px;line-height:1.25}
+.kort-hovud{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.lenker{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.lenker a{grid-column:1 / -1}
+.melding{font-size:14.5px;color:var(--ink-2)}
+.melding:empty{display:none}
+
+/* Brann pågår */
+.merke{flex:none;font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:4px 10px;border-radius:99px;background:var(--surface-2);color:var(--muted)}
+#pagar-kort.pa{border-color:var(--fire);box-shadow:inset 4px 0 0 var(--fire)}
+#pagar-kort.pa .merke{background:var(--fire);color:var(--bg)}
+.pagar-no{font-weight:600}
+.pagar-no:empty{display:none}
+#pagar-kort.pa .pagar-no{color:var(--fire)}
+#pagar-skjema{display:grid;gap:8px}
+#pagar-skjema label,#pagar-skjema .etikett{margin-top:4px}
+.val{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.val #pt-siste{grid-column:1 / -1;justify-content:flex-start;text-align:left;min-height:52px;padding-top:6px;padding-bottom:6px}
+#pagar-tid{justify-self:start;min-width:140px}
+.rad2{display:grid;grid-template-columns:2fr 1fr;gap:8px;margin-top:6px}
+.rad2 .knapp{min-height:52px}
+
+/* Lenka til infoskjermen */
+.adr{display:block;font:15px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:9px 11px;user-select:all;word-break:break-all}
+
+/* Statuslister og tal (same som i adminpanelet i appen) */
+.sys-liste{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.sys-liste li{display:grid;grid-template-columns:auto 1fr;column-gap:10px;align-items:center;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.sys-liste li i{width:11px;height:11px;border-radius:50%;background:var(--ok)}
+.sys-liste li.feil i{background:var(--fire)}
+.sys-liste li.ukjend i{background:var(--muted);opacity:.6}
+.sys-liste li span{grid-column:2;font-size:14.5px;color:var(--ink-2)}
+.sys-liste li.feil span{color:var(--fire)}
+.tal{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tal div{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0}
+.tal b{display:block;font:700 26px/1.1 var(--f-tal);font-variant-numeric:tabular-nums}
+.tal span{display:block;margin-top:3px;font-size:13px;line-height:1.25;color:var(--ink-2)}
+.tal:empty,.graf:empty{display:none}
+.graf{display:flex;align-items:flex-end;gap:2px;height:64px;padding-bottom:1px;border-bottom:1px solid var(--line)}
+.graf i{flex:1;min-height:2px;background:var(--ink-2);border-radius:2px 2px 0 0;opacity:.55}
+.graf i.idag{background:var(--fire);opacity:1}
+.graf i.tom{background:var(--line);opacity:1}
+#oppd-skjema{display:grid;grid-template-columns:1fr auto;gap:8px}
+#oppd-kode{letter-spacing:.2em;text-align:center}
+
+/* Fanene nedst (mobil) */
+.faner{position:fixed;left:0;right:0;bottom:0;z-index:6;display:grid;grid-template-columns:repeat(3,1fr);background:var(--bg);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+.faner button{display:grid;justify-items:center;gap:3px;min-height:62px;padding:9px 4px 7px;border:0;background:none;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer}
+.faner svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.faner button[aria-current="true"]{color:var(--ink)}
+.faner button[aria-current="true"] span{box-shadow:0 2px 0 var(--ink)}
+
+/* PC: alle tre bolkane ved sida av kvarandre, ingen faner */
+@media (min-width:980px){
+  .app{padding-bottom:40px}
+  .innhald{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;align-items:start}
+  .fane{display:grid}
+  .faner{display:none}
+}
+
+/* Bobla etter tre feil admin-kodar */
+dialog.boble{border:0;padding:28px 24px 22px;width:min(92vw,420px);text-align:center;border-radius:24px;background:var(--surface);color:var(--ink);box-shadow:0 24px 70px rgba(0,0,0,.4)}
+dialog.boble::backdrop{background:rgba(10,15,20,.6)}
+.boble-emoji{font-size:56px;line-height:1.1}
+dialog.boble h2{font-size:24px;line-height:1.2;margin-top:8px}
+dialog.boble p{margin-top:8px;font-size:18px;color:var(--ink-2)}
+dialog.boble .sub{font-size:15px;color:var(--muted)}
+dialog.boble .hovud{margin-top:18px}
+.boble-opne{display:grid;gap:10px;justify-items:center;margin-top:16px;padding-top:14px;border-top:1px solid var(--line-2)}
+.boble-opne form{display:flex;gap:8px;justify-content:center}
+.boble-opne input{width:140px;text-align:center;letter-spacing:.3em}
+.boble-melding{font-size:14.5px!important;font-weight:600}
+.boble-melding:empty{display:none}
+.boble-melding.feil{color:var(--fire)!important}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="g-flamme" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#D4321D"/><stop offset=".6" stop-color="#F08A12"/><stop offset="1" stop-color="#F7CB2E"/>
+    </linearGradient>
+    <symbol id="logo" viewBox="0 0 34 34">
+      <rect width="34" height="34" rx="8" fill="#15181D"/>
+      <path d="M17 28c-4.6 0-7.6-3-7.6-7 0-4.1 3-6.4 4.2-9.9 1.6 1.6 2.3 3.4 2.3 5.1 1.2-1.2 2.1-3 2.3-5.1 3.5 2.6 6.4 6.4 6.4 9.9 0 4-3 7-7.6 7Z" fill="url(#g-flamme)"/>
+      <path d="M17 28c-2 0-3.3-1.3-3.3-3.1 0-1.8 1.4-2.9 2-4.4 1.6 1.2 4.6 2.6 4.6 4.4 0 1.8-1.3 3.1-3.3 3.1Z" fill="#FFE9A6" opacity=".9"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- Innlogging: steg 1 admin-kode, steg 2 personleg PIN-kode -->
+<main class="inn" id="inn">
+  <div class="inn-kort">
+    <svg class="logo" aria-hidden="true"><use href="#logo"/></svg>
+    <h1>Brannlogg Admin</h1>
+    <p class="sub">Stord brann og redning</p>
+    <ol class="steg" aria-hidden="true"><li id="steg-1" class="no">1 · Admin-kode</li><li id="steg-2">2 · PIN-kode</li></ol>
+    <form id="kode-skjema">
+      <input class="usynleg" type="text" name="username" value="Brannlogg Admin" autocomplete="username" tabindex="-1" aria-hidden="true" readonly>
+      <label for="kode">Admin-kode</label>
+      <input id="kode" type="password" maxlength="64" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false">
+      <button type="submit" class="hovud" id="kode-knapp">Hald fram</button>
+    </form>
+    <form id="pin-skjema" autocomplete="off" hidden>
+      <label for="pin">PIN-koden din</label>
+      <input id="pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="one-time-code">
+      <button type="submit" class="hovud" id="pin-knapp">Logg inn</button>
+      <button type="button" class="lenke" id="pin-avbryt">Avbryt</button>
+    </form>
+    <p class="inn-feil" id="inn-feil" role="alert"></p>
+    <p class="liten">Kvar innlogging blir meld til eigaren. Etter 5 feil PIN-kodar blir eininga sperra i 15 minutt.</p>
+    <details class="heim" id="heim">
+      <summary>Legg appen på heimeskjermen</summary>
+      <p><b>iPhone:</b> trykk på del-knappen i Safari og vel «Legg til på Heim-skjerm».</p>
+      <p><b>Android:</b> trykk på menyen (⋮) i Chrome og vel «Legg til på startskjermen» eller «Installer app».</p>
+    </details>
+    <a class="liten" href="./">Til Brannlogg-appen</a>
+  </div>
+</main>
+
+<!-- Panelet: blir fylt etter innlogging. Alt som ikkje er offentleg, kjem frå workeren. -->
+<div class="app" id="app" hidden>
+  <header class="topp">
+    <svg class="logo" aria-hidden="true"><use href="#logo"/></svg>
+    <b>Brannlogg Admin</b>
+    <button type="button" class="knapp" id="logg-ut">Logg ut</button>
+  </header>
+  <p class="okt" id="okt-tekst"></p>
+  <p class="merknad" id="okt-avgrensa" hidden>Avgrensa tilgang: du ser status og tal, men ikkje lenka til infoskjermen, «Brann pågår», «Oppdater no» eller nedlasting.</p>
+  <div class="innhald">
+    <section class="fane aktiv" id="fane-skjerm" aria-labelledby="t-skjerm">
+      <h2 id="t-skjerm">Infoskjerm</h2>
+      <article class="kort" id="pagar-kort" hidden>
+        <div class="kort-hovud"><h3>Brann pågår</h3><span class="merke" id="pagar-merke">Av</span></div>
+        <p class="sub">Set infoskjermen i alarmmodus med ein kort tittel. Går av når du trykkjer «Avslutt», når brannstatistikken har fylt ut typen, eller etter 8 timar.</p>
+        <p class="pagar-no" id="pagar-status" role="status"></p>
+        <form id="pagar-skjema" autocomplete="off">
+          <label for="pagar-tittel">Tittel</label>
+          <input id="pagar-tittel" maxlength="60" placeholder="Til dømes: Pipebrann">
+          <span class="etikett">Når starta det?</span>
+          <div class="val"><button type="button" class="knapp" id="pt-siste"></button><button type="button" class="knapp" id="pt-anna">Anna tid</button><button type="button" class="knapp" id="pt-ingen">Ingen tid</button></div>
+          <input id="pagar-tid" type="time" aria-label="Klokkeslett det starta" hidden>
+          <label for="pagar-adresse">Adresse <span class="valfri">(valfritt)</span></label>
+          <input id="pagar-adresse" maxlength="80" placeholder="Til dømes Nordstokkevegen 12">
+          <div class="rad2"><button type="submit" class="hovud raud" id="pagar-start">Start</button><button type="button" class="knapp" id="pagar-av">Avslutt</button></div>
+        </form>
+      </article>
+      <article class="kort" id="tv-kort">
+        <h3>Infoskjermen</h3>
+        <ul class="sys-liste" id="tv-sett"></ul>
+        <div id="tv-blokk" hidden>
+          <p class="sub">Lenke til storskjerm-versjonen for brannstasjonen.</p>
+          <div class="lenker">
+            <a class="knapp" id="tv-opne" target="_blank" rel="noopener">Opne infoskjermen</a>
+            <button type="button" class="knapp" id="tv-kopier">Kopier lenka</button>
+            <button type="button" class="knapp" id="tv-vis" aria-expanded="false">Vis adressa</button>
+          </div>
+          <code class="adr" id="tv-url" style="margin-top:10px" hidden></code>
+          <p class="melding" id="tv-status" role="status" style="margin-top:8px"></p>
+        </div>
+      </article>
+    </section>
+
+    <section class="fane" id="fane-status" aria-labelledby="t-status">
+      <h2 id="t-status">Status</h2>
+      <article class="kort">
+        <h3>Systemstatus</h3>
+        <p class="sub">Om appen hentar data som han skal. Blir sjekka kvart kvarter.</p>
+        <ul class="sys-liste" id="sys-liste"></ul>
+      </article>
+      <article class="kort" id="oppd-kort" hidden>
+        <h3>Oppdater no</h3>
+        <p class="sub">Startar ei ny henting av data med ein gong. Du stadfestar med ein kode som kjem på mobilen til eigaren.</p>
+        <button type="button" class="knapp" id="oppd-no">Send kode til mobilen</button>
+        <form id="oppd-skjema" autocomplete="off" hidden>
+          <input id="oppd-kode" inputmode="numeric" maxlength="6" autocomplete="one-time-code" aria-label="Kode frå mobilen" placeholder="Kode">
+          <button type="submit" class="knapp valt">Start</button>
+        </form>
+        <p class="melding" id="oppd-status" role="status"></p>
+      </article>
+    </section>
+
+    <section class="fane" id="fane-tal" aria-labelledby="t-tal">
+      <h2 id="t-tal">Tal</h2>
+      <article class="kort" id="besok">
+        <h3>Besøk</h3>
+        <p class="sub">Kor mange som har opna appen. Kvar eining blir talt éin gong per dag.</p>
+        <div class="tal" id="besok-tal"></div>
+        <div class="graf" id="besok-graf" aria-hidden="true"></div>
+        <p class="melding" id="besok-status" role="status"></p>
+      </article>
+      <article class="kort" id="eining-boks" hidden>
+        <h3>Einingar</h3>
+        <p class="sub">Kva slags einingar som opnar appen, siste 30 dagar. Berre tal – ingen personar.</p>
+        <div class="tal" id="eining-tal"></div>
+        <p class="melding" id="eining-app"></p>
+      </article>
+      <article class="kort" id="qr-boks" hidden>
+        <h3>QR-koden på infoskjermen</h3>
+        <p class="sub">Kor mange gonger QR-koden på TV-en er skanna. Kvar skanning blir talt (maks 3 i minuttet frå same eining).</p>
+        <div class="tal" id="qr-tal"></div>
+        <div class="graf" id="qr-graf" aria-hidden="true"></div>
+        <p class="melding" id="qr-status"></p>
+      </article>
+      <article class="kort" id="eksport-boks" hidden>
+        <h3>Last ned statistikk</h3>
+        <p class="sub">Alle oppdraga, tal per månad og besøka siste 30 dagar som Excel-fil. Fila blir laga på PC-en din.</p>
+        <button type="button" class="knapp" id="eksport">Last ned Excel-fil</button>
+        <p class="melding" id="eksport-status" role="status"></p>
+      </article>
+    </section>
+  </div>
+  <nav class="faner" aria-label="Bolkar">
+    <button type="button" data-vis="skjerm" aria-current="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg><span>Infoskjerm</span></button>
+    <button type="button" data-vis="status" aria-current="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l2.5-6 4 12 2.5-6h5"/></svg><span>Status</span></button>
+    <button type="button" data-vis="tal" aria-current="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20v-7M12 20V5M19 20v-10"/></svg><span>Tal</span></button>
+  </nav>
+</div>
+
+<!-- Blir vist etter tre feil admin-kodar (same sperre som i appen) -->
+<dialog class="boble" id="boble" aria-labelledby="boble-tittel">
+  <div class="boble-emoji" aria-hidden="true">🔒</div>
+  <h2 id="boble-tittel">Ver venleg og prøv igjen seinare</h2>
+  <p>Admin-tilgangen er sperra på denne eininga etter tre feil kodar.</p>
+  <p class="sub" id="boble-tid"></p>
+  <div class="boble-opne">
+    <p class="sub">Tasta du feil ved eit uhell? Eigaren av sida kan få ein kode som gir tre nye forsøk.</p>
+    <button type="button" class="knapp" id="boble-be-kode">Send kode til eigaren</button>
+    <form id="boble-skjema" autocomplete="off" hidden>
+      <input id="boble-kode" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" aria-label="Kode frå eigaren" placeholder="Kode">
+      <button type="submit" class="knapp">Opne</button>
+    </form>
+    <p class="boble-melding" id="boble-melding" role="status"></p>
+  </div>
+  <button type="button" class="hovud" id="boble-lukk">OK</button>
+</dialog>
+
+<script>
+(function(){
+"use strict";
+/* Brannlogg Admin. Logikken er den same som i adminpanelet i appen (mal.html) – endrar du noko der, så endre her òg.
+   WORKER må òg stå i connect-src øvst i fila. */
+const WORKER = "https://brannlogg-admin.brannlogg-admin.workers.dev";
+// Sida skal aldri visast i ei ramme på ein annan nettstad (GitHub Pages kan ikkje sende X-Frame-Options)
+if (window.top !== window.self) { document.documentElement.hidden = true; throw new Error("Brannlogg Admin kan ikkje visast i ei ramme"); }
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const LOCALE = "nb-NO";
+
+// Same tema som brukaren har valt i appen (lys/mørk), elles følgjer sida eininga
+try {
+  const tema = JSON.parse(localStorage.getItem("brannlogg_innst") || "{}").tema;
+  if (tema === "lys" || tema === "mork") document.documentElement.dataset.theme = tema === "lys" ? "light" : "dark";
+} catch (e) {}
+if (matchMedia("(display-mode: standalone)").matches || navigator.standalone === true) $("#heim").hidden = true;
+
+/* ---- Tid (Europe/Oslo) ---- */
+const MND_K = ["jan.","feb.","mars","apr.","mai","juni","juli","aug.","sep.","okt.","nov.","des."];
+const DAGNAMN = ["sundag","måndag","tysdag","onsdag","torsdag","fredag","laurdag"];
+const fmtParts = new Intl.DateTimeFormat("en-GB", {timeZone:"Europe/Oslo", year:"numeric", month:"numeric", day:"numeric", hour:"numeric", minute:"numeric", hourCycle:"h23"});
+function oslo(iso){
+  const d = iso instanceof Date ? iso : new Date(iso);
+  const p = {}; fmtParts.formatToParts(d).forEach(x => p[x.type] = x.value);
+  const y = +p.year, m = +p.month, dd = +p.day;
+  return {y, m, d:dd, h:+p.hour % 24, min:+p.minute, dn:Date.UTC(y, m - 1, dd) / 864e5, wd:new Date(Date.UTC(y, m - 1, dd)).getUTCDay()};
+}
+const pad = n => String(n).padStart(2, "0");
+const kl = o => `${pad(o.h)}:${pad(o.min)}`;
+function relDag(o){
+  const no = oslo(new Date()), diff = no.dn - o.dn;
+  if (diff === 0) return "i dag";
+  if (diff === 1) return "i går";
+  if (diff === -1) return "i morgon";
+  return `${DAGNAMN[o.wd]} ${o.d}. ${MND_K[o.m - 1]}${o.y !== no.y ? " " + o.y : ""}`;
+}
+const naar = o => `${relDag(o)} kl. ${kl(o)}`;
+function varigheit(a, b){
+  const min = Math.max(0, Math.round((new Date(b) - new Date(a)) / 6e4));
+  if (min < 1) return null;
+  const t = Math.floor(min / 60), m = min % 60;
+  return t ? `${t} t${m ? " " + m + " min" : ""}` : `${m} min`;
+}
+const datoLang = dag => new Date(dag + "T12:00:00Z").toLocaleDateString(LOCALE, {day:"numeric", month:"long", year:"numeric", timeZone:"UTC"});
+
+/* ---- Data: offentlege data frå same bygging som appen (admin-data.json), og status.json for å sjå om det finst nytt.
+   Sida blir ikkje lasta på nytt når det kjem nye data – då hadde innlogginga forsvunne. ---- */
+let D = {brannar:[], oppdatert:null, kjelder:null, sum:null};
+let sysData = {oppdatert:null, kjelder:null};
+async function hentData(){
+  try {
+    const r = await fetch("admin-data.json", {cache:"no-store"});
+    if (!r.ok) return;
+    const d = await r.json();
+    if (!d || !Array.isArray(d.brannar)) return;
+    D = d;
+    if (!sysData.oppdatert || new Date(d.oppdatert) > new Date(sysData.oppdatert)) sysData = {oppdatert:d.oppdatert, kjelder:d.kjelder || sysData.kjelder};
+    renderSys(); pagarTidOppsett(false);
+  } catch (e) {}
+}
+async function sjekkStatus(){
+  if (document.hidden) return;
+  try {
+    const r = await fetch("status.json?t=" + Math.floor(Date.now() / 6e4), {cache:"no-store"});
+    if (!r.ok) throw 0;
+    const st = await r.json();
+    if (st.oppdatert) { sysData = {oppdatert:st.oppdatert, kjelder:st.kjelder || sysData.kjelder}; renderSys(); }
+    if (st.sum !== D.sum || !D.oppdatert) await hentData();   // er svaret framleis gammalt, prøver vi att om eitt minutt
+  } catch (e) {
+    if (!D.oppdatert) await hentData();
+  }
+}
+sjekkStatus();
+setInterval(sjekkStatus, 60 * 1000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) { sjekkStatus(); if (okt && Date.now() > okt.ut) utlopt(); } });
+
+/* ---- Innlogging. Steg 1: admin-koden – sida reknar ut ein nøkkel frå koden (PBKDF2, med vilje tregt) og spør
+   workeren om han er rett («/admin-sjekk»). Koden sjølv blir aldri sendt. Steg 2: personleg PIN-kode («/logginn»).
+   Workeren gir eit signert innloggingsbevis som gjeld i 30 minutt, med rolla «full» eller «avgrensa». Beviset ligg
+   berre i minnet (borte når appen blir lukka). ---- */
+let tvAdr = "", nokkel = "", okt = null;   // okt = {token, ut, namn, rolle}
+async function adminNokkel(kode){
+  const enc = new TextEncoder();
+  const k = await crypto.subtle.importKey("raw", enc.encode(kode), "PBKDF2", false, ["deriveBits"]);
+  const bitar = new Uint8Array(await crypto.subtle.deriveBits({name:"PBKDF2", hash:"SHA-256", salt:enc.encode("brannlogg-admin-v2"), iterations:600000}, k, 256));
+  return [...bitar.slice(16)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
+async function kall(sti, data){
+  const r = await fetch(WORKER + sti, {method:"POST", headers:{"Content-Type":"text/plain"}, body:JSON.stringify(data || {})});
+  const svar = await r.json().catch(() => ({}));
+  if (!r.ok) throw Object.assign(new Error(svar.feil || r.status), {status:r.status, data:svar});
+  return svar;
+}
+const innFeil = t => { $("#inn-feil").textContent = t || ""; };
+function visSteg(n){
+  $("#kode-skjema").hidden = n !== 1; $("#pin-skjema").hidden = n !== 2;
+  $("#steg-1").className = n === 1 ? "no" : "ferdig"; $("#steg-2").className = n === 2 ? "no" : "";
+  if (n === 2) { $("#pin").value = ""; setTimeout(() => $("#pin").focus(), 50); }
+}
+
+/* ---- Sperre: tre feil kodar sperrar denne eininga i 24 timar (same sperre og same lagring som i appen).
+   Eigaren får varsel, og kan få ein eingongskode som gir tre nye forsøk. ---- */
+const SPERRE = "brannlogg_admin_sperre", SPERRETID = 24 * 36e5;
+let opneToken = "";
+const bobleMelding = (t, feil) => { const m = $("#boble-melding"); m.textContent = t; m.classList.toggle("feil", !!feil); };
+const lesSperre = () => { try { return {feil:0, til:0, ...JSON.parse(localStorage.getItem(SPERRE) || "{}")}; } catch (e) { return {feil:0, til:0}; } };
+const lagreSperre = s => { try { localStorage.setItem(SPERRE, JSON.stringify(s)); } catch (e) {} };
+function visBoble(til){
+  const min = Math.max(1, Math.ceil((til - Date.now()) / 6e4)), timar = Math.round(min / 60);
+  $("#boble-tid").textContent = min >= 60 ? (timar === 1 ? "Du kan prøve igjen om 1 time." : `Du kan prøve igjen om ${timar} timar.`) : `Du kan prøve igjen om ${min} min.`;
+  const d = $("#boble");
+  if (d.open) return;
+  if (d.showModal) d.showModal(); else d.setAttribute("open", "");
+}
+const lukkBoble = () => { const d = $("#boble"); d.close ? d.close() : d.removeAttribute("open"); };
+$("#boble-lukk").addEventListener("click", lukkBoble);
+$("#boble-be-kode").addEventListener("click", async () => {
+  const knapp = $("#boble-be-kode");
+  knapp.disabled = true; bobleMelding("Sender …");
+  try {
+    opneToken = (await kall("/kode")).token;
+    $("#boble-skjema").hidden = false; $("#boble-kode").value = ""; $("#boble-kode").focus();
+    bobleMelding("Eigaren får koden på mobilen om litt. Han gjeld i 15 minutt.");
+  } catch (feil) {
+    bobleMelding(feil.status === 429 ? "For mange førespurnader. Vent litt og prøv igjen." : "Fekk ikkje kontakt. Prøv igjen.", true);
+  }
+  knapp.disabled = false;
+});
+$("#boble-skjema").addEventListener("submit", async e => {
+  e.preventDefault();
+  const kode = $("#boble-kode").value.replace(/\D/g, ""), knapp = $("#boble-skjema button");
+  if (kode.length !== 6 || knapp.disabled) { bobleMelding("Koden har 6 siffer.", true); return; }
+  knapp.disabled = true;
+  try {
+    await kall("/sjekk", {token:opneToken, kode});
+    lagreSperre({feil:0, til:0});
+    bobleMelding("Opna! Du har tre nye forsøk.");
+    $("#boble-skjema").hidden = true;
+    setTimeout(() => { lukkBoble(); innFeil(""); $("#kode").focus(); }, 1400);
+  } catch (feil) {
+    bobleMelding(feil.status === 429 ? "For mange forsøk. Vent litt og prøv igjen." : feil.status === 403 ? "Feil eller utgått kode." : "Fekk ikkje kontakt. Prøv igjen.", true);
+    $("#boble-kode").select();
+  }
+  knapp.disabled = false;
+});
+
+$("#kode-skjema").addEventListener("submit", async e => {
+  e.preventDefault();
+  const kode = $("#kode").value.trim(), knapp = $("#kode-knapp");
+  if (!kode || knapp.disabled) return;
+  if (kode === "110") { innFeil("Rett nummer, men feil passord! 🚒"); $("#kode").select(); return; }   // tel ikkje som eit feil forsøk
+  const sperre = lesSperre();
+  if (sperre.til > Date.now()) { $("#kode").value = ""; visBoble(sperre.til); return; }
+  knapp.disabled = true; knapp.textContent = "Sjekkar …"; innFeil("");
+  let ok = false, nettfeil = false, tenarSperre = null;
+  try {
+    nokkel = await adminNokkel(kode);
+    await kall("/admin-sjekk", {nokkel});
+    ok = true;
+  } catch (feil) {
+    if (feil.status === 423) tenarSperre = {sekund:(feil.data || {}).sekund || 60};
+    else if (feil.status === 429) tenarSperre = {fart:true};
+    else if (feil.status !== 403) nettfeil = true;
+  }
+  knapp.disabled = false; knapp.textContent = "Hald fram";
+  if (tenarSperre) {
+    nokkel = "";
+    innFeil(tenarSperre.fart ? "For mange forsøk. Vent eitt minutt." : `For mange feil forsøk frå denne eininga. Prøv igjen om ${Math.ceil(tenarSperre.sekund / 60)} min.`);
+    $("#kode").select(); return;
+  }
+  if (ok) lagreSperre({feil:0, til:0});
+  else if (nettfeil) innFeil("Fekk ikkje kontakt. Prøv igjen.");
+  else {
+    sperre.feil++;
+    innFeil(sperre.feil === 2 ? "Feil kode. 1 forsøk igjen." : sperre.feil < 3 ? `Feil kode. ${3 - sperre.feil} forsøk igjen.` : "");
+    if (sperre.feil >= 3) {
+      sperre.til = Date.now() + SPERRETID; $("#kode").value = "";
+      opneToken = ""; $("#boble-skjema").hidden = true; bobleMelding("");
+      kall("/sperra").catch(() => {});   // varsel til eigaren
+      visBoble(sperre.til);
+    }
+    lagreSperre(sperre);
+  }
+  if (!ok) { nokkel = ""; $("#kode").select(); return; }
+  $("#kode").value = "";
+  visSteg(2);
+});
+$("#pin-avbryt").addEventListener("click", () => loggUt());
+$("#pin-skjema").addEventListener("submit", async e => {
+  e.preventDefault();
+  const pin = $("#pin").value.trim(), knapp = $("#pin-knapp");
+  if (knapp.disabled) return;
+  if (!/^\d{4,8}$/.test(pin)) { innFeil("PIN-koden har 4–8 siffer."); return; }
+  if (!nokkel) { loggUt(); return; }
+  knapp.disabled = true; innFeil("");
+  try {
+    const svar = await kall("/logginn", {nokkel, pin});
+    okt = {token:svar.token, ut:Number(svar.ut), namn:String(svar.namn || ""), rolle:svar.rolle === "full" ? "full" : "avgrensa"};
+    $("#pin").value = "";
+    visPanel();
+  } catch (feil) {
+    const d = feil.data || {};
+    innFeil(feil.status === 423 ? `For mange feil. Prøv igjen om ${Math.ceil((Number(d.sekund) || 900) / 60)} min.`
+      : feil.status === 403 && d.feil === "feil pin" ? (d.att ? `Feil PIN-kode. ${d.att} forsøk att.` : "Feil PIN-kode.")
+      : feil.status === 403 ? "Admin-koden er ikkje lenger gyldig. Start på nytt."
+      : feil.status === 429 ? "For mange forsøk. Vent eitt minutt."
+      : "Fekk ikkje kontakt. Prøv igjen.");
+    $("#pin").value = ""; $("#pin").focus();
+  } finally {
+    knapp.disabled = false;
+  }
+});
+
+/* ---- Panelet etter innlogging: kva som blir vist, avheng av rolla ---- */
+function visFane(namn){
+  for (const f of ["skjerm", "status", "tal"]) $("#fane-" + f).classList.toggle("aktiv", f === namn);
+  document.querySelectorAll(".faner button").forEach(b => b.setAttribute("aria-current", String(b.dataset.vis === namn)));
+  scrollTo(0, 0);
+}
+$(".faner").addEventListener("click", e => { const b = e.target.closest("[data-vis]"); if (b) visFane(b.dataset.vis); });
+async function visPanel(){
+  if (!okt) return;
+  const full = okt.rolle === "full";
+  $("#inn").hidden = true; $("#app").hidden = false;
+  visFane("skjerm");
+  $("#okt-tekst").textContent = `Logga inn som ${okt.namn} · ${full ? "full tilgang" : "avgrensa tilgang"} · blir logga ut kl. ${kl(oslo(new Date(okt.ut)))}`;
+  $("#okt-avgrensa").hidden = full;
+  for (const id of ["#tv-blokk", "#oppd-kort", "#pagar-kort"]) $(id).hidden = !full;
+  visTvSett(undefined);
+  renderSys();
+  if (full) {
+    pagarTidOppsett(true); pagarStatus();
+    try {
+      const adr = String((await kall("/tv-adresse", {okt:okt.token})).adresse || "");
+      if (!okt) return;
+      if (!/^https:\/\/bls\.lillerud\.com\/tv-[0-9a-z]{6,16}$/.test(adr)) throw new Error("uventa adresse");
+      tvAdr = adr; $("#tv-url").textContent = tvAdr; $("#tv-opne").href = tvAdr;
+    } catch (feil) {
+      if (feil.status === 401) { utlopt(); return; }
+      $("#tv-status").textContent = "Fekk ikkje henta lenka.";
+    }
+  }
+  visBesok();
+}
+// Logg ut: alt som kom frå workeren, blir fjerna frå sida, og nøkkelen og beviset blir gløymde
+function loggUt(melding){
+  okt = null; nokkel = ""; tvAdr = ""; oppdToken = ""; sisteTal = null;
+  clearTimeout(pagarTimer);
+  for (const id of ["#pagar-tittel", "#pagar-adresse", "#pagar-tid", "#pin", "#kode", "#oppd-kode"]) $(id).value = "";
+  $("#tv-url").textContent = ""; $("#tv-url").hidden = true; $("#tv-vis").setAttribute("aria-expanded", "false"); $("#tv-vis").textContent = "Vis adressa";
+  $("#tv-opne").removeAttribute("href");
+  for (const s of ["#tv-blokk", "#oppd-kort", "#pagar-kort", "#qr-boks", "#eining-boks", "#eksport-boks", "#oppd-skjema"]) $(s).hidden = true;
+  for (const s of ["#besok-tal", "#besok-graf", "#qr-tal", "#qr-graf", "#eining-tal", "#tv-sett"]) $(s).innerHTML = "";
+  for (const s of ["#besok-status", "#qr-status", "#eining-app", "#oppd-status", "#eksport-status", "#okt-tekst", "#tv-status", "#pagar-status"]) $(s).textContent = "";
+  $("#pagar-kort").classList.remove("pa"); $("#pagar-merke").textContent = "Av";
+  $("#app").hidden = true; $("#inn").hidden = false;
+  visSteg(1); innFeil(melding || "");
+}
+const utlopt = () => loggUt("Innlogginga har gått ut. Logg inn på nytt.");
+setInterval(() => { if (okt && Date.now() > okt.ut) utlopt(); }, 15000);
+$("#logg-ut").addEventListener("click", () => loggUt());
+
+/* ---- Lenka til infoskjermen (berre full tilgang). Adressa er løynd til du trykkjer «Vis adressa». ---- */
+$("#tv-kopier").addEventListener("click", async () => {
+  if (!tvAdr) return;
+  try { await navigator.clipboard.writeText(tvAdr); $("#tv-status").textContent = "Lenka er kopiert."; }
+  catch (e) {
+    $("#tv-url").hidden = false;
+    const r = document.createRange(); r.selectNodeContents($("#tv-url")); getSelection().removeAllRanges(); getSelection().addRange(r);
+    $("#tv-status").textContent = "Lenka er merkt. Kopier henne sjølv.";
+  }
+});
+$("#tv-vis").addEventListener("click", () => {
+  const vis = $("#tv-url").hidden;
+  $("#tv-url").hidden = !vis; $("#tv-vis").setAttribute("aria-expanded", String(vis)); $("#tv-vis").textContent = vis ? "Skjul adressa" : "Vis adressa";
+});
+
+/* ---- Infoskjermen sist sett: TV-en melder frå til workeren kvart 5. minutt. Grøn når han er sett siste kvarteret
+   og dataa på skjermen er under ein time gamle. ---- */
+const sysSidan = t => varigheit(t, new Date()) || "under eitt minutt";
+function visTvSett(tv){
+  const el = $("#tv-sett");
+  if (tv === undefined || tv === "feil") { el.innerHTML = `<li class="ukjend"><i aria-hidden="true"></i><b>Status</b><span>${tv ? "Fekk ikkje henta stoda." : "Hentar …"}</span></li>`; return; }
+  if (!tv || !tv.sist) {
+    el.innerHTML = `<li class="ukjend"><i aria-hidden="true"></i><b>Status</b><span>Ikkje sett enno. Skjermen melder frå kvart 5. minutt.</span></li>`;
+    return;
+  }
+  const sett = new Date(tv.sist), dataTid = tv.data ? new Date(tv.data) : null;
+  const nyleg = Date.now() - sett < 15 * 6e4, ok = nyleg && (!dataTid || Date.now() - dataTid < 60 * 6e4);
+  const tekst = `${nyleg ? "Sist sett" : "Ikkje sett sidan"} ${naar(oslo(sett))} (for ${sysSidan(sett)} sidan).` +
+    (dataTid ? ` Viser data frå ${naar(oslo(dataTid))}.` : "") +
+    (tv.skjerm ? ` Skjerm: ${String(tv.skjerm).replace("x", " × ")} punkt.` : "");
+  el.innerHTML = `<li class="${ok ? "ok" : "feil"}"><i aria-hidden="true"></i><b>Status</b><span>${esc(tekst)}</span></li>`;
+}
+
+/* ---- Besøkstal, einingar og QR-skanningar (begge rollene) ---- */
+const siste30 = idag => {
+  const d = [];
+  for (let i = 29; i >= 0; i--) { const t = new Date(idag + "T12:00:00Z"); t.setUTCDate(t.getUTCDate() - i); d.push(t.toISOString().slice(0, 10)); }
+  return d;
+};
+function visTal(per, idag, totalt, talEl, grafEl){
+  const dagar = siste30(idag);
+  const sum = n => dagar.slice(-n).reduce((s, k) => s + (per[k] || 0), 0);
+  $(talEl).innerHTML = [[totalt || 0, "Totalt"], [sum(30), "Siste 30 dagar"], [sum(1), "I dag"]]
+    .map(([n, t]) => `<div><b>${Number(n).toLocaleString(LOCALE)}</b><span>${t}</span></div>`).join("");
+  const maks = Math.max(1, ...dagar.map(k => per[k] || 0));
+  $(grafEl).innerHTML = dagar.map(k => `<i class="${k === idag ? "idag" : per[k] ? "" : "tom"}" style="height:${Math.max(3, (per[k] || 0) / maks * 100)}%" title="${esc(k)}: ${Number(per[k]) || 0}"></i>`).join("");
+}
+const erPC = () => matchMedia("(pointer: fine)").matches && innerWidth >= 900;   // «Last ned statistikk» berre på PC
+let sisteTal = null;   // svaret frå /besok-tal, til Excel-fila
+const visEksport = () => { $("#eksport-boks").hidden = !(okt && okt.rolle === "full" && erPC()); };
+addEventListener("resize", visEksport);
+async function visBesok(){
+  if (!okt) return;
+  visEksport();
+  $("#besok-tal").innerHTML = ""; $("#besok-graf").innerHTML = "";
+  $("#besok-status").textContent = "Hentar besøkstal …";
+  let d;
+  try { d = await kall("/besok-tal", {okt:okt.token}); }
+  catch (feil) {
+    if (feil.status === 401) { utlopt(); return; }
+    $("#besok-status").textContent = "Fekk ikkje henta besøkstala."; visTvSett("feil"); return;
+  }
+  if (!okt) return;   // logga ut medan tala vart henta
+  sisteTal = d;
+  visTal(Object.fromEntries((d.dagar || []).map(r => [r.dag, r.besokande])), d.idag, d.totalt, "#besok-tal", "#besok-graf");
+  $("#besok-status").textContent = `Totalt sidan ${datoLang(d.fyrste || d.idag)}. Stolpane viser dei siste 30 dagane, raud er i dag.`;
+  if (d.qr) {
+    $("#qr-boks").hidden = false;
+    visTal(Object.fromEntries((d.qr.dagar || []).map(r => [r.dag, r.skann])), d.idag, d.qr.totalt, "#qr-tal", "#qr-graf");
+    $("#qr-status").textContent = d.qr.fyrste ? `Totalt sidan ${datoLang(d.qr.fyrste)}.` : "Ingen har skanna QR-koden enno.";
+  }
+  visTvSett(d.tv || null);
+  if (d.typar) {
+    const ty = d.typar, n = ["mobil", "pc", "nettbrett"].reduce((s, k) => s + (Number(ty[k]) || 0), 0);
+    const pst = k => Math.round(100 * (Number(ty[k]) || 0) / n);
+    $("#eining-boks").hidden = false;
+    $("#eining-tal").innerHTML = n ? [["mobil", "Mobil"], ["pc", "PC"], ["nettbrett", "Nettbrett"]]
+      .map(([k, t]) => `<div><b>${pst(k)} %</b><span>${t}</span></div>`).join("") : "";
+    $("#eining-app").textContent = n ? `Har appen på heimeskjermen: ${pst("app")} % av besøka. Rekna ut frå ${n.toLocaleString(LOCALE)} besøk.`
+      : "Ingen tal enno – teljinga starta 8. november 2026.";
+  }
+}
+
+/* ---- «Brann pågår»: start/avslutt alarmmodus på infoskjermen. Workeren lagrar oppslaget; TV-en spør kvart 30. sekund. ---- */
+function pagarVis(r){
+  const st = $("#pagar-status"), pa = !!(r && r.tittel);
+  $("#pagar-kort").classList.toggle("pa", pa);
+  $("#pagar-merke").textContent = pa ? "På no" : "Av";
+  $("#pagar-av").disabled = !pa;
+  st.textContent = pa ? `På no: «${r.tittel}» (sidan ${naar(oslo(r.start))})${r.pos ? ". Prikk på kartet: " + r.stad : ". Ingen prikk på kartet"}. Skjermen følgjer med innan 30 sekund.` : "Ikkje på.";
+}
+async function pagarStatus(){
+  try { const r = await kall("/pagar-hent", {okt:okt.token}); if (okt) pagarVis(r); }
+  catch (feil) { if (feil.status === 401) utlopt(); else if (okt) { $("#pagar-status").textContent = "Fekk ikkje henta stoda. Prøv igjen om litt."; $("#pagar-av").disabled = false; } }
+}
+// Felta blir ståande etter Start (så ein ser kva som vart sendt) og blir tømde etter 5 minutt
+let pagarTimer = 0;
+function pagarTom(){
+  clearTimeout(pagarTimer);
+  pagarTimer = setTimeout(() => { for (const id of ["#pagar-tittel", "#pagar-adresse", "#pagar-tid"]) $(id).value = ""; }, 5 * 60 * 1000);
+}
+// «Når starta det?»: standard er siste alarm i lista, elles ei tid du skriv sjølv («Anna tid») eller «Ingen tid»
+let pagarTid = "siste";
+const sisteAlarm = () => { const b = D.brannar[0]; return b && Date.now() - new Date(b.start) < 12 * 36e5 ? b : null; };
+function pagarTidOppsett(nullstill){
+  const b = sisteAlarm();
+  if (b) $("#pt-siste").textContent = `Siste alarm kl. ${kl(oslo(b.start))} – ${b.tittel}`;
+  $("#pt-siste").hidden = !b;
+  if (nullstill || (pagarTid === "siste" && !b)) pagarTidVelg(b ? "siste" : "anna");
+}
+function pagarTidVelg(v){
+  pagarTid = v;
+  for (const k of ["siste", "anna", "ingen"]) $("#pt-" + k).classList.toggle("valt", v === k);
+  $("#pagar-tid").hidden = v !== "anna";
+}
+$("#pt-siste").addEventListener("click", () => pagarTidVelg("siste"));
+$("#pt-ingen").addEventListener("click", () => pagarTidVelg("ingen"));
+$("#pt-anna").addEventListener("click", () => { pagarTidVelg("anna"); $("#pagar-tid").focus(); });
+function pagarStart(){
+  const v = $("#pagar-tid").value, b = sisteAlarm();
+  if (pagarTid === "ingen") return "";
+  if (pagarTid === "siste" && b) return new Date(b.start).toISOString();
+  if (!/^\d\d:\d\d$/.test(v)) return "";
+  const d = new Date(); d.setHours(+v.slice(0, 2), +v.slice(3), 0, 0);
+  if (d.getTime() > Date.now() + 2 * 6e4) d.setDate(d.getDate() - 1);
+  return d.toISOString();
+}
+$("#pagar-skjema").addEventListener("submit", async e => {
+  e.preventDefault();
+  const tittel = $("#pagar-tittel").value.trim(), st = $("#pagar-status"), knapp = $("#pagar-start");
+  if (!okt || okt.rolle !== "full" || knapp.disabled) return;
+  if (tittel.length < 2) { st.textContent = "Skriv ein kort tittel først."; $("#pagar-tittel").focus(); return; }
+  knapp.disabled = true;
+  try {
+    const r = await kall("/pagar-sett", {okt:okt.token, tittel, adresse:$("#pagar-adresse").value.trim(), start:pagarStart(), utanTid:pagarTid === "ingen"});
+    if (!okt) return;
+    pagarTom(); pagarVis(r);   // svaret er den nye stoda (sparer eit kall – infoskjermen deler same grense per IP)
+    if (r.adresseFeil) st.textContent = "Starta, men fann ikkje adressa i Stord – ingen prikk på kartet. " + st.textContent;
+  } catch (feil) {
+    if (feil.status === 401) utlopt(); else st.textContent = feil.status === 429 ? "For mange forsøk. Vent eitt minutt." : "Fekk ikkje starta. Prøv igjen.";
+  }
+  knapp.disabled = false;
+});
+$("#pagar-av").addEventListener("click", async () => {
+  const knapp = $("#pagar-av");
+  if (!okt || okt.rolle !== "full" || knapp.disabled) return;
+  knapp.disabled = true;
+  try { const r = await kall("/pagar-av", {okt:okt.token}); if (okt) pagarVis(r); }
+  catch (feil) {
+    knapp.disabled = false;
+    if (feil.status === 401) utlopt(); else $("#pagar-status").textContent = feil.status === 429 ? "For mange forsøk. Vent eitt minutt." : "Fekk ikkje avslutta. Prøv igjen.";
+  }
+});
+
+/* ---- «Oppdater no». Kvar gong må det òg ein 6-sifra kode til, og han blir sendt til den private ntfy-kanalen til
+   eigaren. Workeren tillèt éin bruk per kode, maks 5 feil forsøk og 5 minutt mellom kvar oppdatering. ---- */
+let oppdToken = "";
+$("#oppd-no").addEventListener("click", async () => {
+  const st = $("#oppd-status");
+  if (!okt || okt.rolle !== "full") { st.textContent = "Du har ikkje tilgang til dette."; return; }
+  $("#oppd-no").disabled = true;
+  st.textContent = "Sender kode til mobilen …";
+  try {
+    oppdToken = (await kall("/oppdater-kode", {okt:okt.token})).token || "";
+    $("#oppd-skjema").hidden = false; $("#oppd-kode").value = ""; $("#oppd-kode").focus();
+    st.textContent = "Koden kjem i den private ntfy-kanalen din, vanlegvis innan 1–2 minutt. Han gjeld i 15 minutt.";
+  } catch (feil) {
+    if (feil.status === 401) { utlopt(); return; }
+    st.textContent = feil.status === 429 ? "For mange forsøk. Vent eitt minutt." : feil.status === 403 ? "Du har ikkje tilgang til dette." : "Fekk ikkje sendt kode. Prøv igjen seinare.";
+  } finally {
+    $("#oppd-no").disabled = false;
+  }
+});
+$("#oppd-skjema").addEventListener("submit", async e => {
+  e.preventDefault();
+  const st = $("#oppd-status"), kode = $("#oppd-kode").value.trim();
+  if (!/^\d{6}$/.test(kode)) { st.textContent = "Koden har 6 siffer."; return; }
+  if (!okt) { utlopt(); return; }
+  try {
+    await kall("/oppdater", {okt:okt.token, token:oppdToken, kode});
+    $("#oppd-skjema").hidden = true; oppdToken = "";
+    st.textContent = "Oppdateringa er starta. Nye data kjem om 1–3 minutt (litt meir om ei oppdatering går akkurat no).";
+  } catch (feil) {
+    if (feil.status === 401) { utlopt(); return; }
+    const d = feil.data || {};
+    const ferdig = ["brukt", "sperra", "ugyldig"].includes(d.feil) || (d.feil === "feil kode" && !d.att);
+    st.textContent = d.feil === "feil kode" && d.att ? `Feil kode. ${d.att} forsøk att.`
+      : d.feil === "nyleg" ? `Det vart nett oppdatert frå panelet. Prøv igjen om ${Math.ceil((Number(d.sekund) || 60) / 60)} min.`
+      : ferdig ? "Koden er brukt, gått ut eller sperra. Be om ein ny kode."
+      : feil.status === 429 ? "For mange forsøk. Vent eitt minutt." : "Fekk ikkje starta oppdateringa. Prøv igjen seinare.";
+    if (ferdig) { $("#oppd-skjema").hidden = true; oppdToken = ""; }
+  }
+});
+
+/* ---- Systemstatus: om oppdateringa går og om kjeldene svarar (status.json, kjelde_status() i oppdater.py).
+   Har sida ikkje vore oppdatert på over ein time, har køyringa på GitHub stoppa – då er stoda til kjeldene ukjend. ---- */
+const KJELDE_NAMN = [["politi", "Politiloggen"], ["bris", "Brannstatistikken"], ["ver", "Vêrdata (skogbrannfare)"]];
+function sysFeil(s){
+  const grunn = s.feil === "http" ? `feilkode ${Number(s.http) || "?"}` : s.feil === "nett" ? "får ikkje kontakt" : "uventa svar";
+  return (s.del === "farevarsel" ? "Farevarsel frå MET: " : "") + grunn;
+}
+function renderSys(){
+  const el = $("#sys-liste");
+  const rad = (k, namn, tekst) => `<li class="${k}"><i aria-hidden="true"></i><b>${esc(namn)}</b><span>${esc(tekst)}</span></li>`;
+  if (!sysData.oppdatert) { el.innerHTML = rad("ukjend", "Sist oppdatert", "Hentar …"); return; }
+  const gammal = Date.now() - new Date(sysData.oppdatert) > 60 * 6e4;
+  let h = rad(gammal ? "feil" : "ok", "Sist oppdatert", `${naar(oslo(sysData.oppdatert))} (for ${sysSidan(sysData.oppdatert)} sidan)` +
+    (gammal ? ". Oppdateringa på GitHub ser ut til å ha stoppa." : ""));
+  for (const [k, namn] of KJELDE_NAMN) {
+    const s = sysData.kjelder && sysData.kjelder[k];
+    if (gammal || !s) h += rad("ukjend", namn, "ukjend");
+    else if (s.ok) h += rad("ok", namn, "svarar");
+    else h += rad("feil", namn, `svarar ikkje sidan ${naar(oslo(s.sidan))} (${sysFeil(s)})`);
+  }
+  el.innerHTML = h;
+}
+renderSys(); setInterval(renderSys, 60 * 1000);
+
+/* ---- Last ned statistikk (berre på PC): lagar ei ekte Excel-fil (.xlsx) her i nettlesaren. Same fil som i appen. ---- */
+const CRC_TAB = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+const crc32 = b => { let c = 0xFFFFFFFF; for (let i = 0; i < b.length; i++) c = CRC_TAB[(c ^ b[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; };
+// Enkel zip utan komprimering (STORE) – nok for ei lita xlsx-fil
+function lagZip(filer){
+  const te = new TextEncoder(), delar = [], sentral = [];
+  let pos = 0;
+  for (const f of filer) {
+    const namn = te.encode(f.namn), crc = crc32(f.data), n = f.data.length;
+    const h = new DataView(new ArrayBuffer(30));
+    h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(12, 0x21, true);
+    h.setUint32(14, crc, true); h.setUint32(18, n, true); h.setUint32(22, n, true); h.setUint16(26, namn.length, true);
+    delar.push(new Uint8Array(h.buffer), namn, f.data);
+    const c = new DataView(new ArrayBuffer(46));
+    c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true); c.setUint16(14, 0x21, true);
+    c.setUint32(16, crc, true); c.setUint32(20, n, true); c.setUint32(24, n, true); c.setUint16(28, namn.length, true); c.setUint32(42, pos, true);
+    sentral.push(new Uint8Array(c.buffer), namn);
+    pos += 30 + namn.length + n;
+  }
+  const storleik = sentral.reduce((s, b) => s + b.length, 0), e = new DataView(new ArrayBuffer(22));
+  e.setUint32(0, 0x06054b50, true); e.setUint16(8, filer.length, true); e.setUint16(10, filer.length, true);
+  e.setUint32(12, storleik, true); e.setUint32(16, pos, true);
+  return new Blob([...delar, ...sentral, new Uint8Array(e.buffer)], {type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+}
+const xmlEsc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;"}[c])).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "");
+const kolonne = i => { let s = ""; for (i++; i; i = Math.floor((i - 1) / 26)) s = String.fromCharCode(65 + (i - 1) % 26) + s; return s; };
+function lagArk(rader, breidder){
+  const rad = (r, ri) => `<row r="${ri + 1}">` + r.map((v, ci) => {
+    const ref = kolonne(ci) + (ri + 1), stil = ri === 0 ? ' s="1"' : "";
+    return typeof v === "number" && isFinite(v) ? `<c r="${ref}"${stil}><v>${v}</v></c>`
+      : `<c r="${ref}" t="inlineStr"${stil}><is><t xml:space="preserve">${xmlEsc(v)}</t></is></c>`;
+  }).join("") + "</row>";
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">` +
+    `<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>` +
+    `<cols>${breidder.map((b, i) => `<col min="${i + 1}" max="${i + 1}" width="${b}" customWidth="1"/>`).join("")}</cols>` +
+    `<sheetData>${rader.map(rad).join("")}</sheetData></worksheet>`;
+}
+function lagXlsx(ark){
+  const te = new TextEncoder(), x = s => te.encode(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>${s}`);
+  const NS = "http://schemas.openxmlformats.org", REL = `${NS}/officeDocument/2006/relationships`;
+  return lagZip([
+    {namn:"[Content_Types].xml", data:x(`<Types xmlns="${NS}/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${ark.map((_, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join("")}</Types>`)},
+    {namn:"_rels/.rels", data:x(`<Relationships xmlns="${NS}/package/2006/relationships"><Relationship Id="rId1" Type="${REL}/officeDocument" Target="xl/workbook.xml"/></Relationships>`)},
+    {namn:"xl/workbook.xml", data:x(`<workbook xmlns="${NS}/spreadsheetml/2006/main" xmlns:r="${REL}"><sheets>${ark.map((a, i) => `<sheet name="${xmlEsc(a.namn)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join("")}</sheets></workbook>`)},
+    {namn:"xl/_rels/workbook.xml.rels", data:x(`<Relationships xmlns="${NS}/package/2006/relationships">${ark.map((_, i) => `<Relationship Id="rId${i + 1}" Type="${REL}/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join("")}<Relationship Id="rId${ark.length + 1}" Type="${REL}/styles" Target="styles.xml"/></Relationships>`)},
+    {namn:"xl/styles.xml", data:x(`<styleSheet xmlns="${NS}/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs></styleSheet>`)},
+    ...ark.map((a, i) => ({namn:`xl/worksheets/sheet${i + 1}.xml`, data:te.encode(a.xml)})),
+  ]);
+}
+function lagStatistikk(){
+  const GRUPPE = {brann:"Brann", utrykking:"Anna oppdrag", alarm:"Alarm utan brann"}, ALV = {1:"Mindre", 2:"Middels", 3:"Alvorleg"};
+  const kjelde = b => b.kjelde_type === "bris" ? "Brannstatistikken" : b.bris ? "Brannstatistikken og Politiloggen" : b.kjelde_type === "media" ? "Media" : "Politiloggen";
+  const alle = D.brannar.map(b => ({b, o:oslo(b.start)}));
+  const oppdrag = [["Dato", "Kl.", "Vekedag", "Tittel", "Stad", "Gruppe", "Kjelde", "Type i brannstatistikken", "Alvor", "Lenke"],
+    ...alle.map(({b, o}) => [`${o.y}-${pad(o.m)}-${pad(o.d)}`, kl(o), DAGNAMN[o.wd], b.tittel, b.stad, GRUPPE[b.gruppe || "brann"] || b.gruppe,
+      kjelde(b), b.bris ? b.bris.type || "(ikkje fylt ut)" : "", ALV[b.alvor] || "", `https://bls.lillerud.com/#b-${b.id}`])];
+  const mnd = {};
+  for (const {b, o} of alle) {
+    const k = `${o.y}-${pad(o.m)}`, m = mnd[k] ||= {brann:0, utrykking:0, alarm:0, bris:0};
+    m[b.gruppe || "brann"] = (m[b.gruppe || "brann"] || 0) + 1;
+    if (b.bris && b.bris.type !== "Oppdrag løst av 110") m.bris++;
+  }
+  const perMnd = [["Månad", "Brannar", "Anna oppdrag", "Alarmar utan brann", "Totalt", "I brannstatistikken (utan «løyst av 110»)"],
+    ...Object.keys(mnd).sort().reverse().map(k => { const m = mnd[k]; return [k, m.brann, m.utrykking, m.alarm, m.brann + m.utrykking + m.alarm, m.bris]; })];
+  const ark = [{namn:"Oppdrag", xml:lagArk(oppdrag, [11, 7, 10, 36, 22, 18, 30, 30, 10, 40])},
+               {namn:"Per månad", xml:lagArk(perMnd, [10, 10, 14, 18, 10, 38])}];
+  if (sisteTal) {
+    const per = Object.fromEntries((sisteTal.dagar || []).map(r => [r.dag, r.besokande]));
+    const qr = Object.fromEntries(((sisteTal.qr || {}).dagar || []).map(r => [r.dag, r.skann]));
+    ark.push({namn:"Besøk", xml:lagArk([["Dag", "Besøkande", "QR-skanningar"], ...siste30(sisteTal.idag).reverse().map(k => [k, per[k] || 0, qr[k] || 0])], [12, 12, 15])});
+  }
+  const o = oslo(new Date());
+  ark.push({namn:"Om fila", xml:lagArk([["Brannlogg Stord – statistikk", ""],
+    ["Laga", `${o.y}-${pad(o.m)}-${pad(o.d)} kl. ${kl(o)}`], ["Oppdrag", `${alle.length} frå Politiloggen og brannstatistikken`],
+    ["Data oppdatert", naar(oslo(D.oppdatert))],
+    ["Merk", "«I år» på infoskjermen tel berre oppdrag i brannstatistikken, utan «Oppdrag løst av 110»."],
+    ["Merk", "Besøk: kvar eining éin gong per dag. QR-skanningar: kvar skanning."]], [26, 90])});
+  return {blob:lagXlsx(ark), namn:`brannlogg-stord-${o.y}-${pad(o.m)}-${pad(o.d)}.xlsx`};
+}
+$("#eksport").addEventListener("click", () => {
+  const st = $("#eksport-status");
+  if (!okt || okt.rolle !== "full") { st.textContent = "Du har ikkje tilgang til dette."; return; }
+  if (!D.oppdatert || !D.brannar.length) { st.textContent = "Dataa er ikkje henta enno. Prøv igjen om litt."; return; }
+  try {
+    const {blob, namn} = lagStatistikk(), a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = namn; document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+    st.textContent = `Fila «${namn}» er lasta ned.`;
+  } catch (e) {
+    st.textContent = "Fekk ikkje laga fila.";
+  }
+});
+})();
+</script>
+<script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});</script>
+</body>
+</html>

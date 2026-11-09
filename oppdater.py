@@ -817,6 +817,36 @@ def skriv_tv(json_tekst):
     (mappe / "tv.html").write_text(TV_GAMAL, encoding="utf-8")
 
 
+def admin_data(data):
+    """Det adminappen treng av dei offentlege dataa: siste alarm (til «Brann pågår»), systemstatusen og oppdraga
+    til Excel-fila – same felt som lagStatistikk() i mal.html brukar. Ingenting her er hemmeleg."""
+    def kort(b):
+        ut = {k: b.get(k) for k in ("id", "start", "tittel", "stad", "gruppe", "kjelde_type", "alvor")}
+        if b.get("bris"):
+            ut["bris"] = {"type": b["bris"].get("type")}
+        return ut
+    return {"oppdatert": data["oppdatert"], "sum": data.get("sum"), "kjelder": data.get("kjelder"),
+            "brannar": [kort(b) for b in data["brannar"]]}
+
+
+def skriv_admin(data):
+    """Adminappen (bls.lillerud.com/admin): adminpanelet som eigen app (PWA), sjå mal-admin.html og README, bolk 11.
+    Sida har ingen hemmelegheiter – innlogginga og alt som ikkje er offentleg, ligg i Cloudflare-workeren.
+    Dataa ligg i ei eiga fil, så appen kan hente nye data utan å laste sida på nytt (då forsvinn innlogginga)."""
+    mal = MAPPE / "mal-admin.html"
+    if not mal.exists():
+        return
+    mappe = MAPPE / "nettside"
+    try:
+        side = med_csp(mal.read_text(encoding="utf-8"))
+    except SystemExit as feil:   # ein feil i adminmalen skal aldri stoppe appen og infoskjermen
+        print(f"ADMIN_FEIL: adminappen vart ikkje bygd ({feil})")
+        return
+    (mappe / "admin.html").write_text(side, encoding="utf-8")
+    (mappe / "admin-data.json").write_text(
+        json.dumps(admin_data(data), ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+
+
 # ---------- Tryggleik ----------
 # Alt som kjem utanfrå (Politiloggen, brannstatistikken, nyheitsfeedar, MET og ekstra.json, som Claude skriv etter
 # nettsøk) blir kontrollert her før det kjem inn i sida, så ingen kan smugle inn skript eller farlege lenker.
@@ -1518,6 +1548,7 @@ def main():
                     "brannfare": data["brannfare"], "kjelder": data["kjelder"]}, ensure_ascii=False), encoding="utf-8")
     skriv_widget(data)
     skriv_tv(json_tekst)
+    skriv_admin(data)
 
     grense = no - timedelta(days=VINDAUGE_DAGAR)
     siste = [b for b in brannar if datetime.fromisoformat(b["start"]) >= grense]

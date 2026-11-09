@@ -6,6 +6,8 @@ nettside/index.html
 nettside/tv.html
 nettside/tv-*.html
 nettside/tv-*.webmanifest
+nettside/admin.html
+nettside/admin-data.json
 varsel_kanal.txt
 nettside/status.json
 nettside/widget.json
