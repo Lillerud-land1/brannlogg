@@ -1,221 +1,222 @@
-{
-  "_forklaring": "Ekstra info per hending (nøkkel = id frå Politiloggen). kjelder = nyheitssaker, merknad = kort faktatekst, alvor = 1-3 overstyrer automatisk vurdering, omkomne = true, pos = [lat, lon] overstyrer kartplassering, sokt = dato det sist vart søkt etter nyheitssaker.",
-  "26fl8w": {
-    "sokt": "2026-09-27",
-    "kjelder": [
-      {
-        "kjelde": "Radio Haugaland",
-        "tittel": "Røyk i enebolig på Stord – én person sjekket for røykinnhalering",
-        "url": "https://radioh.no/royk-i-enebolig-pa-stord-en-person-sjekket-for-roykinnhalering/"
-      }
-    ]
-  },
-  "26j59q": {
-    "sokt": "2026-09-27",
-    "kjelder": [
-      {
-        "kjelde": "Sunnhordland",
-        "tittel": "Rykte ut etter melding om mogeleg brann i Sagvåg",
-        "url": "https://www.sunnhordland.no/nyhende/n/8pxxxd/rykte-ut-til-melding-om-mogeleg-bygningsbrann-var-matlaging"
-      }
-    ]
-  },
-  "26bmrv": {
-    "sokt": "2026-09-27",
-    "alvor": 3,
-    "omkomne": true,
-    "merknad": "VG og Haugesunds Avis melde seinare same kveld at ei kvinne i 60-åra døydde etter brannen.",
-    "kjelder": [
-      {
-        "kjelde": "VG",
-        "tittel": "Kvinne i 60-årene omkom etter brann på Stord",
-        "url": "https://www.vg.no/nyheter/i/m0KoGE/brann-i-bolig-paa-stord-paagaar-livreddende-foerstehjelp"
-      },
-      {
-        "kjelde": "Haugesunds Avis",
-        "tittel": "Kvinne døde i brann",
-        "url": "https://www.h-avis.no/rykker-ut-til-brann-i-rekkehus-pa-stord/s/5-62-2022283"
-      },
-      {
-        "kjelde": "Sunnhordland",
-        "tittel": "Tok fyr i rekkehus",
-        "url": "https://www.sunnhordland.no/nyhende/n/7p7aX3/rykker-ut-etter-melding-brann-i-rekkehus-paa-stord"
-      },
-      {
-        "kjelde": "Radio Haugaland",
-        "tittel": "Brann i rekkehus på Stord – en person til sykehus",
-        "url": "https://radioh.no/nodetatene-rykket-ut-til-brann-i-rekkehus-pa-stord/"
-      }
-    ]
-  },
-  "26gsqm": {
-    "sokt": "2026-09-27",
-    "alvor": 3,
-    "merknad": "Ifølgje VG vart over 400 tilsette hos Aker Solutions evakuerte på grunn av røyken.",
-    "kjelder": [
-      {
-        "kjelde": "VG",
-        "tittel": "Brann hos miljøverk på Stord: – Veldig tykk røyk",
-        "url": "https://www.vg.no/nyheter/i/bOzoek/brann-hos-miljoeverk-paa-stord"
-      },
-      {
-        "kjelde": "Stord24",
-        "tittel": "Brann på Heiane – kraftig røykutvikling",
-        "url": "https://www.stord24.no/nyhende/n/Bx3q6G/rykka-ut-til-brann-hos-sim"
-      }
-    ]
-  },
-  "26n0tr": {
-    "sokt": "2026-09-27",
-    "merknad": "Urangsvåg ligg på Bømlo, men Politiloggen har ført hendinga under Stord kommune.",
-    "kjelder": [
-      {
-        "kjelde": "Radio Haugaland",
-        "tittel": "Brann i bolig i Urangsvåg",
-        "url": "https://radioh.no/brann-i-bolig-i-urangsvag/"
-      }
-    ]
-  },
-  "26dhxn": {
-    "sokt": "2026-09-27",
-    "merknad": "Brannen var på Stord hotell. Ifølgje media vart rundt 170 gjester evakuerte i minusgrader.",
-    "kjelder": [
-      {
-        "kjelde": "NRK Vestland",
-        "tittel": "Brann og røykutvikling på Stord hotell",
-        "url": "https://www.nrk.no/vestland/brann-og-roykutvikling-pa-stord-hotell-1.17718684"
-      },
-      {
-        "kjelde": "Sunnhordland",
-        "tittel": "Rykte ut til brann på Stord hotell",
-        "url": "https://www.sunnhordland.no/nyhende/n/9pvjoE/rykte-ut-til-brann-paa-hotell-paa-leirvik"
-      },
-      {
-        "kjelde": "Radio Haugaland",
-        "tittel": "Brann i hotell på Leirvik: Gjestene evakuert",
-        "url": "https://radioh.no/brann-i-hotell-pa-leirvik-gjestene-evakuert/"
-      }
-    ]
-  },
-  "26qlc8": {
-    "pos": [
-      59.7801,
-      5.49923
-    ],
-    "merknad": "Stord folkehøgskule ligg i Osen på Leirvik."
-  },
-  "26wlp4": {
-    "sokt": "2026-09-27",
-    "merknad": "Ifølgje NRK innrømde mannen å ha tent på eit klesplagg.",
-    "kjelder": [
-      {
-        "kjelde": "NRK Vestland",
-        "tittel": "Lyngbrann på Stord",
-        "url": "https://www.nrk.no/vestland/lyngbrann-pa-stord-1.17963724"
-      },
-      {
-        "kjelde": "NRK Vestland",
-        "tittel": "Fikk kontroll på lyngbrann – mann innrømmer å ha tent på klesplagg",
-        "url": "https://www.nrk.no/vestland/fikk-kontroll-pa-lyngbrann-_-mann-innrommer-a-ha-tent-pa-klesplagg-1.17964565"
-      }
-    ]
-  },
-  "26n84w": {
-    "sokt": "2026-09-27",
-    "kjelder": [
-      {
-        "kjelde": "Radio Haugaland",
-        "tittel": "Bil totalvraket i brann på Stord",
-        "url": "https://radioh.no/rykker-ut-til-brann-i-kjoretoy-pa-stord/"
-      }
-    ]
-  },
-  "26xxv6": {
-    "sokt": "2026-09-28T16:13",
-    "kjelder": []
-  },
-  "262mw3": {
-    "sokt": "2026-09-28T16:13",
-    "kjelder": [
-      {
-        "kjelde": "NRK Vestland",
-        "tittel": "MC-ulykke på Stord",
-        "url": "https://www.nrk.no/vestland/mc-ulykke-pa-stord--1.17971281"
-      },
-      {
-        "kjelde": "Radio Haugaland",
-        "tittel": "MC-ulykke på Stord",
-        "url": "https://radioh.no/mc-forer-tilsett-etter-ulykke-pa-stord/"
-      }
-    ]
-  },
-  "26d6w6": {
-    "sokt": "2026-09-28T16:13",
-    "kjelder": [
-      {
-        "kjelde": "NRK",
-        "tittel": "Bil traff autovern – sperrer ett kjørefelt",
-        "url": "https://www.nrk.no/rogaland/bil-traff-autovern-_-sperrer-ett-kjorefelt-1.17969196"
-      }
-    ]
-  },
-  "26z5b0": {
-    "sokt": "2026-09-28T16:13",
-    "kjelder": [
-      {
-        "kjelde": "NRK Vestland",
-        "tittel": "To bilar i trafikkulukke i Bømlafjordtunnelen",
-        "url": "https://www.nrk.no/vestland/to-bilar-i-trafikkulukke-i-bomlafjordtunnelen-1.17932714"
-      },
-      {
-        "kjelde": "Haugesunds Avis",
-        "tittel": "Ulykke i Bømlafjordtunnelen ga lange køer",
-        "url": "https://www.h-avis.no/ulykke-i-bomlafjordtunnelen-lange-koer/s/5-62-2055069"
-      },
-      {
-        "kjelde": "Radio Haugaland",
-        "tittel": "Bømlafjordtunnelen stenges når bilene skal berges",
-        "url": "https://radioh.no/bomlafjordtunnelen-stengt-etter-trafikkulykke/"
-      }
-    ]
-  },
-  "26v4nf": {
-    "sokt": "2026-09-28T16:13",
-    "merknad": "Ifølgje Haugesunds Avis køyrde ein båtførar i 40-åra inn i ein fortøydd båt og erkjende å ha vore ruspåverka.",
-    "kjelder": [
-      {
-        "kjelde": "Haugesunds Avis",
-        "tittel": "Båtfører krasjet i fortøyd båt: – Erkjenner å ha vært beruset",
-        "url": "https://www.h-avis.no/batforer-krasjet-i-fortoyd-bat-erkjenner-a-ha-vart-beruset/s/5-62-2053654"
-      }
-    ]
-  },
-  "d-4930883": {
-    "sokt": "2026-09-28T21:20"
-  },
-  "d-4936604": {
-    "sokt": "2026-09-28T21:20"
-  },
-  "d-4948373": {
-    "sokt": "2026-10-05T15:30"
-  },
-  "d-4964759": {
-    "sokt": "2026-10-15T13:40"
-  },
-  "d-4965776": {
-    "sokt": "2026-10-15T13:40"
-  },
-  "n-b84fd277a6": {
-    "avvis_hending": true,
-    "sokt": "2026-10-02T13:00"
-  },
-  "26hpvk": {
-    "avvis": [
-      "https://radioh.no/mc-kjorte-inn-i-bil-pa-stord-2/"
-    ]
-  },
-  "d-5007035": {
-    "pagar": true,
-    "pagar_tittel": "Pipebrann – detaljar kjem"
-  }
+﻿{
+    "_forklaring":  "Ekstra info per hending (nøkkel = id frå Politiloggen). kjelder = nyheitssaker, merknad = kort faktatekst, alvor = 1-3 overstyrer automatisk vurdering, omkomne = true, pos = [lat, lon] overstyrer kartplassering, sokt = dato det sist vart søkt etter nyheitssaker.",
+    "26fl8w":  {
+                   "sokt":  "2026-09-27",
+                   "kjelder":  [
+                                   {
+                                       "kjelde":  "Radio Haugaland",
+                                       "tittel":  "Røyk i enebolig på Stord – én person sjekket for røykinnhalering",
+                                       "url":  "https://radioh.no/royk-i-enebolig-pa-stord-en-person-sjekket-for-roykinnhalering/"
+                                   }
+                               ]
+               },
+    "26j59q":  {
+                   "sokt":  "2026-09-27",
+                   "kjelder":  [
+                                   {
+                                       "kjelde":  "Sunnhordland",
+                                       "tittel":  "Rykte ut etter melding om mogeleg brann i Sagvåg",
+                                       "url":  "https://www.sunnhordland.no/nyhende/n/8pxxxd/rykte-ut-til-melding-om-mogeleg-bygningsbrann-var-matlaging"
+                                   }
+                               ]
+               },
+    "26bmrv":  {
+                   "sokt":  "2026-09-27",
+                   "alvor":  3,
+                   "omkomne":  true,
+                   "merknad":  "VG og Haugesunds Avis melde seinare same kveld at ei kvinne i 60-åra døydde etter brannen.",
+                   "kjelder":  [
+                                   {
+                                       "kjelde":  "VG",
+                                       "tittel":  "Kvinne i 60-årene omkom etter brann på Stord",
+                                       "url":  "https://www.vg.no/nyheter/i/m0KoGE/brann-i-bolig-paa-stord-paagaar-livreddende-foerstehjelp"
+                                   },
+                                   {
+                                       "kjelde":  "Haugesunds Avis",
+                                       "tittel":  "Kvinne døde i brann",
+                                       "url":  "https://www.h-avis.no/rykker-ut-til-brann-i-rekkehus-pa-stord/s/5-62-2022283"
+                                   },
+                                   {
+                                       "kjelde":  "Sunnhordland",
+                                       "tittel":  "Tok fyr i rekkehus",
+                                       "url":  "https://www.sunnhordland.no/nyhende/n/7p7aX3/rykker-ut-etter-melding-brann-i-rekkehus-paa-stord"
+                                   },
+                                   {
+                                       "kjelde":  "Radio Haugaland",
+                                       "tittel":  "Brann i rekkehus på Stord – en person til sykehus",
+                                       "url":  "https://radioh.no/nodetatene-rykket-ut-til-brann-i-rekkehus-pa-stord/"
+                                   }
+                               ]
+               },
+    "26gsqm":  {
+                   "sokt":  "2026-09-27",
+                   "alvor":  3,
+                   "merknad":  "Ifølgje VG vart over 400 tilsette hos Aker Solutions evakuerte på grunn av røyken.",
+                   "kjelder":  [
+                                   {
+                                       "kjelde":  "VG",
+                                       "tittel":  "Brann hos miljøverk på Stord: – Veldig tykk røyk",
+                                       "url":  "https://www.vg.no/nyheter/i/bOzoek/brann-hos-miljoeverk-paa-stord"
+                                   },
+                                   {
+                                       "kjelde":  "Stord24",
+                                       "tittel":  "Brann på Heiane – kraftig røykutvikling",
+                                       "url":  "https://www.stord24.no/nyhende/n/Bx3q6G/rykka-ut-til-brann-hos-sim"
+                                   }
+                               ]
+               },
+    "26n0tr":  {
+                   "sokt":  "2026-09-27",
+                   "merknad":  "Urangsvåg ligg på Bømlo, men Politiloggen har ført hendinga under Stord kommune.",
+                   "kjelder":  [
+                                   {
+                                       "kjelde":  "Radio Haugaland",
+                                       "tittel":  "Brann i bolig i Urangsvåg",
+                                       "url":  "https://radioh.no/brann-i-bolig-i-urangsvag/"
+                                   }
+                               ]
+               },
+    "26dhxn":  {
+                   "sokt":  "2026-09-27",
+                   "merknad":  "Brannen var på Stord hotell. Ifølgje media vart rundt 170 gjester evakuerte i minusgrader.",
+                   "kjelder":  [
+                                   {
+                                       "kjelde":  "NRK Vestland",
+                                       "tittel":  "Brann og røykutvikling på Stord hotell",
+                                       "url":  "https://www.nrk.no/vestland/brann-og-roykutvikling-pa-stord-hotell-1.17718684"
+                                   },
+                                   {
+                                       "kjelde":  "Sunnhordland",
+                                       "tittel":  "Rykte ut til brann på Stord hotell",
+                                       "url":  "https://www.sunnhordland.no/nyhende/n/9pvjoE/rykte-ut-til-brann-paa-hotell-paa-leirvik"
+                                   },
+                                   {
+                                       "kjelde":  "Radio Haugaland",
+                                       "tittel":  "Brann i hotell på Leirvik: Gjestene evakuert",
+                                       "url":  "https://radioh.no/brann-i-hotell-pa-leirvik-gjestene-evakuert/"
+                                   }
+                               ]
+               },
+    "26qlc8":  {
+                   "pos":  [
+                               59.7801,
+                               5.49923
+                           ],
+                   "merknad":  "Stord folkehøgskule ligg i Osen på Leirvik."
+               },
+    "26wlp4":  {
+                   "sokt":  "2026-09-27",
+                   "merknad":  "Ifølgje NRK innrømde mannen å ha tent på eit klesplagg.",
+                   "kjelder":  [
+                                   {
+                                       "kjelde":  "NRK Vestland",
+                                       "tittel":  "Lyngbrann på Stord",
+                                       "url":  "https://www.nrk.no/vestland/lyngbrann-pa-stord-1.17963724"
+                                   },
+                                   {
+                                       "kjelde":  "NRK Vestland",
+                                       "tittel":  "Fikk kontroll på lyngbrann – mann innrømmer å ha tent på klesplagg",
+                                       "url":  "https://www.nrk.no/vestland/fikk-kontroll-pa-lyngbrann-_-mann-innrommer-a-ha-tent-pa-klesplagg-1.17964565"
+                                   }
+                               ]
+               },
+    "26n84w":  {
+                   "sokt":  "2026-09-27",
+                   "kjelder":  [
+                                   {
+                                       "kjelde":  "Radio Haugaland",
+                                       "tittel":  "Bil totalvraket i brann på Stord",
+                                       "url":  "https://radioh.no/rykker-ut-til-brann-i-kjoretoy-pa-stord/"
+                                   }
+                               ]
+               },
+    "26xxv6":  {
+                   "sokt":  "2026-09-28T16:13",
+                   "kjelder":  [
+
+                               ]
+               },
+    "262mw3":  {
+                   "sokt":  "2026-09-28T16:13",
+                   "kjelder":  [
+                                   {
+                                       "kjelde":  "NRK Vestland",
+                                       "tittel":  "MC-ulykke på Stord",
+                                       "url":  "https://www.nrk.no/vestland/mc-ulykke-pa-stord--1.17971281"
+                                   },
+                                   {
+                                       "kjelde":  "Radio Haugaland",
+                                       "tittel":  "MC-ulykke på Stord",
+                                       "url":  "https://radioh.no/mc-forer-tilsett-etter-ulykke-pa-stord/"
+                                   }
+                               ]
+               },
+    "26d6w6":  {
+                   "sokt":  "2026-09-28T16:13",
+                   "kjelder":  [
+                                   {
+                                       "kjelde":  "NRK",
+                                       "tittel":  "Bil traff autovern – sperrer ett kjørefelt",
+                                       "url":  "https://www.nrk.no/rogaland/bil-traff-autovern-_-sperrer-ett-kjorefelt-1.17969196"
+                                   }
+                               ]
+               },
+    "26z5b0":  {
+                   "sokt":  "2026-09-28T16:13",
+                   "kjelder":  [
+                                   {
+                                       "kjelde":  "NRK Vestland",
+                                       "tittel":  "To bilar i trafikkulukke i Bømlafjordtunnelen",
+                                       "url":  "https://www.nrk.no/vestland/to-bilar-i-trafikkulukke-i-bomlafjordtunnelen-1.17932714"
+                                   },
+                                   {
+                                       "kjelde":  "Haugesunds Avis",
+                                       "tittel":  "Ulykke i Bømlafjordtunnelen ga lange køer",
+                                       "url":  "https://www.h-avis.no/ulykke-i-bomlafjordtunnelen-lange-koer/s/5-62-2055069"
+                                   },
+                                   {
+                                       "kjelde":  "Radio Haugaland",
+                                       "tittel":  "Bømlafjordtunnelen stenges når bilene skal berges",
+                                       "url":  "https://radioh.no/bomlafjordtunnelen-stengt-etter-trafikkulykke/"
+                                   }
+                               ]
+               },
+    "26v4nf":  {
+                   "sokt":  "2026-09-28T16:13",
+                   "merknad":  "Ifølgje Haugesunds Avis køyrde ein båtførar i 40-åra inn i ein fortøydd båt og erkjende å ha vore ruspåverka.",
+                   "kjelder":  [
+                                   {
+                                       "kjelde":  "Haugesunds Avis",
+                                       "tittel":  "Båtfører krasjet i fortøyd båt: – Erkjenner å ha vært beruset",
+                                       "url":  "https://www.h-avis.no/batforer-krasjet-i-fortoyd-bat-erkjenner-a-ha-vart-beruset/s/5-62-2053654"
+                                   }
+                               ]
+               },
+    "d-4930883":  {
+                      "sokt":  "2026-09-28T21:20"
+                  },
+    "d-4936604":  {
+                      "sokt":  "2026-09-28T21:20"
+                  },
+    "d-4948373":  {
+                      "sokt":  "2026-10-05T15:30"
+                  },
+    "d-4964759":  {
+                      "sokt":  "2026-10-15T13:40"
+                  },
+    "d-4965776":  {
+                      "sokt":  "2026-10-15T13:40"
+                  },
+    "n-b84fd277a6":  {
+                         "avvis_hending":  true,
+                         "sokt":  "2026-10-02T13:00"
+                     },
+    "26hpvk":  {
+                   "avvis":  [
+                                 "https://radioh.no/mc-kjorte-inn-i-bil-pa-stord-2/"
+                             ]
+               },
+    "d-5007035":  {
+                      "sokt":  "2026-11-09T17:30"
+                  }
 }
