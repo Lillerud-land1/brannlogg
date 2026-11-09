@@ -1,4 +1,4 @@
-﻿{
+{
     "_forklaring":  "Ekstra info per hending (nøkkel = id frå Politiloggen). kjelder = nyheitssaker, merknad = kort faktatekst, alvor = 1-3 overstyrer automatisk vurdering, omkomne = true, pos = [lat, lon] overstyrer kartplassering, sokt = dato det sist vart søkt etter nyheitssaker.",
     "26fl8w":  {
                    "sokt":  "2026-09-27",

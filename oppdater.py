@@ -94,7 +94,7 @@ def kjelde_status(no):
 
 def les_json(namn, standard):
     fil = MAPPE / namn
-    return json.loads(fil.read_text(encoding="utf-8")) if fil.exists() else standard
+    return json.loads(fil.read_text(encoding="utf-8-sig")) if fil.exists() else standard   # utf-8-sig: tåler BOM (PowerShell legg til BOM)
 
 
 def skriv_json(namn, data):
