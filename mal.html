@@ -2889,7 +2889,7 @@ async function visPanel(){
 }
 // Logg ut: alt som kom frå workeren, blir fjerna frå sida, og nøkkelen og beviset blir gløymde
 function loggUt(melding){
-  okt = null; besokNokkel = ""; tvAdr = ""; oppdToken = ""; sisteTal = null;
+  okt = null; besokNokkel = ""; tvAdr = ""; for (const id of ["#pagar-tittel", "#pagar-adresse", "#pagar-tid"]) $(id).value = ""; oppdToken = ""; sisteTal = null;
   lukkInnlogging();
   $("#admin-lenke").hidden = true;
   $("#admin-url").textContent = ""; $("#admin-opne").removeAttribute("href"); $("#admin-status").textContent = "";
@@ -2977,6 +2977,12 @@ async function pagarStatus(){
     st.textContent = r.tittel ? "På no: «" + r.tittel + "» (sidan " + naar(oslo(r.start)) + ")" + (r.pos ? ". Prikk på kartet: " + r.stad : ". Ingen prikk på kartet") + ". Skjermen følgjer med innan 30 sekund." : "Ikkje på.";
   } catch (feil) { if (feil.status === 401) utlopt(); }
 }
+// Felta blir ståande etter Start (så ein ser kva som vart sendt) og blir tømde etter 5 minutt
+let pagarTimer = 0;
+function pagarTom(){
+  clearTimeout(pagarTimer);
+  pagarTimer = setTimeout(() => { for (const id of ["#pagar-tittel", "#pagar-adresse", "#pagar-tid"]) $(id).value = ""; }, 5 * 60 * 1000);
+}
 // Klokkeslettet frå feltet «Starta kl.» som tidspunkt (i dag; ligg det fram i tid, er det i går). Tomt = no.
 function pagarStart(){
   const v = $("#pagar-tid").value;
@@ -2990,7 +2996,7 @@ $("#pagar-skjema").addEventListener("submit", async e => {
   const tittel = $("#pagar-tittel").value.trim(), st = $("#pagar-status");
   if (!okt || okt.rolle !== "full") return;
   if (tittel.length < 2) { st.textContent = "Skriv ein kort tittel først."; return; }
-  try { const r = await opneKall("/pagar-sett", {okt:okt.token, tittel, adresse:$("#pagar-adresse").value.trim(), start:pagarStart()}); $("#pagar-tid").value = ""; $("#pagar-tittel").value = ""; $("#pagar-adresse").value = ""; await pagarStatus(); if (r.adresseFeil) st.textContent = "Starta, men fann ikkje adressen i Stord – ingen prikk på kartet. " + st.textContent; }
+  try { const r = await opneKall("/pagar-sett", {okt:okt.token, tittel, adresse:$("#pagar-adresse").value.trim(), start:pagarStart()}); pagarTom(); await pagarStatus(); if (r.adresseFeil) st.textContent = "Starta, men fann ikkje adressen i Stord – ingen prikk på kartet. " + st.textContent; }
   catch (feil) { if (feil.status === 401) utlopt(); else st.textContent = "Fekk ikkje starta. Prøv igjen."; }
 });
 $("#pagar-av").addEventListener("click", async () => {
