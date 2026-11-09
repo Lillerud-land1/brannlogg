@@ -1042,6 +1042,7 @@ if (fm.fileExists(fil)) {
           <div><b>Brann pågår</b><span class="sub" style="display:block">Set infoskjermen i alarmmodus med ein kort tittel. Går av når du trykkjer «Avslutt», når brannstatistikken har fylt ut typen, eller etter 8 timar.</span></div>
           <form class="admin-kode" id="pagar-skjema" autocomplete="off">
             <input id="pagar-tittel" maxlength="60" aria-label="Tittel" placeholder="Til dømes: Pipebrann">
+            <label class="sub" style="display:flex;gap:6px;align-items:center">Starta kl. <input id="pagar-tid" type="time" aria-label="Klokkeslett det starta" style="width:auto;max-width:none"></label>
             <input id="pagar-adresse" maxlength="80" aria-label="Adresse" placeholder="Adresse (valfritt), til dømes Nordstokkevegen 12">
             <button type="submit" class="btn" id="pagar-start">Start</button>
             <button type="button" class="btn" id="pagar-av">Avslutt</button>
@@ -2970,12 +2971,20 @@ async function pagarStatus(){
     st.textContent = r.tittel ? "På no: «" + r.tittel + "» (sidan " + naar(oslo(r.start)) + ")" + (r.pos ? ". Prikk på kartet: " + r.stad : ". Ingen prikk på kartet") + ". Skjermen følgjer med innan 30 sekund." : "Ikkje på.";
   } catch (feil) { if (feil.status === 401) utlopt(); }
 }
+// Klokkeslettet frå feltet «Starta kl.» som tidspunkt (i dag; ligg det fram i tid, er det i går). Tomt = no.
+function pagarStart(){
+  const v = $("#pagar-tid").value;
+  if (!/^\d\d:\d\d$/.test(v)) return "";
+  const d = new Date(); d.setHours(+v.slice(0, 2), +v.slice(3), 0, 0);
+  if (d.getTime() > Date.now() + 2 * 6e4) d.setDate(d.getDate() - 1);
+  return d.toISOString();
+}
 $("#pagar-skjema").addEventListener("submit", async e => {
   e.preventDefault();
   const tittel = $("#pagar-tittel").value.trim(), st = $("#pagar-status");
   if (!okt || okt.rolle !== "full") return;
   if (tittel.length < 2) { st.textContent = "Skriv ein kort tittel først."; return; }
-  try { const r = await opneKall("/pagar-sett", {okt:okt.token, tittel, adresse:$("#pagar-adresse").value.trim()}); $("#pagar-tittel").value = ""; $("#pagar-adresse").value = ""; await pagarStatus(); if (r.adresseFeil) st.textContent = "Starta, men fann ikkje adressen i Stord – ingen prikk på kartet. " + st.textContent; }
+  try { const r = await opneKall("/pagar-sett", {okt:okt.token, tittel, adresse:$("#pagar-adresse").value.trim(), start:pagarStart()}); $("#pagar-tid").value = ""; $("#pagar-tittel").value = ""; $("#pagar-adresse").value = ""; await pagarStatus(); if (r.adresseFeil) st.textContent = "Starta, men fann ikkje adressen i Stord – ingen prikk på kartet. " + st.textContent; }
   catch (feil) { if (feil.status === 401) utlopt(); else st.textContent = "Fekk ikkje starta. Prøv igjen."; }
 });
 $("#pagar-av").addEventListener("click", async () => {

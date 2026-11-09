@@ -206,7 +206,7 @@ export class Teljar {
     // «Brann pågår»: eit oppslag som set infoskjermen i alarmmodus til det blir avslutta (maks 8 timar)
     if (new URL(req.url).pathname === "/pagar") {
       const d = await req.json();
-      if (d.handling === "sett") await this.ctx.storage.put("pagar", {tittel: d.tittel, start: new Date().toISOString(), ut: Date.now() + 8 * 36e5, av: d.av, pos: d.pos || null, stad: d.stad || null});
+      if (d.handling === "sett") await this.ctx.storage.put("pagar", {tittel: d.tittel, start: d.start || new Date().toISOString(), ut: Date.now() + 8 * 36e5, av: d.av, pos: d.pos || null, stad: d.stad || null});
       else if (d.handling === "av") await this.ctx.storage.delete("pagar");
       const p = await this.ctx.storage.get("pagar");
       if (p && p.ut < Date.now()) { await this.ctx.storage.delete("pagar"); return Response.json({}); }
@@ -390,10 +390,12 @@ export default {
         if (nei) return nei;
         const tittel = String(data.tittel || "").replace(/[ -<>]/g, "").trim().slice(0, 60);
         if (sti === "/pagar-sett" && tittel.length < 2) return svar({feil: "skriv tittel"}, 400);
+        // Klokkeslettet det starta (valfritt): ein tidspunkt mellom 12 timar sidan og no; elles blir «no» brukt
+        const tS = Date.parse(data.start), start = tS > Date.now() - 12 * 36e5 && tS <= Date.now() + 2 * 6e4 ? new Date(tS).toISOString() : new Date().toISOString();
         const adr = String(data.adresse || "").replace(/[ -<>]/g, "").trim().slice(0, 80);
         const g = sti === "/pagar-sett" && adr ? await geokod(adr) : null;
         const r = await (await teljar(env).fetch("https://teljar/pagar", {method: "POST",
-          body: JSON.stringify({handling: sti === "/pagar-sett" ? "sett" : "av", tittel, av: okt.namn, pos: g && g.pos, stad: g && g.stad})})).json();
+          body: JSON.stringify({handling: sti === "/pagar-sett" ? "sett" : "av", tittel, av: okt.namn, pos: g && g.pos, stad: g && g.stad, start})})).json();
         if (adr && !g) r.adresseFeil = true;
         await tilEigaren(env, {title: sti === "/pagar-sett" ? `🚨 «Brann pågår» på infoskjermen: ${tittel}` : "✅ «Brann pågår» avslutta på infoskjermen",
           tags: [sti === "/pagar-sett" ? "rotating_light" : "mute"], priority: 3, message: `${okt.namn}.
