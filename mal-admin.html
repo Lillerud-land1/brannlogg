@@ -89,7 +89,7 @@ details.heim p{margin-top:8px}
 
 /* Panelet */
 .app{max-width:1240px;margin:0 auto;padding:0 16px calc(96px + env(safe-area-inset-bottom))}
-.topp{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;margin:0 -16px;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;background:var(--bg);border-bottom:1px solid var(--line)}
+.topp{position:sticky;top:0;z-index:5;transform:translateY(var(--forskyving,0px));display:flex;align-items:center;gap:12px;margin:0 -16px;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;background:var(--bg);border-bottom:1px solid var(--line)}
 .topp b{flex:1;min-width:0;font-size:19px;line-height:1.2}
 .okt{margin-top:12px;font-size:14.5px;color:var(--muted)}
 .topp .knapp{min-height:40px;font-size:15px}
@@ -142,9 +142,12 @@ details.heim p{margin-top:8px}
 .graf i.tom{background:var(--line);opacity:1}
 #oppd-skjema{display:grid;grid-template-columns:1fr auto;gap:8px}
 #oppd-kode{letter-spacing:.2em;text-align:center}
+.feilsok{padding:0 4px;font-size:14.5px;color:var(--muted)}
+.feilsok summary{cursor:pointer;padding:6px 0}
+.feilsok pre{margin:8px 0 0;padding:10px 12px;white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--line);border-radius:10px}
 
 /* Fanene nedst (mobil) */
-.faner{position:fixed;left:0;right:0;bottom:0;z-index:6;display:grid;grid-template-columns:repeat(3,1fr);background:var(--bg);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+.faner{position:fixed;left:0;right:0;bottom:0;z-index:6;transform:translateY(var(--forskyving,0px));display:grid;grid-template-columns:repeat(3,1fr);background:var(--bg);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
 .faner button{display:grid;justify-items:center;gap:3px;min-height:62px;padding:9px 4px 7px;border:0;background:none;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer}
 .faner svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .faner button[aria-current="true"]{color:var(--ink)}
@@ -278,6 +281,11 @@ dialog.boble .hovud{margin-top:18px}
         </form>
         <p class="melding" id="oppd-status" role="status"></p>
       </article>
+      <details class="feilsok" id="feilsok">
+        <summary>Feilsøking</summary>
+        <p>Tekniske tal om skjermen. Send eit skjermbilete av desse om noko står rart på skjermen.</p>
+        <pre id="feilsok-tal"></pre>
+      </details>
     </section>
 
     <section class="fane" id="fane-tal" aria-labelledby="t-tal">
@@ -353,6 +361,39 @@ try {
   if (tema === "lys" || tema === "mork") document.documentElement.dataset.theme = tema === "lys" ? "light" : "dark";
 } catch (e) {}
 if (matchMedia("(display-mode: standalone)").matches || navigator.standalone === true) $("#heim").hidden = true;
+
+/* ---- iPhone og tastaturet (9.11.2026). På iPhone kan sida bli ståande forskyvd etter at tastaturet er lukka: toppen
+   hamnar over skjermen og fanene nedst «flyt» eit stykke opp. Det skjer helst når feltet ein skriv i, blir skjult
+   medan tastaturet er oppe. Difor: (a) tastaturVekk() lukkar tastaturet og ventar til det er heilt borte FØR eit felt
+   blir skjult. (b) Står visinga likevel forskyvd med tastaturet nede, flyttar rettForskyving() toppen og fanene
+   tilsvarande (CSS-variabelen --forskyving). Ingen av delane gjer noko på PC eller Android. ---- */
+const VV = window.visualViewport || null;
+const tastaturOppe = () => !!VV && window.innerHeight - VV.height > 120;
+async function tastaturVekk(){
+  const el = document.activeElement;
+  if (el && /^(INPUT|TEXTAREA)$/.test(el.tagName)) el.blur();
+  if (!tastaturOppe()) return;
+  // Til høgda har stått i ro i 0,15 s – maks 1 s etter klokka (ikkje etter tal på rundar: i ei fane i bakgrunnen
+  // går setTimeout berre éin gong i sekundet, og då skal vi ikkje bli ståande i 20 sekund)
+  for (let slutt = performance.now() + 1000, ro = 0, sist = -1; performance.now() < slutt && ro < 3;) {
+    await new Promise(r => setTimeout(r, 50));
+    const h = Math.round(VV.height);
+    ro = !tastaturOppe() && h === sist ? ro + 1 : 0; sist = h;
+  }
+  rettForskyving();
+}
+let forskyving = 0;
+function rettForskyving(){
+  if (!VV) return;
+  const ny = !tastaturOppe() && Math.abs(VV.scale - 1) < 0.01 ? Math.max(0, Math.round(VV.offsetTop)) : 0;
+  if (ny === forskyving) return;
+  forskyving = ny;
+  document.documentElement.style.setProperty("--forskyving", ny + "px");
+  if (ny) window.scrollTo(window.scrollX, window.scrollY);   // eit lite dytt – får ofte nettlesaren til å rette seg sjølv
+}
+if (VV) { VV.addEventListener("resize", rettForskyving); VV.addEventListener("scroll", rettForskyving); }
+addEventListener("scroll", rettForskyving, {passive:true});
+document.addEventListener("focusout", () => { for (const ms of [350, 900]) setTimeout(rettForskyving, ms); });
 
 /* ---- Tid (Europe/Oslo) ---- */
 const MND_K = ["jan.","feb.","mars","apr.","mai","juni","juli","aug.","sep.","okt.","nov.","des."];
@@ -432,9 +473,10 @@ async function kall(sti, data){
 }
 const innFeil = t => { $("#inn-feil").textContent = t || ""; };
 function visSteg(n){
+  // PIN-feltet får fokus FØR kodefeltet blir skjult: då blir tastaturet ståande (sjå «iPhone og tastaturet»)
+  if (n === 2) { $("#pin").value = ""; $("#pin-skjema").hidden = false; $("#pin").focus(); }
   $("#kode-skjema").hidden = n !== 1; $("#pin-skjema").hidden = n !== 2;
   $("#steg-1").className = n === 1 ? "no" : "ferdig"; $("#steg-2").className = n === 2 ? "no" : "";
-  if (n === 2) { $("#pin").value = ""; setTimeout(() => $("#pin").focus(), 50); }
 }
 
 /* ---- Sperre: tre feil kodar sperrar denne eininga i 24 timar (same sperre og same lagring som i appen).
@@ -452,7 +494,7 @@ function visBoble(til){
   if (d.showModal) d.showModal(); else d.setAttribute("open", "");
 }
 const lukkBoble = () => { const d = $("#boble"); d.close ? d.close() : d.removeAttribute("open"); };
-$("#boble-lukk").addEventListener("click", lukkBoble);
+$("#boble-lukk").addEventListener("click", async () => { await tastaturVekk(); lukkBoble(); });
 $("#boble-be-kode").addEventListener("click", async () => {
   const knapp = $("#boble-be-kode");
   knapp.disabled = true; bobleMelding("Sender …");
@@ -472,6 +514,7 @@ $("#boble-skjema").addEventListener("submit", async e => {
   knapp.disabled = true;
   try {
     await kall("/sjekk", {token:opneToken, kode});
+    await tastaturVekk();
     lagreSperre({feil:0, til:0});
     bobleMelding("Opna! Du har tre nye forsøk.");
     $("#boble-skjema").hidden = true;
@@ -534,6 +577,8 @@ $("#pin-skjema").addEventListener("submit", async e => {
   knapp.disabled = true; innFeil("");
   try {
     const svar = await kall("/logginn", {nokkel, pin});
+    await tastaturVekk();   // tastaturet heilt borte før innloggingsskjermen blir bytt ut med panelet
+    if (!nokkel) return;    // avbrote i mellomtida
     okt = {token:svar.token, ut:Number(svar.ut), namn:String(svar.namn || ""), rolle:svar.rolle === "full" ? "full" : "avgrensa"};
     $("#pin").value = "";
     visPanel();
@@ -556,7 +601,12 @@ function visFane(namn){
   document.querySelectorAll(".faner button").forEach(b => b.setAttribute("aria-current", String(b.dataset.vis === namn)));
   scrollTo(0, 0);
 }
-$(".faner").addEventListener("click", e => { const b = e.target.closest("[data-vis]"); if (b) visFane(b.dataset.vis); });
+$(".faner").addEventListener("click", async e => {
+  const b = e.target.closest("[data-vis]");
+  if (!b) return;
+  await tastaturVekk();   // skriv du i eit felt, skal tastaturet vere borte før fana blir skjult
+  if (okt) visFane(b.dataset.vis);
+});
 async function visPanel(){
   if (!okt) return;
   const full = okt.rolle === "full";
@@ -583,6 +633,8 @@ async function visPanel(){
 }
 // Logg ut: alt som kom frå workeren, blir fjerna frå sida, og nøkkelen og beviset blir gløymde
 function loggUt(melding){
+  const aktiv = document.activeElement;
+  if (aktiv && /^(INPUT|TEXTAREA)$/.test(aktiv.tagName)) aktiv.blur();
   okt = null; nokkel = ""; tvAdr = ""; oppdToken = ""; sisteTal = null;
   clearTimeout(pagarTimer);
   for (const id of ["#pagar-tittel", "#pagar-adresse", "#pagar-tid", "#pin", "#kode", "#oppd-kode"]) $(id).value = "";
@@ -592,6 +644,7 @@ function loggUt(melding){
   for (const s of ["#besok-tal", "#besok-graf", "#qr-tal", "#qr-graf", "#eining-tal", "#tv-sett"]) $(s).innerHTML = "";
   for (const s of ["#besok-status", "#qr-status", "#eining-app", "#oppd-status", "#eksport-status", "#okt-tekst", "#tv-status", "#pagar-status"]) $(s).textContent = "";
   $("#pagar-kort").classList.remove("pa"); $("#pagar-merke").textContent = "Av";
+  $("#feilsok").open = false; clearInterval(feilsokT);
   $("#app").hidden = true; $("#inn").hidden = false;
   visSteg(1); innFeil(melding || "");
 }
@@ -779,6 +832,7 @@ $("#oppd-skjema").addEventListener("submit", async e => {
   if (!okt) { utlopt(); return; }
   try {
     await kall("/oppdater", {okt:okt.token, token:oppdToken, kode});
+    await tastaturVekk();
     $("#oppd-skjema").hidden = true; oppdToken = "";
     st.textContent = "Oppdateringa er starta. Nye data kjem om 1–3 minutt (litt meir om ei oppdatering går akkurat no).";
   } catch (feil) {
@@ -789,7 +843,7 @@ $("#oppd-skjema").addEventListener("submit", async e => {
       : d.feil === "nyleg" ? `Det vart nett oppdatert frå panelet. Prøv igjen om ${Math.ceil((Number(d.sekund) || 60) / 60)} min.`
       : ferdig ? "Koden er brukt, gått ut eller sperra. Be om ein ny kode."
       : feil.status === 429 ? "For mange forsøk. Vent eitt minutt." : "Fekk ikkje starta oppdateringa. Prøv igjen seinare.";
-    if (ferdig) { $("#oppd-skjema").hidden = true; oppdToken = ""; }
+    if (ferdig) { await tastaturVekk(); $("#oppd-skjema").hidden = true; oppdToken = ""; }
   }
 });
 
@@ -816,6 +870,30 @@ function renderSys(){
   el.innerHTML = h;
 }
 renderSys(); setInterval(renderSys, 60 * 1000);
+
+/* ---- Feilsøking (nedst i Status-fana): tal om skjermen, til eit skjermbilete når noko står rart på ein telefon ---- */
+function feilsokTal(){
+  const d = document.documentElement, kant = el => { const b = $(el).getBoundingClientRect(); return `${Math.round(b.top)}–${Math.round(b.bottom)}`; };
+  const prove = document.createElement("div");
+  prove.style.cssText = "position:fixed;visibility:hidden;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)";
+  document.body.appendChild(prove);
+  const cs = getComputedStyle(prove), trygg = [cs.paddingTop, cs.paddingRight, cs.paddingBottom, cs.paddingLeft].map(v => Math.round(parseFloat(v))).join(" ");
+  prove.remove();
+  return [
+    `vindauge ${innerWidth} × ${innerHeight} · dokument ${d.clientWidth} × ${d.clientHeight} · skjerm ${screen.width} × ${screen.height}`,
+    VV ? `synleg ${Math.round(VV.width)} × ${Math.round(VV.height)} · topp ${VV.offsetTop.toFixed(1)} · sidetopp ${VV.pageTop.toFixed(1)} · skala ${VV.scale.toFixed(2)}` : "synleg: ikkje støtta",
+    `rulla ${Math.round(scrollY)} av ${Math.max(0, d.scrollHeight - innerHeight)} · forskyving ${forskyving}`,
+    `toppen ${kant(".topp")} · fanene ${kant(".faner")} · trygg kant ${trygg}`,
+    `app frå heimeskjermen: ${matchMedia("(display-mode: standalone)").matches || navigator.standalone === true ? "ja" : "nei"} · tastatur: ${tastaturOppe() ? "oppe" : "nede"}`,
+    navigator.userAgent.replace(/^Mozilla\/5\.0 /, ""),
+  ].join("\n");
+}
+let feilsokT = 0;
+$("#feilsok").addEventListener("toggle", () => {
+  clearInterval(feilsokT);
+  const vis = () => { $("#feilsok-tal").textContent = feilsokTal(); };
+  if ($("#feilsok").open) { vis(); feilsokT = setInterval(vis, 500); }
+});
 
 /* ---- Last ned statistikk (berre på PC): lagar ei ekte Excel-fil (.xlsx) her i nettlesaren. Same fil som i appen. ---- */
 const CRC_TAB = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
