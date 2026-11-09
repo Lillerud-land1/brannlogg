@@ -269,14 +269,14 @@ const PG_NOKKEL = "__TV_PING__", WORKER = "https://brannlogg-admin.brannlogg-adm
 let PG = null;
 try { PG = JSON.parse(localStorage.getItem("brannlogg_pagar") || "null"); } catch (e) {}
 if (PG && !(Date.now() - new Date(PG.start) < 8 * 36e5 && !B.some(b => b.bris && b.bris.type && b.bris.type !== "Oppdrag løst av 110" && new Date(b.start) >= new Date(PG.start) - 20 * 6e4))) PG = null;
-if (PG) B.unshift({id:"pagar", gruppe:"utrykking", tittel:String(PG.tittel).slice(0, 60), stad:"Stord", start:PG.start, sist:new Date().toISOString(), aktiv:true,
-  type:"utrykking", alvor:3, pos:null, meldingar:[{t:PG.start, tekst:"Melding frå brannstasjonen. Detaljar kjem."}], _o:oslo(PG.start)});
+if (PG) B.unshift({id:"pagar", gruppe:"utrykking", tittel:String(PG.tittel).slice(0, 60), stad:String(PG.stad || "Stord").slice(0, 80), start:PG.start, sist:new Date().toISOString(), aktiv:true,
+  type:"utrykking", alvor:3, pos:Array.isArray(PG.pos) && PG.pos.length === 2 && PG.pos.every(Number.isFinite) ? PG.pos : null, meldingar:[{t:PG.start, tekst:"Melding frå brannstasjonen. Detaljar kjem."}], _o:oslo(PG.start)});
 async function sjekkPagar(){
   if (PG_NOKKEL.length < 40 || location.hostname !== "bls.lillerud.com") return;
   try {
     const r = await (await fetch(WORKER + "/pagar-hent", {method:"POST", headers:{"Content-Type":"text/plain"}, body:JSON.stringify({nokkel:PG_NOKKEL})})).json();
     if (r.feil) return;
-    const no = r.tittel ? JSON.stringify({tittel:r.tittel, start:r.start}) : "";
+    const no = r.tittel ? JSON.stringify({tittel:r.tittel, start:r.start, pos:r.pos, stad:r.stad}) : "";
     if ((localStorage.getItem("brannlogg_pagar") || "") !== no) { no ? localStorage.setItem("brannlogg_pagar", no) : localStorage.removeItem("brannlogg_pagar"); location.reload(); }
   } catch (e) {}
 }

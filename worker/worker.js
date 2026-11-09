@@ -82,6 +82,20 @@ async function tvNokkel(env) {
   const k = await crypto.subtle.importKey("raw", enc.encode(env.HENT_NOKKEL || ""), {name: "HMAC", hash: "SHA-256"}, false, ["sign"]);
   return b64(await crypto.subtle.sign("HMAC", k, enc.encode("tv-ping")));
 }
+// Adresse → posisjon (Geonorge, berre Stord kommune), til kartet i alarmmodus
+async function geokod(adr) {
+  try {
+    const r = await fetch("https://ws.geonorge.no/adresser/v1/sok?" + new URLSearchParams({sok: adr, kommunenummer: "4614", treffPerSide: "10"}),
+      {headers: {"User-Agent": "brannlogg-stord/1.0"}});
+    const liste = (await r.json()).adresser || [];
+    const norm = x => String(x || "").toLowerCase().replace(/\s+/g, " ").trim();
+    const a = liste.find(x => norm(x.adressetekst) === norm(adr)) || liste[0];
+    if (!a || !a.representasjonspunkt) return null;
+    return {pos: [a.representasjonspunkt.lat, a.representasjonspunkt.lon], stad: [a.adressetekst, a.poststed].filter(Boolean).join(", ")};
+  } catch (e) {
+    return null;
+  }
+}
 const EININGAR = ["mobil", "nettbrett", "pc"];
 const OPPD_PAUSE_MIN = 5, OPPD_MAKS_FEIL = 5;
 
@@ -192,11 +206,11 @@ export class Teljar {
     // «Brann pågår»: eit oppslag som set infoskjermen i alarmmodus til det blir avslutta (maks 8 timar)
     if (new URL(req.url).pathname === "/pagar") {
       const d = await req.json();
-      if (d.handling === "sett") await this.ctx.storage.put("pagar", {tittel: d.tittel, start: new Date().toISOString(), ut: Date.now() + 8 * 36e5, av: d.av});
+      if (d.handling === "sett") await this.ctx.storage.put("pagar", {tittel: d.tittel, start: new Date().toISOString(), ut: Date.now() + 8 * 36e5, av: d.av, pos: d.pos || null, stad: d.stad || null});
       else if (d.handling === "av") await this.ctx.storage.delete("pagar");
       const p = await this.ctx.storage.get("pagar");
       if (p && p.ut < Date.now()) { await this.ctx.storage.delete("pagar"); return Response.json({}); }
-      return Response.json(p ? {tittel: p.tittel, start: p.start, av: p.av} : {});
+      return Response.json(p ? {tittel: p.tittel, start: p.start, av: p.av, pos: p.pos, stad: p.stad} : {});
     }
     if (new URL(req.url).pathname === "/tv") {
       await this.ctx.storage.put("tv", await req.json());
@@ -376,8 +390,11 @@ export default {
         if (nei) return nei;
         const tittel = String(data.tittel || "").replace(/[ -<>]/g, "").trim().slice(0, 60);
         if (sti === "/pagar-sett" && tittel.length < 2) return svar({feil: "skriv tittel"}, 400);
+        const adr = String(data.adresse || "").replace(/[ -<>]/g, "").trim().slice(0, 80);
+        const g = sti === "/pagar-sett" && adr ? await geokod(adr) : null;
         const r = await (await teljar(env).fetch("https://teljar/pagar", {method: "POST",
-          body: JSON.stringify({handling: sti === "/pagar-sett" ? "sett" : "av", tittel, av: okt.namn})})).json();
+          body: JSON.stringify({handling: sti === "/pagar-sett" ? "sett" : "av", tittel, av: okt.namn, pos: g && g.pos, stad: g && g.stad})})).json();
+        if (adr && !g) r.adresseFeil = true;
         await tilEigaren(env, {title: sti === "/pagar-sett" ? `🚨 «Brann pågår» på infoskjermen: ${tittel}` : "✅ «Brann pågår» avslutta på infoskjermen",
           tags: [sti === "/pagar-sett" ? "rotating_light" : "mute"], priority: 3, message: `${okt.namn}.
 ${kven}`});
