@@ -391,7 +391,7 @@ if (ALARM.length) {
   if (K) {
     const P = K.proj, p = a.pos ? [(a.pos[1] - P.lon0) * P.cos * P.k, (P.lat1 - a.pos[0]) * P.k] : null;
     const inne = p && p[0] > 0 && p[0] < K.w && p[1] > 0 && p[1] < K.h;
-    const w = K.w * .42, h = w * 1.05;
+    const w = K.w * .72, h = w * 1.05;   // zoom i alarmmodus (var .42 – for nær, ønske 9.11.2026)
     const vb = inne ? `${(p[0] - w / 2).toFixed(0)} ${(p[1] - h / 2).toFixed(0)} ${w.toFixed(0)} ${h.toFixed(0)}` : `0 0 ${K.w} ${K.h}`;
     const lbl = K.stader.map(s => `<circle class="m-dot" cx="${s.x}" cy="${s.y}" r="3.5"/><text class="m-lbl" x="${s.x + 7}" y="${s.y + 5}">${esc(s.namn)}</text>`).join("");
     const mk = inne ? `<g class="mk"><circle class="ring" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="16" stroke="var(--fire)"/><circle class="c" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="16" fill="var(--fire)"/></g>` : "";
