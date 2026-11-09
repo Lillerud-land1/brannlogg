@@ -651,14 +651,17 @@ def kombiner_med_bris(hendingar, bris, ekstra, geocache):
         ex = ekstra.get(bid, {})
         if ex.get("avvis_hending"):
             continue
+        # «pagar» i ekstra.json (sett for hand): hendinga tel som «pågår» (alarmmodus på TV-en) heilt til brannvesenet har fylt
+        # ut typen i brannstatistikken, men maks 8 timar. Brukt når brannen står i 110-meldingar før typen er sett.
+        pagar_no = bool(ex.get("pagar")) and not m["type"] and no - datetime.fromisoformat(m["tid"]) < timedelta(hours=8)
         stad = ex.get("stad", KOMMUNE)
         pos = ex.get("pos") or (geokod(stad, geocache) if stad != KOMMUNE else None)
         # Har brannvesenet ikkje fylt ut typen etter tre døgn, kjem han truleg ikkje – då skal det ikkje stå «detaljar kjem»
         utan_type = not m["type"] and no - datetime.fromisoformat(m["tid"]) > timedelta(days=3)
         hendingar.append({
             "id": bid, "gruppe": kat[0], "kjelde_type": "bris",
-            "tittel": ex.get("tittel", "Oppdrag – type ikkje oppgitt" if utan_type else kat[2]), "type": ex.get("type", kat[1]), "alvor": ex.get("alvor", kat[3]),
-            "stad": stad, "start": m["tid"], "sist": m["tid"], "aktiv": False, "pos": pos,
+            "tittel": (ex.get("pagar_tittel") if pagar_no else None) or ex.get("tittel", "Oppdrag – type ikkje oppgitt" if utan_type else kat[2]), "type": ex.get("type", kat[1]), "alvor": ex.get("alvor", kat[3]),
+            "stad": stad, "start": m["tid"], "sist": pagar_no and no.isoformat(timespec="seconds") or m["tid"], "aktiv": bool(pagar_no), "pos": pos,
             "flagg": {"personskade": False, "evakuert": False, "sak": False, "brannvesen": True,
                       "omkomne": bool(ex.get("omkomne")), "bris": True},
             "meldingar": [{"t": m["tid"], "tekst": ex.get("tekst") or (
