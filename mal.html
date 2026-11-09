@@ -607,6 +607,10 @@ dialog.innlogging::backdrop{background:rgba(10,14,18,.78);backdrop-filter:blur(6
 #pagar-skjema label{grid-column:1 / -1}
 #pagar-skjema input[type=time]{width:auto}
 #pagar-skjema .btn{width:100%;justify-content:center}
+.pagar-tid-val{grid-column:1 / -1;display:grid;gap:6px}
+.pagar-tid-val .rad{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pagar-tid-val .btn.valt{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.pagar-tid-val input[type=time]{width:auto;justify-self:start}
 dialog.boble::after{content:"";position:absolute;left:50%;bottom:-18px;margin-left:-20px;border:20px solid transparent;border-bottom:0;border-top-color:var(--surface)}
 .boble-emoji{font-size:64px;line-height:1.1;letter-spacing:4px}
 dialog.boble h2{font-size:25px;line-height:1.2;font-weight:700;margin-top:10px}
@@ -1048,7 +1052,11 @@ if (fm.fileExists(fil)) {
           <div><b>Brann pågår</b><span class="sub" style="display:block">Set infoskjermen i alarmmodus med ein kort tittel. Går av når du trykkjer «Avslutt», når brannstatistikken har fylt ut typen, eller etter 8 timar.</span></div>
           <form class="admin-kode" id="pagar-skjema" autocomplete="off">
             <input id="pagar-tittel" maxlength="60" aria-label="Tittel" placeholder="Til dømes: Pipebrann">
-            <label class="sub" style="display:flex;gap:6px;align-items:center">Starta kl. <input id="pagar-tid" type="time" aria-label="Klokkeslett det starta" style="width:auto;max-width:none"></label>
+            <div class="pagar-tid-val">
+              <span class="sub">Når starta det?</span>
+              <div class="rad"><button type="button" class="btn" id="pt-siste"></button><button type="button" class="btn" id="pt-anna">Anna tid</button></div>
+              <input id="pagar-tid" type="time" aria-label="Klokkeslett det starta" hidden>
+            </div>
             <input id="pagar-adresse" maxlength="80" aria-label="Adresse" placeholder="Adresse (valfritt), til dømes Nordstokkevegen 12">
             <button type="submit" class="btn" id="pagar-start">Start</button>
             <button type="button" class="btn" id="pagar-av">Avslutt</button>
@@ -2874,7 +2882,7 @@ async function visPanel(){
   $("#tv-blokk").hidden = !full;
   $("#oppd-blokk").hidden = !full;
   $("#pagar-blokk").hidden = !full;
-  if (full) pagarStatus();
+  if (full) { pagarStatus(); pagarTidOppsett(); }
   if (full) {
     try {
       tvAdr = (await opneKall("/tv-adresse", {okt:okt.token})).adresse || "";
@@ -2984,8 +2992,24 @@ function pagarTom(){
   pagarTimer = setTimeout(() => { for (const id of ["#pagar-tittel", "#pagar-adresse", "#pagar-tid"]) $(id).value = ""; }, 5 * 60 * 1000);
 }
 // Klokkeslettet frå feltet «Starta kl.» som tidspunkt (i dag; ligg det fram i tid, er det i går). Tomt = no.
+// «Når starta det?»: standard er siste alarm i lista («Ja»), elles ei tid du skriv sjølv («Anna tid»)
+let pagarTid = "siste";
+function pagarTidOppsett(){
+  const b = B[0], ny = b && Date.now() - new Date(b.start) < 12 * 36e5;
+  if (ny) $("#pt-siste").textContent = "Siste alarm kl. " + kl(b._o) + " – " + b.tittel;
+  $("#pt-siste").hidden = !ny;
+  pagarTidVelg(ny ? "siste" : "anna");
+}
+function pagarTidVelg(v){
+  pagarTid = v;
+  $("#pt-siste").classList.toggle("valt", v === "siste"); $("#pt-anna").classList.toggle("valt", v === "anna");
+  $("#pagar-tid").hidden = v !== "anna";
+}
+$("#pt-siste").addEventListener("click", () => pagarTidVelg("siste"));
+$("#pt-anna").addEventListener("click", () => { pagarTidVelg("anna"); $("#pagar-tid").focus(); });
 function pagarStart(){
   const v = $("#pagar-tid").value;
+  if (pagarTid === "siste" && B[0]) return new Date(B[0].start).toISOString();
   if (!/^\d\d:\d\d$/.test(v)) return "";
   const d = new Date(); d.setHours(+v.slice(0, 2), +v.slice(3), 0, 0);
   if (d.getTime() > Date.now() + 2 * 6e4) d.setDate(d.getDate() - 1);
