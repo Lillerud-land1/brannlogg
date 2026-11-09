@@ -601,6 +601,12 @@ dialog.innlogging::backdrop{background:rgba(10,14,18,.78);backdrop-filter:blur(6
 .admin-okt{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}
 .admin-okt .btn{margin-left:auto}
 .tv-blokk{display:grid;gap:8px}
+/* «Brann pågår»: felta under kvarandre (på mobil vart dei klemte på éi line) */
+#pagar-skjema{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#pagar-skjema input[type=text],#pagar-skjema input:not([type]){grid-column:1 / -1;width:100%;max-width:none}
+#pagar-skjema label{grid-column:1 / -1}
+#pagar-skjema input[type=time]{width:auto}
+#pagar-skjema .btn{width:100%;justify-content:center}
 dialog.boble::after{content:"";position:absolute;left:50%;bottom:-18px;margin-left:-20px;border:20px solid transparent;border-bottom:0;border-top-color:var(--surface)}
 .boble-emoji{font-size:64px;line-height:1.1;letter-spacing:4px}
 dialog.boble h2{font-size:25px;line-height:1.2;font-weight:700;margin-top:10px}
