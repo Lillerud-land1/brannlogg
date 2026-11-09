@@ -16,6 +16,8 @@ from shapely.ops import linemerge, polygonize, unary_union
 MAPPE = Path(__file__).parent
 UA = {"User-Agent": "brannlogg-stord/1.0 (privat app)"}
 BREIDD = 1000
+# Stadnamn der første treffet i Geonorge er feil type (Heiane gav åsen nord på øya, ikkje bygda): fast posisjon (lat, lon)
+FAST = {"Heiane": (59.7595, 5.4521)}
 STADER = ["Leirvik", "Sagvåg", "Heiane", "Litlabø", "Huglo", "Føyno", "Stord lufthamn"]
 NABOAR = {"Fitjar": (5.34, 59.905), "Bømlo": (5.25, 59.765), "Tysnes": (5.55, 59.935)}
 
@@ -79,6 +81,10 @@ def main():
 
     stader = []
     for namn in STADER:
+        if namn in FAST:
+            x, y = proj(FAST[namn][1], FAST[namn][0])
+            stader.append({"namn": namn, "x": round(x, 1), "y": round(y, 1)})
+            continue
         try:
             r = hent("https://ws.geonorge.no/stedsnavn/v1/navn?" + urllib.parse.urlencode(
                 {"sok": namn, "knr": "4614", "treffPerSide": 1, "utkoordsys": 4258}))
