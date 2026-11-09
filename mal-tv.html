@@ -262,6 +262,26 @@ const TYPE = {bygning:"i-bygning", kjoretoy:"i-kjoretoy", vegetasjon:"i-vegetasj
 const B = D.brannar.map(b => ({...b, _o:oslo(b.start)}));   // alle hendingar, frå brannalarmar til husbrannar
 const START = IDAG.dn - (VINDU - 1);
 
+/* «Brann pågår» frå adminpanelet (9.11.2026): workeren held eit oppslag som set skjermen i alarmmodus. TV-en spør kvart
+   30. sekund; endrar det seg, lastar sida på nytt og alarmbiletet blir bygd frå oppslaget. Det blir ignorert når
+   brannstatistikken har fylt ut typen på eit nytt oppdrag, så det går av av seg sjølv der òg (og elles maks 8 timar). */
+const PG_NOKKEL = "__TV_PING__", WORKER = "https://brannlogg-admin.brannlogg-admin.workers.dev";
+let PG = null;
+try { PG = JSON.parse(localStorage.getItem("brannlogg_pagar") || "null"); } catch (e) {}
+if (PG && !(Date.now() - new Date(PG.start) < 8 * 36e5 && !B.some(b => b.bris && b.bris.type && b.bris.type !== "Oppdrag løst av 110" && new Date(b.start) >= new Date(PG.start) - 20 * 6e4))) PG = null;
+if (PG) B.unshift({id:"pagar", gruppe:"utrykking", tittel:String(PG.tittel).slice(0, 60), stad:"Stord", start:PG.start, sist:new Date().toISOString(), aktiv:true,
+  type:"utrykking", alvor:3, pos:null, meldingar:[{t:PG.start, tekst:"Melding frå brannstasjonen. Detaljar kjem."}], _o:oslo(PG.start)});
+async function sjekkPagar(){
+  if (PG_NOKKEL.length < 40 || location.hostname !== "bls.lillerud.com") return;
+  try {
+    const r = await (await fetch(WORKER + "/pagar-hent", {method:"POST", headers:{"Content-Type":"text/plain"}, body:JSON.stringify({nokkel:PG_NOKKEL})})).json();
+    if (r.feil) return;
+    const no = r.tittel ? JSON.stringify({tittel:r.tittel, start:r.start}) : "";
+    if ((localStorage.getItem("brannlogg_pagar") || "") !== no) { no ? localStorage.setItem("brannlogg_pagar", no) : localStorage.removeItem("brannlogg_pagar"); location.reload(); }
+  } catch (e) {}
+}
+setTimeout(sjekkPagar, 3000); setInterval(sjekkPagar, 30 * 1000);
+
 /* Klokke. Går klokka i skjermen feil (til dømes eitt minutt for seint), blir ho retta etter tida til nettstaden:
    svaret frå GitHub har eit «Date»-felt med rett tid. Rettar berre når avviket er over 2 sekund. */
 let klokkeAvvik = 0;   // millisekund: rett tid minus tida i skjermen

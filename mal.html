@@ -1038,6 +1038,15 @@ if (fm.fileExists(fil)) {
           <span class="sub" id="admin-status"></span>
         </div>
         <ul class="sys-liste" id="tv-sett" hidden></ul>
+        <div class="tv-blokk" id="pagar-blokk" hidden>
+          <div><b>Brann pågår</b><span class="sub" style="display:block">Set infoskjermen i alarmmodus med ein kort tittel. Går av når du trykkjer «Avslutt», når brannstatistikken har fylt ut typen, eller etter 8 timar.</span></div>
+          <form class="admin-kode" id="pagar-skjema" autocomplete="off">
+            <input id="pagar-tittel" maxlength="60" aria-label="Tittel" placeholder="Til dømes: Pipebrann">
+            <button type="submit" class="btn" id="pagar-start">Start</button>
+            <button type="button" class="btn" id="pagar-av">Avslutt</button>
+          </form>
+          <span class="sub" id="pagar-status"></span>
+        </div>
         <div class="sys" id="sys">
           <div><b>Systemstatus</b><span class="sub" style="display:block">Om appen hentar data som han skal. Blir sjekka kvart kvarter.</span></div>
           <ul class="sys-liste" id="sys-liste"></ul>
@@ -2856,6 +2865,8 @@ async function visPanel(){
   $("#okt-avgrensa").hidden = full;
   $("#tv-blokk").hidden = !full;
   $("#oppd-blokk").hidden = !full;
+  $("#pagar-blokk").hidden = !full;
+  if (full) pagarStatus();
   if (full) {
     try {
       tvAdr = (await opneKall("/tv-adresse", {okt:okt.token})).adresse || "";
@@ -2874,7 +2885,7 @@ function loggUt(melding){
   lukkInnlogging();
   $("#admin-lenke").hidden = true;
   $("#admin-url").textContent = ""; $("#admin-opne").removeAttribute("href"); $("#admin-status").textContent = "";
-  for (const s of ["#tv-blokk", "#oppd-blokk", "#besok", "#qr-boks", "#eining-boks", "#eksport-boks", "#tv-sett", "#oppd-skjema"]) $(s).hidden = true;
+  for (const s of ["#tv-blokk", "#oppd-blokk", "#pagar-blokk", "#besok", "#qr-boks", "#eining-boks", "#eksport-boks", "#tv-sett", "#oppd-skjema"]) $(s).hidden = true;
   for (const s of ["#besok-tal", "#besok-graf", "#qr-tal", "#qr-graf", "#eining-tal", "#tv-sett"]) $(s).innerHTML = "";
   for (const s of ["#besok-status", "#qr-status", "#eining-app", "#oppd-status", "#eksport-status", "#okt-tekst"]) $(s).textContent = "";
   if (melding) { $("#admin-feil").textContent = melding; $("#admin-feil").hidden = false; }
@@ -2949,6 +2960,28 @@ async function visBesok(){
       : T("Ingen tal enno – teljinga starta 8. november 2026.");
   }
 }
+
+/* ---- «Brann pågår» (9.11.2026): start/avslutt alarmmodus på infoskjermen. Workeren lagrar oppslaget; TV-en spør kvart 30. sekund. ---- */
+async function pagarStatus(){
+  const st = $("#pagar-status");
+  try {
+    const r = await opneKall("/pagar-hent", {okt:okt.token});
+    st.textContent = r.tittel ? "På no: «" + r.tittel + "» (sidan " + naar(oslo(r.start)) + "). Skjermen følgjer med innan 30 sekund." : "Ikkje på.";
+  } catch (feil) { if (feil.status === 401) utlopt(); }
+}
+$("#pagar-skjema").addEventListener("submit", async e => {
+  e.preventDefault();
+  const tittel = $("#pagar-tittel").value.trim(), st = $("#pagar-status");
+  if (!okt || okt.rolle !== "full") return;
+  if (tittel.length < 2) { st.textContent = "Skriv ein kort tittel først."; return; }
+  try { await opneKall("/pagar-sett", {okt:okt.token, tittel}); $("#pagar-tittel").value = ""; await pagarStatus(); }
+  catch (feil) { if (feil.status === 401) utlopt(); else st.textContent = "Fekk ikkje starta. Prøv igjen."; }
+});
+$("#pagar-av").addEventListener("click", async () => {
+  if (!okt || okt.rolle !== "full") return;
+  try { await opneKall("/pagar-av", {okt:okt.token}); await pagarStatus(); }
+  catch (feil) { if (feil.status === 401) utlopt(); else $("#pagar-status").textContent = "Fekk ikkje avslutta. Prøv igjen."; }
+});
 
 /* ---- Infoskjermen sist sett (8.11.2026): TV-en melder frå til workeren kvart 5. minutt (mal-tv.html, meldFraa).
    Grøn når han er sett siste kvarteret og dataa på skjermen er under ein time gamle. ---- */

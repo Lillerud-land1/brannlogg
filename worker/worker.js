@@ -189,6 +189,15 @@ export class Teljar {
       if (qr === true) this.sql.exec("INSERT INTO qr (dag, skann) VALUES (?, 1) ON CONFLICT(dag) DO UPDATE SET skann = skann + 1", dag);
       return new Response("ok");
     }
+    // «Brann pågår»: eit oppslag som set infoskjermen i alarmmodus til det blir avslutta (maks 8 timar)
+    if (new URL(req.url).pathname === "/pagar") {
+      const d = await req.json();
+      if (d.handling === "sett") await this.ctx.storage.put("pagar", {tittel: d.tittel, start: new Date().toISOString(), ut: Date.now() + 8 * 36e5, av: d.av});
+      else if (d.handling === "av") await this.ctx.storage.delete("pagar");
+      const p = await this.ctx.storage.get("pagar");
+      if (p && p.ut < Date.now()) { await this.ctx.storage.delete("pagar"); return Response.json({}); }
+      return Response.json(p ? {tittel: p.tittel, start: p.start, av: p.av} : {});
+    }
     if (new URL(req.url).pathname === "/tv") {
       await this.ctx.storage.put("tv", await req.json());
       return new Response("ok");
@@ -353,6 +362,26 @@ export default {
           message: `${brukar.rolle === "full" ? "Full tilgang" : "Avgrensa tilgang"}, i ${OKT_MIN} minutt.\n${kven}\n` +
                    "Var det ikkje deg eller nokon du har gitt PIN-kode: byt admin-koden og PIN-kodane (admin_oppsett.py)."});
         return svar({token, ut, namn: brukar.namn, rolle: brukar.rolle});
+      }
+      if (sti === "/pagar-hent") {
+        // Infoskjermen (TV-nøkkel) og adminpanelet (innlogging) les om «Brann pågår» er på
+        const erTv = env.HENT_NOKKEL && likt(data.nokkel, await tvNokkel(env));
+        if (!(await innanfor([env.GRENSE_EINING, `pghent:${ip}`]))) return svar({feil: "for mange"}, 429);
+        if (!erTv) { const [, nei] = await krevOkt("full"); if (nei) return nei; }
+        return svar(await (await teljar(env).fetch("https://teljar/pagar", {method: "POST", body: "{}"})).json());
+      }
+      if (sti === "/pagar-sett" || sti === "/pagar-av") {
+        if (!(await innanfor([env.GRENSE_EINING, `pgsett:${ip}`]))) return svar({feil: "for mange"}, 429);
+        const [okt, nei] = await krevOkt("full");
+        if (nei) return nei;
+        const tittel = String(data.tittel || "").replace(/[ -<>]/g, "").trim().slice(0, 60);
+        if (sti === "/pagar-sett" && tittel.length < 2) return svar({feil: "skriv tittel"}, 400);
+        const r = await (await teljar(env).fetch("https://teljar/pagar", {method: "POST",
+          body: JSON.stringify({handling: sti === "/pagar-sett" ? "sett" : "av", tittel, av: okt.namn})})).json();
+        await tilEigaren(env, {title: sti === "/pagar-sett" ? `🚨 «Brann pågår» på infoskjermen: ${tittel}` : "✅ «Brann pågår» avslutta på infoskjermen",
+          tags: [sti === "/pagar-sett" ? "rotating_light" : "mute"], priority: 3, message: `${okt.namn}.
+${kven}`});
+        return svar(r);
       }
       if (sti === "/tv-adresse") {
         // Lenka til infoskjermen – berre med full tilgang
