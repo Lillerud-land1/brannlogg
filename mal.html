@@ -1052,7 +1052,7 @@ if (fm.fileExists(fil)) {
         <div class="tv-blokk" id="pagar-blokk" hidden>
           <div><b>Brann pågår</b><span class="sub" style="display:block">Set infoskjermen i alarmmodus med ein kort tittel. Går av når du trykkjer «Avslutt», når brannstatistikken har fylt ut typen, eller etter 8 timar.</span></div>
           <form class="admin-kode" id="pagar-skjema" autocomplete="off">
-            <input id="pagar-tittel" maxlength="60" aria-label="Tittel" placeholder="Til dømes: Pipebrann">
+            <input id="pagar-tittel" maxlength="60" aria-label="Tittel" placeholder="Til dømes: Brann i skorstein">
             <div class="pagar-tid-val">
               <span class="sub">Når starta det?</span>
               <div class="rad"><button type="button" class="btn" id="pt-siste"></button><button type="button" class="btn" id="pt-anna">Anna tid</button><button type="button" class="btn" id="pt-ingen">Ingen tid</button></div>
@@ -1969,7 +1969,7 @@ function varigheit(a, b){
 /* ---- Typar ---- */
 const TYPE = {
   bygning:{n:"Bygning", i:"i-bygning"}, kjoretoy:{n:"Kjøretøy", i:"i-kjoretoy"}, vegetasjon:{n:"Gras og lyng", i:"i-vegetasjon"},
-  pipe:{n:"Pipebrann", i:"i-pipe"}, alarm:{n:"Brannalarm", i:"i-alarm"}, industri:{n:"Industri/avfall", i:"i-industri"},
+  pipe:{n:"Brann i skorstein", i:"i-pipe"}, alarm:{n:"Brannalarm", i:"i-alarm"}, industri:{n:"Industri/avfall", i:"i-industri"},
   baat:{n:"Båt", i:"i-baat"}, anna:{n:"Anna brann", i:"i-anna"},
   trafikk:{n:"Trafikkulykke", i:"i-trafikk"}, sjo:{n:"Sjø", i:"i-sjo"}, ulykke:{n:"Ulykke", i:"i-ulykke"},
   redning:{n:"Redning", i:"i-redning"}, dyr:{n:"Dyr", i:"i-dyr"}, utslepp:{n:"Utslepp", i:"i-utslepp"}, utrykking:{n:"Anna oppdrag", i:"i-utrykking"}, helse:{n:"Helseoppdrag", i:"i-helse"}, brannvern:{n:"Brannvern", i:"i-brannvern"}

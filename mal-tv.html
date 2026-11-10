@@ -462,7 +462,7 @@ function lagFakta(){
     f.push(`${stor(MND[topp % 12])} ${Math.floor(topp / 12)} var den travlaste månaden siste år, med ${n} oppdrag.`);
   }
   const tal = t => AAR.filter(b => b.type === t).length;
-  if (tal("pipe")) f.push(`Brannvesenet rykte ut til ${tal("pipe")} pipebrannar siste år. Feiing og sjekk av pipa hindrar pipebrann.`);
+  if (tal("pipe")) f.push(`Brannvesenet rykte ut til ${tal("pipe")} brannar i skorstein siste år. Feiing og sjekk av pipa hindrar brann i skorsteinen.`);
   if (tal("trafikk")) f.push(`Brannvesenet hjelper òg ved trafikkulykker, og rykte ut til ${tal("trafikk")} slike siste år.`);
   if (tal("dyr")) f.push(`Brannvesenet hjelpte dyr i naud ${tal("dyr")} gonger siste år.`);
   if (tal("helse")) f.push(`${tal("helse")} gonger siste år hjelpte brannvesenet helsevesenet, til dømes med å bere pasientar.`);

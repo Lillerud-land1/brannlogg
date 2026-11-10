@@ -227,7 +227,7 @@ TITTEL = [
     (r"kleding|kledning|yttervegg", "Brann i husvegg"),
     (r"eldre bolig|bolig|hus\b|huset", "Brann i bustad"),
 ]
-TYPE_TITTEL = {"pipe": "Pipebrann", "kjoretoy": "Bilbrann", "baat": "Båtbrann",
+TYPE_TITTEL = {"pipe": "Brann i skorstein", "kjoretoy": "Bilbrann", "baat": "Båtbrann",
                "vegetasjon": "Gras- og lyngbrann", "alarm": "Utløyst brannalarm",
                "industri": "Brann i industri/avfall", "bygning": "Brann i bygning", "anna": "Brann"}
 
@@ -253,7 +253,7 @@ def klassifiser(tekst):
     mild = re.search(r"ingen åpne flammer|ingen synlige flammer|men ikke flammer|ikke (vært )?åpne flammer|matlaging|kontrollert brann|ingen brann|ikke vært brann|varmgang|feil funnet|pipebrann", lå)
     flammar = har_positiv(tekst, r"har vært åpne flammer|inhalert|flammer i|slukket|slukking|brannen")
     alvor = 3 if alvorleg else (1 if mild and not flammar else 2)
-    if alvor == 1 and tittel.startswith("Brann i "):
+    if alvor == 1 and btype != "pipe" and tittel.startswith("Brann i "):   # «Brann i skorstein» skal stå som det er (10.11.2026)
         tittel = "Røyk i " + tittel[len("Brann i "):]   # kort, så tittelen ikkje blir kutta på TV-lista
 
     flagg = {
@@ -428,7 +428,7 @@ ABA_ÅRSAK = {"matlaging": "matlaging", "vanndamp": "vassdamp", "ukjent": "ukjen
              "eksos": "eksos", "røyking": "røyking", "øvelse/service/test av anlegg": "test", "annet": "anna"}
 LØYST_AV_110 = "Oppdrag løst av 110"   # er aldri offentleg i brannstatistikken – sjå hent_bris
 BRIS_TITTEL = {
-    "Brann i bygning": "Brann i bygning", "Brann annet": "Brann (anna)", "Brann i skorstein": "Pipebrann",
+    "Brann i bygning": "Brann i bygning", "Brann annet": "Brann (anna)", "Brann i skorstein": "Brann i skorstein",
     "Brann i personbil": "Bilbrann", "Brann i gress- eller innmark": "Brann i gras eller innmark",
     "Trafikkulykke": "Trafikkulykke", "Person i vann": "Person i vatnet", "Ulykke båt eller skip": "Båtulykke",
     "Dyreoppdrag": "Dyreoppdrag", "Akutt forurensning": "Akutt forureining", "Ubetydelig forurensning": "Mindre forureining",
