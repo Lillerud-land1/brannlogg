@@ -1888,5 +1888,11 @@
   "type": "ABA ukjent",
   "tid": "2026-11-10T03:11:35+00:00",
   "brannvesen": "Stord brann og redning"
+ },
+ "5011021": {
+  "id": "5011021",
+  "type": "",
+  "tid": "2026-11-11T23:46:45+00:00",
+  "brannvesen": "Stord brann og redning"
  }
 }
