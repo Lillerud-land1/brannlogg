@@ -50,7 +50,7 @@ h1,h2,h3,p{margin:0}
 button,input{font:inherit;color:inherit}
 :focus-visible{outline:3px solid var(--ink);outline-offset:2px}
 .sub{font-size:14.5px;color:var(--muted)}
-.logo{width:36px;height:36px;flex:none}
+.logo{width:38px;height:38px;flex:none;border-radius:22%}   /* admin-ikonet (same som på heimeskjermen) */
 
 /* Knappar og felt */
 .knapp{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:46px;padding:0 14px;border:1px solid var(--line-3);border-radius:10px;background:var(--surface);color:var(--ink);font-size:16px;font-weight:600;text-decoration:none;cursor:pointer}
@@ -70,7 +70,7 @@ label,.etikett{display:block;font-size:15px;font-weight:600;color:var(--ink-2)}
 /* Innlogginga: eigen skjerm, midt på */
 .inn{min-height:100vh;min-height:100dvh;display:grid;place-items:center;padding:calc(24px + env(safe-area-inset-top)) 22px calc(24px + env(safe-area-inset-bottom))}
 .inn-kort{width:100%;max-width:380px;display:grid;gap:14px;justify-items:center;text-align:center}
-.inn .logo{width:76px;height:76px}
+.inn .logo{width:84px;height:84px}
 .inn h1{font-size:30px;line-height:1.15;margin-top:6px}
 .steg{list-style:none;display:flex;gap:8px;margin:6px 0 0;padding:0;font-size:14px;font-weight:600;color:var(--muted)}
 .steg li{padding:5px 12px;border-radius:99px;border:1px solid var(--line)}
@@ -82,6 +82,11 @@ label,.etikett{display:block;font-size:15px;font-weight:600;color:var(--ink-2)}
 .inn-feil{min-height:1.45em;color:var(--fire);font-weight:600}
 .inn .liten{font-size:13.5px;color:var(--muted);max-width:330px}
 .inn a{color:var(--ink-2)}
+.tema{display:grid;grid-template-columns:repeat(3,1fr);width:100%;border:1px solid var(--line-3);border-radius:10px;overflow:hidden}
+.tema button{min-height:42px;padding:0 6px;border:0;border-left:1px solid var(--line-3);background:var(--surface);color:var(--ink-2);font-size:15px;font-weight:600;cursor:pointer}
+.tema button:first-child{border-left:0}
+.tema button[aria-pressed="true"]{background:var(--ink);color:var(--surface)}
+.inn-tema{width:100%;display:grid;gap:6px;justify-items:center}
 .usynleg{position:absolute!important;width:1px!important;height:1px!important;min-height:0!important;padding:0!important;border:0!important;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 details.heim{width:100%;text-align:left;font-size:14.5px;color:var(--ink-2);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
 details.heim summary{cursor:pointer;font-weight:600}
@@ -178,23 +183,10 @@ dialog.boble .hovud{margin-top:18px}
 </style>
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <defs>
-    <linearGradient id="g-flamme" x1="0" y1="1" x2="0" y2="0">
-      <stop offset="0" stop-color="#D4321D"/><stop offset=".6" stop-color="#F08A12"/><stop offset="1" stop-color="#F7CB2E"/>
-    </linearGradient>
-    <symbol id="logo" viewBox="0 0 34 34">
-      <rect width="34" height="34" rx="8" fill="#15181D"/>
-      <path d="M17 28c-4.6 0-7.6-3-7.6-7 0-4.1 3-6.4 4.2-9.9 1.6 1.6 2.3 3.4 2.3 5.1 1.2-1.2 2.1-3 2.3-5.1 3.5 2.6 6.4 6.4 6.4 9.9 0 4-3 7-7.6 7Z" fill="url(#g-flamme)"/>
-      <path d="M17 28c-2 0-3.3-1.3-3.3-3.1 0-1.8 1.4-2.9 2-4.4 1.6 1.2 4.6 2.6 4.6 4.4 0 1.8-1.3 3.1-3.3 3.1Z" fill="#FFE9A6" opacity=".9"/>
-    </symbol>
-  </defs>
-</svg>
-
 <!-- Innlogging: steg 1 admin-kode, steg 2 personleg PIN-kode -->
 <main class="inn" id="inn">
   <div class="inn-kort">
-    <svg class="logo" aria-hidden="true"><use href="#logo"/></svg>
+    <img class="logo" src="admin-512.png" alt="" width="84" height="84">
     <h1>Brannlogg Admin</h1>
     <p class="sub">Stord brann og redning</p>
     <ol class="steg" aria-hidden="true"><li id="steg-1" class="no">1 · Admin-kode</li><li id="steg-2">2 · PIN-kode</li></ol>
@@ -217,6 +209,7 @@ dialog.boble .hovud{margin-top:18px}
       <p><b>iPhone:</b> trykk på del-knappen i Safari og vel «Legg til på Heim-skjerm».</p>
       <p><b>Android:</b> trykk på menyen (⋮) i Chrome og vel «Legg til på startskjermen» eller «Installer app».</p>
     </details>
+    <div class="inn-tema"><span class="liten">Utsjånad</span><div class="tema" role="group" aria-label="Utsjånad"><button type="button" data-tema="auto" aria-pressed="true">Automatisk</button><button type="button" data-tema="lys" aria-pressed="false">Lys</button><button type="button" data-tema="mork" aria-pressed="false">Mørk</button></div></div>
     <a class="liten" href="./">Til Brannlogg-appen</a>
   </div>
 </main>
@@ -224,7 +217,7 @@ dialog.boble .hovud{margin-top:18px}
 <!-- Panelet: blir fylt etter innlogging. Alt som ikkje er offentleg, kjem frå workeren. -->
 <div class="app" id="app" hidden>
   <header class="topp">
-    <svg class="logo" aria-hidden="true"><use href="#logo"/></svg>
+    <img class="logo" src="admin-192.png" alt="" width="38" height="38">
     <b>Brannlogg Admin</b>
     <button type="button" class="knapp" id="logg-ut">Logg ut</button>
   </header>
@@ -280,6 +273,11 @@ dialog.boble .hovud{margin-top:18px}
           <button type="submit" class="knapp valt">Start</button>
         </form>
         <p class="melding" id="oppd-status" role="status"></p>
+      </article>
+      <article class="kort">
+        <h3>Utsjånad</h3>
+        <p class="sub">Lys eller mørk bakgrunn. «Automatisk» følgjer innstillinga på telefonen eller PC-en.</p>
+        <div class="tema" role="group" aria-label="Utsjånad"><button type="button" data-tema="auto" aria-pressed="true">Automatisk</button><button type="button" data-tema="lys" aria-pressed="false">Lys</button><button type="button" data-tema="mork" aria-pressed="false">Mørk</button></div>
       </article>
       <details class="feilsok" id="feilsok">
         <summary>Feilsøking</summary>
@@ -355,11 +353,32 @@ const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const LOCALE = "nb-NO";
 
-// Same tema som brukaren har valt i appen (lys/mørk), elles følgjer sida eininga
-try {
-  const tema = JSON.parse(localStorage.getItem("brannlogg_innst") || "{}").tema;
-  if (tema === "lys" || tema === "mork") document.documentElement.dataset.theme = tema === "lys" ? "light" : "dark";
-} catch (e) {}
+/* ---- Utsjånad (12.11.2026): Automatisk (følgjer eininga), Lys eller Mørk. Valet blir lagra i nettlesaren. Har du
+   ikkje valt noko her, gjeld det du har valt i Brannlogg-appen (om du har valt noko der). ---- */
+const TEMA = "brannlogg_admin_tema";
+function lesTema(){
+  try {
+    const t = localStorage.getItem(TEMA);
+    if (t === "auto" || t === "lys" || t === "mork") return t;
+    const app = JSON.parse(localStorage.getItem("brannlogg_innst") || "{}").tema;
+    return app === "lys" || app === "mork" ? app : "auto";
+  } catch (e) { return "auto"; }
+}
+function brukTema(t){
+  const rot = document.documentElement;
+  if (t === "auto") rot.removeAttribute("data-theme"); else rot.dataset.theme = t === "lys" ? "light" : "dark";
+  // fargen på statuslinja øvst på telefonen (to metataggar: lys og mørk eining)
+  const meta = document.querySelectorAll('meta[name="theme-color"]');
+  if (meta.length === 2) { meta[0].content = t === "mork" ? "#121A22" : "#FFFFFF"; meta[1].content = t === "lys" ? "#FFFFFF" : "#121A22"; }
+  document.querySelectorAll("[data-tema]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.tema === t)));
+}
+brukTema(lesTema());
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest("[data-tema]");
+  if (!b) return;
+  try { localStorage.setItem(TEMA, b.dataset.tema); } catch (feil) {}
+  brukTema(b.dataset.tema);
+});
 if (matchMedia("(display-mode: standalone)").matches || navigator.standalone === true) $("#heim").hidden = true;
 
 /* ---- iPhone og tastaturet (9.11.2026). På iPhone kan sida bli ståande forskyvd etter at tastaturet er lukka: toppen
