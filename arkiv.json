@@ -2261,5 +2261,28 @@
    }
   ],
   "bris_kopla": true
+ },
+ "260mz8": {
+  "id": "260mz8",
+  "district": "Sør-Vest Politidistrikt",
+  "districtId": 206,
+  "category": "Trafikk",
+  "municipality": "Stord",
+  "area": "",
+  "createdOn": "2026-11-11T23:55:16.842766+00:00",
+  "updatedOn": "2026-11-11T23:55:16.842766+00:00",
+  "lastMessageOn": "2026-11-11T23:55:16.8425489+00:00",
+  "isActive": true,
+  "messages": [
+   {
+    "id": "260mz8-0",
+    "text": "Nødetatene rykker ut etter melding om trafikkulykke på Stordabroa på E39. En bil har krasjet. Uklart skadeomfang. Meldes om at det er svært glatt på stedet. Oppdateres.",
+    "createdOn": "2026-11-11T23:55:16.8425489+00:00",
+    "updatedOn": "2026-11-11T23:55:16.9393462+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   }
+  ]
  }
 }
