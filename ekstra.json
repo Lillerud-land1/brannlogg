@@ -218,5 +218,30 @@
                },
     "d-5007035":  {
                       "sokt":  "2026-11-09T17:30"
-                  }
+                  },
+    "260mz8":  {
+                   "sokt":  "2026-11-12",
+                   "kjelder":  [
+                                   {
+                                       "kjelde":  "Sunnhordland",
+                                       "tittel":  "Bil krasja i autovernet på Stordabrua: – Svært glatt på staden",
+                                       "url":  "https://www.sunnhordland.no/nyhende/n/QrlnPA/trafikkulukke-paa-stordabrua"
+                                   },
+                                   {
+                                       "kjelde":  "Stord24",
+                                       "tittel":  "Bil krasja på Stordabrua: – Svært glatt veg",
+                                       "url":  "https://www.stord24.no/nyhende/n/Jn1Kkm/bil-krasja-i-autovernet-paa-stordabrua-koeyrd-til-legevakt"
+                                   },
+                                   {
+                                       "kjelde":  "Haugesunds Avis",
+                                       "tittel":  "Glatte veier: Bil krasjet i autovernet på Stordabrua",
+                                       "url":  "https://www.h-avis.no/glatte-veier-bil-krasjet-i-autovernet-pa-stordabroa/s/80-62-45442"
+                                   },
+                                   {
+                                       "kjelde":  "Radio Haugaland",
+                                       "tittel":  "Bil krasjet på Stordabroa: Svært glatt på E39",
+                                       "url":  "https://radioh.no/bil-krasjet-pa-stordabroa-svaert-glatt-pa-e39/"
+                                   }
+                               ]
+               }
 }
