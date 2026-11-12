@@ -2270,8 +2270,8 @@
   "municipality": "Stord",
   "area": "",
   "createdOn": "2026-11-11T23:55:16.842766+00:00",
-  "updatedOn": "2026-11-11T23:55:16.842766+00:00",
-  "lastMessageOn": "2026-11-11T23:55:16.8425489+00:00",
+  "updatedOn": "2026-11-12T00:06:32.0393994+00:00",
+  "lastMessageOn": "2026-11-12T00:06:32.0393994+00:00",
   "isActive": true,
   "messages": [
    {
@@ -2279,6 +2279,15 @@
     "text": "Nødetatene rykker ut etter melding om trafikkulykke på Stordabroa på E39. En bil har krasjet. Uklart skadeomfang. Meldes om at det er svært glatt på stedet. Oppdateres.",
     "createdOn": "2026-11-11T23:55:16.8425489+00:00",
     "updatedOn": "2026-11-11T23:55:16.9393462+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "260mz8-1",
+    "text": "Brannvesenet og politiet er fremme på stedet. En bil har krasjet i autovernet. En person involvert. Oppegående, ingen synlige skader. Lite trafikale utfordringer. Ett felt er stengt og trafikken dirigeres forbi. Bilberger er rekvirert og VTS sender entreprenør for å vurdere kjøreforholdene.",
+    "createdOn": "2026-11-12T00:06:32.0393994+00:00",
+    "updatedOn": "2026-11-12T00:06:32.0393994+00:00",
     "hasImage": false,
     "previouslyIncludedImage": false,
     "type": "Published"
