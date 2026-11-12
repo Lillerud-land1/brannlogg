@@ -14,7 +14,7 @@
 <link rel="manifest" href="admin.webmanifest">
 <link rel="apple-touch-icon" href="admin-touch.png">
 <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#121A22" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="BLS Admin">
@@ -33,14 +33,14 @@
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     color-scheme:dark;
-    --bg:#121A22; --surface:#121A22; --surface-2:#1B2630; --ink:#E8EDF2; --ink-2:#C2CCD5; --muted:#9AA6B2;
-    --line:#2A3642; --line-2:#212C37; --line-3:#3A4855; --fire:#FF6B4E; --ok:#5CC48A;
+    --bg:#000000; --surface:#000000; --surface-2:#141414; --ink:#E8EDF2; --ink-2:#C2CCD5; --muted:#9AA6B2;
+    --line:#2A2A2A; --line-2:#1C1C1C; --line-3:#3A3A3A; --fire:#FF6B4E; --ok:#5CC48A;
   }
 }
 :root[data-theme="dark"]{
   color-scheme:dark;
-  --bg:#121A22; --surface:#121A22; --surface-2:#1B2630; --ink:#E8EDF2; --ink-2:#C2CCD5; --muted:#9AA6B2;
-  --line:#2A3642; --line-2:#212C37; --line-3:#3A4855; --fire:#FF6B4E; --ok:#5CC48A;
+  --bg:#000000; --surface:#000000; --surface-2:#141414; --ink:#E8EDF2; --ink-2:#C2CCD5; --muted:#9AA6B2;
+  --line:#2A2A2A; --line-2:#1C1C1C; --line-3:#3A3A3A; --fire:#FF6B4E; --ok:#5CC48A;
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
@@ -167,8 +167,8 @@ details.heim p{margin-top:8px}
 }
 
 /* Bobla etter tre feil admin-kodar */
-dialog.boble{border:0;padding:28px 24px 22px;width:min(92vw,420px);text-align:center;border-radius:24px;background:var(--surface);color:var(--ink);box-shadow:0 24px 70px rgba(0,0,0,.4)}
-dialog.boble::backdrop{background:rgba(10,15,20,.6)}
+dialog.boble{border:1px solid var(--line);padding:28px 24px 22px;width:min(92vw,420px);text-align:center;border-radius:24px;background:var(--surface);color:var(--ink);box-shadow:0 24px 70px rgba(0,0,0,.4)}
+dialog.boble::backdrop{background:rgba(0,0,0,.7)}
 .boble-emoji{font-size:56px;line-height:1.1}
 dialog.boble h2{font-size:24px;line-height:1.2;margin-top:8px}
 dialog.boble p{margin-top:8px;font-size:18px;color:var(--ink-2)}
@@ -369,7 +369,7 @@ function brukTema(t){
   if (t === "auto") rot.removeAttribute("data-theme"); else rot.dataset.theme = t === "lys" ? "light" : "dark";
   // fargen på statuslinja øvst på telefonen (to metataggar: lys og mørk eining)
   const meta = document.querySelectorAll('meta[name="theme-color"]');
-  if (meta.length === 2) { meta[0].content = t === "mork" ? "#121A22" : "#FFFFFF"; meta[1].content = t === "lys" ? "#FFFFFF" : "#121A22"; }
+  if (meta.length === 2) { meta[0].content = t === "mork" ? "#000000" : "#FFFFFF"; meta[1].content = t === "lys" ? "#FFFFFF" : "#000000"; }
   document.querySelectorAll("[data-tema]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.tema === t)));
 }
 brukTema(lesTema());
