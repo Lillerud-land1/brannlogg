@@ -2270,8 +2270,8 @@
   "municipality": "Stord",
   "area": "",
   "createdOn": "2026-11-11T23:55:16.842766+00:00",
-  "updatedOn": "2026-11-12T00:06:32.0393994+00:00",
-  "lastMessageOn": "2026-11-12T00:06:32.0393994+00:00",
+  "updatedOn": "2026-11-12T01:24:49.2558844+00:00",
+  "lastMessageOn": "2026-11-12T01:24:49.2558844+00:00",
   "isActive": true,
   "messages": [
    {
@@ -2288,6 +2288,15 @@
     "text": "Brannvesenet og politiet er fremme på stedet. En bil har krasjet i autovernet. En person involvert. Oppegående, ingen synlige skader. Lite trafikale utfordringer. Ett felt er stengt og trafikken dirigeres forbi. Bilberger er rekvirert og VTS sender entreprenør for å vurdere kjøreforholdene.",
     "createdOn": "2026-11-12T00:06:32.0393994+00:00",
     "updatedOn": "2026-11-12T00:06:32.0393994+00:00",
+    "hasImage": false,
+    "previouslyIncludedImage": false,
+    "type": "Published"
+   },
+   {
+    "id": "260mz8-2",
+    "text": "Politiet er fortsatt på stedet. Bilberger har ankommet og VTS vil stenge veien mens berging pågår. Fører av bilen ble kjørt til legevakt for en sjekk, ikke alvorlig.  Det blir ikke opprettet sak på forholdet.",
+    "createdOn": "2026-11-12T01:24:49.2558844+00:00",
+    "updatedOn": "2026-11-12T01:24:49.2558844+00:00",
     "hasImage": false,
     "previouslyIncludedImage": false,
     "type": "Published"
