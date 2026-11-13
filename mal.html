@@ -2669,6 +2669,9 @@ function lagreInnst(){
   innst = {...utkast};
   try { localStorage.setItem("brannlogg_innst", JSON.stringify(innst)); } catch(e) {}
   if (innst.sprak !== forrige.sprak) { location.reload(); return; }
+  // Nytt tema: iPhone les fargen på statuslinja berre når sida blir lasta, så last på nytt og bli verande
+  // i Innstillingar (13.11.2026 – lys app etter mørk gav framleis svart stripe øvst)
+  if (innst.tema !== forrige.tema) { try { history.replaceState(history.state, "", location.pathname + location.search + "#innstillingar"); } catch (e) {} location.reload(); return; }
   brannloggInnst(innst);
   if (innst.gruppe !== forrige.gruppe) { state.gruppe = innst.gruppe; state.antal = SIDE; renderHero(); renderAll(); renderStats(); }
   renderInnst();
