@@ -387,7 +387,12 @@ def finn_nyheiter(brannar, alle_saker=None, lagre=True, trådar=()):
     for b in brannar:
         start = datetime.fromisoformat(b["start"])
         i_vindauge = lambda t: start - timedelta(hours=1) <= t <= start + timedelta(hours=48)
-        andre = [x for x in brannar if x is not b and abs(datetime.fromisoformat(x["start"]) - start) < timedelta(hours=48)]
+        berre_bris = b.get("kjelde_type") == "bris"   # ingen stad eller tekst – berre typen kan avgjere
+        # Same reglar som før for Politiloggen-hendingar: oppdrag som berre finst i brannstatistikken tel ikkje med her
+        andre = [x for x in brannar if x is not b and x.get("kjelde_type") != "bris"
+                 and abs(datetime.fromisoformat(x["start"]) - start) < timedelta(hours=48)]
+        same_type = [x for x in brannar if x is not b and x.get("type") == b.get("type")
+                     and abs(datetime.fromisoformat(x["start"]) - start) < timedelta(hours=48)]
         stadord = [w.lower() for w in re.findall(r"[A-Za-zÆØÅæøå]{4,}", b["stad"]) if w.lower() != "stord"]
         # Stader i andre politimeldingar rundt same tid (heile områdenamnet, så vanlege ord som «skole» ikkje tel)
         framande = [(datetime.fromisoformat(t["createdOn"]), d.strip().lower()) for t in trådar if t["id"] != b["id"]
@@ -404,8 +409,11 @@ def finn_nyheiter(brannar, alle_saker=None, lagre=True, trådar=()):
             typeord = TYPEORD.get(b.get("type"))
             treff_type = (typeord is not None and treff_stord and not krev_stad and typeord.search(heil)
                           and start - timedelta(hours=1) <= tid <= start + timedelta(hours=24)
-                          and not any(x.get("type") == b.get("type") for x in andre))
-            if not (treff_stad or treff_type or (treff_stord and not krev_stad and not andre)):
+                          and not same_type)
+            if berre_bris:
+                if not (treff_stad or treff_type):
+                    continue
+            elif not (treff_stad or treff_type or (treff_stord and not krev_stad and not andre)):
                 continue
             if not treff_stad and any(d in heil and t - timedelta(hours=1) <= tid <= t + timedelta(hours=48) for t, d in framande):
                 continue
@@ -1515,14 +1523,15 @@ def main():
     skriv_json("geokode.json", geocache)
     brannar.sort(key=lambda b: b["start"], reverse=True)
 
+    # Hendingar kjem berre frå Politiloggen og brannstatistikken. Nyheiter blir aldri eigne hendingar
+    # (ei sak kan nemne Stord utan at noko skjedde her), berre lenker og tilleggsinfo.
+    brannar = kombiner_med_bris(brannar, bris, ekstra, geocache)
+    # Etter kombiner_med_bris, så òg oppdrag som berre finst i brannstatistikken kan få lenker (pipebrannen 09.11.2026)
     if "--nyheiter" in sys.argv:
         saker = hent_alle_saker()
         auto = finn_nyheiter(brannar, saker, trådar=alle_trådar)
     else:
         auto = les_json("auto_kjelder.json", {})
-    # Hendingar kjem berre frå Politiloggen og brannstatistikken. Nyheiter blir aldri eigne hendingar
-    # (ei sak kan nemne Stord utan at noko skjedde her), berre lenker og tilleggsinfo.
-    brannar = kombiner_med_bris(brannar, bris, ekstra, geocache)
     skriv_json("geokode.json", geocache)
     brannar.sort(key=lambda b: b["start"], reverse=True)
     for b in brannar:
