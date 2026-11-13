@@ -3,7 +3,7 @@
 <!-- Berre skripta i sida får køyre (hashane blir fylte inn av oppdater.py) -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src __SKRIPT_HASHAR__; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://brannlogg-admin.brannlogg-admin.workers.dev; manifest-src 'self'; worker-src 'self'; child-src 'self'; base-uri 'none'; form-action 'self'; object-src 'none'">
 <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#121A22" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Brannlogg">
 <meta name="description" content="Oversikt over brannar i Stord kommune frå Politiloggen, oppdatert kvart kvarter.">
@@ -30,23 +30,23 @@
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     color-scheme:dark;
-    --bg:#121A22; --surface:#121A22; --surface-2:#1B2630; --ink:#E8EDF2; --ink-2:#C2CCD5; --muted:#9AA6B2;
+    --bg:#000000; --surface:#000000; --surface-2:#1B2630; --ink:#E8EDF2; --ink-2:#C2CCD5; --muted:#9AA6B2;
     --line:#2A3642; --line-2:#212C37; --line-3:#3A4855;
     --fire:#FF6B4E; --ember:#FF6B4E; --hivis:#F5CB2A; --ok:#5CC48A;
     --sev1:#93A8BE; --std2:#FFA03A; --std3:#FF5A3D; --cb2:#F5CB2A; --cb3:#FF5A3D; --utr:#6AA3FF; --alarm:#76828E;
     --sea:#0F1B26; --ctx:#1C2630; --land:#24303B; --land-edge:#3A4A58; --label:#AEB9C3; --vatn:#7FA8C4;
-    --topbar:rgba(18,26,34,.92); --chip:#1F2A35; --tom:#26323D;
+    --topbar:rgba(0,0,0,.92); --chip:#1F2A35; --tom:#26323D;
     --graskar:#FF8A1F; --nett:rgba(214,224,233,.3); --flagg:#7C8C9C; --jul-gron:#4DB37C; --jul-gull:#F2C14E; --jul-raud:#FF6B4E; --sno:rgba(255,255,255,.8); --leidning:rgba(214,224,233,.5); --lys-kropp:#EDE4D3;
   }
 }
 :root[data-theme="dark"]{
   color-scheme:dark;
-  --bg:#121A22; --surface:#121A22; --surface-2:#1B2630; --ink:#E8EDF2; --ink-2:#C2CCD5; --muted:#9AA6B2;
+  --bg:#000000; --surface:#000000; --surface-2:#1B2630; --ink:#E8EDF2; --ink-2:#C2CCD5; --muted:#9AA6B2;
   --line:#2A3642; --line-2:#212C37; --line-3:#3A4855;
   --fire:#FF6B4E; --ember:#FF6B4E; --hivis:#F5CB2A; --ok:#5CC48A;
   --sev1:#93A8BE; --std2:#FFA03A; --std3:#FF5A3D; --cb2:#F5CB2A; --cb3:#FF5A3D; --utr:#6AA3FF; --alarm:#76828E;
   --sea:#0F1B26; --ctx:#1C2630; --land:#24303B; --land-edge:#3A4A58; --label:#AEB9C3; --vatn:#7FA8C4;
-  --topbar:rgba(18,26,34,.92); --chip:#1F2A35; --tom:#26323D;
+  --topbar:rgba(0,0,0,.92); --chip:#1F2A35; --tom:#26323D;
     --graskar:#FF8A1F; --nett:rgba(214,224,233,.3); --flagg:#7C8C9C; --jul-gron:#4DB37C; --jul-gull:#F2C14E; --jul-raud:#FF6B4E; --sno:rgba(255,255,255,.8); --leidning:rgba(214,224,233,.5); --lys-kropp:#EDE4D3;
 }
 
