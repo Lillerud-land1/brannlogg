@@ -120,6 +120,7 @@ jobs:
         env:
           NTFY_VAKT: ${{ secrets.NTFY_VAKT }}
           HENT_NOKKEL: ${{ secrets.HENT_NOKKEL }}
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}   # «Brann pågår»-varsel til appbrukarane (13.11.2026)
         # Kode 10 = «Oppdater no» i adminpanelet (godkjend med kode på mobilen til eigaren): start neste køyring med ein gong
         run: |
           slutt=$(( $(date +%s) + 780 ))

@@ -1353,9 +1353,20 @@ def admin_meldingar(sekund):
                 liste = json.loads(r.read())
             for m in liste:
                 melding = {k: m[k] for k in ("title", "message", "tags", "priority") if k in m}
+                # «Brann pågår» frå adminpanelet (13.11.2026): til den offentlege kanalen (og «-brann») som appbrukarane
+                # abonnerer på – ikkje til den private. Lenka går berre til appen.
+                offentleg = isinstance(m, dict) and m.get("type") == "offentleg"
+                if offentleg and not os.environ.get("NTFY_TOPIC", "").strip():
+                    print("ADMIN: offentleg varsel, men NTFY_TOPIC manglar – hoppa over")
+                    continue
+                mottakarar = [os.environ["NTFY_TOPIC"].strip(), os.environ["NTFY_TOPIC"].strip() + "-brann"] if offentleg else [kanal]
+                klikk = m.get("click") if offentleg and str(m.get("click", "")).startswith(NETTSIDE) else NETTSIDE
                 for forsok in range(3):
                     try:
-                        vakt_send(kanal, {**melding, "click": NETTSIDE})
+                        for mottakar in mottakarar:
+                            vakt_send(mottakar, {**melding, "click": klikk})
+                        if offentleg:
+                            print("ADMIN: «Brann pågår»-varsel sendt til appbrukarane")
                         break
                     except Exception as e:
                         print(f"ADMIN_FEIL: ntfy ({type(e).__name__}), forsøk {forsok + 1}")

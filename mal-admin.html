@@ -114,6 +114,11 @@ details.heim p{margin-top:8px}
 .logg b{font-size:15.5px}
 .logg span{font-size:13.5px;color:var(--muted)}
 .logg li.aat b{color:var(--fire)}
+.snarval{display:flex;flex-wrap:wrap;gap:6px;margin-top:-2px}
+.snarval button{font:inherit;font-size:14px;padding:7px 11px;border-radius:999px;border:1px solid var(--line-3);background:var(--surface);color:var(--ink);cursor:pointer}
+.snarval button:active{background:var(--surface-2)}
+.kryss{display:flex;gap:10px;align-items:center;font-size:15px;color:var(--ink-2)}
+.kryss input{width:20px;height:20px;accent-color:var(--fire)}
 .no-tal{display:flex;align-items:baseline;gap:10px}
 .no-tal i{width:12px;height:12px;border-radius:50%;background:var(--ok);align-self:center;box-shadow:0 0 0 4px color-mix(in srgb,var(--ok) 25%,transparent)}
 .no-tal b{font:700 44px/1 var(--f-tal);font-variant-numeric:tabular-nums}
@@ -246,14 +251,25 @@ dialog.boble .hovud{margin-top:18px}
         <form id="pagar-skjema" autocomplete="off">
           <label for="pagar-tittel">Tittel</label>
           <input id="pagar-tittel" maxlength="60" placeholder="Til dømes: Brann i skorstein">
+          <div class="snarval" id="pagar-snarval" role="group" aria-label="Vanlege titlar">
+            <button type="button">Brann i bygning</button><button type="button">Brann i skorstein</button><button type="button">Trafikkulykke</button>
+            <button type="button">Røyk i bygning</button><button type="button">Bilbrann</button><button type="button">Gras- og lyngbrann</button>
+          </div>
           <span class="etikett">Når starta det?</span>
           <div class="val"><button type="button" class="knapp" id="pt-siste"></button><button type="button" class="knapp" id="pt-anna">Anna tid</button><button type="button" class="knapp" id="pt-ingen">Ingen tid</button></div>
           <input id="pagar-tid" type="time" aria-label="Klokkeslett det starta" hidden>
           <p class="sub" id="pt-ingen-alarm" hidden>«Siste alarm» kjem berre når det har vore ein alarm dei siste 12 timane. Skriv klokkeslettet sjølv, eller vel «Ingen tid».</p>
           <label for="pagar-adresse">Adresse <span class="valfri">(valfritt)</span></label>
           <input id="pagar-adresse" maxlength="80" placeholder="Til dømes Nordstokkevegen 12">
+          <label class="kryss"><input type="checkbox" id="pagar-varsle" checked> Send varsel til dei som har slått på varsel i appen</label>
           <div class="rad2"><button type="submit" class="hovud raud" id="pagar-start">Start</button><button type="button" class="knapp" id="pagar-av">Avslutt</button></div>
         </form>
+      </article>
+      <article class="kort" id="pglogg-kort" hidden>
+        <h3>Historikk: Brann pågår</h3>
+        <p class="sub">Dei siste 20 gongene «Brann pågår» var på, og kvifor det gjekk av.</p>
+        <ol class="logg" id="pglogg-liste"></ol>
+        <p class="melding" id="pglogg-status" role="status"></p>
       </article>
       <article class="kort" id="tv-kort">
         <h3>Infoskjermen</h3>
@@ -669,7 +685,7 @@ async function visPanel(){
   visTvSett(undefined);
   renderSys();
   if (full) {
-    pagarTidOppsett(true); pagarStatus();
+    pagarTidOppsett(true); pagarStatus().then(visPgLogg);
     try {
       const adr = String((await kall("/tv-adresse", {okt:okt.token})).adresse || "");
       if (!okt) return;
@@ -747,7 +763,8 @@ function loggUt(melding){
   for (const id of ["#pagar-tittel", "#pagar-adresse", "#pagar-tid", "#pin", "#kode", "#oppd-kode"]) $(id).value = "";
   $("#tv-url").textContent = ""; $("#tv-url").hidden = true; $("#tv-vis").setAttribute("aria-expanded", "false"); $("#tv-vis").textContent = "Vis adressa";
   $("#tv-opne").removeAttribute("href");
-  for (const s of ["#tv-blokk", "#oppd-kort", "#pagar-kort", "#qr-boks", "#eining-boks", "#eksport-boks", "#oppd-skjema", "#logg-kort", "#no-kort"]) $(s).hidden = true;
+  for (const s of ["#tv-blokk", "#oppd-kort", "#pagar-kort", "#qr-boks", "#eining-boks", "#eksport-boks", "#oppd-skjema", "#logg-kort", "#no-kort", "#pglogg-kort"]) $(s).hidden = true;
+  $("#pglogg-liste").innerHTML = ""; $("#pglogg-status").textContent = "";
   $("#no-tal").textContent = "–"; $("#no-tekst").textContent = "Hentar …";
   $("#logg-liste").innerHTML = ""; $("#logg-status").textContent = "";
   for (const s of ["#besok-tal", "#besok-graf", "#qr-tal", "#qr-graf", "#eining-tal", "#tv-sett"]) $(s).innerHTML = "";
@@ -853,6 +870,38 @@ async function visBesok(){
 }
 
 /* ---- «Brann pågår»: start/avslutt alarmmodus på infoskjermen. Workeren lagrar oppslaget; TV-en spør kvart 30. sekund. ---- */
+$("#pagar-snarval").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  $("#pagar-tittel").value = b.textContent.trim();
+});
+/* ---- Historikk over «Brann pågår» (13.11.2026). Gjekk det av av seg sjølv (politiet skreiv / brannstatistikken
+   fekk typen), veit berre appane det – så grunnen blir rekna ut her frå dei offentlege dataa, med same regel. ---- */
+const PG_GRUNN = {"Avslutt":"Avslutta i adminpanelet", "8 timar":"Gjekk av etter 8 timar", "bytt":"Bytt ut med ei ny"};
+function pgGrunn(l, paNo){
+  if (l.slutt) return [PG_GRUNN[l.grunn] || "Avslutta", new Date(l.slutt)];
+  const s0 = new Date(l.start) - 20 * 6e4;
+  const b = (D.brannar || []).filter(b => new Date(b.start) >= s0 && b.id !== "pagar" &&
+    ((b.bris && b.bris.type && b.bris.type !== "Oppdrag løst av 110") || !b.kjelde_type)).sort((a, c) => a.start.localeCompare(c.start))[0];
+  if (b) return [b.kjelde_type === "bris" ? `Brannstatistikken fekk typen («${b.tittel}»)` : `Politiet skreiv om det («${b.tittel}»)`, null];
+  if (paNo) return ["På no", null];
+  return ["Gjekk av etter 8 timar", new Date(new Date(l.sett || l.start).getTime() + 8 * 36e5)];
+}
+async function visPgLogg(){
+  if (!okt || okt.rolle !== "full") return;
+  $("#pglogg-kort").hidden = false;
+  let d;
+  try { d = await kall("/pagar-logg", {okt:okt.token}); }
+  catch (feil) { if (feil.status === 401) { utlopt(); return; } $("#pglogg-status").textContent = feil.status === 429 ? "For mange oppdateringar på kort tid. Vent eitt minutt." : "Fekk ikkje henta historikken."; return; }
+  if (!okt) return;
+  const logg = Array.isArray(d.logg) ? d.logg : [], paNo = $("#pagar-kort").classList.contains("pa");
+  $("#pglogg-liste").innerHTML = logg.map((l, i) => {
+    const [grunn, slutt] = pgGrunn(l, paNo && i === 0);
+    const lengd = slutt ? ` · varte ${varigheit(new Date(l.sett || l.start), slutt) || "under eitt minutt"}` : "";
+    return `<li class="${grunn === "På no" ? "aat" : ""}"><b>${esc(l.tittel)}${l.stad ? ", " + esc(l.stad) : ""}</b>` +
+      `<span>${l.utanTid ? "Ingen starttid" : "Starta " + esc(naar(oslo(l.start)))} · sett av ${esc(l.av || "ukjend")}${esc(lengd)}</span><span>${esc(grunn)}</span></li>`;
+  }).join("");
+  $("#pglogg-status").textContent = logg.length ? "" : "Ingen enno (historikken starta 13. november 2026).";
+}
 function pagarVis(r){
   const st = $("#pagar-status"), pa = !!(r && r.tittel);
   $("#pagar-kort").classList.toggle("pa", pa);
@@ -909,10 +958,12 @@ $("#pagar-skjema").addEventListener("submit", async e => {
   if (tittel.length < 2) { st.textContent = "Skriv ein kort tittel først."; $("#pagar-tittel").focus(); return; }
   knapp.disabled = true;
   try {
-    const r = await kall("/pagar-sett", {okt:okt.token, tittel, adresse:$("#pagar-adresse").value.trim(), start:pagarStart(), utanTid:pagarTid === "ingen"});
+    const r = await kall("/pagar-sett", {okt:okt.token, tittel, adresse:$("#pagar-adresse").value.trim(), start:pagarStart(), utanTid:pagarTid === "ingen", varsle:$("#pagar-varsle").checked});
     if (!okt) return;
     pagarTom(); pagarVis(r);   // svaret er den nye stoda (sparer eit kall – infoskjermen deler same grense per IP)
     if (r.adresseFeil) st.textContent = "Starta, men fann ikkje adressa i Stord – ingen prikk på kartet. " + st.textContent;
+    if (r.varsla) st.textContent += " Varsel blir sendt til appbrukarane innan om lag 10 sekund.";
+    visPgLogg();
   } catch (feil) {
     if (feil.status === 401) utlopt(); else st.textContent = feil.status === 429 ? "For mange forsøk. Vent eitt minutt." : "Fekk ikkje starta. Prøv igjen.";
   }
@@ -922,7 +973,7 @@ $("#pagar-av").addEventListener("click", async () => {
   const knapp = $("#pagar-av");
   if (!okt || okt.rolle !== "full" || knapp.disabled) return;
   knapp.disabled = true;
-  try { const r = await kall("/pagar-av", {okt:okt.token}); if (okt) pagarVis(r); }
+  try { const r = await kall("/pagar-av", {okt:okt.token}); if (okt) { pagarVis(r); visPgLogg(); } }
   catch (feil) {
     knapp.disabled = false;
     if (feil.status === 401) utlopt(); else $("#pagar-status").textContent = feil.status === 429 ? "For mange forsøk. Vent eitt minutt." : "Fekk ikkje avslutta. Prøv igjen.";

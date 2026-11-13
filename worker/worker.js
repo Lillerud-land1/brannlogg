@@ -221,8 +221,18 @@ export class Teljar {
     // «Brann pågår»: eit oppslag som set infoskjermen i alarmmodus til det blir avslutta (maks 8 timar)
     if (new URL(req.url).pathname === "/pagar") {
       const d = await req.json();
-      if (d.handling === "sett") await this.ctx.storage.put("pagar", {tittel: d.tittel, start: d.start || new Date().toISOString(), ut: Date.now() + 8 * 36e5, av: d.av, pos: d.pos || null, stad: d.stad || null, utanTid: d.utanTid === true});
-      else if (d.handling === "av") await this.ctx.storage.delete("pagar");
+      // Historikk (13.11.2026): dei siste 20 gongene «Brann pågår» var på – tittel, kven, start, når det vart sett og avslutta
+      const logg = (await this.ctx.storage.get("pagar_logg")) || [];
+      const avslutt = (grunn, tid) => { if (logg[0] && !logg[0].slutt) { logg[0].slutt = tid; logg[0].grunn = grunn; } };
+      const forr = await this.ctx.storage.get("pagar");
+      if (forr && forr.ut < Date.now()) avslutt("8 timar", new Date(forr.ut).toISOString());
+      if (d.handling === "sett") {
+        avslutt("bytt", new Date().toISOString());   // ny «Brann pågår» medan ein annan var på
+        await this.ctx.storage.put("pagar", {tittel: d.tittel, start: d.start || new Date().toISOString(), ut: Date.now() + 8 * 36e5, av: d.av, pos: d.pos || null, stad: d.stad || null, utanTid: d.utanTid === true});
+        logg.unshift({tittel: d.tittel, av: d.av, start: d.start || new Date().toISOString(), sett: new Date().toISOString(), stad: d.stad || null, utanTid: d.utanTid === true});
+      } else if (d.handling === "av") { if (forr) avslutt("Avslutt", new Date().toISOString()); await this.ctx.storage.delete("pagar"); }
+      await this.ctx.storage.put("pagar_logg", logg.slice(0, 20));
+      if (d.handling === "logg") return Response.json(logg.slice(0, 20));
       const p = await this.ctx.storage.get("pagar");
       if (p && p.ut < Date.now()) { await this.ctx.storage.delete("pagar"); return Response.json({}); }
       return Response.json(p ? {tittel: p.tittel, start: p.start, av: p.av, pos: p.pos, stad: p.stad, utanTid: !!p.utanTid} : {});
@@ -471,10 +481,26 @@ export default {
         const r = await (await teljar(env).fetch("https://teljar/pagar", {method: "POST",
           body: JSON.stringify({handling: sti === "/pagar-sett" ? "sett" : "av", tittel, av: okt.namn, pos: g && g.pos, stad: g && g.stad, start, utanTid: data.utanTid === true})})).json();
         if (adr && !g) r.adresseFeil = true;
+        // Varsel til alle som har slått på «Få varsel på mobilen» i appen (13.11.2026). Går via køen: GitHub sender til
+        // den offentlege kanalen (type «offentleg»), fordi ntfy ikkje tek imot frå Cloudflare. Kan slåast av i skjemaet.
+        if (sti === "/pagar-sett" && data.varsle !== false) {
+          const stadTekst = g && g.stad ? g.stad : "Stord";
+          const klTekst = data.utanTid === true ? "" : ` kl. ${new Date(start).toLocaleTimeString("nb-NO", {timeZone: "Europe/Oslo", hour: "2-digit", minute: "2-digit"})}`;
+          await tilEigaren(env, {type: "offentleg", title: `🔥 Pågår no: ${tittel} – ${stadTekst}`,
+            message: `Melding frå brannstasjonen${klTekst}. Detaljar kjem.`, tags: ["fire"], priority: 4, click: "https://bls.lillerud.com/#b-pagar"});
+          r.varsla = true;
+        }
         await tilEigaren(env, {title: sti === "/pagar-sett" ? `🚨 «Brann pågår» på infoskjermen: ${tittel}` : "✅ «Brann pågår» avslutta på infoskjermen",
           tags: [sti === "/pagar-sett" ? "rotating_light" : "mute"], priority: 3, message: `${okt.namn}.
 ${kven}`});
         return svar(r);
+      }
+      if (sti === "/pagar-logg") {
+        // Historikk over «Brann pågår» – berre full tilgang
+        if (!(await innanfor([env.GRENSE_EINING, `pglogg:${ip}`]))) return svar({feil: "for mange"}, 429);
+        const [, nei] = await krevOkt("full");
+        if (nei) return nei;
+        return svar({logg: await (await teljar(env).fetch("https://teljar/pagar", {method: "POST", body: JSON.stringify({handling: "logg"})})).json()});
       }
       if (sti === "/her") {
         // Appen er open (sjå «/her» i Teljar). Robotar blir ikkje talde.
