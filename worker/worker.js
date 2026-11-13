@@ -12,7 +12,8 @@
 // Meldingane seier omtrent kvar (fylke/land) og kva slags eining – aldri IP-adressa.
 //
 // Besøkstal: appen sender «/besok» kvar gong ho blir opna (ikkje infoskjermen). Teljaren (Durable Object «Teljar»)
-// tel kvar eining éin gong per dag: IP-adresse og nettlesar blir gjort om til ein hash med eit tilfeldig dagssalt,
+// tel kvar opning (sidan 13.11.2026; før: kvar eining éin gong per dag). Til einingstypane blir IP-adresse og nettlesar
+// gjort om til ein hash med eit tilfeldig dagssalt,
 // og både saltet og hashane blir sletta når dagen er over. Att står berre talet på besøkande per dag (alle dagar,
 // så adminpanelet kan vise totalen).
 // Adminpanelet hentar tala med «/besok-tal» og eit innloggingsbevis (admin-kode + PIN, sjå «Innlogging i adminpanelet»).
@@ -190,13 +191,7 @@ export class Teljar {
   async fetch(req) {
     const dag = osloDag();
     if (new URL(req.url).pathname === "/tel") {
-      const {kjenne, qr, eining, app, ny, qrny, berreQr} = await req.json();
-      if (berreQr === true) {
-        // Over grensa for besøk (3 i minuttet), men QR-skanninga skal teljast likevel
-        if (qr === true) this.sql.exec("INSERT INTO qr (dag, skann) VALUES (?, 1) ON CONFLICT(dag) DO UPDATE SET skann = skann + 1", dag);
-        if (qr === true && qrny === true) this.sql.exec("INSERT INTO unike (dag, namn, n) VALUES (?, 'qr', 1) ON CONFLICT(dag, namn) DO UPDATE SET n = n + 1", dag);
-        return new Response("ok");
-      }
+      const {kjenne, qr, eining, app, ny, qrny} = await req.json();
       let salt = await this.ctx.storage.get("salt");
       if (salt?.dag !== dag) {
         // Ny dag: saltet og hashane frå i går blir sletta, så ingen kan kjennast att frå dag til dag
@@ -204,10 +199,12 @@ export class Teljar {
         this.sql.exec("DELETE FROM sett");
         await this.ctx.storage.put("salt", salt);
       }
+      // Kvar opning blir talt (brukaren sitt ønske 13.11.2026). Hashen blir no berre brukt til einingstypane,
+      // så mobil/PC/nettbrett framleis blir talde éin gong per eining per dag.
+      this.sql.exec("INSERT INTO dagar (dag, besokande) VALUES (?, 1) ON CONFLICT(dag) DO UPDATE SET besokande = besokande + 1", dag);
       const h = b64(await crypto.subtle.digest("SHA-256", enc.encode(`${salt.verdi}|${kjenne}`)));
       const pluss = namn => this.sql.exec("INSERT INTO typar (dag, namn, n) VALUES (?, ?, 1) ON CONFLICT(dag, namn) DO UPDATE SET n = n + 1", dag, namn);
       if (this.sql.exec("INSERT OR IGNORE INTO sett (h) VALUES (?) RETURNING h", h).toArray().length) {
-        this.sql.exec("INSERT INTO dagar (dag, besokande) VALUES (?, 1) ON CONFLICT(dag) DO UPDATE SET besokande = besokande + 1", dag);
         if (EININGAR.includes(eining)) pluss(eining);
         if (app === true) pluss("app");
       }
@@ -336,16 +333,12 @@ export default {
     try {
       if (sti === "/besok") {
         const ua = req.headers.get("User-Agent") || "";
-        // Maks 3 opningar i minuttet frå same eining blir talde (IP + nettlesar, sidan mange mobilar deler IP-adresse),
-        // og robotar blir ikkje talde
-        // QR-skanningar blir alltid talde, same kor mange i minuttet (brukaren sitt ønske 13.11.2026)
-        if (!ROBOT.test(ua)) {
-          const fullt = await innanfor([env.GRENSE_EINING, `besok:${ip}|${ua.slice(0, 300)}`]);
-          if (fullt || data.qr === true)
-            await teljar(env).fetch("https://teljar/tel", {method: "POST", body: JSON.stringify({berreQr: !fullt, kjenne: `${ip}|${ua}`,
-              qr: data.qr === true, eining: EININGAR.includes(data.eining) ? data.eining : null, app: data.app === true,
-              ny: fullt && data.ny === true, qrny: data.qrny === true})});
-        }
+        // Kvar opning og kvar QR-skanning blir talt, same kor mange i minuttet (brukaren sitt ønske 13.11.2026).
+        // Robotar blir framleis ikkje talde.
+        if (!ROBOT.test(ua))
+          await teljar(env).fetch("https://teljar/tel", {method: "POST", body: JSON.stringify({kjenne: `${ip}|${ua}`,
+            qr: data.qr === true, eining: EININGAR.includes(data.eining) ? data.eining : null, app: data.app === true,
+            ny: data.ny === true, qrny: data.qrny === true})});
         return svar({ok: true});
       }
       if (sti === "/tv") {

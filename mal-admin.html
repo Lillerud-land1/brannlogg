@@ -291,14 +291,14 @@ dialog.boble .hovud{margin-top:18px}
       <h2 id="t-tal">Tal</h2>
       <article class="kort" id="besok">
         <h3>Besøk</h3>
-        <p class="sub">Kor mange som har opna appen. Kvar eining blir talt éin gong per dag.</p>
+        <p class="sub">Kor mange gonger appen er opna. Kvar opning blir talt, same kor mange gonger.</p>
         <div class="tal" id="besok-tal"></div>
         <div class="graf" id="besok-graf" aria-hidden="true"></div>
         <p class="melding" id="besok-status" role="status"></p>
       </article>
       <article class="kort" id="eining-boks" hidden>
-        <h3>Einingar</h3>
-        <p class="sub">Kva slags einingar som opnar appen, siste 30 dagar. Berre tal – ingen personar.</p>
+        <h3>Enheter</h3>
+        <p class="sub">Kva slags enheter som opnar appen, siste 30 dagar. Berre tal – ingen personar.</p>
         <div class="tal" id="eining-tal"></div>
         <p class="melding" id="eining-app"></p>
       </article>
@@ -716,7 +716,7 @@ function visTal(per, idag, totalt, talEl, grafEl, unike){
   const sum = n => dagar.slice(-n).reduce((s, k) => s + (per[k] || 0), 0);
   // unike = {n, fyrste} frå workeren (talde sidan 13.11.2026): kor mange ulike einingar – 2 × 2 ruter då
   $(talEl).classList.toggle("fire", !!unike);
-  $(talEl).innerHTML = [[totalt || 0, "Totalt"], ...(unike ? [[unike.n || 0, "Unike einingar"]] : []), [sum(30), "Siste 30 dagar"], [sum(1), "I dag"]]
+  $(talEl).innerHTML = [[totalt || 0, "Totalt"], ...(unike ? [[unike.n || 0, "Unike enheter"]] : []), [sum(30), "Siste 30 dagar"], [sum(1), "I dag"]]
     .map(([n, t]) => `<div><b>${Number(n).toLocaleString(LOCALE)}</b><span>${t}</span></div>`).join("");
   const maks = Math.max(1, ...dagar.map(k => per[k] || 0));
   $(grafEl).innerHTML = dagar.map(k => `<i class="${k === idag ? "idag" : per[k] ? "" : "tom"}" style="height:${Math.max(3, (per[k] || 0) / maks * 100)}%" title="${esc(k)}: ${Number(per[k]) || 0}"></i>`).join("");
@@ -741,12 +741,12 @@ async function visBesok(){
   const unike = d.unike ? (k => d.unike[k] || {n:0, fyrste:d.idag}) : () => null;
   visTal(Object.fromEntries((d.dagar || []).map(r => [r.dag, r.besokande])), d.idag, d.totalt, "#besok-tal", "#besok-graf", unike("besok"));
   $("#besok-status").textContent = `Totalt sidan ${datoLang(d.fyrste || d.idag)}. Stolpane viser dei siste 30 dagane, raud er i dag.`
-    + (d.unike ? ` Unike einingar er talde sidan ${datoLang(unike("besok").fyrste)}.` : "");
+    + (d.unike ? ` Unike enheter er talde sidan ${datoLang(unike("besok").fyrste)}.` : "");
   if (d.qr) {
     $("#qr-boks").hidden = false;
     visTal(Object.fromEntries((d.qr.dagar || []).map(r => [r.dag, r.skann])), d.idag, d.qr.totalt, "#qr-tal", "#qr-graf", unike("qr"));
     $("#qr-status").textContent = (d.qr.fyrste ? `Totalt sidan ${datoLang(d.qr.fyrste)}.` : "Ingen har skanna QR-koden enno.")
-      + (d.unike ? ` Unike einingar er talde sidan ${datoLang(unike("qr").fyrste)}.` : "");
+      + (d.unike ? ` Unike enheter er talde sidan ${datoLang(unike("qr").fyrste)}.` : "");
   }
   visTvSett(d.tv || null);
   if (d.typar) {
@@ -996,7 +996,7 @@ function lagStatistikk(){
     ["Laga", `${o.y}-${pad(o.m)}-${pad(o.d)} kl. ${kl(o)}`], ["Oppdrag", `${alle.length} frå Politiloggen og brannstatistikken`],
     ["Data oppdatert", naar(oslo(D.oppdatert))],
     ["Merk", "«I år» på infoskjermen tel berre oppdrag i brannstatistikken, utan «Oppdrag løst av 110»."],
-    ["Merk", "Besøk: kvar eining éin gong per dag. QR-skanningar: kvar skanning."]], [26, 90])});
+    ["Merk", "Besøk: kvar opning av appen. QR-skanningar: kvar skanning."]], [26, 90])});
   return {blob:lagXlsx(ark), namn:`brannlogg-stord-${o.y}-${pad(o.m)}-${pad(o.d)}.xlsx`};
 }
 $("#eksport").addEventListener("click", () => {
