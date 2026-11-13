@@ -1675,18 +1675,24 @@ def fwi_prosent(fwi):
 def hent_brannfare():
     """Skogbrannfare for Stord no. Gir None om vêrdata manglar – det skal aldri stoppe bygginga."""
     lat, lon = VER_POS
-    try:
-        req = urllib.request.Request(
-            f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}"
-            "&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation"
-            "&past_days=92&forecast_days=2&timezone=Europe%2FOslo&models=metno_seamless", headers=MET_UA)   # berre MET sin vêrmodell (MET Nordic)
-        with urllib.request.urlopen(req, timeout=30) as r:
-            h = json.loads(r.read().decode("utf-8"))["hourly"]
-        kjelde_ok("ver")
-    except Exception as feil:
-        print(f"BRANNFARE_FEIL: {feil}")
-        kjelde_feil("ver", feil)
-        return None
+    url = (f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}"
+           "&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation"
+           "&past_days=92&forecast_days=2&timezone=Europe%2FOslo&models=metno_seamless")   # berre MET sin vêrmodell (MET Nordic)
+    # Open-Meteo svarar av og til ikkje på TLS-handtrykket i tide (13.11.2026: kvar 4. køyring) – prøv tre gonger
+    for forsok in range(3):
+        try:
+            with urllib.request.urlopen(urllib.request.Request(url, headers=MET_UA), timeout=30) as r:
+                h = json.loads(r.read().decode("utf-8"))["hourly"]
+            kjelde_ok("ver")
+            if forsok:
+                print(f"BRANNFARE_OK etter {forsok + 1} forsøk")
+            break
+        except Exception as feil:
+            print(f"BRANNFARE_FEIL (forsøk {forsok + 1}): {feil}")
+            if forsok == 2:
+                kjelde_feil("ver", feil)
+                return None
+            time.sleep(10 * (forsok + 1))
     tider = h["time"]
     rad = {t: i for i, t in enumerate(tider)}
     no = datetime.now(ZoneInfo("Europe/Oslo")).replace(tzinfo=None)
