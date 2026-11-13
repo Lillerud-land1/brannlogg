@@ -137,6 +137,7 @@ details.heim p{margin-top:8px}
 .sys-liste li span{grid-column:2;font-size:14.5px;color:var(--ink-2)}
 .sys-liste li.feil span{color:var(--fire)}
 .tal{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tal.fire{grid-template-columns:repeat(2,1fr)}
 .tal div{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0}
 .tal b{display:block;font:700 26px/1.1 var(--f-tal);font-variant-numeric:tabular-nums}
 .tal span{display:block;margin-top:3px;font-size:13px;line-height:1.25;color:var(--ink-2)}
@@ -710,10 +711,12 @@ const siste30 = idag => {
   for (let i = 29; i >= 0; i--) { const t = new Date(idag + "T12:00:00Z"); t.setUTCDate(t.getUTCDate() - i); d.push(t.toISOString().slice(0, 10)); }
   return d;
 };
-function visTal(per, idag, totalt, talEl, grafEl){
+function visTal(per, idag, totalt, talEl, grafEl, unike){
   const dagar = siste30(idag);
   const sum = n => dagar.slice(-n).reduce((s, k) => s + (per[k] || 0), 0);
-  $(talEl).innerHTML = [[totalt || 0, "Totalt"], [sum(30), "Siste 30 dagar"], [sum(1), "I dag"]]
+  // unike = {n, fyrste} frå workeren (talde sidan 13.11.2026): kor mange ulike einingar – 2 × 2 ruter då
+  $(talEl).classList.toggle("fire", !!unike);
+  $(talEl).innerHTML = [[totalt || 0, "Totalt"], ...(unike ? [[unike.n || 0, "Unike einingar"]] : []), [sum(30), "Siste 30 dagar"], [sum(1), "I dag"]]
     .map(([n, t]) => `<div><b>${Number(n).toLocaleString(LOCALE)}</b><span>${t}</span></div>`).join("");
   const maks = Math.max(1, ...dagar.map(k => per[k] || 0));
   $(grafEl).innerHTML = dagar.map(k => `<i class="${k === idag ? "idag" : per[k] ? "" : "tom"}" style="height:${Math.max(3, (per[k] || 0) / maks * 100)}%" title="${esc(k)}: ${Number(per[k]) || 0}"></i>`).join("");
@@ -735,12 +738,15 @@ async function visBesok(){
   }
   if (!okt) return;   // logga ut medan tala vart henta
   sisteTal = d;
-  visTal(Object.fromEntries((d.dagar || []).map(r => [r.dag, r.besokande])), d.idag, d.totalt, "#besok-tal", "#besok-graf");
-  $("#besok-status").textContent = `Totalt sidan ${datoLang(d.fyrste || d.idag)}. Stolpane viser dei siste 30 dagane, raud er i dag.`;
+  const unike = d.unike ? (k => d.unike[k] || {n:0, fyrste:d.idag}) : () => null;
+  visTal(Object.fromEntries((d.dagar || []).map(r => [r.dag, r.besokande])), d.idag, d.totalt, "#besok-tal", "#besok-graf", unike("besok"));
+  $("#besok-status").textContent = `Totalt sidan ${datoLang(d.fyrste || d.idag)}. Stolpane viser dei siste 30 dagane, raud er i dag.`
+    + (d.unike ? ` Unike einingar er talde sidan ${datoLang(unike("besok").fyrste)}.` : "");
   if (d.qr) {
     $("#qr-boks").hidden = false;
-    visTal(Object.fromEntries((d.qr.dagar || []).map(r => [r.dag, r.skann])), d.idag, d.qr.totalt, "#qr-tal", "#qr-graf");
-    $("#qr-status").textContent = d.qr.fyrste ? `Totalt sidan ${datoLang(d.qr.fyrste)}.` : "Ingen har skanna QR-koden enno.";
+    visTal(Object.fromEntries((d.qr.dagar || []).map(r => [r.dag, r.skann])), d.idag, d.qr.totalt, "#qr-tal", "#qr-graf", unike("qr"));
+    $("#qr-status").textContent = (d.qr.fyrste ? `Totalt sidan ${datoLang(d.qr.fyrste)}.` : "Ingen har skanna QR-koden enno.")
+      + (d.unike ? ` Unike einingar er talde sidan ${datoLang(unike("qr").fyrste)}.` : "");
   }
   visTvSett(d.tv || null);
   if (d.typar) {

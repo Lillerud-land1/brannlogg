@@ -484,6 +484,7 @@ button.hbar[aria-pressed="true"] .fill{background:var(--ink)}
 .sys-liste li span{grid-column:2;font-size:14px;color:var(--ink-2)}
 .sys-liste li.feil span{color:var(--fire)}
 .besok-tal{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.besok-tal.fire{grid-template-columns:repeat(2,1fr)}
 .besok-tal div{background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:8px 10px}
 .besok-tal b{display:block;font-size:24px;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--ink)}
 .besok-tal span{font-size:13px;color:var(--ink-2)}
@@ -1135,7 +1136,7 @@ if (fm.fileExists(fil)) {
     <div class="panel">
       <button type="button" class="btn jur-tilbake" data-tilbake="1">← Tilbake</button>
       <h2 class="h2">Personvern</h2>
-      <div class="jur-tekst" data-sprak="nn"><p class="sub">Sist oppdatert 8. november 2026</p>
+      <div class="jur-tekst" data-sprak="nn"><p class="sub">Sist oppdatert 13. november 2026</p>
 <p><b>Kort sagt:</b> Brannlogg Stord har ingen konto, ingen informasjonskapslar (cookies), ingen sporing og ingen reklame. Sida tel berre kor mange som opnar ho kvar dag, utan å lagre noko som kan kjenne deg att.</p>
 <h3>Kven står bak</h3>
 <p>Brannlogg Stord er ei gratis, privat nettside laga av Leander Wågen Lillerud. Ho er ikkje ein offisiell teneste frå Politiet, brannvesenet eller Stord kommune. Kontakt: <a href="mailto:brannloggstord@gmail.com">brannloggstord@gmail.com</a>.</p>
@@ -1146,7 +1147,7 @@ if (fm.fileExists(fil)) {
 <li><b>Google Fonts</b>: Skrifttypane blir henta frå Google, som då får IP-adressa di.</li></ul>
 <p>Eg får ikkje tilgang til desse opplysningane. Sjå personvernerklæringane til GitHub og Google.</p>
 <h3>Besøkstal</h3>
-<p>Når du opnar appen, sender ho ei melding til Cloudflare (Cloudflare Workers), som tel besøket. For at kvar eining berre skal teljast éin gong per dag, blir IP-adressa og nettlesartypen gjort om til ein kode saman med eit tilfeldig tal som blir bytt ut kvar dag. Koden og det tilfeldige talet blir sletta same døgn, og IP-adressa blir ikkje lagra. Att står berre talet på besøkande per dag. Ingenting blir lagra på eininga di, og infoskjermen på brannstasjonen blir ikkje talt. Appen sender òg om ho er opna på mobil, nettbrett eller PC, og om ho er opna som app frå heimeskjermen – det blir berre lagra som tal per dag. Opnar du appen med QR-koden på infoskjermen, blir det i tillegg talt som ei skanning (berre talet per dag blir lagra).</p>
+<p>Når du opnar appen, sender ho ei melding til Cloudflare (Cloudflare Workers), som tel besøket. For at kvar eining berre skal teljast éin gong per dag, blir IP-adressa og nettlesartypen gjort om til ein kode saman med eit tilfeldig tal som blir bytt ut kvar dag. Koden og det tilfeldige talet blir sletta same døgn, og IP-adressa blir ikkje lagra. Att står berre talet på besøkande per dag. Infoskjermen på brannstasjonen blir ikkje talt. For å telje kor mange ulike einingar som har brukt appen, hugsar nettlesaren din at eininga alt er talt (sjå <a href="#informasjonskapslar" data-go="cookies">Informasjonskapslar</a>). Første gongen sender appen at eininga er ny, og då blir berre talet på nye einingar per dag lagra – ingen kode eller ID som kan kjenne deg att. Appen sender òg om ho er opna på mobil, nettbrett eller PC, og om ho er opna som app frå heimeskjermen – det blir berre lagra som tal per dag. Opnar du appen med QR-koden på infoskjermen, blir det i tillegg talt som ei skanning (berre talet per dag blir lagra).</p>
 <h3>Admin-tilgang</h3>
 <p>Skriv nokon feil admin-kode tre gonger, eller ber om kode for å opne sperra, får eg ei melding gjennom Cloudflare (Cloudflare Workers), GitHub og ntfy. Meldinga seier omtrent kvar eininga er (fylke og land) og kva slags eining og nettlesar det er. IP-adressa blir ikkje send til meg og blir ikkje lagra. Dette gjeld berre admin-feltet under Innstillingar.</p>
 <h3>Opplysningar om hendingar</h3>
@@ -1160,7 +1161,7 @@ if (fm.fileExists(fil)) {
 <h3>Endringar</h3>
 <p>Denne erklæringa kan bli endra. Datoen øvst viser siste endring.</p>
       </div>
-      <div class="jur-tekst" data-sprak="nb" hidden><p class="sub">Sist oppdatert 8. november 2026</p>
+      <div class="jur-tekst" data-sprak="nb" hidden><p class="sub">Sist oppdatert 13. november 2026</p>
 <p><b>Kort sagt:</b> Brannlogg Stord har ingen konto, ingen informasjonskapsler (cookies), ingen sporing og ingen reklame. Siden teller bare hvor mange som åpner den hver dag, uten å lagre noe som kan kjenne deg igjen.</p>
 <h3>Hvem står bak</h3>
 <p>Brannlogg Stord er en gratis, privat nettside laget av Leander Wågen Lillerud. Den er ikke en offisiell tjeneste fra Politiet, brannvesenet eller Stord kommune. Kontakt: <a href="mailto:brannloggstord@gmail.com">brannloggstord@gmail.com</a>.</p>
@@ -1171,7 +1172,7 @@ if (fm.fileExists(fil)) {
 <li><b>Google Fonts</b>: Skrifttypene hentes fra Google, som da får IP-adressen din.</li></ul>
 <p>Jeg får ikke tilgang til disse opplysningene. Se personvernerklæringene til GitHub og Google.</p>
 <h3>Besøkstall</h3>
-<p>Når du åpner appen, sender den en melding til Cloudflare (Cloudflare Workers), som teller besøket. For at hver enhet bare skal telles én gang per dag, gjøres IP-adressen og nettlesertypen om til en kode sammen med et tilfeldig tall som byttes ut hver dag. Koden og det tilfeldige tallet slettes samme døgn, og IP-adressen lagres ikke. Igjen står bare antall besøkende per dag. Ingenting lagres på enheten din, og infoskjermen på brannstasjonen telles ikke. Appen sender også om den er åpnet på mobil, nettbrett eller PC, og om den er åpnet som app fra hjemskjermen – det lagres bare som tall per dag. Åpner du appen med QR-koden på infoskjermen, telles det i tillegg som en skanning (bare tallet per dag lagres).</p>
+<p>Når du åpner appen, sender den en melding til Cloudflare (Cloudflare Workers), som teller besøket. For at hver enhet bare skal telles én gang per dag, gjøres IP-adressen og nettlesertypen om til en kode sammen med et tilfeldig tall som byttes ut hver dag. Koden og det tilfeldige tallet slettes samme døgn, og IP-adressen lagres ikke. Igjen står bare antall besøkende per dag. Infoskjermen på brannstasjonen telles ikke. For å telle hvor mange ulike enheter som har brukt appen, husker nettleseren din at enheten allerede er telt (se <a href="#informasjonskapslar" data-go="cookies">Informasjonskapsler</a>). Første gang sender appen at enheten er ny, og da lagres bare antall nye enheter per dag – ingen kode eller ID som kan kjenne deg igjen. Appen sender også om den er åpnet på mobil, nettbrett eller PC, og om den er åpnet som app fra hjemskjermen – det lagres bare som tall per dag. Åpner du appen med QR-koden på infoskjermen, telles det i tillegg som en skanning (bare tallet per dag lagres).</p>
 <h3>Admin-tilgang</h3>
 <p>Skriver noen feil admin-kode tre ganger, eller ber om kode for å åpne sperren, får jeg en melding gjennom Cloudflare (Cloudflare Workers), GitHub og ntfy. Meldingen sier omtrent hvor enheten er (fylke og land) og hva slags enhet og nettleser det er. IP-adressen sendes ikke til meg og lagres ikke. Dette gjelder bare admin-feltet under Innstillinger.</p>
 <h3>Opplysninger om hendelser</h3>
@@ -1185,7 +1186,7 @@ if (fm.fileExists(fil)) {
 <h3>Endringer</h3>
 <p>Denne erklæringen kan bli endret. Datoen øverst viser siste endring.</p>
       </div>
-      <div class="jur-tekst" data-sprak="en" hidden><p class="sub">Last updated 8 November 2026</p>
+      <div class="jur-tekst" data-sprak="en" hidden><p class="sub">Last updated 13 November 2026</p>
 <p><b>In short:</b> Brannlogg Stord has no accounts, no cookies, no tracking and no ads. The site only counts how many people open it each day, without storing anything that could identify you.</p>
 <h3>Who runs it</h3>
 <p>Brannlogg Stord is a free, private website made by Leander Wågen Lillerud. It is not an official service of the police, the fire service or Stord municipality. Contact: <a href="mailto:brannloggstord@gmail.com">brannloggstord@gmail.com</a>.</p>
@@ -1196,7 +1197,7 @@ if (fm.fileExists(fil)) {
 <li><b>Google Fonts</b>: The fonts are loaded from Google, which then receives your IP address.</li></ul>
 <p>I do not have access to this information. See the privacy policies of GitHub and Google.</p>
 <h3>Visit numbers</h3>
-<p>When you open the app, it sends a message to Cloudflare (Cloudflare Workers), which counts the visit. To count each device only once per day, the IP address and browser type are turned into a code together with a random number that is replaced every day. The code and the random number are deleted the same day, and the IP address is not stored. All that remains is the number of visitors per day. Nothing is stored on your device, and the information screen at the fire station is not counted. The app also sends whether it is opened on a phone, tablet or PC, and whether it is opened as an app from the home screen – this is only stored as numbers per day. If you open the app with the QR code on the information screen, it is also counted as a scan (only the number per day is stored).</p>
+<p>When you open the app, it sends a message to Cloudflare (Cloudflare Workers), which counts the visit. To count each device only once per day, the IP address and browser type are turned into a code together with a random number that is replaced every day. The code and the random number are deleted the same day, and the IP address is not stored. All that remains is the number of visitors per day. The information screen at the fire station is not counted. To count how many different devices have used the app, your browser remembers that the device has already been counted (see <a href="#informasjonskapslar" data-go="cookies">Cookies</a>). The first time, the app reports that the device is new, and only the number of new devices per day is stored – no code or ID that could identify you. The app also sends whether it is opened on a phone, tablet or PC, and whether it is opened as an app from the home screen – this is only stored as numbers per day. If you open the app with the QR code on the information screen, it is also counted as a scan (only the number per day is stored).</p>
 <h3>Admin access</h3>
 <p>If someone enters a wrong admin code three times, or asks for a code to unlock it, I get a message through Cloudflare (Cloudflare Workers), GitHub and ntfy. The message says roughly where the device is (county and country) and what kind of device and browser it is. The IP address is not sent to me and is not stored. This only applies to the admin field under Settings.</p>
 <h3>Information about incidents</h3>
@@ -1216,39 +1217,42 @@ if (fm.fileExists(fil)) {
     <div class="panel">
       <button type="button" class="btn jur-tilbake" data-tilbake="1">← Tilbake</button>
       <h2 class="h2">Informasjonskapslar</h2>
-      <div class="jur-tekst" data-sprak="nn"><p class="sub">Sist oppdatert 30. oktober 2026</p>
-<p><b>Brannlogg Stord brukar ikkje informasjonskapslar (cookies)</b>, og heller ingen sporings- eller analyseverktøy. Sida tel kor mange som opnar ho kvar dag utan å lagre noko på eininga di (sjå <a href="#personvern" data-go="personvern">Personvern</a>).</p>
+      <div class="jur-tekst" data-sprak="nn"><p class="sub">Sist oppdatert 13. november 2026</p>
+<p><b>Brannlogg Stord brukar ikkje informasjonskapslar (cookies)</b>, og heller ingen sporings- eller analyseverktøy. Sida tel kor mange som opnar ho kvar dag, og hugsar berre at eininga di alt er talt (sjå <a href="#personvern" data-go="personvern">Personvern</a>).</p>
 <h3>Lokal lagring i nettlesaren</h3>
 <p>For at funksjonane du sjølv vel skal fungere, lagrar sida litt informasjon i nettlesaren din. Det blir aldri sendt nokon stad.</p>
 <ul><li><code>brannlogg_innst</code>: innstillingane dine (språk, fargar, utsjånad, tekststorleik, rørsle og kva appen opnar med).</li>
 <li><code>brannlogg_sist_sett</code>: tidspunktet for den nyaste hendinga du har sett, så nye hendingar kan få «NY»-merket.</li>
 <li><code>brannlogg_personvern_ok</code>: at du har lukka meldinga om personvern.</li>
+<li><code>brannlogg_talt</code> og <code>brannlogg_qr_talt</code>: at eininga di alt er talt som besøkande eller QR-skanning, så ho ikkje blir talt som ny eining igjen. Inneheld berre «1», ingen ID.</li>
 <li><b>Lagra kopi (service worker)</b>: ein kopi av sida, så ho kan opnast utan nett.</li></ul>
 <h3>Andre tenester</h3>
 <p>Sida hentar skrifttypar frå Google Fonts og blir driven av GitHub Pages. Dei kan få teknisk informasjon som IP-adressa di. Sjå <a href="#personvern" data-go="personvern">Personvern</a>.</p>
 <h3>Slik slettar du det</h3>
 <p>Innstillingane kan du setje tilbake under Innstillingar → Tilbakestill. Alt anna slettar du ved å slette nettstaddata for bls.lillerud.com i innstillingane til nettlesaren.</p>
       </div>
-      <div class="jur-tekst" data-sprak="nb" hidden><p class="sub">Sist oppdatert 30. oktober 2026</p>
-<p><b>Brannlogg Stord bruker ikke informasjonskapsler (cookies)</b>, og heller ingen sporings- eller analyseverktøy. Siden teller hvor mange som åpner den hver dag uten å lagre noe på enheten din (se <a href="#personvern" data-go="personvern">Personvern</a>).</p>
+      <div class="jur-tekst" data-sprak="nb" hidden><p class="sub">Sist oppdatert 13. november 2026</p>
+<p><b>Brannlogg Stord bruker ikke informasjonskapsler (cookies)</b>, og heller ingen sporings- eller analyseverktøy. Siden teller hvor mange som åpner den hver dag, og husker bare at enheten din allerede er telt (se <a href="#personvern" data-go="personvern">Personvern</a>).</p>
 <h3>Lokal lagring i nettleseren</h3>
 <p>For at funksjonene du selv velger skal virke, lagrer siden litt informasjon i nettleseren din. Det blir aldri sendt noe sted.</p>
 <ul><li><code>brannlogg_innst</code>: innstillingene dine (språk, farger, utseende, tekststørrelse, bevegelse og hva appen åpner med).</li>
 <li><code>brannlogg_sist_sett</code>: tidspunktet for den nyeste hendelsen du har sett, slik at nye hendelser kan få «NY»-merket.</li>
 <li><code>brannlogg_personvern_ok</code>: at du har lukket meldingen om personvern.</li>
+<li><code>brannlogg_talt</code> og <code>brannlogg_qr_talt</code>: at enheten din allerede er telt som besøkende eller QR-skanning, slik at den ikke telles som ny enhet igjen. Inneholder bare «1», ingen ID.</li>
 <li><b>Lagret kopi (service worker)</b>: en kopi av siden, slik at den kan åpnes uten nett.</li></ul>
 <h3>Andre tjenester</h3>
 <p>Siden henter skrifttyper fra Google Fonts og driftes av GitHub Pages. De kan få teknisk informasjon som IP-adressen din. Se <a href="#personvern" data-go="personvern">Personvern</a>.</p>
 <h3>Slik sletter du det</h3>
 <p>Innstillingene kan du tilbakestille under Innstillinger → Tilbakestill. Alt annet sletter du ved å slette nettstedsdata for bls.lillerud.com i innstillingene til nettleseren.</p>
       </div>
-      <div class="jur-tekst" data-sprak="en" hidden><p class="sub">Last updated 30 October 2026</p>
-<p><b>Brannlogg Stord does not use cookies</b>, and no tracking or analytics tools either. The site counts how many people open it each day without storing anything on your device (see <a href="#personvern" data-go="personvern">Privacy</a>).</p>
+      <div class="jur-tekst" data-sprak="en" hidden><p class="sub">Last updated 13 November 2026</p>
+<p><b>Brannlogg Stord does not use cookies</b>, and no tracking or analytics tools either. The site counts how many people open it each day, and only remembers that your device has already been counted (see <a href="#personvern" data-go="personvern">Privacy</a>).</p>
 <h3>Local storage in your browser</h3>
 <p>So that the features you choose can work, the site stores a little information in your browser. It is never sent anywhere.</p>
 <ul><li><code>brannlogg_innst</code>: your settings (language, colours, appearance, text size, motion and what the app opens with).</li>
 <li><code>brannlogg_sist_sett</code>: the time of the newest incident you have seen, so new incidents can get the “NEW” label.</li>
 <li><code>brannlogg_personvern_ok</code>: that you have closed the privacy notice.</li>
+<li><code>brannlogg_talt</code> and <code>brannlogg_qr_talt</code>: that your device has already been counted as a visitor or QR scan, so it is not counted as a new device again. Contains only “1”, no ID.</li>
 <li><b>Saved copy (service worker)</b>: a copy of the site so it can open offline.</li></ul>
 <h3>Other services</h3>
 <p>The site loads fonts from Google Fonts and is hosted on GitHub Pages. They may receive technical information such as your IP address. See <a href="#personvern" data-go="personvern">Privacy</a>.</p>
@@ -1840,6 +1844,8 @@ const OMSETJING = [
   ["Totalt", "Totalt", "All time"],
   ["Siste 30 dagar", "Siste 30 dager", "Last 30 days"],
   ["I dag", "I dag", "Today"],
+  ["Unike einingar", "Unike enheter", "Unique devices"],
+  ["Unike einingar er talde sidan {d}.", "Unike enheter er telt siden {d}.", "Unique devices counted since {d}."],
   ["Hentar besøkstal …", "Henter besøkstall …", "Loading visit numbers …"],
   ["Besøkstala er ikkje sette opp enno.", "Besøkstallene er ikke satt opp ennå.", "Visit numbers are not set up yet."],
   ["Fekk ikkje henta besøkstala.", "Fikk ikke hentet besøkstallene.", "Could not load the visit numbers."],
@@ -2912,7 +2918,7 @@ setInterval(() => { if (okt && Date.now() > okt.ut) utlopt(); }, 15000);
 $("#logg-ut").addEventListener("click", () => { loggUt(); $("#admin-feil").hidden = true; });
 
 /* ---- Besøkstal: appen sender éi melding til Cloudflare-tenesta (OPNE_URL) kvar gong ho blir opna – ikkje
-   infoskjermen. Ingen informasjonskapslar og ingenting lagra på eininga; tenesta tel kvar eining éin gong per dag
+   infoskjermen. Ingen informasjonskapslar; berre merka brannlogg_talt/brannlogg_qr_talt (unike einingar); tenesta tel kvar eining éin gong per dag
    utan å lagre IP-adressa (worker/worker.js, README bolk 11, personvernteksten). Tala blir viste i adminpanelet. ---- */
 // Kom brukaren via QR-koden på infoskjermen (nettside/qr.svg peikar til «/?qr»)? Då blir skanninga òg talt (8.11.2026).
 // «?qr» blir fjerna frå adressa med ein gong, så eit bokmerke eller ei lenke som blir delt vidare, ikkje tel som skanning.
@@ -2925,18 +2931,30 @@ const EINING = /iPad|Tablet/i.test(UA_) || (/Macintosh/.test(UA_) && navigator.m
   : /Mobi|iPhone|iPod|Android/i.test(UA_) ? "mobil" : "pc";
 const SOM_APP = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
 if (OPNE_URL && location.hostname === "bls.lillerud.com" && !navigator.webdriver)
-  setTimeout(() => fetch(OPNE_URL + "/besok", {method:"POST", headers:{"Content-Type":"text/plain"},
-    body:JSON.stringify({...(FRA_QR ? {qr:true} : {}), eining:EINING, app:SOM_APP}), keepalive:true}).catch(() => {}), 1500);
+  setTimeout(() => {
+    // Unike einingar (13.11.2026): nettlesaren hugsar at eininga alt er talt, og sender «ny» berre første gongen.
+    // Ingen ID blir sendt eller lagra – berre eit merke («1») her og talet på nye einingar per dag hos tenesta.
+    let ny = false, qrny = false;
+    try { ny = !localStorage.getItem("brannlogg_talt"); qrny = FRA_QR && !localStorage.getItem("brannlogg_qr_talt"); } catch (e) {}
+    fetch(OPNE_URL + "/besok", {method:"POST", headers:{"Content-Type":"text/plain"},
+      body:JSON.stringify({...(FRA_QR ? {qr:true} : {}), ...(ny ? {ny:true} : {}), ...(qrny ? {qrny:true} : {}), eining:EINING, app:SOM_APP}), keepalive:true})
+      .then(r => { if (!r.ok) return;
+        try { if (ny) localStorage.setItem("brannlogg_talt", "1"); if (qrny) localStorage.setItem("brannlogg_qr_talt", "1"); } catch (e) {} })
+      .catch(() => {});
+  }, 1500);
 const siste30 = idag => {
   const d = [];
   for (let i = 29; i >= 0; i--) { const t = new Date(idag + "T12:00:00Z"); t.setUTCDate(t.getUTCDate() - i); d.push(t.toISOString().slice(0, 10)); }
   return d;
 };
 // Tre tal (totalt, siste 30 dagar, i dag) og stolpar for 30 dagar – brukt for besøk og for QR-skanningar
-function visTal(per, idag, totalt, talEl, grafEl){
+function visTal(per, idag, totalt, talEl, grafEl, unike){
   const dagar = siste30(idag);
   const sum = n => dagar.slice(-n).reduce((s, k) => s + (per[k] || 0), 0);
-  $(talEl).innerHTML = [[totalt || 0, "Totalt"], [sum(30), "Siste 30 dagar"], [sum(1), "I dag"]]
+  // unike = {n, fyrste} frå workeren (talde sidan 13.11.2026): kor mange ulike einingar – 2 × 2 ruter då
+  const ruter = [[totalt || 0, "Totalt"], ...(unike ? [[unike.n || 0, "Unike einingar"]] : []), [sum(30), "Siste 30 dagar"], [sum(1), "I dag"]];
+  $(talEl).classList.toggle("fire", !!unike);
+  $(talEl).innerHTML = ruter
     .map(([n, t]) => `<div><b>${Number(n).toLocaleString(LOCALE)}</b><span>${T(t)}</span></div>`).join("");
   const maks = Math.max(1, ...dagar.map(k => per[k] || 0));
   $(grafEl).innerHTML = dagar.map(k => `<i class="${k === idag ? "idag" : per[k] ? "" : "tom"}" style="height:${Math.max(3, (per[k] || 0) / maks * 100)}%" title="${k}: ${per[k] || 0}"></i>`).join("");
@@ -2957,13 +2975,16 @@ async function visBesok(){
   }
   if (!okt) return;   // logga ut medan tala vart henta
   sisteTal = d;
-  visTal(Object.fromEntries((d.dagar || []).map(r => [r.dag, r.besokande])), d.idag, d.totalt, "#besok-tal", "#besok-graf");
-  $("#besok-status").textContent = T("Totalt sidan {d}. Stolpane viser dei siste 30 dagane, raud er i dag.", {d:datoLang(d.fyrste || d.idag)});
+  const unike = d.unike ? (k => d.unike[k] || {n:0, fyrste:d.idag}) : () => null;
+  visTal(Object.fromEntries((d.dagar || []).map(r => [r.dag, r.besokande])), d.idag, d.totalt, "#besok-tal", "#besok-graf", unike("besok"));
+  $("#besok-status").textContent = T("Totalt sidan {d}. Stolpane viser dei siste 30 dagane, raud er i dag.", {d:datoLang(d.fyrste || d.idag)})
+    + (d.unike ? " " + T("Unike einingar er talde sidan {d}.", {d:datoLang(unike("besok").fyrste)}) : "");
   // Skanningar av QR-koden på infoskjermen (finst berre når workeren er ny nok)
   if (d.qr) {
     $("#qr-boks").hidden = false;
-    visTal(Object.fromEntries((d.qr.dagar || []).map(r => [r.dag, r.skann])), d.idag, d.qr.totalt, "#qr-tal", "#qr-graf");
-    $("#qr-status").textContent = d.qr.fyrste ? T("Totalt sidan {d}.", {d:datoLang(d.qr.fyrste)}) : T("Ingen har skanna QR-koden enno.");
+    visTal(Object.fromEntries((d.qr.dagar || []).map(r => [r.dag, r.skann])), d.idag, d.qr.totalt, "#qr-tal", "#qr-graf", unike("qr"));
+    $("#qr-status").textContent = (d.qr.fyrste ? T("Totalt sidan {d}.", {d:datoLang(d.qr.fyrste)}) : T("Ingen har skanna QR-koden enno."))
+      + (d.unike ? " " + T("Unike einingar er talde sidan {d}.", {d:datoLang(unike("qr").fyrste)}) : "");
   }
   if ("tv" in d) visTvSett(d.tv);
   if (d.typar) {

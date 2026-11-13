@@ -20,6 +20,9 @@
 // (tabellen qr; berre talet per dag, maks 3 i minuttet frå same eining – sjå GRENSE_EINING). Appen sender òg kva
 // slags eining det er (mobil/nettbrett/pc) og om ho er opna som app frå heimeskjermen; det blir talt saman med
 // besøket (éin gong per eining per dag, tabellen typar). 8.11.2026.
+// Unike einingar (13.11.2026): appen hugsar sjølv (localStorage) om eininga alt er talt, og sender {ny: true} berre
+// første gongen ho blir opna, og {qrny: true} første gongen QR-koden blir skanna. Tenaren lagrar ingen ID – berre
+// talet på nye einingar per dag (tabellen unike). Tømer nokon nettlesaren, blir eininga talt på nytt.
 //
 // Infoskjermen melder frå kvart 5. minutt («/tv», med ein nøkkel som byggjeskriptet reknar ut som
 // HMAC(HENT_NOKKEL, "tv-ping")), og adminpanelet viser når han sist vart sett og kor gamle dataa på skjermen er.
@@ -180,12 +183,14 @@ export class Teljar {
     this.sql.exec("DROP TABLE IF EXISTS qr_sett");   // brukt nokre timar 8.11.2026, då skanningar vart talde éin gong per eining
     // Kva slags einingar som besøkjer (mobil/nettbrett/pc) og kor mange som brukar appen frå heimeskjermen (namn «app»)
     this.sql.exec("CREATE TABLE IF NOT EXISTS typar (dag TEXT NOT NULL, namn TEXT NOT NULL, n INTEGER NOT NULL, PRIMARY KEY (dag, namn))");
+    // Nye unike einingar per dag (namn «besok» eller «qr») – sjå øvst
+    this.sql.exec("CREATE TABLE IF NOT EXISTS unike (dag TEXT NOT NULL, namn TEXT NOT NULL, n INTEGER NOT NULL, PRIMARY KEY (dag, namn))");
   }
 
   async fetch(req) {
     const dag = osloDag();
     if (new URL(req.url).pathname === "/tel") {
-      const {kjenne, qr, eining, app} = await req.json();
+      const {kjenne, qr, eining, app, ny, qrny} = await req.json();
       let salt = await this.ctx.storage.get("salt");
       if (salt?.dag !== dag) {
         // Ny dag: saltet og hashane frå i går blir sletta, så ingen kan kjennast att frå dag til dag
@@ -201,6 +206,9 @@ export class Teljar {
         if (app === true) pluss("app");
       }
       if (qr === true) this.sql.exec("INSERT INTO qr (dag, skann) VALUES (?, 1) ON CONFLICT(dag) DO UPDATE SET skann = skann + 1", dag);
+      const ein = namn => this.sql.exec("INSERT INTO unike (dag, namn, n) VALUES (?, ?, 1) ON CONFLICT(dag, namn) DO UPDATE SET n = n + 1", dag, namn);
+      if (ny === true) ein("besok");
+      if (qr === true && qrny === true) ein("qr");
       return new Response("ok");
     }
     // «Brann pågår»: eit oppslag som set infoskjermen i alarmmodus til det blir avslutta (maks 8 timar)
@@ -223,6 +231,8 @@ export class Teljar {
     return Response.json({idag: dag, dagar: this.sql.exec("SELECT dag, besokande FROM dagar WHERE dag >= ? ORDER BY dag", fra).toArray(),
       fyrste: alle.fyrste, totalt: alle.totalt,
       qr: {dagar: this.sql.exec("SELECT dag, skann FROM qr WHERE dag >= ? ORDER BY dag", fra).toArray(), fyrste: qr.fyrste, totalt: qr.totalt},
+      unike: Object.fromEntries(this.sql.exec("SELECT namn, MIN(dag) AS fyrste, SUM(n) AS n FROM unike GROUP BY namn").toArray()
+        .map(r => [r.namn, {n: r.n, fyrste: r.fyrste}])),
       typar, tv: (await this.ctx.storage.get("tv")) || null});
   }
 }
@@ -324,7 +334,8 @@ export default {
         // og robotar blir ikkje talde
         if (!ROBOT.test(ua) && (await innanfor([env.GRENSE_EINING, `besok:${ip}|${ua.slice(0, 300)}`])))
           await teljar(env).fetch("https://teljar/tel", {method: "POST", body: JSON.stringify({kjenne: `${ip}|${ua}`, qr: data.qr === true,
-            eining: EININGAR.includes(data.eining) ? data.eining : null, app: data.app === true})});
+            eining: EININGAR.includes(data.eining) ? data.eining : null, app: data.app === true,
+            ny: data.ny === true, qrny: data.qrny === true})});
         return svar({ok: true});
       }
       if (sti === "/tv") {
