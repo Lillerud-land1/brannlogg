@@ -476,7 +476,7 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden) { sj
 
 /* ---- Innlogging. Steg 1: admin-koden – sida reknar ut ein nøkkel frå koden (PBKDF2, med vilje tregt) og spør
    workeren om han er rett («/admin-sjekk»). Koden sjølv blir aldri sendt. Steg 2: personleg PIN-kode («/logginn»).
-   Workeren gir eit signert innloggingsbevis som gjeld i 30 minutt, med rolla «full» eller «avgrensa». Beviset ligg
+   Workeren gir eit signert innloggingsbevis som gjeld i 30 minutt (adminappen loggar likevel ut etter 15), med rolla «full» eller «avgrensa». Beviset ligg
    berre i minnet (borte når appen blir lukka). ---- */
 let tvAdr = "", nokkel = "", okt = null;   // okt = {token, ut, namn, rolle}
 async function adminNokkel(kode){
@@ -599,7 +599,8 @@ $("#pin-skjema").addEventListener("submit", async e => {
     const svar = await kall("/logginn", {nokkel, pin});
     await tastaturVekk();   // tastaturet heilt borte før innloggingsskjermen blir bytt ut med panelet
     if (!nokkel) return;    // avbrote i mellomtida
-    okt = {token:svar.token, ut:Number(svar.ut), namn:String(svar.namn || ""), rolle:svar.rolle === "full" ? "full" : "avgrensa"};
+    // Adminappen loggar ut etter 15 minutt (brukaren sitt ønske 13.11.2026), sjølv om beviset frå workeren gjeld i 30
+    okt = {token:svar.token, ut:Math.min(Number(svar.ut), Date.now() + 15 * 60e3), namn:String(svar.namn || ""), rolle:svar.rolle === "full" ? "full" : "avgrensa"};
     $("#pin").value = "";
     visPanel();
   } catch (feil) {
