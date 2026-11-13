@@ -248,6 +248,14 @@ export class Ko {
 
   async fetch(req) {
     const no = Date.now();
+    // Innloggingslogg (13.11.2026): dei siste 20 innloggingane og sperrene i adminpanelet – namn, rolle, tid,
+    // omtrentleg stad og eining. Aldri IP-adresse. {legg: {...}} legg til, {} les.
+    if (new URL(req.url).pathname === "/logg") {
+      const d = await req.json().catch(() => ({}));
+      let logg = (await this.ctx.storage.get("innlogg")) || [];
+      if (d.legg) { logg = [{t: new Date(no).toISOString(), ...d.legg}, ...logg].slice(0, 20); await this.ctx.storage.put("innlogg", logg); }
+      return Response.json(logg);
+    }
     // Sperre mot gjetting av PIN («pin») og admin-kode («admin») – sjå «Innlogging i adminpanelet» øvst.
     // utfall «sjekk» (før forsøket), «feil» eller «ok». Feil eldre enn ein time blir gløymde.
     if (new URL(req.url).pathname === "/sperre") {
@@ -351,6 +359,8 @@ export default {
         return svar({ok: true});
       }
       // Innloggingsbeviset (sjå «Innlogging i adminpanelet» øvst): 401 utan gyldig bevis, 403 utan rett rolle
+      const loggFor = legg => ko(env).fetch("https://ko/logg", {method: "POST", body: JSON.stringify({legg: {...legg,
+        stad: stad(req.cf).slice(0, 60), eining: eining(req.headers.get("User-Agent") || "")}})});
       const krevOkt = async rolle => {
         const o = await sjekkOkt(env, data.okt);
         if (!o) return [null, svar({feil: "logg inn"}, 401)];
@@ -364,6 +374,7 @@ export default {
         if (!forst.ok) return svar(forst, 423);
         if (likt(data.nokkel, env.BESOK_NOKKEL)) { await sperre(env, "admin", id, "ok"); return svar({ok: true}); }
         const r = await sperre(env, "admin", id, "feil");
+        if (r.nySperre) await loggFor({type: r.alle ? "sperra_alle" : "sperra_admin"});
         if (r.nySperre)
           await tilEigaren(env, {title: "⚠️ Mange feil admin-kodar", tags: ["warning"], priority: 4,
             message: `${r.alle ? "Alle einingar" : "Ei eining"} er sperra frå admin-innlogginga i ein time etter mange feil kodar.\n${kven}`});
@@ -378,6 +389,7 @@ export default {
         const brukar = await finnPin(env, String(data.pin || ""));
         if (!brukar) {
           const r = await sperre(env, "pin", id, "feil");
+          if (r.nySperre) await loggFor({type: r.alle ? "sperra_alle" : "sperra_pin"});
           if (r.nySperre)
             await tilEigaren(env, {title: "⚠️ Feil PIN-kodar i adminpanelet", tags: ["warning"], priority: 4,
               message: `${r.alle ? "For mange feil PIN-kodar totalt – all innlogging er sperra i ein time." : "Nokon med rett admin-kode skreiv feil PIN-kode fem gonger. Eininga er sperra i 15 minutt."}\n${kven}\n` +
@@ -386,6 +398,7 @@ export default {
         }
         await sperre(env, "pin", id, "ok");
         const {token, ut} = await lagOkt(env, brukar);
+        await loggFor({type: "inn", namn: brukar.namn, rolle: brukar.rolle});
         await tilEigaren(env, {title: `🔓 ${brukar.namn} logga inn i adminpanelet`, tags: ["unlock"], priority: 3,
           message: `${brukar.rolle === "full" ? "Full tilgang" : "Avgrensa tilgang"}, i ${OKT_MIN} minutt.\n${kven}\n` +
                    "Var det ikkje deg eller nokon du har gitt PIN-kode: byt admin-koden og PIN-kodane (admin_oppsett.py)."});
@@ -415,6 +428,13 @@ export default {
           tags: [sti === "/pagar-sett" ? "rotating_light" : "mute"], priority: 3, message: `${okt.namn}.
 ${kven}`});
         return svar(r);
+      }
+      if (sti === "/innlogg-logg") {
+        // Innloggingslogg – berre med full tilgang
+        if (!(await innanfor([env.GRENSE_EINING, `ilogg:${ip}`]))) return svar({feil: "for mange"}, 429);
+        const [, nei] = await krevOkt("full");
+        if (nei) return nei;
+        return svar({logg: await (await ko(env).fetch("https://ko/logg", {method: "POST", body: "{}"})).json()});
       }
       if (sti === "/tv-adresse") {
         // Lenka til infoskjermen – berre med full tilgang

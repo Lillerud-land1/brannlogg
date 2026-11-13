@@ -108,6 +108,12 @@ details.heim p{margin-top:8px}
 .lenker{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
 .lenker a{grid-column:1 / -1}
 .melding{font-size:14.5px;color:var(--ink-2)}
+.logg{list-style:none;margin:0;padding:0;display:grid}
+.logg li{display:grid;gap:2px;padding:9px 0;border-top:1px solid var(--line)}
+.logg li:first-child{border-top:0;padding-top:0}
+.logg b{font-size:15.5px}
+.logg span{font-size:13.5px;color:var(--muted)}
+.logg li.aat b{color:var(--fire)}
 .melding:empty{display:none}
 
 /* Brann pågår */
@@ -316,6 +322,12 @@ dialog.boble .hovud{margin-top:18px}
         <p class="sub">Alle oppdraga, tal per månad og besøka siste 30 dagar som Excel-fil. Fila blir laga på PC-en din.</p>
         <button type="button" class="knapp" id="eksport">Last ned Excel-fil</button>
         <p class="melding" id="eksport-status" role="status"></p>
+      </article>
+      <article class="kort" id="logg-kort" hidden>
+        <h3>Innloggingslogg</h3>
+        <p class="sub">Dei siste 20 innloggingane og sperrene i adminpanelet. Berre omtrentleg stad – aldri IP-adresse.</p>
+        <ol class="logg" id="logg-liste"></ol>
+        <p class="melding" id="logg-status" role="status"></p>
       </article>
     </section>
   </div>
@@ -656,6 +668,27 @@ async function visPanel(){
     }
   }
   visBesok();
+  if (full) visLogg();
+}
+/* ---- Innloggingslogg (full tilgang, 13.11.2026): dei siste 20 innloggingane og sperrene frå workeren ---- */
+const LOGG_TYPE = {sperra_pin:"Sperra: 5 feil PIN-kodar", sperra_admin:"Sperra: mange feil admin-kodar", sperra_alle:"All innlogging sperra (for mange feil)"};
+async function visLogg(){
+  if (!okt || okt.rolle !== "full") return;
+  $("#logg-kort").hidden = false; $("#logg-liste").innerHTML = ""; $("#logg-status").textContent = "Hentar …";
+  let d;
+  try { d = await kall("/innlogg-logg", {okt:okt.token}); }
+  catch (feil) {
+    if (feil.status === 401) { utlopt(); return; }
+    $("#logg-status").textContent = feil.status === 429 ? "For mange oppdateringar på kort tid. Vent eitt minutt." : "Fekk ikkje henta loggen."; return;
+  }
+  if (!okt) return;
+  const logg = Array.isArray(d.logg) ? d.logg : [];
+  $("#logg-liste").innerHTML = logg.map(l => {
+    const inn = l.type === "inn";
+    const tittel = inn ? `${esc(l.namn || "Ukjend")} · ${l.rolle === "full" ? "full tilgang" : "avgrensa tilgang"}` : esc(LOGG_TYPE[l.type] || "Sperre");
+    return `<li class="${inn ? "" : "aat"}"><b>${tittel}</b><span>${esc(naar(oslo(l.t)))} · ${esc(l.eining || "")} · ${esc(l.stad || "")}</span></li>`;
+  }).join("");
+  $("#logg-status").textContent = logg.length ? "" : "Ingen innloggingar lagra enno (loggen starta 13. november 2026).";
 }
 // Logg ut: alt som kom frå workeren, blir fjerna frå sida, og nøkkelen og beviset blir gløymde
 function loggUt(melding){
@@ -667,7 +700,8 @@ function loggUt(melding){
   for (const id of ["#pagar-tittel", "#pagar-adresse", "#pagar-tid", "#pin", "#kode", "#oppd-kode"]) $(id).value = "";
   $("#tv-url").textContent = ""; $("#tv-url").hidden = true; $("#tv-vis").setAttribute("aria-expanded", "false"); $("#tv-vis").textContent = "Vis adressa";
   $("#tv-opne").removeAttribute("href");
-  for (const s of ["#tv-blokk", "#oppd-kort", "#pagar-kort", "#qr-boks", "#eining-boks", "#eksport-boks", "#oppd-skjema"]) $(s).hidden = true;
+  for (const s of ["#tv-blokk", "#oppd-kort", "#pagar-kort", "#qr-boks", "#eining-boks", "#eksport-boks", "#oppd-skjema", "#logg-kort"]) $(s).hidden = true;
+  $("#logg-liste").innerHTML = ""; $("#logg-status").textContent = "";
   for (const s of ["#besok-tal", "#besok-graf", "#qr-tal", "#qr-graf", "#eining-tal", "#tv-sett"]) $(s).innerHTML = "";
   for (const s of ["#besok-status", "#qr-status", "#eining-app", "#oppd-status", "#eksport-status", "#okt-tekst", "#tv-status", "#pagar-status"]) $(s).textContent = "";
   $("#pagar-kort").classList.remove("pa"); $("#pagar-merke").textContent = "Av";
