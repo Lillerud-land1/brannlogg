@@ -447,11 +447,16 @@ export default {
         return svar({token, ut, namn: brukar.namn, rolle: brukar.rolle});
       }
       if (sti === "/pagar-hent") {
-        // Infoskjermen (TV-nøkkel) og adminpanelet (innlogging) les om «Brann pågår» er på
+        // Infoskjermen (TV-nøkkel) og adminpanelet (innlogging) les om «Brann pågår» er på.
+        // Appen (13.11.2026, ønske frå brukaren) les utan nøkkel: berre tittel, tid, stad og prikk – ikkje kven som sette det,
+        // og med eiga fartsgrense per eining, så telefonar på same nett ikkje tek kvoten til infoskjermen.
         const erTv = env.HENT_NOKKEL && likt(data.nokkel, await tvNokkel(env));
-        if (!(await innanfor([env.GRENSE_EINING, `pghent:${ip}`]))) return svar({feil: "for mange"}, 429);
-        if (!erTv) { const [, nei] = await krevOkt("full"); if (nei) return nei; }
-        return svar(await (await teljar(env).fetch("https://teljar/pagar", {method: "POST", body: "{}"})).json());
+        const offentleg = !erTv && !data.okt;
+        const ua = req.headers.get("User-Agent") || "";
+        if (!(await innanfor([env.GRENSE_EINING, offentleg ? `pgapp:${ip}|${ua.slice(0, 300)}` : `pghent:${ip}`]))) return svar({feil: "for mange"}, 429);
+        if (!erTv && !offentleg) { const [, nei] = await krevOkt("full"); if (nei) return nei; }
+        const p = await (await teljar(env).fetch("https://teljar/pagar", {method: "POST", body: "{}"})).json();
+        return svar(offentleg ? (p.tittel ? {tittel: p.tittel, start: p.start, stad: p.stad, pos: p.pos, utanTid: !!p.utanTid} : {}) : p);
       }
       if (sti === "/pagar-sett" || sti === "/pagar-av") {
         if (!(await innanfor([env.GRENSE_EINING, `pgsett:${ip}`]))) return svar({feil: "for mange"}, 429);

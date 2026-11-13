@@ -1900,6 +1900,9 @@ const OMSETJING = [
   ["meir enn tre månader sidan", "mer enn tre måneder siden", "more than three months ago"],
   ["Regn siste 7 dagar:", "Regn siste 7 dager:", "Rain last 7 days:"],
   ["ca.", "ca.", "approx."],
+  ["Frå brannstasjonen", "Fra brannstasjonen", "From the fire station"],
+  ["Melding frå brannstasjonen. Detaljar kjem.", "Melding fra brannstasjonen. Detaljer kommer.", "Message from the fire station. Details to follow."],
+  ["Frå brannstasjonen, før det står i Politiloggen eller brannstatistikken.", "Fra brannstasjonen, før det står i Politiloggen eller brannstatistikken.", "From the fire station, before it appears in the police log or fire statistics."],
   ["På iPhone følgjer linja øvst lys/mørk på telefonen. Vel «Automatisk» om ho skal passe med appen.", "På iPhone følger linjen øverst lys/mørk på telefonen. Velg «Automatisk» om den skal passe med appen.", "On iPhone the top bar follows the phone's light/dark setting. Choose “Automatic” to make it match the app."],
   ["Luftfukt", "Luftfuktighet", "Humidity"],
   ["Vind", "Vind", "Wind"],
@@ -2015,6 +2018,21 @@ const B = D.brannar.map(b0 => {
   const b = omsetHending(b0), o = oslo(b.start);
   return {...b, _o:o, _dn:o.dn, _tekst:(b.stad + " " + b.tittel + " " + b0.tittel + " " + b.meldingar.map(m => m.tekst).join(" ")).toLowerCase()};
 });
+/* «Brann pågår» frå brannstasjonen (adminpanelet), som på infoskjermen (13.11.2026). Siste svar ligg i localStorage og blir
+   lagt øvst i lista før sida blir teikna; endrar det seg (sjå «sjekkPagarApp» nedst), blir sida lasta på nytt.
+   Går av same tid som på skjermen: «Avslutt», 8 timar, eller når brannstatistikken har fått typen på eit nytt oppdrag. */
+let PG_APP = null;
+try { PG_APP = JSON.parse(localStorage.getItem("brannlogg_pagar") || "null"); } catch (e) {}
+if (PG_APP && !(typeof PG_APP.tittel === "string" && !isNaN(Date.parse(PG_APP.start)) && Date.now() - new Date(PG_APP.start) < 8 * 36e5
+    && !B.some(b => b.bris && b.bris.type && b.bris.type !== "Oppdrag løst av 110" && new Date(b.start) >= new Date(PG_APP.start) - 20 * 6e4))) PG_APP = null;
+if (PG_APP) {
+  const o = oslo(PG_APP.start), tittel = String(PG_APP.tittel).slice(0, 60), stad = String(PG_APP.stad || "Stord").slice(0, 80);
+  const tekst = T("Melding frå brannstasjonen. Detaljar kjem.");
+  B.unshift({id:"pagar", gruppe:"brann", type:"anna", alvor:3, tittel, stad, start:PG_APP.start, sist:new Date().toISOString(), aktiv:true,
+    utanTid:!!PG_APP.utanTid, pos:Array.isArray(PG_APP.pos) && PG_APP.pos.length === 2 && PG_APP.pos.every(Number.isFinite) ? PG_APP.pos : null,
+    flagg:{}, kjelder:[], bilete:[], kjelde_type:"stasjon", merknad:T("Frå brannstasjonen, før det står i Politiloggen eller brannstatistikken."),
+    meldingar:[{t:PG_APP.start, tekst}], _o:o, _dn:o.dn, _tekst:(stad + " " + tittel + " " + tekst).toLowerCase()});
+}
 const START_DN = I_DAG.dn - (VINDU - 1);
 B.forEach(b => b._nyleg = b._dn >= START_DN);
 
@@ -2056,7 +2074,7 @@ function renderPagar(){
   if (!aktive.length) return;
   const a = aktive[0];
   el.dataset.vis = a.id;
-  el.innerHTML = `<span class="pulse"></span><b>${T("Pågår no")}</b><span class="t">${esc(a.tittel)}, ${esc(a.stad)}, ${T("starta kl. {k}", {k:kl(a._o)})}${aktive.length > 1 ? ". " + T("og {n} til", {n:aktive.length - 1}) : ""}</span>`;
+  el.innerHTML = `<span class="pulse"></span><b>${T("Pågår no")}</b><span class="t">${esc(a.tittel)}, ${esc(a.stad)}${a.utanTid ? "" : ", " + T("starta kl. {k}", {k:kl(a._o)})}${aktive.length > 1 ? ". " + T("og {n} til", {n:aktive.length - 1}) : ""}</span>`;
 }
 
 /* ---- Hero ---- */
@@ -2071,7 +2089,7 @@ function renderHero(){
   if (aktive.length) {
     const a = aktive[0];
     html += `<div class="alert" role="status"><span class="pulse"></span><div><h2>${T("Pågår no")}</h2>
-      <p><b>${esc(a.tittel)}</b>, ${esc(a.stad)}, ${T("starta kl. {k}", {k:kl(a._o)})}.</p>
+      <p><b>${esc(a.tittel)}</b>, ${esc(a.stad)}${a.utanTid ? "" : ", " + T("starta kl. {k}", {k:kl(a._o)})}.</p>
       <button class="last-link" data-vis="${esc(a.id)}">${T("Følg loggen")}</button></div></div>`;
   } else if (siste) {
     const dagar = I_DAG.dn - siste._dn;
@@ -2220,6 +2238,7 @@ function kort(b){
     f.evakuert ? `<span class="tag">${T("Evakuering")}</span>` : "",
     f.sak ? `<span class="tag">${T("Politisak oppretta")}</span>` : "",
     b.kjelde_type === "media" ? `<span class="tag">${T("Frå media")}</span>` : "",
+    b.kjelde_type === "stasjon" ? `<span class="tag">${T("Frå brannstasjonen")}</span>` : "",
     b.bris ? `<span class="tag bris" title="${T("Registrert av brannvesenet i brannstatistikken (DSB)")}">${T("Brannstatistikk")}: ${esc(b.bris.type ? T(b.bris.type) : T(Date.now() - new Date(b.start) > 3 * 864e5 ? "type ikkje oppgitt" : "type kjem seinare"))}</span>` :
       (erBrann(b) ? "" : `<span class="tag utr">${T(f.brannvesen ? "Brannvesenet" : "Nødetatane")}</span>`),
     `<span class="tag">${esc(t.n)}</span>`
@@ -2252,7 +2271,7 @@ function kort(b){
     <div class="actions">
       ${b.pos ? `<button type="button" class="btn" data-kart="${esc(b.id)}">${ikon("i-kart")}${T("Vis på kartet")}</button>` : ""}
       ${b.kjelde_type === "bris" ? `<a class="btn" href="https://brannstatistikk.no/search" target="_blank" rel="noopener">${ikon("i-ut")}${T("Brannstatistikk")}</a>` : ""}
-      ${b.kjelde_type === "media" || b.kjelde_type === "bris" ? "" : `<a class="btn" href="https://www.politiet.no/politiloggen/hendelse/${encodeURIComponent(b.id)}" target="_blank" rel="noopener">${ikon("i-ut")}Politiloggen</a>`}
+      ${b.kjelde_type === "media" || b.kjelde_type === "bris" || b.kjelde_type === "stasjon" ? "" : `<a class="btn" href="https://www.politiet.no/politiloggen/hendelse/${encodeURIComponent(b.id)}" target="_blank" rel="noopener">${ikon("i-ut")}Politiloggen</a>`}
       <a class="btn" href="${kartUrl}" target="_blank" rel="noopener">${ikon("i-ut")}Google Maps</a>
       <button type="button" class="btn" data-del="${esc(b.id)}">${ikon("i-del")}${T("Del")}</button>
     </div>
@@ -3207,7 +3226,7 @@ function lagXlsx(ark){
 function lagStatistikk(){
   const GRUPPE = {brann:"Brann", utrykking:"Anna oppdrag", alarm:"Alarm utan brann"}, ALV = {1:"Mindre", 2:"Middels", 3:"Alvorleg"};
   const VEKEDAG = ["sundag","måndag","tysdag","onsdag","torsdag","fredag","laurdag"];
-  const kjelde = b => b.kjelde_type === "bris" ? "Brannstatistikken" : b.bris ? "Brannstatistikken og Politiloggen" : b.kjelde_type === "media" ? "Media" : "Politiloggen";
+  const kjelde = b => b.kjelde_type === "bris" ? "Brannstatistikken" : b.bris ? "Brannstatistikken og Politiloggen" : b.kjelde_type === "media" ? "Media" : b.kjelde_type === "stasjon" ? "Brannstasjonen" : "Politiloggen";
   const alle = D.brannar.map(b => ({b, o:oslo(b.start)}));
   const oppdrag = [["Dato", "Kl.", "Vekedag", "Tittel", "Stad", "Gruppe", "Kjelde", "Type i brannstatistikken", "Alvor", "Lenke"],
     ...alle.map(({b, o}) => [`${o.y}-${pad(o.m)}-${pad(o.d)}`, kl(o), VEKEDAG[o.wd], b.tittel, b.stad, GRUPPE[b.gruppe || "brann"] || b.gruppe,
@@ -3363,6 +3382,23 @@ renderStatus(); renderHero(); renderPagar(); renderBrannfare(); renderAll(); ren
 // «Pågår no» skal forsvinne av seg sjølv når det har gått 3 timar utan ny melding frå politiet
 let pagarNokkel = aktiveNo().map(b => b.id).join();
 setInterval(() => { const n = aktiveNo().map(b => b.id).join(); if (n !== pagarNokkel) { pagarNokkel = n; renderPagar(); renderHero(); } }, 60 * 1000);
+// «Brann pågår»: spør tenesta ved start og kvart minutt medan appen er synleg; endra → lagre og last sida på nytt
+async function sjekkPagarApp(){
+  if (!OPNE_URL || location.hostname !== "bls.lillerud.com" || navigator.webdriver || document.visibilityState !== "visible") return;
+  try {
+    const r = await (await fetch(OPNE_URL + "/pagar-hent", {method:"POST", headers:{"Content-Type":"text/plain"}, body:"{}"})).json();
+    if (r.feil) return;
+    const ny = r.tittel ? JSON.stringify({tittel:r.tittel, start:r.start, pos:r.pos, stad:r.stad, utanTid:!!r.utanTid}) : "";
+    let gammal = "";
+    try { gammal = localStorage.getItem("brannlogg_pagar") || ""; } catch (e) {}
+    if (gammal !== ny) {
+      try { ny ? localStorage.setItem("brannlogg_pagar", ny) : localStorage.removeItem("brannlogg_pagar"); } catch (e) { return; }
+      location.reload();
+    }
+  } catch (e) {}
+}
+setTimeout(sjekkPagarApp, 3000); setInterval(sjekkPagarApp, 60 * 1000);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") sjekkPagarApp(); });
 const h = (location.hash || "").slice(1);
 const start = Object.keys(HASH).find(k => HASH[k] === h);
 if (h.startsWith("b-") && B.some(b => b.id === h.slice(2))) visKort(h.slice(2));
