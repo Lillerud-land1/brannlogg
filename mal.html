@@ -2719,7 +2719,7 @@ $("#personvern-ok").addEventListener("click", () => {
    Steg 1: admin-koden. Appen reknar ut ein nøkkel frå koden (PBKDF2, med vilje tregt – same som BESOK_NOKKEL før)
    og spør workeren om han er rett («/admin-sjekk»). Koden sjølv blir aldri sendt.
    Steg 2: personleg PIN-kode på ein skjerm som dekkjer nesten heile sida («/logginn»). Workeren gir eit signert
-   innloggingsbevis som gjeld i 30 minutt, med rolla «full» (alt) eller «avgrensa» (status og tal).
+   innloggingsbevis som gjeld i 15 minutt (OKT_MIN i workeren), med rolla «full» (alt) eller «avgrensa» (status og tal).
    Alt i panelet som ikkje er offentleg, kjem frå workeren og krev beviset – også lenka til infoskjermen (berre full
    tilgang). Difor kan ingen kome forbi innloggingsskjermen ved å endre sida i nettlesaren: panelet er då tomt.
    Beviset ligg berre i minnet (borte når sida blir lasta på nytt). Sjå worker/worker.js og README, bolk 11. ---- */

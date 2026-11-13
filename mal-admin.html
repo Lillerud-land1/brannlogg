@@ -220,6 +220,7 @@ dialog.boble .hovud{margin-top:18px}
   <header class="topp">
     <img class="logo" src="admin-192.png" alt="" width="38" height="38">
     <b>Brannlogg Admin</b>
+    <button type="button" class="knapp" id="oppfrisk" aria-label="Oppdater – hent nyaste versjon">Oppdater</button>
     <button type="button" class="knapp" id="logg-ut">Logg ut</button>
   </header>
   <p class="okt" id="okt-tekst"></p>
@@ -477,8 +478,10 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden) { sj
 
 /* ---- Innlogging. Steg 1: admin-koden – sida reknar ut ein nøkkel frå koden (PBKDF2, med vilje tregt) og spør
    workeren om han er rett («/admin-sjekk»). Koden sjølv blir aldri sendt. Steg 2: personleg PIN-kode («/logginn»).
-   Workeren gir eit signert innloggingsbevis som gjeld i 30 minutt (adminappen loggar likevel ut etter 15), med rolla «full» eller «avgrensa». Beviset ligg
-   berre i minnet (borte når appen blir lukka). ---- */
+   Workeren gir eit signert innloggingsbevis som gjeld i 15 minutt, med rolla «full» eller «avgrensa». Beviset ligg i
+   minnet og i sessionStorage, så innlogginga varer når sida blir lasta på nytt (knappen «Oppdater» eller nettlesaren),
+   men forsvinn når appen/fana blir lukka, ved «Logg ut» og når tida er ute (13.11.2026). ---- */
+const OKT_LAGER = "brannlogg_admin_okt";
 let tvAdr = "", nokkel = "", okt = null;   // okt = {token, ut, namn, rolle}
 async function adminNokkel(kode){
   const enc = new TextEncoder();
@@ -600,8 +603,9 @@ $("#pin-skjema").addEventListener("submit", async e => {
     const svar = await kall("/logginn", {nokkel, pin});
     await tastaturVekk();   // tastaturet heilt borte før innloggingsskjermen blir bytt ut med panelet
     if (!nokkel) return;    // avbrote i mellomtida
-    // Adminappen loggar ut etter 15 minutt (brukaren sitt ønske 13.11.2026), sjølv om beviset frå workeren gjeld i 30
+    // Logg ut etter 15 minutt (brukaren sitt ønske 13.11.2026) – workeren gir same tid
     okt = {token:svar.token, ut:Math.min(Number(svar.ut), Date.now() + 15 * 60e3), namn:String(svar.namn || ""), rolle:svar.rolle === "full" ? "full" : "avgrensa"};
+    try { sessionStorage.setItem(OKT_LAGER, JSON.stringify(okt)); } catch (e) {}
     $("#pin").value = "";
     visPanel();
   } catch (feil) {
@@ -658,6 +662,7 @@ function loggUt(melding){
   const aktiv = document.activeElement;
   if (aktiv && /^(INPUT|TEXTAREA)$/.test(aktiv.tagName)) aktiv.blur();
   okt = null; nokkel = ""; tvAdr = ""; oppdToken = ""; sisteTal = null;
+  try { sessionStorage.removeItem(OKT_LAGER); } catch (e) {}
   clearTimeout(pagarTimer);
   for (const id of ["#pagar-tittel", "#pagar-adresse", "#pagar-tid", "#pin", "#kode", "#oppd-kode"]) $(id).value = "";
   $("#tv-url").textContent = ""; $("#tv-url").hidden = true; $("#tv-vis").setAttribute("aria-expanded", "false"); $("#tv-vis").textContent = "Vis adressa";
@@ -673,6 +678,8 @@ function loggUt(melding){
 const utlopt = () => loggUt("Innlogginga har gått ut. Logg inn på nytt.");
 setInterval(() => { if (okt && Date.now() > okt.ut) utlopt(); }, 15000);
 $("#logg-ut").addEventListener("click", () => loggUt());
+// «Oppdater»: lastar heile sida på nytt (nyaste versjon av appen og alle data) – innlogginga blir verande
+$("#oppfrisk").addEventListener("click", () => { $("#oppfrisk").disabled = true; location.reload(); });
 
 /* ---- Lenka til infoskjermen (berre full tilgang). Adressa er løynd til du trykkjer «Vis adressa». ---- */
 $("#tv-kopier").addEventListener("click", async () => {
@@ -736,7 +743,8 @@ async function visBesok(){
   try { d = await kall("/besok-tal", {okt:okt.token}); }
   catch (feil) {
     if (feil.status === 401) { utlopt(); return; }
-    $("#besok-status").textContent = "Fekk ikkje henta besøkstala."; visTvSett("feil"); return;
+    $("#besok-status").textContent = feil.status === 429 ? "For mange oppdateringar på kort tid. Vent eitt minutt og trykk «Oppdater» igjen." : "Fekk ikkje henta besøkstala.";
+    visTvSett("feil"); return;
   }
   if (!okt) return;   // logga ut medan tala vart henta
   sisteTal = d;
@@ -1020,6 +1028,14 @@ $("#eksport").addEventListener("click", () => {
     st.textContent = "Fekk ikkje laga fila.";
   }
 });
+// Innlogging som framleis gjeld etter at sida er lasta på nytt
+try {
+  const o = JSON.parse(sessionStorage.getItem(OKT_LAGER) || "null");
+  if (o && typeof o.token === "string" && Number(o.ut) > Date.now() + 5000 && Number(o.ut) < Date.now() + 16 * 60e3 && ["full", "avgrensa"].includes(o.rolle)) {
+    okt = {token:o.token, ut:Number(o.ut), namn:String(o.namn || ""), rolle:o.rolle};
+    visPanel();
+  } else sessionStorage.removeItem(OKT_LAGER);
+} catch (e) {}
 })();
 </script>
 <script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});</script>

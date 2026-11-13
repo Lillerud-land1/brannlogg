@@ -128,7 +128,7 @@ const rettNokkel = (env, req) => likt(req.headers.get("Authorization"), `Bearer 
    Gjetting: 5 feil PIN frå same eining = sperra i 15 minutt; 20 feil totalt på ein time = alle sperra i ein time;
    10 feil admin-kodar frå same eining på ein time = sperra i ein time. Eigaren får melding om sperrer og
    om kvar innlogging. Einingar blir kjende att på ein hash av IP-adressa, aldri sjølve adressa. ---- */
-const OKT_MIN = 30;
+const OKT_MIN = 15;   // 30 fram til 13.11.2026 – brukaren ville ha 15 i både adminappen og appen
 const ROLLER = ["full", "avgrensa"];
 async function hmacB64(nokkelBytes, tekst) {
   const k = await crypto.subtle.importKey("raw", nokkelBytes, {name: "HMAC", hash: "SHA-256"}, false, ["sign"]);
