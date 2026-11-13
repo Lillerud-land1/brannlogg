@@ -1889,13 +1889,14 @@ const OMSETJING = [
   ["{n} dagar sidan", "{n} dager siden", "{n} days ago"],
   ["meir enn tre månader sidan", "mer enn tre måneder siden", "more than three months ago"],
   ["Regn siste 7 dagar:", "Regn siste 7 dager:", "Rain last 7 days:"],
+  ["ca.", "ca.", "approx."],
   ["Luftfukt", "Luftfuktighet", "Humidity"],
   ["Vind", "Vind", "Wind"],
   ["gult nivå", "gult nivå", "yellow level"],
   ["oransje nivå", "oransje nivå", "orange level"],
   ["raudt nivå", "rødt nivå", "red level"],
   ["Farevarsel frå MET: {n}", "Farevarsel fra MET: {n}", "MET warning: {n}"],
-  ["Rekna ut frå temperatur, luftfukt, vind og nedbør dei siste vekene (Fire Weather Index). Prosenten viser kvar på skalaen frå svært låg til ekstrem brannfare vêret ligg, ikkje sannsynet for at det brenn. Ikkje ei offisiell vurdering.", "Beregnet ut fra temperatur, luftfuktighet, vind og nedbør de siste ukene (Fire Weather Index). Prosenten viser hvor på skalaen fra svært lav til ekstrem brannfare været ligger, ikke sannsynligheten for at det brenner. Ikke en offisiell vurdering.", "Calculated from temperature, humidity, wind and rainfall over recent weeks (Fire Weather Index). The percentage shows where the weather sits on the scale from very low to extreme fire danger, not the probability of a fire. Not an official assessment."],
+  ["Rekna ut frå temperatur, luftfukt, vind og nedbør dei siste vekene (Fire Weather Index). Prosenten viser kvar på skalaen frå svært låg til ekstrem brannfare vêret ligg, ikkje sannsynet for at det brenn. Ikkje ei offisiell vurdering. Vêrtala er berekna frå vêrmodellen til MET, ikkje målte på Stord.", "Beregnet ut fra temperatur, luftfuktighet, vind og nedbør de siste ukene (Fire Weather Index). Prosenten viser hvor på skalaen fra svært lav til ekstrem brannfare været ligger, ikke sannsynligheten for at det brenner. Ikke en offisiell vurdering. Værtallene er beregnet fra værmodellen til MET, ikke målt på Stord.", "Calculated from temperature, humidity, wind and rainfall over recent weeks (Fire Weather Index). The percentage shows where the weather sits on the scale from very low to extreme fire danger, not the probability of a fire. Not an official assessment. The weather figures are calculated from MET's weather model, not measured on Stord."],
   ["Lagra ✓", "Lagret ✓", "Saved ✓"],
   ["Du har endringar som ikkje er lagra.", "Du har endringer som ikke er lagret.", "You have unsaved changes."],
   ["Kulde gir meir fyring. Hald avstand mellom omnen og alt som kan brenne, og set oska ut i ei metallbøtte med lok i fleire døgn.", "Kulde gir mer fyring. Hold avstand mellom ovnen og alt som kan brenne, og sett asken ut i en metallbøtte med lokk i flere døgn.", "Cold weather means more wood burning. Keep anything flammable away from the stove, and put ashes outside in a metal bucket with a lid for several days."],
@@ -2163,9 +2164,9 @@ function renderBrannfare(){
   const tal = n => n.toLocaleString(LOCALE, {maximumFractionDigits:1});
   el.innerHTML = `<summary><span class="bf-tekst">${T("Skogbrannfare")}: <span class="bf-klasse">${klasse}</span> <span class="bf-pst">(${f.prosent} %)</span>${varsel}</span>
       <span class="bf-steg" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${f.prosent}" aria-label="${T("Skogbrannfare")} ${f.prosent} %, ${klasse}">${BF_KLASSE.map((_, i) => `<i${i <= f.klasse ? ` style="background:var(--bf${f.klasse})"` : ""}></i>`).join("")}</span>${ikon("i-pil", "bf-pil")}</summary>
-    <div class="bf-detaljar"><div class="bf-fakta"><span>${T("Sist regn:")} <b>${sidan}</b></span><span>${T("Regn siste 7 dagar:")} <b>${tal(f.regn_7d)} mm</b></span>
+    <div class="bf-detaljar"><div class="bf-fakta"><span>${T("Sist regn:")} <b>${sidan}</b></span><span>${T("Regn siste 7 dagar:")} <b>${T("ca.")} ${tal(f.regn_7d)} mm</b></span>
       <span><b>${tal(f.temp)}°</b></span><span>${T("Luftfukt")} <b>${Math.round(f.fukt)} %</b></span><span>${T("Vind")} <b>${Math.round(f.vind)} m/s</b></span></div>
-    <p class="bf-note">${T("Rekna ut frå temperatur, luftfukt, vind og nedbør dei siste vekene (Fire Weather Index). Prosenten viser kvar på skalaen frå svært låg til ekstrem brannfare vêret ligg, ikkje sannsynet for at det brenn. Ikkje ei offisiell vurdering.")}</p></div>`;
+    <p class="bf-note">${T("Rekna ut frå temperatur, luftfukt, vind og nedbør dei siste vekene (Fire Weather Index). Prosenten viser kvar på skalaen frå svært låg til ekstrem brannfare vêret ligg, ikkje sannsynet for at det brenn. Ikkje ei offisiell vurdering. Vêrtala er berekna frå vêrmodellen til MET, ikkje målte på Stord.")}</p></div>`;
   el.hidden = false;
 }
 

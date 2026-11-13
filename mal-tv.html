@@ -516,7 +516,7 @@ function renderBrannfare(){
   const tal = n => n.toLocaleString("nb-NO", {maximumFractionDigits:1});
   el.innerHTML = `<span class="bf-lbl">Fare for utmarksbrann:<b>${BF_KLASSE[f.klasse].toLowerCase()}</b>${varsel}</span><span class="bf-verdi">${f.prosent} %</span>
     <span class="bf-steg">${BF_KLASSE.map((_, i) => `<i${i <= f.klasse ? ` style="background:var(--bf${f.klasse})"` : ""}></i>`).join("")}</span>
-    <span class="bf-fakta">Sist regn <b>${sidan}</b>, <b>${tal(f.regn_7d)} mm</b> siste veke. <b>${Math.round(f.temp)}°</b>, luftfukt <b>${Math.round(f.fukt)} %</b>, vind <b>${Math.round(f.vind)} m/s</b>.</span>`;
+    <span class="bf-fakta">Sist regn <b>${sidan}</b>, <b>ca. ${tal(f.regn_7d)} mm</b> siste veke. <b>${Math.round(f.temp)}°</b>, luftfukt <b>${Math.round(f.fukt)} %</b>, vind <b>${Math.round(f.vind)} m/s</b>.</span>`;
 }
 renderBrannfare();
 
