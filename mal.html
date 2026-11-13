@@ -745,12 +745,15 @@ function brannloggInnst(s){
   set("data-tekst", s.tekst === "stor" ? "stor" : "");
   set("data-rorsle", s.rorsle === "av" ? "av" : "");
   r.lang = s.sprak === "en" ? "en" : s.sprak === "nb" ? "nb" : "nn";
-  // Fargen på statuslinja øvst på telefonen skal følgje temaet i appen, ikkje berre telefonen (13.11.2026):
-  // lys app på mørk telefon gav ei mørk stripe øvst. To metataggar: [0] lys eining, [1] mørk eining.
-  const meta = document.querySelectorAll('meta[name="theme-color"]');
-  if (meta.length === 2) {
-    meta[0].content = s.tema === "mork" ? "#000000" : "#FFFFFF";
-    meta[1].content = s.tema === "lys" ? "#FFFFFF" : "#000000";
+  // Fargen på statuslinja øvst på telefonen skal følgje temaet i appen, ikkje berre telefonen (13.11.2026).
+  // Valt Lys/Mørk: éin ny metatagg utan «media», så iPhone ikkje vel etter telefonen sin modus (å berre endre
+  // innhaldet i dei to taggane med media verka ikkje på iPhone). Automatisk: dei to opphavlege taggane.
+  document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.remove());
+  const farge = s.tema === "lys" ? "#FFFFFF" : s.tema === "mork" ? "#000000" : null;
+  for (const [c, media] of farge ? [[farge, ""]] : [["#FFFFFF", "(prefers-color-scheme: light)"], ["#000000", "(prefers-color-scheme: dark)"]]) {
+    const m = document.createElement("meta"); m.name = "theme-color"; m.content = c;
+    if (media) m.media = media;
+    document.head.appendChild(m);
   }
 }
 try { brannloggInnst(JSON.parse(localStorage.getItem("brannlogg_innst") || "{}")); } catch (e) {}
