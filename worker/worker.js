@@ -17,7 +17,7 @@
 // så adminpanelet kan vise totalen).
 // Adminpanelet hentar tala med «/besok-tal» og eit innloggingsbevis (admin-kode + PIN, sjå «Innlogging i adminpanelet»).
 // Kjem nokon via QR-koden på infoskjermen (adressa «/?qr»), sender appen {qr: true}, og kvar skanning blir talt
-// (tabellen qr; berre talet per dag, maks 3 i minuttet frå same eining – sjå GRENSE_EINING). Appen sender òg kva
+// (tabellen qr; berre talet per dag, kvar skanning tel – også over GRENSE_EINING, sidan 13.11.2026). Appen sender òg kva
 // slags eining det er (mobil/nettbrett/pc) og om ho er opna som app frå heimeskjermen; det blir talt saman med
 // besøket (éin gong per eining per dag, tabellen typar). 8.11.2026.
 // Unike einingar (13.11.2026): appen hugsar sjølv (localStorage) om eininga alt er talt, og sender {ny: true} berre
@@ -190,7 +190,13 @@ export class Teljar {
   async fetch(req) {
     const dag = osloDag();
     if (new URL(req.url).pathname === "/tel") {
-      const {kjenne, qr, eining, app, ny, qrny} = await req.json();
+      const {kjenne, qr, eining, app, ny, qrny, berreQr} = await req.json();
+      if (berreQr === true) {
+        // Over grensa for besøk (3 i minuttet), men QR-skanninga skal teljast likevel
+        if (qr === true) this.sql.exec("INSERT INTO qr (dag, skann) VALUES (?, 1) ON CONFLICT(dag) DO UPDATE SET skann = skann + 1", dag);
+        if (qr === true && qrny === true) this.sql.exec("INSERT INTO unike (dag, namn, n) VALUES (?, 'qr', 1) ON CONFLICT(dag, namn) DO UPDATE SET n = n + 1", dag);
+        return new Response("ok");
+      }
       let salt = await this.ctx.storage.get("salt");
       if (salt?.dag !== dag) {
         // Ny dag: saltet og hashane frå i går blir sletta, så ingen kan kjennast att frå dag til dag
@@ -332,10 +338,14 @@ export default {
         const ua = req.headers.get("User-Agent") || "";
         // Maks 3 opningar i minuttet frå same eining blir talde (IP + nettlesar, sidan mange mobilar deler IP-adresse),
         // og robotar blir ikkje talde
-        if (!ROBOT.test(ua) && (await innanfor([env.GRENSE_EINING, `besok:${ip}|${ua.slice(0, 300)}`])))
-          await teljar(env).fetch("https://teljar/tel", {method: "POST", body: JSON.stringify({kjenne: `${ip}|${ua}`, qr: data.qr === true,
-            eining: EININGAR.includes(data.eining) ? data.eining : null, app: data.app === true,
-            ny: data.ny === true, qrny: data.qrny === true})});
+        // QR-skanningar blir alltid talde, same kor mange i minuttet (brukaren sitt ønske 13.11.2026)
+        if (!ROBOT.test(ua)) {
+          const fullt = await innanfor([env.GRENSE_EINING, `besok:${ip}|${ua.slice(0, 300)}`]);
+          if (fullt || data.qr === true)
+            await teljar(env).fetch("https://teljar/tel", {method: "POST", body: JSON.stringify({berreQr: !fullt, kjenne: `${ip}|${ua}`,
+              qr: data.qr === true, eining: EININGAR.includes(data.eining) ? data.eining : null, app: data.app === true,
+              ny: fullt && data.ny === true, qrny: data.qrny === true})});
+        }
         return svar({ok: true});
       }
       if (sti === "/tv") {
