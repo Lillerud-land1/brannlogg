@@ -268,7 +268,10 @@ const START = IDAG.dn - (VINDU - 1);
 const PG_NOKKEL = "__TV_PING__", WORKER = "https://brannlogg-admin.brannlogg-admin.workers.dev";
 let PG = null;
 try { PG = JSON.parse(localStorage.getItem("brannlogg_pagar") || "null"); } catch (e) {}
-if (PG && !(Date.now() - new Date(PG.start) < 8 * 36e5 && !B.some(b => b.bris && b.bris.type && b.bris.type !== "Oppdrag løst av 110" && new Date(b.start) >= new Date(PG.start) - 20 * 6e4))) PG = null;
+// Går òg av når politiet har skrive om ei hending etter start (13.11.2026): Politiloggen-hendingar har ingen kjelde_type
+const pgOverteke = (pg, b) => new Date(b.start) >= new Date(pg.start) - 20 * 6e4 &&
+  ((b.bris && b.bris.type && b.bris.type !== "Oppdrag løst av 110") || (!b.kjelde_type && b.id !== "pagar"));
+if (PG && !(Date.now() - new Date(PG.start) < 8 * 36e5 && !B.some(b => pgOverteke(PG, b)))) PG = null;
 if (PG) B.unshift({id:"pagar", gruppe:"utrykking", tittel:String(PG.tittel).slice(0, 60), stad:String(PG.stad || "Stord").slice(0, 80), start:PG.start, utanTid:!!PG.utanTid, sist:new Date().toISOString(), aktiv:true,
   type:"utrykking", alvor:3, pos:Array.isArray(PG.pos) && PG.pos.length === 2 && PG.pos.every(Number.isFinite) ? PG.pos : null, meldingar:[{t:PG.start, tekst:"Melding frå brannstasjonen. Detaljar kjem."}], _o:oslo(PG.start)});
 async function sjekkPagar(){

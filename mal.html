@@ -1061,7 +1061,7 @@ if (fm.fileExists(fil)) {
         </div>
         <ul class="sys-liste" id="tv-sett" hidden></ul>
         <div class="tv-blokk" id="pagar-blokk" hidden>
-          <div><b>Brann pågår</b><span class="sub" style="display:block">Set infoskjermen i alarmmodus med ein kort tittel. Går av når du trykkjer «Avslutt», når brannstatistikken har fylt ut typen, eller etter 8 timar.</span></div>
+          <div><b>Brann pågår</b><span class="sub" style="display:block">Set infoskjermen i alarmmodus med ein kort tittel. Går av når du trykkjer «Avslutt», når politiet har skrive om det i Politiloggen, når brannstatistikken har fylt ut typen, eller etter 8 timar.</span></div>
           <form class="admin-kode" id="pagar-skjema" autocomplete="off">
             <input id="pagar-tittel" maxlength="60" aria-label="Tittel" placeholder="Til dømes: Brann i skorstein">
             <div class="pagar-tid-val">
@@ -2024,7 +2024,8 @@ const B = D.brannar.map(b0 => {
 let PG_APP = null;
 try { PG_APP = JSON.parse(localStorage.getItem("brannlogg_pagar") || "null"); } catch (e) {}
 if (PG_APP && !(typeof PG_APP.tittel === "string" && !isNaN(Date.parse(PG_APP.start)) && Date.now() - new Date(PG_APP.start) < 8 * 36e5
-    && !B.some(b => b.bris && b.bris.type && b.bris.type !== "Oppdrag løst av 110" && new Date(b.start) >= new Date(PG_APP.start) - 20 * 6e4))) PG_APP = null;
+    && !B.some(b => new Date(b.start) >= new Date(PG_APP.start) - 20 * 6e4 &&   // politiet har skrive (ingen kjelde_type) eller BRIS har typen
+      ((b.bris && b.bris.type && b.bris.type !== "Oppdrag løst av 110") || (!b.kjelde_type && b.id !== "pagar"))))) PG_APP = null;
 if (PG_APP) {
   const o = oslo(PG_APP.start), tittel = String(PG_APP.tittel).slice(0, 60), stad = String(PG_APP.stad || "Stord").slice(0, 80);
   const tekst = T("Melding frå brannstasjonen. Detaljar kjem.");
