@@ -3036,9 +3036,14 @@ function pagarStart(){
   if (pagarTid === "ingen") return "";
   if (pagarTid === "siste" && B[0]) return new Date(B[0].start).toISOString();
   if (!/^\d\d:\d\d$/.test(v)) return "";
-  const d = new Date(); d.setHours(+v.slice(0, 2), +v.slice(3), 0, 0);
-  if (d.getTime() > Date.now() + 2 * 6e4) d.setDate(d.getDate() - 1);
-  return d.toISOString();
+  // Klokkeslettet blir lese som norsk tid (Europe/Oslo), same kva tidssone PC-en står på (13.11.2026)
+  const h = +v.slice(0, 2), mi = +v.slice(3), idag = oslo(new Date());
+  const tilUtc = (y, m, d) => { let t = Date.UTC(y, m - 1, d, h, mi);
+    for (let i = 0; i < 2; i++) { const o = oslo(new Date(t)); t -= Date.UTC(o.y, o.m - 1, o.d, o.h, o.min) - Date.UTC(y, m - 1, d, h, mi); }
+    return t; };
+  let t = tilUtc(idag.y, idag.m, idag.d);
+  if (t > Date.now() + 2 * 6e4) { const g = oslo(new Date(Date.UTC(idag.y, idag.m - 1, idag.d, 12) - 864e5)); t = tilUtc(g.y, g.m, g.d); }
+  return new Date(t).toISOString();
 }
 $("#pagar-skjema").addEventListener("submit", async e => {
   e.preventDefault();

@@ -311,7 +311,7 @@ synkKlokke(); setInterval(synkKlokke, 10 * 60 * 1000);
 // Politiloggen kan la ei hending stå som aktiv i fleire dagar, så utan regelen kunne teljaren stå med «Pågår no» lenge
 // medan appen viste «Dagar sidan siste hending» (retta 7.11.2026).
 const ALARM_MAKS = 3 * 36e5;
-const alarmNo = () => B.filter(b => b.aktiv && Date.now() - new Date(b.sist) < ALARM_MAKS);
+const alarmNo = () => B.filter(b => b.aktiv && tenarTid() - new Date(b.sist) < ALARM_MAKS);
 const aktive = alarmNo();
 const ALLE = B;
 const siste = ALLE[0];
@@ -379,7 +379,8 @@ if (K) {
    Politiloggen kan la ei hending stå som aktiv lenge, så ho må ha fått ei ny melding dei siste 3 timane (alarmNo() over). */
 const ALARM = alarmNo();
 function sidanTekst(fraa){
-  const min = Math.max(0, Math.round((Date.now() - new Date(fraa)) / 6e4));
+  // Rett tid frå nettstaden (tenarTid), ikkje klokka i skjermen – ho kan gå feil, t.d. ein time (13.11.2026)
+  const min = Math.max(0, Math.round((tenarTid() - new Date(fraa)) / 6e4));
   return min < 60 ? `${min} min` : `${Math.floor(min / 60)} t ${min % 60} min`;
 }
 if (ALARM.length) {

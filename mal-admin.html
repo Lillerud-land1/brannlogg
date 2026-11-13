@@ -237,6 +237,7 @@ dialog.boble .hovud{margin-top:18px}
           <span class="etikett">Når starta det?</span>
           <div class="val"><button type="button" class="knapp" id="pt-siste"></button><button type="button" class="knapp" id="pt-anna">Anna tid</button><button type="button" class="knapp" id="pt-ingen">Ingen tid</button></div>
           <input id="pagar-tid" type="time" aria-label="Klokkeslett det starta" hidden>
+          <p class="sub" id="pt-ingen-alarm" hidden>«Siste alarm» kjem berre når det har vore ein alarm dei siste 12 timane. Skriv klokkeslettet sjølv, eller vel «Ingen tid».</p>
           <label for="pagar-adresse">Adresse <span class="valfri">(valfritt)</span></label>
           <input id="pagar-adresse" maxlength="80" placeholder="Til dømes Nordstokkevegen 12">
           <div class="rad2"><button type="submit" class="hovud raud" id="pagar-start">Start</button><button type="button" class="knapp" id="pagar-av">Avslutt</button></div>
@@ -786,6 +787,7 @@ function pagarTidOppsett(nullstill){
   const b = sisteAlarm();
   if (b) $("#pt-siste").textContent = `Siste alarm kl. ${kl(oslo(b.start))} – ${b.tittel}`;
   $("#pt-siste").hidden = !b;
+  $("#pt-ingen-alarm").hidden = !!b;
   if (nullstill || (pagarTid === "siste" && !b)) pagarTidVelg(b ? "siste" : "anna");
 }
 function pagarTidVelg(v){
@@ -801,9 +803,14 @@ function pagarStart(){
   if (pagarTid === "ingen") return "";
   if (pagarTid === "siste" && b) return new Date(b.start).toISOString();
   if (!/^\d\d:\d\d$/.test(v)) return "";
-  const d = new Date(); d.setHours(+v.slice(0, 2), +v.slice(3), 0, 0);
-  if (d.getTime() > Date.now() + 2 * 6e4) d.setDate(d.getDate() - 1);
-  return d.toISOString();
+  // Klokkeslettet blir lese som norsk tid (Europe/Oslo), same kva tidssone PC-en står på (13.11.2026)
+  const h = +v.slice(0, 2), mi = +v.slice(3), idag = oslo(new Date());
+  const tilUtc = (y, m, d) => { let t = Date.UTC(y, m - 1, d, h, mi);
+    for (let i = 0; i < 2; i++) { const o = oslo(new Date(t)); t -= Date.UTC(o.y, o.m - 1, o.d, o.h, o.min) - Date.UTC(y, m - 1, d, h, mi); }
+    return t; };
+  let t = tilUtc(idag.y, idag.m, idag.d);
+  if (t > Date.now() + 2 * 6e4) { const g = oslo(new Date(Date.UTC(idag.y, idag.m - 1, idag.d, 12) - 864e5)); t = tilUtc(g.y, g.m, g.d); }
+  return new Date(t).toISOString();
 }
 $("#pagar-skjema").addEventListener("submit", async e => {
   e.preventDefault();
