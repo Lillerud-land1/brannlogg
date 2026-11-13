@@ -337,6 +337,15 @@ BRANNORD = re.compile(
 UTRORD = re.compile(
     r"ulykke|kollisjon|kolliderte|trafikk|påkjør|utforkjøring|sjøen|båt|redning|nødetat|brannvesen|"
     r"utslepp|utslipp|diesel|savn|skadd|skadet", re.I)
+# Ord som peikar på éin bestemd type. Oppdrag utan stad (berre i brannstatistikken) kan då koplast til ei sak
+# om same type på Stord, sjølv om det var andre oppdrag same døgnet (pipebrannen 09.11.2026 fekk elles ingen lenker).
+TYPEORD = {
+    "pipe": re.compile(r"pipebrann|skorstein|brann i pipa|brann i pipe", re.I),
+    "kjoretoy": re.compile(r"bilbrann|bil i brann|brann i bil|bil brann|bilen tok fyr|bil tok fyr|bussbrann", re.I),
+    "vegetasjon": re.compile(r"lyngbrann|grasbrann|gressbrann|skogbrann|brann i lyng|brann i gras|brann i gress|brann i skog", re.I),
+    "bygning": re.compile(r"husbrann|bustadbrann|boligbrann|brann i hus|brann i bustad|brann i bolig|brann i bygg", re.I),
+    "trafikk": re.compile(r"trafikkulukke|trafikkulykke|kollisjon|kolliderte|utforkøyring|utforkjøring|påkøyrd|påkjørt", re.I),
+}
 
 
 def les_feed(url):
@@ -392,7 +401,11 @@ def finn_nyheiter(brannar, alle_saker=None, lagre=True, trådar=()):
                 continue
             treff_stad = any(w in heil for w in stadord)
             treff_stord = "stord" in heil or "leirvik" in heil
-            if not (treff_stad or (treff_stord and not krev_stad and not andre)):
+            typeord = TYPEORD.get(b.get("type"))
+            treff_type = (typeord is not None and treff_stord and not krev_stad and typeord.search(heil)
+                          and start - timedelta(hours=1) <= tid <= start + timedelta(hours=24)
+                          and not any(x.get("type") == b.get("type") for x in andre))
+            if not (treff_stad or treff_type or (treff_stord and not krev_stad and not andre)):
                 continue
             if not treff_stad and any(d in heil and t - timedelta(hours=1) <= tid <= t + timedelta(hours=48) for t, d in framande):
                 continue
