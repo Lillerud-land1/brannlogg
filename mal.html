@@ -2961,12 +2961,22 @@ if (OPNE_URL && location.hostname === "bls.lillerud.com" && !navigator.webdriver
 // «På sida no» (13.11.2026): medan appen er synleg, sender ho eit tilfeldig nummer kvart minutt. Nummeret ligg
 // berre i minnet (nytt kvar gong sida blir opna) og blir sletta hos tenesta etter 2 minutt. Berre talet blir vist.
 if (OPNE_URL && location.hostname === "bls.lillerud.com" && !navigator.webdriver) {
-  const HER_ID = Array.from(crypto.getRandomValues(new Uint8Array(10)), b => (b % 36).toString(36)).join("");
-  const her = () => { if (document.visibilityState === "visible")
-    fetch(OPNE_URL + "/her", {method:"POST", headers:{"Content-Type":"text/plain"}, body:JSON.stringify({id:HER_ID}), keepalive:true}).catch(() => {}); };
+  // Same nummer når sida blir lasta på nytt i same fane/app-økt (sessionStorage) – elles vart éin telefon talt to
+  // gonger i opptil 90 sekund (13.11.2026). Når appen blir skjult, seier ho frå med ein gong («borte»).
+  let HER_ID = "";
+  try { HER_ID = sessionStorage.getItem("brannlogg_her") || ""; } catch (e) {}
+  if (!/^[a-z0-9]{10}$/.test(HER_ID)) {
+    HER_ID = Array.from(crypto.getRandomValues(new Uint8Array(10)), b => (b % 36).toString(36)).join("");
+    try { sessionStorage.setItem("brannlogg_her", HER_ID); } catch (e) {}
+  }
+  const herSend = d => fetch(OPNE_URL + "/her", {method:"POST", headers:{"Content-Type":"text/plain"}, body:JSON.stringify({id:HER_ID, ...d}), keepalive:true}).catch(() => {});
+  const her = () => { if (document.visibilityState === "visible") herSend({}); };
   setTimeout(her, 2500); setInterval(her, 60 * 1000);
   let sistHer = 0;
-  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && Date.now() - sistHer > 25000) { sistHer = Date.now(); her(); } });
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") { sistHer = 0; herSend({borte:true}); }
+    else if (Date.now() - sistHer > 25000) { sistHer = Date.now(); her(); }
+  });
 }
 const siste30 = idag => {
   const d = [];

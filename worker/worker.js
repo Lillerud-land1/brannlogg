@@ -245,9 +245,10 @@ export class Teljar {
     // Kor mange som har appen open no (13.11.2026): appen sender eit tilfeldig nummer (berre i minnet på sida,
     // nytt kvar gong ho blir opna) kvart minutt medan ho er synleg. Nummer eldre enn 2 minutt blir sletta.
     if (new URL(req.url).pathname === "/her") {
-      const {id} = await req.json();
+      const {id, borte} = await req.json();
       this.sql.exec("DELETE FROM her WHERE t < ?", Date.now() - 120000);
-      if (typeof id === "string" && /^[a-z0-9]{8,24}$/.test(id))
+      if (typeof id === "string" && /^[a-z0-9]{8,24}$/.test(id) && borte === true) this.sql.exec("DELETE FROM her WHERE id = ?", id);   // appen vart skjult
+      else if (typeof id === "string" && /^[a-z0-9]{8,24}$/.test(id))
         this.sql.exec("INSERT INTO her (id, t) VALUES (?, ?) ON CONFLICT(id) DO UPDATE SET t = excluded.t", id, Date.now());
       return new Response("ok");
     }
@@ -474,7 +475,7 @@ ${kven}`});
         // Appen er open (sjå «/her» i Teljar). Robotar blir ikkje talde.
         const ua = req.headers.get("User-Agent") || "";
         if (!ROBOT.test(ua) && (await innanfor([env.GRENSE_EINING, `her:${ip}|${ua.slice(0, 300)}`])))
-          await teljar(env).fetch("https://teljar/her", {method: "POST", body: JSON.stringify({id: data.id})});
+          await teljar(env).fetch("https://teljar/her", {method: "POST", body: JSON.stringify({id: data.id, borte: data.borte === true})});
         return svar({ok: true});
       }
       if (sti === "/no-tal") {
