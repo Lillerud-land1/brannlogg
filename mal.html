@@ -1900,6 +1900,7 @@ const OMSETJING = [
   ["meir enn tre månader sidan", "mer enn tre måneder siden", "more than three months ago"],
   ["Regn siste 7 dagar:", "Regn siste 7 dager:", "Rain last 7 days:"],
   ["ca.", "ca.", "approx."],
+  ["Lat att appen heilt og opne han igjen, så får linja øvst rett farge.", "Lukk appen helt og åpne den igjen, så får linjen øverst riktig farge.", "Close the app completely and open it again to give the top bar the right colour."],
   ["Luftfukt", "Luftfuktighet", "Humidity"],
   ["Vind", "Vind", "Wind"],
   ["gult nivå", "gult nivå", "yellow level"],
@@ -2669,14 +2670,15 @@ function lagreInnst(){
   innst = {...utkast};
   try { localStorage.setItem("brannlogg_innst", JSON.stringify(innst)); } catch(e) {}
   if (innst.sprak !== forrige.sprak) { location.reload(); return; }
-  // Nytt tema: iPhone les fargen på statuslinja berre når sida blir lasta, så last på nytt og bli verande
-  // i Innstillingar (13.11.2026 – lys app etter mørk gav framleis svart stripe øvst)
-  if (innst.tema !== forrige.tema) { try { history.replaceState(history.state, "", location.pathname + location.search + "#innstillingar"); } catch (e) {} location.reload(); return; }
+  // Nytt tema i appen på iPhone-heimeskjermen: iPhone les fargen på statuslinja øvst berre når appen blir starta
+  // (ikkje ved omlasting – prøvd 13.11.2026), så be brukaren late att og opne appen på nytt
+  const nyttTemaIos = innst.tema !== forrige.tema && navigator.standalone === true;
   brannloggInnst(innst);
   if (innst.gruppe !== forrige.gruppe) { state.gruppe = innst.gruppe; state.antal = SIDE; renderHero(); renderAll(); renderStats(); }
   renderInnst();
   const k = $("#innst-lagre");
   k.textContent = T("Lagra ✓"); k.classList.add("ok");
+  if (nyttTemaIos) eggMelding(T("Lat att appen heilt og opne han igjen, så får linja øvst rett farge."), 9000);
   clearTimeout(k._t); k._t = setTimeout(() => { k.textContent = T("Lagre"); k.classList.remove("ok"); }, 2500);
 }
 $("#v-innst").addEventListener("click", e => {
