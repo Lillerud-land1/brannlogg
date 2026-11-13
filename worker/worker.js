@@ -162,6 +162,9 @@ async function sjekkOkt(env, token) {
   const [ut, rolle, namn, sig] = String(token || "").split(".");
   if (!sig || !ROLLER.includes(rolle) || !(Number(ut) > Date.now()) || Number(ut) > Date.now() + (OKT_MIN + 1) * 60000) return null;
   if (!likt(sig, await hmacB64(enc.encode(env.KODE_NOKKEL || ""), `okt.${ut}.${rolle}.${namn}`))) return null;
+  // «Logg ut alle» (13.11.2026): bevis laga før det tidspunktet gjeld ikkje lenger
+  const {t: utlogga} = await (await ko(env).fetch("https://ko/utlogga", {method: "POST", body: "{}"})).json();
+  if (utlogga && Number(ut) - OKT_MIN * 60000 <= utlogga) return null;
   try { return {rolle, namn: new TextDecoder().decode(unb64(namn))}; } catch (e) { return null; }
 }
 // Sperre mot gjetting, lagra i Durable Object «Ko» (éin instans for heile tenesta)
@@ -185,6 +188,7 @@ export class Teljar {
     // Kva slags einingar som besøkjer (mobil/nettbrett/pc) og kor mange som brukar appen frå heimeskjermen (namn «app»)
     this.sql.exec("CREATE TABLE IF NOT EXISTS typar (dag TEXT NOT NULL, namn TEXT NOT NULL, n INTEGER NOT NULL, PRIMARY KEY (dag, namn))");
     // Nye unike einingar per dag (namn «besok» eller «qr») – sjå øvst
+    this.sql.exec("CREATE TABLE IF NOT EXISTS her (id TEXT PRIMARY KEY, t INTEGER NOT NULL)");   // sjå «/her»
     this.sql.exec("CREATE TABLE IF NOT EXISTS unike (dag TEXT NOT NULL, namn TEXT NOT NULL, n INTEGER NOT NULL, PRIMARY KEY (dag, namn))");
   }
 
@@ -227,6 +231,30 @@ export class Teljar {
       await this.ctx.storage.put("tv", await req.json());
       return new Response("ok");
     }
+    // Vakt for infoskjermen (13.11.2026): har han ikkje meldt frå på 30 minutt, blir eigaren varsla éin gong,
+    // og éin gong til når han er tilbake. Blir kalla frå «/hent» (GitHub spør kvart 10. sekund).
+    if (new URL(req.url).pathname === "/tv-vakt") {
+      const {min} = await req.json().catch(() => ({}));   // 30 minutt; lågare berre ved lokal testing (TV_BORTE_MIN)
+      const tv = await this.ctx.storage.get("tv"), varsla = (await this.ctx.storage.get("tv_varsla")) === true;
+      if (!tv || !tv.sist) return Response.json({});
+      const borte = Date.now() - tv.sist > (Number(min) > 0 ? Number(min) : 30) * 60000;
+      if (borte && !varsla) { await this.ctx.storage.put("tv_varsla", true); return Response.json({melding: "borte", sist: tv.sist}); }
+      if (!borte && varsla) { await this.ctx.storage.put("tv_varsla", false); return Response.json({melding: "tilbake"}); }
+      return Response.json({});
+    }
+    // Kor mange som har appen open no (13.11.2026): appen sender eit tilfeldig nummer (berre i minnet på sida,
+    // nytt kvar gong ho blir opna) kvart minutt medan ho er synleg. Nummer eldre enn 2 minutt blir sletta.
+    if (new URL(req.url).pathname === "/her") {
+      const {id} = await req.json();
+      this.sql.exec("DELETE FROM her WHERE t < ?", Date.now() - 120000);
+      if (typeof id === "string" && /^[a-z0-9]{8,24}$/.test(id))
+        this.sql.exec("INSERT INTO her (id, t) VALUES (?, ?) ON CONFLICT(id) DO UPDATE SET t = excluded.t", id, Date.now());
+      return new Response("ok");
+    }
+    if (new URL(req.url).pathname === "/no") {
+      this.sql.exec("DELETE FROM her WHERE t < ?", Date.now() - 120000);
+      return Response.json({no: this.sql.exec("SELECT COUNT(*) AS n FROM her WHERE t > ?", Date.now() - 90000).one().n});
+    }
     const fra = osloDag(new Date(Date.now() - 29 * 864e5));
     const alle = this.sql.exec("SELECT MIN(dag) AS fyrste, COALESCE(SUM(besokande), 0) AS totalt FROM dagar").one();
     const qr = this.sql.exec("SELECT MIN(dag) AS fyrste, COALESCE(SUM(skann), 0) AS totalt FROM qr").one();
@@ -250,6 +278,11 @@ export class Ko {
     const no = Date.now();
     // Innloggingslogg (13.11.2026): dei siste 20 innloggingane og sperrene i adminpanelet – namn, rolle, tid,
     // omtrentleg stad og eining. Aldri IP-adresse. {legg: {...}} legg til, {} les.
+    if (new URL(req.url).pathname === "/utlogga") {
+      const d = await req.json().catch(() => ({}));
+      if (d.sett === true) await this.ctx.storage.put("utlogga", no);
+      return Response.json({t: (await this.ctx.storage.get("utlogga")) || 0});
+    }
     if (new URL(req.url).pathname === "/logg") {
       const d = await req.json().catch(() => ({}));
       let logg = (await this.ctx.storage.get("innlogg")) || [];
@@ -317,6 +350,14 @@ export default {
     // GitHub hentar køen (ikkje for nettlesarar)
     if (sti === "/hent") {
       if (!rettNokkel(env, req)) return new Response("ikkje tillate", {status: 403});
+      try {
+        const v = await (await teljar(env).fetch("https://teljar/tv-vakt", {method: "POST", body: JSON.stringify({min: Number(env.TV_BORTE_MIN) || 30})})).json();
+        if (v.melding === "borte")
+          await tilEigaren(env, {title: "📺 Infoskjermen svarar ikkje", tags: ["tv"], priority: 4,
+            message: `Infoskjermen på brannstasjonen har ikkje meldt frå sidan kl. ${new Date(v.sist).toLocaleTimeString("nb-NO", {timeZone: "Europe/Oslo", hour: "2-digit", minute: "2-digit"})}. Kanskje han er slått av eller har mista nettet.`});
+        if (v.melding === "tilbake")
+          await tilEigaren(env, {title: "📺 Infoskjermen er tilbake", tags: ["tv"], priority: 3, message: "Infoskjermen på brannstasjonen melder frå igjen."});
+      } catch (e) {}
       return ko(env).fetch("https://ko/hent", {method: "POST"});
     }
 
@@ -428,6 +469,31 @@ export default {
           tags: [sti === "/pagar-sett" ? "rotating_light" : "mute"], priority: 3, message: `${okt.namn}.
 ${kven}`});
         return svar(r);
+      }
+      if (sti === "/her") {
+        // Appen er open (sjå «/her» i Teljar). Robotar blir ikkje talde.
+        const ua = req.headers.get("User-Agent") || "";
+        if (!ROBOT.test(ua) && (await innanfor([env.GRENSE_EINING, `her:${ip}|${ua.slice(0, 300)}`])))
+          await teljar(env).fetch("https://teljar/her", {method: "POST", body: JSON.stringify({id: data.id})});
+        return svar({ok: true});
+      }
+      if (sti === "/no-tal") {
+        if (!(await innanfor([env.GRENSE_EINING, `notal:${ip}`]))) return svar({feil: "for mange"}, 429);
+        const [, nei] = await krevOkt("avgrensa");
+        if (nei) return nei;
+        return svar(await (await teljar(env).fetch("https://teljar/no", {method: "POST", body: "{}"})).json());
+      }
+      if (sti === "/logg-ut-alle") {
+        // Alle innloggingsbevis som finst no, sluttar å gjelde (også ditt eige) – berre full tilgang
+        if (!(await innanfor([env.GRENSE_EINING, `utalle:${ip}`]))) return svar({feil: "for mange"}, 429);
+        const [o, nei] = await krevOkt("full");
+        if (nei) return nei;
+        await ko(env).fetch("https://ko/utlogga", {method: "POST", body: JSON.stringify({sett: true})});
+        await loggFor({type: "utlogg_alle", namn: o.namn});
+        await tilEigaren(env, {title: `🚪 ${o.namn} logga ut alle frå adminpanelet`, tags: ["door"], priority: 3,
+          message: `Alle innloggingar sluttar å gjelde no.
+${kven}`});
+        return svar({ok: true});
       }
       if (sti === "/innlogg-logg") {
         // Innloggingslogg – berre med full tilgang

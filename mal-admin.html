@@ -114,6 +114,11 @@ details.heim p{margin-top:8px}
 .logg b{font-size:15.5px}
 .logg span{font-size:13.5px;color:var(--muted)}
 .logg li.aat b{color:var(--fire)}
+.no-tal{display:flex;align-items:baseline;gap:10px}
+.no-tal i{width:12px;height:12px;border-radius:50%;background:var(--ok);align-self:center;box-shadow:0 0 0 4px color-mix(in srgb,var(--ok) 25%,transparent)}
+.no-tal b{font:700 44px/1 var(--f-tal);font-variant-numeric:tabular-nums}
+.no-tal span{color:var(--ink-2)}
+#logg-ut-alle.stadfest{background:var(--fire);color:#fff;border-color:var(--fire)}
 .melding:empty{display:none}
 
 /* Brann pågår */
@@ -253,6 +258,7 @@ dialog.boble .hovud{margin-top:18px}
       <article class="kort" id="tv-kort">
         <h3>Infoskjermen</h3>
         <ul class="sys-liste" id="tv-sett"></ul>
+        <p class="sub">Har skjermen ikkje meldt frå på 30 minutt, får eigaren varsel på mobilen – og eitt til når han er tilbake.</p>
         <div id="tv-blokk" hidden>
           <p class="sub">Lenke til storskjerm-versjonen for brannstasjonen.</p>
           <div class="lenker">
@@ -297,6 +303,11 @@ dialog.boble .hovud{margin-top:18px}
 
     <section class="fane" id="fane-tal" aria-labelledby="t-tal">
       <h2 id="t-tal">Tal</h2>
+      <article class="kort" id="no-kort" hidden>
+        <h3>På sida no</h3>
+        <p class="no-tal"><i aria-hidden="true"></i><b id="no-tal">–</b><span id="no-tekst">Hentar …</span></p>
+        <p class="sub">Kor mange som har appen open akkurat no (siste 1–2 minutt). Blir oppdatert kvart 30. sekund.</p>
+      </article>
       <article class="kort" id="besok">
         <h3>Besøk</h3>
         <p class="sub">Kor mange gonger appen er opna. Kvar opning blir talt, same kor mange gonger.</p>
@@ -328,6 +339,8 @@ dialog.boble .hovud{margin-top:18px}
         <p class="sub">Dei siste 20 innloggingane og sperrene i adminpanelet. Berre omtrentleg stad – aldri IP-adresse.</p>
         <ol class="logg" id="logg-liste"></ol>
         <p class="melding" id="logg-status" role="status"></p>
+        <button type="button" class="knapp" id="logg-ut-alle">Logg ut alle</button>
+        <p class="sub">Alle som er innlogga no, blir kasta ut – også du. Bruk han om du har mista telefonen eller ser noko rart i loggen.</p>
       </article>
     </section>
   </div>
@@ -669,9 +682,42 @@ async function visPanel(){
   }
   visBesok();
   if (full) visLogg();
+  $("#no-kort").hidden = false; visNo();
 }
+/* ---- «På sida no» (13.11.2026): kor mange som har appen open, kvart 30. sekund medan du er innlogga ---- */
+async function visNo(){
+  if (!okt || document.hidden) return;
+  try {
+    const d = await kall("/no-tal", {okt:okt.token});
+    if (!okt) return;
+    const n = Number(d.no) || 0;
+    $("#no-tal").textContent = n.toLocaleString(LOCALE);
+    $("#no-tekst").textContent = n === 1 ? "person har appen open" : "personar har appen open";
+  } catch (feil) {
+    if (feil.status === 401) { utlopt(); return; }
+    if (feil.status !== 429) $("#no-tekst").textContent = "Fekk ikkje henta talet.";
+  }
+}
+setInterval(visNo, 30 * 1000);
+/* ---- «Logg ut alle» (full tilgang): trykk to gonger innan 5 sekund ---- */
+let utAlleT = 0;
+$("#logg-ut-alle").addEventListener("click", async () => {
+  const k = $("#logg-ut-alle");
+  if (!okt || okt.rolle !== "full" || k.disabled) return;
+  if (!k.classList.contains("stadfest")) {
+    k.classList.add("stadfest"); k.textContent = "Trykk igjen for å logge ut alle";
+    clearTimeout(utAlleT); utAlleT = setTimeout(() => { k.classList.remove("stadfest"); k.textContent = "Logg ut alle"; }, 5000);
+    return;
+  }
+  clearTimeout(utAlleT); k.disabled = true;
+  try { await kall("/logg-ut-alle", {okt:okt.token}); loggUt("Alle er logga ut – også du. Logg inn på nytt."); }
+  catch (feil) {
+    if (feil.status === 401) utlopt(); else $("#logg-status").textContent = feil.status === 429 ? "For mange forsøk. Vent eitt minutt." : "Fekk ikkje logga ut alle. Prøv igjen.";
+  }
+  k.disabled = false; k.classList.remove("stadfest"); k.textContent = "Logg ut alle";
+});
 /* ---- Innloggingslogg (full tilgang, 13.11.2026): dei siste 20 innloggingane og sperrene frå workeren ---- */
-const LOGG_TYPE = {sperra_pin:"Sperra: 5 feil PIN-kodar", sperra_admin:"Sperra: mange feil admin-kodar", sperra_alle:"All innlogging sperra (for mange feil)"};
+const LOGG_TYPE = {utlogg_alle:"Logga ut alle", sperra_pin:"Sperra: 5 feil PIN-kodar", sperra_admin:"Sperra: mange feil admin-kodar", sperra_alle:"All innlogging sperra (for mange feil)"};
 async function visLogg(){
   if (!okt || okt.rolle !== "full") return;
   $("#logg-kort").hidden = false; $("#logg-liste").innerHTML = ""; $("#logg-status").textContent = "Hentar …";
@@ -685,7 +731,8 @@ async function visLogg(){
   const logg = Array.isArray(d.logg) ? d.logg : [];
   $("#logg-liste").innerHTML = logg.map(l => {
     const inn = l.type === "inn";
-    const tittel = inn ? `${esc(l.namn || "Ukjend")} · ${l.rolle === "full" ? "full tilgang" : "avgrensa tilgang"}` : esc(LOGG_TYPE[l.type] || "Sperre");
+    const tittel = inn ? `${esc(l.namn || "Ukjend")} · ${l.rolle === "full" ? "full tilgang" : "avgrensa tilgang"}`
+      : l.type === "utlogg_alle" ? `${esc(l.namn || "Ukjend")} logga ut alle` : esc(LOGG_TYPE[l.type] || "Sperre");
     return `<li class="${inn ? "" : "aat"}"><b>${tittel}</b><span>${esc(naar(oslo(l.t)))} · ${esc(l.eining || "")} · ${esc(l.stad || "")}</span></li>`;
   }).join("");
   $("#logg-status").textContent = logg.length ? "" : "Ingen innloggingar lagra enno (loggen starta 13. november 2026).";
@@ -700,7 +747,8 @@ function loggUt(melding){
   for (const id of ["#pagar-tittel", "#pagar-adresse", "#pagar-tid", "#pin", "#kode", "#oppd-kode"]) $(id).value = "";
   $("#tv-url").textContent = ""; $("#tv-url").hidden = true; $("#tv-vis").setAttribute("aria-expanded", "false"); $("#tv-vis").textContent = "Vis adressa";
   $("#tv-opne").removeAttribute("href");
-  for (const s of ["#tv-blokk", "#oppd-kort", "#pagar-kort", "#qr-boks", "#eining-boks", "#eksport-boks", "#oppd-skjema", "#logg-kort"]) $(s).hidden = true;
+  for (const s of ["#tv-blokk", "#oppd-kort", "#pagar-kort", "#qr-boks", "#eining-boks", "#eksport-boks", "#oppd-skjema", "#logg-kort", "#no-kort"]) $(s).hidden = true;
+  $("#no-tal").textContent = "–"; $("#no-tekst").textContent = "Hentar …";
   $("#logg-liste").innerHTML = ""; $("#logg-status").textContent = "";
   for (const s of ["#besok-tal", "#besok-graf", "#qr-tal", "#qr-graf", "#eining-tal", "#tv-sett"]) $(s).innerHTML = "";
   for (const s of ["#besok-status", "#qr-status", "#eining-app", "#oppd-status", "#eksport-status", "#okt-tekst", "#tv-status", "#pagar-status"]) $(s).textContent = "";
